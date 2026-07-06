@@ -223,3 +223,25 @@ CPU% now matches Task Manager's convention. RAM reporting was checked in the sam
 ### Date
 
 2026-07-06
+
+---
+
+### Decision
+
+`KickPlayer`/`BanPlayer`/`UnBanPlayer` now send a Steam player's ID as `steam_<SteamID64>` rather than the bare numeric ID `ShowPlayers` returns.
+
+### Reason
+
+Kicking a player completed without any RCON error but never actually disconnected them. `ShowPlayers`' own CSV output gives the bare numeric SteamID64 with no prefix, but the user's server console logs a connecting Steam player as `User id: steam_<SteamID64>` - Palworld's kick/ban commands need that same prefixed form to match a connected player; the bare numeric ID silently matches nobody, and Palworld's response for that case doesn't contain the word "failed" either, so the existing `_check_result()` error-detection couldn't catch it. A `_kick_ban_id()` helper now adds the prefix only when the ID is purely numeric (leaving an already-prefixed ID, or a non-Steam `playeruid` fallback, untouched). Confirmed fixed against a real connected player.
+
+### Alternatives
+
+None - this is Palworld's actual RCON ID format requirement, discovered from the user's own server console output rather than guessed.
+
+### Consequences
+
+Ban/UnBan share the same `_kick_ban_id()` helper and should be correct for the same reason, though only Kick was explicitly confirmed live. If a non-Steam (e.g. Xbox/Game Pass) player's ID ever needs different handling, `_kick_ban_id()` is the one place to extend.
+
+### Date
+
+2026-07-06
