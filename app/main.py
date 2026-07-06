@@ -41,7 +41,7 @@ app.include_router(instances.router, prefix="/api/instances", tags=["instances"]
 app.include_router(ue4ss.router, prefix="/api/ue4ss", tags=["ue4ss"], dependencies=_authed)
 app.include_router(server_control.router, prefix="/api/server", tags=["server"], dependencies=_authed)
 app.include_router(server_settings.router, prefix="/api/server-settings", tags=["server-settings"], dependencies=_authed)
-app.include_router(automation.router, prefix="/api/automation", tags=["automation"], dependencies=_authed)
+app.include_router(automation.router, prefix="/api/automation", tags=["automation"], dependencies=_super_admin_only)
 app.include_router(players.router, prefix="/api/players", tags=["players"], dependencies=_authed)
 # Port forwarding and firewall changes affect the host machine's network
 # exposure - reserved for the super admin, same as account management.
@@ -61,9 +61,17 @@ _FRONTEND_DIR = resource_dir() / "web" / "dist"
 if _FRONTEND_DIR.is_dir():
     app.mount("/assets", StaticFiles(directory=_FRONTEND_DIR / "assets"), name="frontend-assets")
 
+    _resolved_frontend_dir = _FRONTEND_DIR.resolve()
+
     @app.get("/{full_path:path}")
     async def spa_fallback(full_path: str) -> FileResponse:
-        candidate = _FRONTEND_DIR / full_path
-        if full_path and candidate.is_file():
+        # ASGI/Starlette happens to normalize ".." out of the URL path before
+        # this ever runs, but that's an incidental behavior of the framework,
+        # not a guarantee this function makes itself - resolve and check
+        # containment explicitly (same pattern as mod_installer._safe_extract)
+        # rather than relying on that silently continuing to be true.
+        candidate = (_FRONTEND_DIR / full_path).resolve()
+        in_bounds = candidate == _resolved_frontend_dir or _resolved_frontend_dir in candidate.parents
+        if full_path and in_bounds and candidate.is_file():
             return FileResponse(candidate)
         return FileResponse(_FRONTEND_DIR / "index.html")

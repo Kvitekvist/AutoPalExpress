@@ -271,3 +271,25 @@ Verified safe (not vulnerable) in the same pass, worth remembering so they aren'
 ### Date
 
 2026-07-06
+
+---
+
+### Decision
+
+A second, fresh security audit (TICKET-0013, TICKET-0014) was run after the TICKET-0012 access-control changes, this time explicitly informed by reading Crafty Controller's source (a comparable game-server panel) for inspiration on its GitLab repo. Two issues fixed: `spa_fallback`'s SPA-serving route had no explicit path-containment check of its own (`main.py`), and `automation.router` was left at regular-admin level after TICKET-0012 locked its only UI entry point to super admin.
+
+### Reason
+
+Crafty Controller's static file handler extends Tornado's `StaticFileHandler` rather than hand-rolling path concatenation, which is exactly the gap `spa_fallback` had - it happened to be safe only because Starlette normalizes `..` out of URL paths before the handler runs, not because the function did anything itself. Confirmed this concretely: calling the route function directly with a raw traversal string (bypassing whatever the HTTP/ASGI layer normalizes) proved the underlying `_FRONTEND_DIR / full_path` resolution genuinely escapes the frontend directory - this route has no auth dependency at all, so a real gap here would have been unauthenticated arbitrary file read. The automation-router gap was a straightforward miss: TICKET-0012 locked the Settings tab's UI but didn't re-audit which backend routers actually lived behind it.
+
+### Alternatives
+
+None for either fix - both are the direct, minimal corrections (explicit containment check matching the existing `mod_installer._safe_extract` pattern; matching `automation.router`'s dependency to the already-established `_super_admin_only` mechanism).
+
+### Consequences
+
+`spa_fallback` no longer depends on incidental Starlette behavior to stay safe - relevant given the in-progress Nginx Proxy Manager reverse-proxy setup could plausibly have changed how request paths reach this handler. Automation is now consistently super-admin-only at both layers. The two findings deferred in the previous audit entry (firewall.py batch-injection shape, login_throttle's per-IP keying under a future reverse proxy) remain open and unaffected by this pass.
+
+### Date
+
+2026-07-06
