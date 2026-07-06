@@ -23,6 +23,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * Decide whether to extend RCON usage to the manual Stop/Restart buttons too (currently still `CTRL_BREAK_EVENT`-based, never confirmed graceful) now that a working RCON client exists.
 * Consider a fix for `process_manager` forgetting a server is running after a backend restart (no process adoption currently).
 * Remaining mocked surfaces (Logs page, the general Settings blob's own fields) could be wired to something real if they matter to the user - not yet requested.
+* NEEDS MANUAL VERIFICATION (TICKET-0018): the new installer-driven first-run setup (custom wizard pages + progress page in `installer.iss`) compiles cleanly and every backend code path it depends on is tested via real HTTP requests, but the actual interactive GUI click-through hasn't been run through by a human yet - this dev sandbox has no interactive desktop session to drive an installer wizard with (confirmed: even a `/VERYSILENT` install hangs on an unrelated pre-existing privilege dialog). Next real install should be watched end-to-end.
 
 ---
 

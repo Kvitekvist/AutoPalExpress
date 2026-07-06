@@ -5,10 +5,12 @@ take several minutes. The frontend polls get_job() for live progress.
 
 import asyncio
 import logging
+import re
 import uuid
 from pathlib import Path
 from typing import Any
 
+from app.paths import data_dir
 from app.services import instance_store, palworld_settings, steamcmd
 from app.services.steamcmd import SteamCmdError
 
@@ -16,6 +18,24 @@ logger = logging.getLogger("palworld_admin.deploy_jobs")
 
 _jobs: dict[str, dict[str, Any]] = {}
 _MAX_LOG_LINES = 300
+
+
+def _sanitize_server_folder_name(name: str) -> str:
+    """A server's own folder name, derived from what the user typed. Strips
+    anything that isn't a safe filename character, then strips leading/
+    trailing dots and spaces too - character-class filtering alone still
+    lets a name of exactly "." or ".." straight through (both are made only
+    of otherwise-allowed characters), which would resolve to the servers
+    folder itself or its parent."""
+    cleaned = re.sub(r"[^A-Za-z0-9 _.\-]", "", name).strip(". ")
+    return cleaned or "Server"
+
+
+def default_install_dir(name: str) -> Path:
+    """Every new deployment goes in its own folder under data_dir()/servers/
+    - a fixed, predictable convention instead of asking the user to browse
+    for an empty folder each time."""
+    return data_dir() / "servers" / _sanitize_server_folder_name(name)
 
 
 def get_job(job_id: str) -> dict[str, Any] | None:

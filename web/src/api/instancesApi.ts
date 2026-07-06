@@ -38,7 +38,6 @@ export async function browseImportDir(): Promise<{ path: string | null }> {
 
 export interface DeployParams {
   name: string;
-  installDir: string;
   gamePort: number;
   rconPort: number;
   maxPlayers: number;
@@ -52,9 +51,4 @@ export async function deploy(params: DeployParams): Promise<{ jobId: string }> {
 // GET /api/instances/deploy/{jobId}
 export async function getDeployStatus(jobId: string): Promise<DeployJob> {
   return api.get<DeployJob>(`/api/instances/deploy/${jobId}`);
-}
-
-// POST /api/instances/deploy/browse
-export async function browseDeployDir(): Promise<{ path: string | null }> {
-  return api.post<{ path: string | null }>("/api/instances/deploy/browse");
 }

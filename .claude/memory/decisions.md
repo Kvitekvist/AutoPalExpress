@@ -293,3 +293,25 @@ None for either fix - both are the direct, minimal corrections (explicit contain
 ### Date
 
 2026-07-06
+
+---
+
+### Decision
+
+Initial setup (super admin account, Nexus API key, an optional first server) moved into the Windows installer (TICKET-0018), applied automatically on first launch via a new `first_run_setup.py` service reading a one-time seed file the installer writes. New server deployments now always go in `data_dir()/servers/<name>` instead of a browsed folder.
+
+### Reason
+
+User wanted fewer manual post-install steps, with the actual SteamCMD download happening during the installer itself (with visible progress) rather than deferred to first app launch. The seed-file approach (installer collects raw answers, the *app* does all the real work - hashing, Nexus validation, deployment) was chosen specifically so there's exactly one place that knows how to hash a password or validate a Nexus key - reimplementing either in Inno Setup's Pascal Script would create a second, harder-to-keep-in-sync copy of security-relevant logic for no benefit.
+
+### Alternatives
+
+Running the SteamCMD deploy during the installer via a separate standalone script (rejected - would duplicate `deploy_jobs`/`steamcmd.py`'s already-working, already-tested orchestration instead of reusing it). Doing the account/Nexus/deploy work synchronously inside the installer's own process (not feasible - Inno Setup's Pascal Script has no async HTTP client and no reason to reimplement PBKDF2 hashing).
+
+### Consequences
+
+Every seeded step (account, Nexus, deploy) has a pre-existing manual fallback already built into the app, so a failure partway through the seed processing degrades to "you finish that one step yourself" rather than a broken install. The plaintext password sits in `{app}\first_run_seed.json` for the brief window between install and first launch (the installer launches the app automatically, so this window is normally seconds) - accepted as consistent with this app's whole security model (a single local admin setting up their own machine, not a shared/multi-user server). Found two real Inno Setup Pascal Script pitfalls the hard way (compile-tested, not just written and assumed correct): `#13`/`#10` character literals at the start of a line are misread as preprocessor directives by ISPP (switched to `Chr(13)`/`Chr(10)`), and the type is `TInputQueryWizardPage`, not the more obvious-seeming `TInputQueryPage`. Also corrected a UI-freeze risk before it shipped: a naive `Sleep(1000)`-per-tick polling loop would have made the wizard window look hung for minutes, since Inno Setup's `[Code]` runs on the UI thread - changed to short ticks with an explicit repaint.
+
+### Date
+
+2026-07-06

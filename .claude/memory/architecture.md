@@ -29,7 +29,7 @@ None. See "Storage" below - flat JSON files instead, since this is a single-host
 
 ### Services
 
-Notable ones beyond the obvious CRUD: `process_manager.py` (real process lifecycle for `PalServer.exe`, including killing the whole process tree since the exe is a thin launcher for a child process), `palworld_settings.py` (generic `PalWorldSettings.ini` reader/writer - infers field types from formatting rather than hardcoding Palworld's ~108-field schema, so it doesn't go stale across game updates), `scheduler.py` (the automation loop), `backup_service.py`, `steamcmd.py` (deploying brand-new servers), `nexus_client.py` / `mod_installer.py` (mod browsing/installing, including MD5-hash verification against Nexus's own catalog for manually-uploaded files).
+Notable ones beyond the obvious CRUD: `process_manager.py` (real process lifecycle for `PalServer.exe`, including killing the whole process tree since the exe is a thin launcher for a child process), `palworld_settings.py` (generic `PalWorldSettings.ini` reader/writer - infers field types from formatting rather than hardcoding Palworld's ~108-field schema, so it doesn't go stale across game updates), `scheduler.py` (the automation loop), `backup_service.py`, `steamcmd.py` (deploying brand-new servers - always into `data_dir()/servers/<name>`, computed by `deploy_jobs.default_install_dir()`), `nexus_client.py` / `mod_installer.py` (mod browsing/installing, including MD5-hash verification against Nexus's own catalog for manually-uploaded files), `first_run_setup.py` (applies the installer's one-time seed file - super admin account, Nexus key, an optional first server - on first launch, using the same code paths the UI itself calls).
 
 ---
 
@@ -38,7 +38,7 @@ Notable ones beyond the obvious CRUD: `process_manager.py` (real process lifecyc
 ```
 app/
   main.py            FastAPI app setup, router registration, startup hooks
-  paths.py           Resolves data_dir()/resource_dir() - dev vs. PyInstaller-frozen
+  paths.py           Resolves data_dir()/resource_dir()/install_dir() - dev vs. PyInstaller-frozen
   auth_deps.py        get_current_user / require_super_admin FastAPI dependencies
   routes/            One file per feature area - thin, delegate to services/
   services/          Real logic: process control, RCON, file I/O, external APIs

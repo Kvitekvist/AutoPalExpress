@@ -39,3 +39,14 @@ def resource_dir() -> Path:
     if is_frozen():
         return Path(getattr(sys, "_MEIPASS"))
     return Path(__file__).resolve().parent.parent
+
+
+def install_dir() -> Path:
+    """The real, stable folder the installer put PalworldServerAdmin.exe in -
+    NOT the same as resource_dir(), which for a frozen onefile build is a
+    fresh temp extraction folder that's gone the moment the process exits.
+    This is where the installer writes its one-time first-run seed file, so
+    the app has to look in the same stable place to find it."""
+    if is_frozen():
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent

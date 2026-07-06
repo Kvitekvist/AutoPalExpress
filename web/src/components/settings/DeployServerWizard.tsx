@@ -1,5 +1,4 @@
 import * as React from "react";
-import { FolderOpen } from "lucide-react";
 import { instancesApi } from "@/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -17,7 +16,6 @@ type WizardStatus = "idle" | "running" | "done" | "error";
 
 export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeployServerWizardProps) {
   const [name, setName] = React.useState("");
-  const [installDir, setInstallDir] = React.useState("");
   const [gamePort, setGamePort] = React.useState(8211);
   const [rconPort, setRconPort] = React.useState(25575);
   const [maxPlayers, setMaxPlayers] = React.useState(32);
@@ -58,11 +56,6 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
     logEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [log]);
 
-  async function handleBrowse() {
-    const { path } = await instancesApi.browseDeployDir();
-    if (path) setInstallDir(path);
-  }
-
   async function handleDeploy() {
     setStatus("running");
     setError(null);
@@ -70,7 +63,6 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
     try {
       const { jobId: id } = await instancesApi.deploy({
         name: name.trim(),
-        installDir: installDir.trim(),
         gamePort,
         rconPort,
         maxPlayers,
@@ -87,7 +79,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
     onOpenChange(next);
   }
 
-  const canSubmit = !!name.trim() && !!installDir.trim() && status === "idle";
+  const canSubmit = !!name.trim() && status === "idle";
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -96,7 +88,8 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
           <DialogTitle>Deploy a New Server</DialogTitle>
           <DialogDescription>
             Installs a fresh, fully isolated Palworld Dedicated Server via SteamCMD - its own folder, mods, and
-            ports, so it can't conflict with any other server this tool manages.
+            ports, so it can't conflict with any other server this tool manages. Stored under this tool's own
+            "servers" folder, named after whatever you type below.
           </DialogDescription>
         </DialogHeader>
 
@@ -111,21 +104,6 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                 placeholder="My Cozy Palworld"
                 autoFocus
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="deploy-dir">Install Folder (must be empty)</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="deploy-dir"
-                  value={installDir}
-                  onChange={(e) => setInstallDir(e.target.value)}
-                  placeholder="D:\PalworldServers\My-Cozy-Palworld"
-                  className="flex-1"
-                />
-                <RuneButton type="button" variant="ghost" size="sm" icon={<FolderOpen />} onClick={handleBrowse}>
-                  Browse
-                </RuneButton>
-              </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">

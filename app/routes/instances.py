@@ -104,7 +104,6 @@ async def browse_import() -> dict[str, Any]:
 
 class DeployRequest(BaseModel):
     name: str
-    installDir: str
     gamePort: int = 8211
     rconPort: int = 25575
     maxPlayers: int = 32
@@ -114,10 +113,11 @@ class DeployRequest(BaseModel):
 async def deploy(body: DeployRequest) -> dict[str, Any]:
     if not body.name.strip():
         raise HTTPException(status_code=400, detail="Give the server a name.")
-    install_dir = Path(body.installDir)
+    install_dir = deploy_jobs.default_install_dir(body.name.strip())
     if install_dir.exists() and any(install_dir.iterdir()):
         raise HTTPException(
-            status_code=400, detail=f"'{body.installDir}' already exists and isn't empty. Choose an empty folder."
+            status_code=400,
+            detail=f"A server folder for '{body.name.strip()}' already exists. Choose a different name.",
         )
     job_id = deploy_jobs.start_deploy(
         name=body.name.strip(),
@@ -135,9 +135,3 @@ async def get_deploy_status(job_id: str) -> dict[str, Any]:
     if not job:
         raise HTTPException(status_code=404, detail="No such deploy job.")
     return job
-
-
-@router.post("/deploy/browse", dependencies=[Depends(require_super_admin)])
-async def browse_deploy_dir() -> dict[str, Any]:
-    path = await asyncio.to_thread(native_dialog.pick_folder, "Choose an empty folder for the new server")
-    return {"path": path}

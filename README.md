@@ -54,6 +54,8 @@ Persisted as JSON under `data/` (gitignored) when run from source, or `%LOCALAPP
 
 `PalworldServerAdmin.spec` packages `desktop_app.py` (the real production entry point - opens a browser to the app instead of the dev-reload server) into a single `.exe` via PyInstaller, then `installer.iss` wraps that into an Inno Setup installer (`PalworldServerAdmin-Setup.exe`) with a desktop shortcut.
 
+The installer itself collects initial setup - a super admin username/password, an optional Nexus Mods API key, and an optional first server name - via custom wizard pages, writes them to a one-time seed file, then launches the app and shows live progress while it applies them (`app/services/first_run_setup.py`, using the exact same code paths the UI itself would call). A new server deployed this way, or later through the in-app Deploy Server Wizard, always lands in `data/servers/<name>` - there's no "choose an install folder" step anymore for new deployments (importing a server you already have installed elsewhere still lets you point at any folder).
+
 ## Known limitations
 
 - No confirmed graceful-shutdown path: stopping the server sends `CTRL_BREAK_EVENT` and waits, but this has never been observed to save the world before the 30s timeout hits and it's hard-killed. Use the in-app "Save World" action before stopping if you want a guaranteed save.

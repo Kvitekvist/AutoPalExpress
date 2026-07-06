@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from app.auth_deps import get_current_user, require_super_admin
 from app.paths import resource_dir
 from app.routes import automation, auth, instances, mods, network, nexus, players, server_control, server_settings, ue4ss, users
-from app.services import instance_store, scheduler
+from app.services import first_run_setup, instance_store, scheduler
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
@@ -21,6 +21,11 @@ app = FastAPI(title="Palworld Admin Backend")
 @app.on_event("startup")
 async def _start_scheduler() -> None:
     asyncio.create_task(scheduler.run_forever())
+    # Runs in the background rather than being awaited here - a fresh
+    # install's seeded server deploy can take minutes (SteamCMD), and the
+    # rest of the app (including the installer's own progress page, which
+    # tails first_run_setup's log file) shouldn't be blocked waiting on it.
+    asyncio.create_task(first_run_setup.apply_seed_if_present())
 
 app.add_middleware(
     CORSMiddleware,
