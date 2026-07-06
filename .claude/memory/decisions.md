@@ -157,3 +157,25 @@ Discovered and fixed a real latent bug while building this: `_get_field`/`_set_f
 ### Date
 
 2026-07-06
+
+---
+
+### Decision
+
+`RemoteAccessPanel` and `PortForwardPanel` now derive their "is this forwarded" state from the router's actual current UPnP mapping (`/network/upnp/status`'s new `adminMapping`/`gameMapping` fields), instead of a local-only `forwarded` React boolean that only ever became `true` after a successful forward call in that same browser session.
+
+### Reason
+
+Directly follows from diagnosing the client-PC-vs-server-machine port collision (same decisions.md, port-sync entries above): both machines are on the same home network/router, and the client PC's earlier "Open Remote Access" click was still occupying the router's external port 8000 mapping, silently redirecting the public IP back to the client instead of the actual server. The user then asked for the tool to be able to remove that mapping - it turned out the backend already could (UPnP's `DeletePortMapping` only needs the external port/protocol, not the original owner), but neither panel's UI could ever discover that a mapping existed unless it was created in the current session, so the "remove" control was never shown for a mapping created earlier, or by a different machine. Added `upnp.get_port_mapping()` (`GetSpecificPortMappingEntry`) to ask the router directly what's actually mapped right now, including which internal IP holds it.
+
+### Alternatives
+
+Track mapping state in the app's own local storage/config instead of asking the router (rejected: the whole problem is that a mapping can be created by a *different machine's* install, which wouldn't share that local state at all - only the router itself has the real answer).
+
+### Consequences
+
+Both panels now show, and can remove, a mapping regardless of who created it or when - including telling the user which machine's LAN IP currently holds it, which is exactly the fact needed to recognize "this is pointing at the wrong PC." Degrades gracefully (treats as "no mapping visible") if a router supports Add/Delete but not the GetSpecificPortMappingEntry query, rather than failing the whole status check.
+
+### Date
+
+2026-07-06

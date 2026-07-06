@@ -229,12 +229,20 @@ export interface Ue4ssLatest {
   size: number;
 }
 
+export interface PortMappingInfo {
+  internalClient: string;
+  isThisMachine: boolean;
+  description: string;
+}
+
 export interface UpnpStatus {
   available: boolean;
   routerName: string | null;
   externalIp: string | null;
   port: number | null;
   adminPort: number;
+  gameMapping: PortMappingInfo | null;
+  adminMapping: PortMappingInfo | null;
 }
 
 export interface PortForwardResult {

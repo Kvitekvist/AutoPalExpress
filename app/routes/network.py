@@ -109,6 +109,28 @@ async def upnp_status() -> dict[str, Any]:
         "externalIp": external_ip,
         "port": port,
         "adminPort": ADMIN_PORT,
+        "gameMapping": await _mapping_info(gateway, port, "UDP") if gateway and port else None,
+        "adminMapping": await _mapping_info(gateway, ADMIN_PORT, "TCP") if gateway else None,
+    }
+
+
+async def _mapping_info(gateway: upnp.Gateway, port: int, protocol: str) -> dict[str, Any] | None:
+    """Whatever the router actually has mapped for this port right now -
+    regardless of which machine (this one, or another PC on the network)
+    created it, since that's state on the router itself. Lets the UI offer
+    "remove" for a mapping this PC didn't create in the current session,
+    which local-only "did I just click forward" state could never show."""
+    try:
+        mapping = await asyncio.to_thread(upnp.get_port_mapping, gateway, external_port=port, protocol=protocol)
+    except UpnpError:
+        return None
+    if not mapping:
+        return None
+    this_ip = upnp.local_ip()
+    return {
+        "internalClient": mapping["internalClient"],
+        "isThisMachine": mapping["internalClient"] == this_ip,
+        "description": mapping["description"],
     }
 
 

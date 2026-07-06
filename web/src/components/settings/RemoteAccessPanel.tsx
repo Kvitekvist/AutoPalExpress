@@ -12,14 +12,23 @@ export function RemoteAccessPanel() {
   const [addingRule, setAddingRule] = React.useState(false);
   const [forwarding, setForwarding] = React.useState(false);
   const [unforwarding, setUnforwarding] = React.useState(false);
-  const [forwarded, setForwarded] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const notifications = useNotifications();
 
-  React.useEffect(() => {
+  const refreshStatus = React.useCallback(() => {
     networkApi.getUpnpStatus().then(setStatus);
-    networkApi.getFirewallStatus().then((s) => setFirewallOk(s.ruleExists));
   }, []);
+
+  React.useEffect(() => {
+    refreshStatus();
+    networkApi.getFirewallStatus().then((s) => setFirewallOk(s.ruleExists));
+  }, [refreshStatus]);
+
+  // Derived from the router's actual current mapping, not local session
+  // state - so a mapping created by another machine, or in an earlier
+  // session, still shows up as removable here instead of looking like
+  // nothing is forwarded.
+  const mapping = status?.adminMapping ?? null;
 
   async function handleAllowFirewall() {
     setAddingRule(true);
@@ -43,9 +52,8 @@ export function RemoteAccessPanel() {
   async function handleForward() {
     setForwarding(true);
     try {
-      const data = await networkApi.forwardAdminPort();
-      setForwarded(true);
-      setStatus((prev) => (prev ? { ...prev, externalIp: data.externalIp ?? prev.externalIp } : prev));
+      await networkApi.forwardAdminPort();
+      refreshStatus();
       notifications.success({
         title: "Admin panel forwarded",
         message: "Friends can now reach the login page from outside.",
@@ -61,8 +69,10 @@ export function RemoteAccessPanel() {
     setUnforwarding(true);
     try {
       await networkApi.unforwardAdminPort();
-      setForwarded(false);
+      refreshStatus();
       notifications.info({ title: "Remote access closed" });
+    } catch (e) {
+      notifications.error({ title: "Couldn't remove", message: e instanceof Error ? e.message : "Unknown error." });
     } finally {
       setUnforwarding(false);
     }
@@ -134,11 +144,19 @@ export function RemoteAccessPanel() {
               No UPnP-capable router found, so this can't be opened automatically. Forward TCP port{" "}
               {status.adminPort} to this PC manually in your router's admin page if you want remote access.
             </p>
-          ) : forwarded ? (
+          ) : mapping ? (
             <div className="space-y-3">
-              <p className="text-sm text-life-400">Remote access is open via {status.routerName}.</p>
+              {mapping.isThisMachine ? (
+                <p className="text-sm text-life-400">Remote access is open via {status.routerName}.</p>
+              ) : (
+                <p className="text-sm text-gold-400">
+                  Port {status.adminPort} is currently forwarded to a different machine on this network (
+                  {mapping.internalClient}), not this PC. Remove it here, then forward it again from whichever
+                  machine should actually receive it.
+                </p>
+              )}
               <RuneButton type="button" variant="danger" size="sm" onClick={handleUnforward} disabled={unforwarding}>
-                {unforwarding ? "Closing..." : "Close Remote Access"}
+                {unforwarding ? "Closing..." : "Remove This Forward"}
               </RuneButton>
             </div>
           ) : (

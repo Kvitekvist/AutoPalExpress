@@ -193,6 +193,28 @@ def add_port_mapping(
         _soap_request(gateway, "AddPortMapping", params)
 
 
+def get_port_mapping(gateway: Gateway, *, external_port: int, protocol: str = "UDP") -> dict[str, str] | None:
+    """The router's actual current mapping for this external port/protocol,
+    if any - regardless of which device created it, since UPnP mappings are
+    state on the router, not something scoped to whichever machine asked for
+    them. None if nothing is mapped there."""
+    try:
+        root = _soap_request(
+            gateway,
+            "GetSpecificPortMappingEntry",
+            {"NewRemoteHost": "", "NewExternalPort": str(external_port), "NewProtocol": protocol},
+        )
+    except UpnpError as e:
+        if e.code == "714":  # NoSuchEntryInArray
+            return None
+        raise
+    return {
+        "internalClient": _find_text(root, "NewInternalClient") or "",
+        "internalPort": _find_text(root, "NewInternalPort") or "",
+        "description": _find_text(root, "NewPortMappingDescription") or "",
+    }
+
+
 def delete_port_mapping(gateway: Gateway, *, external_port: int, protocol: str = "UDP") -> None:
     _soap_request(
         gateway,

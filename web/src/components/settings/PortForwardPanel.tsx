@@ -19,9 +19,14 @@ export function PortForwardPanel() {
   const [addingRule, setAddingRule] = React.useState(false);
   const [forwarding, setForwarding] = React.useState(false);
   const [unforwarding, setUnforwarding] = React.useState(false);
-  const [forwarded, setForwarded] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
   const notifications = useNotifications();
+
+  // Derived from the router's actual current mapping, not local session
+  // state - so a mapping created by another machine, or in an earlier
+  // session, still shows up as removable here instead of looking like
+  // nothing is forwarded.
+  const mapping = status?.gameMapping ?? null;
 
   const checkFirewall = React.useCallback(async (checkPort: number) => {
     setCheckingFirewall(true);
@@ -86,8 +91,8 @@ export function PortForwardPanel() {
     setForwarding(true);
     try {
       const data = await networkApi.forwardPort(port);
-      setForwarded(true);
       setStatus((prev) => (prev ? { ...prev, externalIp: data.externalIp ?? prev.externalIp, port: data.port } : prev));
+      await check();
       notifications.success({ title: "Port forwarded", message: `Friends can connect on port ${data.port}.` });
     } catch (e) {
       const message = e instanceof Error ? e.message : "Couldn't forward the port.";
@@ -102,7 +107,7 @@ export function PortForwardPanel() {
     setUnforwarding(true);
     try {
       await networkApi.unforwardPort(port);
-      setForwarded(false);
+      await check();
       notifications.info({
         title: "Port forward removed",
         message: "Friends can no longer connect from outside your network.",
@@ -233,13 +238,21 @@ export function PortForwardPanel() {
                   {checking ? "Checking..." : "Check Again"}
                 </RuneButton>
               </div>
-            ) : forwarded ? (
+            ) : mapping ? (
               <div className="space-y-3">
-                <p className="flex items-center gap-1.5 text-sm text-life-400">
-                  <Wifi className="h-4 w-4 shrink-0" /> Port {port} is forwarded via {status.routerName}.
-                </p>
+                {mapping.isThisMachine ? (
+                  <p className="flex items-center gap-1.5 text-sm text-life-400">
+                    <Wifi className="h-4 w-4 shrink-0" /> Port {port} is forwarded via {status.routerName}.
+                  </p>
+                ) : (
+                  <p className="text-sm text-gold-400">
+                    Port {port} is currently forwarded to a different machine on this network (
+                    {mapping.internalClient}), not this PC. Remove it here, then forward it again from whichever
+                    machine should actually receive it.
+                  </p>
+                )}
                 <RuneButton type="button" variant="danger" size="sm" onClick={handleUnforward} disabled={unforwarding}>
-                  {unforwarding ? "Removing..." : "Remove Forward"}
+                  {unforwarding ? "Removing..." : "Remove This Forward"}
                 </RuneButton>
               </div>
             ) : (
