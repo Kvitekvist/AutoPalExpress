@@ -24,7 +24,14 @@ function App() {
         <Route path="control" element={<ServerControl />} />
         <Route path="world-settings" element={<WorldSettings />} />
         <Route path="logs" element={<Logs />} />
-        <Route path="settings" element={<Settings />} />
+        <Route
+          path="settings"
+          element={
+            <RequireSuperAdmin>
+              <Settings />
+            </RequireSuperAdmin>
+          }
+        />
         <Route
           path="super-admin"
           element={

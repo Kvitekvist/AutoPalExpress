@@ -10,6 +10,7 @@ import { RuneDialog } from "@/components/fantasy/RuneDialog";
 import { ModCard } from "@/components/mods/ModCard";
 import { NexusBrowseDialog } from "@/components/mods/NexusBrowseDialog";
 import { InstallFromFileDialog } from "@/components/mods/InstallFromFileDialog";
+import { Ue4ssPanel } from "@/components/mods/Ue4ssPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -123,9 +124,13 @@ export default function Mods() {
           <div className="mb-5 flex flex-wrap items-center gap-2 rounded-md border border-gold-600/30 bg-gold-500/5 px-4 py-3 text-xs text-gold-300">
             <TriangleAlert className="h-4 w-4 shrink-0" />
             <span>No Mods folder is configured, so installs are downloaded but not placed on disk yet.</span>
-            <Link to="/settings" className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200">
-              Set it up in Settings
-            </Link>
+            {user.role === "super_admin" ? (
+              <Link to="/settings" className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200">
+                Set it up in Settings
+              </Link>
+            ) : (
+              <span className="ml-auto text-gold-300/70">Ask the super admin to set it up.</span>
+            )}
           </div>
         )}
 
@@ -163,6 +168,8 @@ export default function Mods() {
           </Reorder.Group>
         )}
       </ScrollPanel>
+
+      <Ue4ssPanel />
 
       <RuneDialog
         open={!!removeTarget}

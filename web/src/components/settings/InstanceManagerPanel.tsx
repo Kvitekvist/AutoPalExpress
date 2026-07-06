@@ -5,7 +5,6 @@ import type { InstanceListView, ServerInstance } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
-import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { DeployServerWizard } from "./DeployServerWizard";
 import { ImportServerDialog } from "./ImportServerDialog";
@@ -25,8 +24,6 @@ export function InstanceManagerPanel() {
   const [removing, setRemoving] = React.useState(false);
   const [switching, setSwitching] = React.useState<string | null>(null);
   const notifications = useNotifications();
-  const { user } = useAuth();
-  const isSuperAdmin = user.role === "super_admin";
 
   const refresh = React.useCallback(() => {
     instancesApi.list().then(setData);
@@ -78,29 +75,25 @@ export function InstanceManagerPanel() {
       icon={<Server />}
       title="Server Instances"
       actions={
-        isSuperAdmin && (
-          <>
-            <RuneButton
-              type="button"
-              variant="mana"
-              size="sm"
-              icon={<FolderPlus />}
-              onClick={() => setImportOpen(true)}
-            >
-              Import Existing
-            </RuneButton>
-            <RuneButton type="button" variant="gold" size="sm" icon={<Plus />} onClick={() => setDeployOpen(true)}>
-              Deploy New Server
-            </RuneButton>
-          </>
-        )
+        <>
+          <RuneButton
+            type="button"
+            variant="mana"
+            size="sm"
+            icon={<FolderPlus />}
+            onClick={() => setImportOpen(true)}
+          >
+            Import Existing
+          </RuneButton>
+          <RuneButton type="button" variant="gold" size="sm" icon={<Plus />} onClick={() => setDeployOpen(true)}>
+            Deploy New Server
+          </RuneButton>
+        </>
       }
     >
       {data.instances.length === 0 ? (
         <p className="text-sm text-parchment-300/50">
-          {isSuperAdmin
-            ? "No servers yet. Deploy a fresh, isolated Palworld server or import one you already have installed."
-            : "No servers set up yet. Ask the super admin to deploy or import one."}
+          No servers yet. Deploy a fresh, isolated Palworld server or import one you already have installed.
         </p>
       ) : (
         <div className="space-y-3">
@@ -153,17 +146,15 @@ export function InstanceManagerPanel() {
                       {switching === instance.id ? "Switching..." : "Switch To"}
                     </RuneButton>
                   )}
-                  {isSuperAdmin && (
-                    <RuneButton
-                      type="button"
-                      variant="danger"
-                      size="sm"
-                      icon={<Trash2 />}
-                      onClick={() => setRemoveTarget(instance)}
-                    >
-                      Remove
-                    </RuneButton>
-                  )}
+                  <RuneButton
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    icon={<Trash2 />}
+                    onClick={() => setRemoveTarget(instance)}
+                  >
+                    Remove
+                  </RuneButton>
                 </div>
               </div>
             );
@@ -171,12 +162,8 @@ export function InstanceManagerPanel() {
         </div>
       )}
 
-      {isSuperAdmin && (
-        <>
-          <DeployServerWizard open={deployOpen} onOpenChange={setDeployOpen} onDeployed={handleCreated} />
-          <ImportServerDialog open={importOpen} onOpenChange={setImportOpen} onImported={handleCreated} />
-        </>
-      )}
+      <DeployServerWizard open={deployOpen} onOpenChange={setDeployOpen} onDeployed={handleCreated} />
+      <ImportServerDialog open={importOpen} onOpenChange={setImportOpen} onImported={handleCreated} />
 
       <RuneDialog
         open={!!removeTarget}
