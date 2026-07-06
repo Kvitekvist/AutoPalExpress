@@ -4,6 +4,7 @@ import { networkApi } from "@/api";
 import type { UpnpStatus } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
+import { ManualForwardInstructions } from "./ManualForwardInstructions";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export function RemoteAccessPanel() {
@@ -140,10 +141,18 @@ export function RemoteAccessPanel() {
           )}
 
           {!status.available ? (
-            <p className="text-xs leading-relaxed text-parchment-300/40">
-              No UPnP-capable router found, so this can't be opened automatically. Forward TCP port{" "}
-              {status.adminPort} to this PC manually in your router's admin page if you want remote access.
-            </p>
+            <div className="space-y-2">
+              <p className="text-xs leading-relaxed text-parchment-300/40">
+                No UPnP-capable router found, so this can't be opened automatically. Forward it manually in your
+                router's admin page instead:
+              </p>
+              <ManualForwardInstructions
+                name="Palworld Server Admin Panel"
+                protocol="TCP"
+                port={status.adminPort}
+                localIp={status.localIp}
+              />
+            </div>
           ) : (
             <div className="space-y-3">
               {mapping ? (

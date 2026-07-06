@@ -103,10 +103,19 @@ async def upnp_status() -> dict[str, Any]:
     instance = instance_store.get_active()
     port = _resolve_port(instance) if instance else None
 
+    try:
+        local_ip = await asyncio.to_thread(upnp.local_ip)
+    except OSError:
+        # Doesn't depend on UPnP/a router at all (just an outbound socket
+        # trick) - only fails if the machine has no network route at all,
+        # which would mean nothing else here works either.
+        local_ip = None
+
     return {
         "available": bool(gateway),
         "routerName": gateway.friendly_name if gateway else None,
         "externalIp": external_ip,
+        "localIp": local_ip,
         "port": port,
         "adminPort": ADMIN_PORT,
         "gameMapping": await _mapping_info(gateway, port, "UDP") if gateway and port else None,

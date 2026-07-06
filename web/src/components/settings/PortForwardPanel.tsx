@@ -6,6 +6,7 @@ import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
+import { ManualForwardInstructions } from "./ManualForwardInstructions";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export function PortForwardPanel() {
@@ -258,8 +259,11 @@ export function PortForwardPanel() {
                 <p className="text-xs leading-relaxed text-parchment-300/40">
                   Automatic port forwarding isn't available here. Your router may have UPnP disabled, or your
                   connection may be behind carrier-grade NAT (common on some ISPs), which no local tool can work
-                  around. You'll need to forward the game port manually in your router's admin page.
+                  around. Forward it manually in your router's admin page instead:
                 </p>
+                {port && (
+                  <ManualForwardInstructions name="Palworld Server" protocol="UDP" port={port} localIp={status.localIp} />
+                )}
                 <RuneButton type="button" variant="ghost" size="sm" onClick={check} disabled={checking}>
                   {checking ? "Checking..." : "Check Again"}
                 </RuneButton>

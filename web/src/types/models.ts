@@ -230,6 +230,7 @@ export interface UpnpStatus {
   available: boolean;
   routerName: string | null;
   externalIp: string | null;
+  localIp: string | null;
   port: number | null;
   adminPort: number;
   gameMapping: PortMappingInfo | null;
