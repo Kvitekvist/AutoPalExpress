@@ -4,22 +4,22 @@ A self-hosted admin panel for a Palworld dedicated server: a FastAPI backend tha
 
 ## What's real vs. still mocked
 
-Most of the panel is wired to a real backend and does real things on the machine it runs on. A few pages are still frontend-only mock data (`web/src/api/*.ts` using `mockData.ts` + simulated latency, no backend calls):
+Almost the entire panel is wired to a real backend and does real things on the machine it runs on. Two Players-page actions are the only remaining frontend-only mock data (`playersApi.ts`, simulated latency, no backend call) - and that's a real Palworld limitation, not something left unbuilt:
 
-- **Players** (kick/ban/message/roster) - mock data.
-- **Logs** - mock data.
-- **Settings → Automation** (scheduled backups/restarts toggles) - mock, not actually scheduled.
-- **Server discovery/connection wizard** (`connectionApi.ts`) - mock; superseded in practice by the real Deploy Server Wizard (SteamCMD-based) and instance import flow.
+- **Whisper to a player** and **teleport a player** - mock. Palworld's RCON has no per-player whisper or teleport command, so there's no real backend equivalent possible without a different API.
+- **Logs page** - still mock data (`logsApi.ts` + `mockData.ts`), not wired to the server's actual log output yet.
 
 Everything else is real, backed by `app/`:
 
 - **Server process control** - start/stop/restart/save actually launch and manage `PalServer.exe` (`app/services/process_manager.py`), not simulated.
-- **Multi-instance support** - manage multiple server installs, switch which one is "active" (`app/services/instance_store.py`), deploy new ones via SteamCMD, import existing ones.
-- **World Settings** - a generic editor for every field in `PalWorldSettings.ini`, not a hardcoded subset (`app/services/palworld_settings.py`).
+- **Multi-instance support** - manage multiple server installs, switch which one is "active" (`app/services/instance_store.py`), deploy new ones via SteamCMD, import existing ones (super admin only).
+- **Players** - the roster, kick, and ban are real, backed by a from-scratch Source RCON client (`app/services/rcon.py`) talking directly to the live game server.
+- **Automation** - scheduled backups and restarts, restart warnings, and join/leave announcements are real and actually run on schedule (`app/services/scheduler.py`), backed by the same RCON client.
+- **World Settings** - a generic editor for every field in `PalWorldSettings.ini`, not a hardcoded subset (`app/services/palworld_settings.py`). The game port is deliberately excluded here - see Super Admin below.
 - **Mods** - browse Nexus Mods (free accounts can browse; Premium, a paid Nexus subscription, is required for one-click automated installs), or install a manually-downloaded file with its exact hash verified against Nexus's own catalog before anything is installed (`app/routes/mods.py`, `nexus_client.md5_search`).
-- **UE4SS installer** - one-click install/update of the UE4SS mod-loader itself.
-- **Networking** - UPnP router port forwarding and Windows Firewall rule management (both super-admin only), including a live public-IP display for sharing with friends.
-- **Multi-user accounts** - the host machine gets exactly one super admin (first account created); friends register as regular admins via invite code. Regular admins get full operational access except account/network management, which is reserved for the super admin.
+- **UE4SS installer** - one-click install/update of the UE4SS mod-loader itself, under Mods.
+- **Super Admin** (role-gated) - the one place to view/change a server's actual game port, UPnP router port forwarding and Windows Firewall rules for both the admin panel and game ports (including seeing and removing a port mapping regardless of which machine created it), a live public-IP display for sharing with friends, and the Nexus Mods account connection.
+- **Multi-user accounts** - the host machine gets exactly one super admin (first account created); friends register as regular admins via invite code. Regular admins get full day-to-day operational access (start/stop, mods, players, World Settings) but not server provisioning, user management, network exposure, or RCON/server credentials, which are reserved for the super admin.
 - **Login rate limiting** - failed login attempts are throttled per IP (`app/services/login_throttle.py`) to slow down brute-forcing, since the panel can be reached from the public internet if you've set up port forwarding for it.
 
 ## Run from source
