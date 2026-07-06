@@ -264,39 +264,46 @@ export function PortForwardPanel() {
                   {checking ? "Checking..." : "Check Again"}
                 </RuneButton>
               </div>
-            ) : mapping ? (
-              <div className="space-y-3">
-                {mapping.isThisMachine ? (
-                  <p className="flex items-center gap-1.5 text-sm text-life-400">
-                    <Wifi className="h-4 w-4 shrink-0" /> Port {port} is forwarded via {status.routerName}.
-                  </p>
-                ) : (
-                  <p className="text-sm text-gold-400">
-                    Port {port} is currently forwarded to a different machine on this network (
-                    {mapping.internalClient}), not this PC. Remove it here, then forward it again from whichever
-                    machine should actually receive it.
-                  </p>
-                )}
-                <RuneButton type="button" variant="danger" size="sm" onClick={handleUnforward} disabled={unforwarding}>
-                  {unforwarding ? "Removing..." : "Remove This Forward"}
-                </RuneButton>
-              </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-parchment-300/60">
-                  {status.routerName} supports automatic port forwarding. Open your game port so friends can connect
-                  without you touching your router.
-                </p>
-                <RuneButton
-                  type="button"
-                  variant="gold"
-                  size="sm"
-                  icon={<Share2 />}
-                  onClick={handleForward}
-                  disabled={forwarding || !port}
-                >
-                  {forwarding ? "Forwarding..." : "Forward Port"}
-                </RuneButton>
+                {mapping ? (
+                  mapping.isThisMachine ? (
+                    <p className="flex items-center gap-1.5 text-sm text-life-400">
+                      <Wifi className="h-4 w-4 shrink-0" /> Port {port} is forwarded via {status.routerName}.
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gold-400">
+                      Port {port} is currently forwarded to a different machine on this network (
+                      {mapping.internalClient}), not this PC.
+                    </p>
+                  )
+                ) : (
+                  <p className="text-sm text-parchment-300/60">
+                    No mapping currently detected for this port - some routers don't report this reliably, so
+                    "Remove" is always available below just in case one exists anyway.
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  <RuneButton
+                    type="button"
+                    variant="gold"
+                    size="sm"
+                    icon={<Share2 />}
+                    onClick={handleForward}
+                    disabled={forwarding || !port}
+                  >
+                    {forwarding ? "Forwarding..." : "Forward Port"}
+                  </RuneButton>
+                  <RuneButton
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    onClick={handleUnforward}
+                    disabled={unforwarding || !port}
+                  >
+                    {unforwarding ? "Removing..." : "Remove This Forward"}
+                  </RuneButton>
+                </div>
               </div>
             )}
           </div>

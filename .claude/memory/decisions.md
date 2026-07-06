@@ -179,3 +179,25 @@ Both panels now show, and can remove, a mapping regardless of who created it or 
 ### Date
 
 2026-07-06
+
+---
+
+### Decision
+
+Correction to the above: "Remove This Forward" is no longer conditional on the mapping-detection query succeeding - it's now always shown alongside "Forward" whenever a UPnP router is present at all.
+
+### Reason
+
+The user installed that build and reported the button simply never appeared. `GetSpecificPortMappingEntry` (used to detect an existing mapping) is nowhere near as universally supported across real consumer router UPnP stacks as `AddPortMapping`/`DeletePortMapping` are - plausible that the user's router does the latter fine but fails/misbehaves on the former, which `_mapping_info()` was already designed to degrade silently on (by design, so a flaky query wouldn't break the whole status check) - but that same silent degrade also meant the button could never appear for them at all. The user's own diagnosis was correct: since `delete_port_mapping` already safely no-ops (UPnP error 714) when there's nothing to remove, there was no real reason to gate the button's visibility on detection succeeding in the first place.
+
+### Alternatives
+
+Try to make mapping detection more robust (e.g., retry, alternate SOAP action forms) - rejected as unfalsifiable without access to the user's actual router to test against, and unnecessary: removing the visibility condition entirely sidesteps the reliability problem rather than chasing it.
+
+### Consequences
+
+"Forward" and "Remove" are now independent, always-available actions rather than a state machine toggling between them - simpler, and immune to however reliable any given router's status-query support turns out to be.
+
+### Date
+
+2026-07-06

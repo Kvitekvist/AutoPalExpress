@@ -144,25 +144,32 @@ export function RemoteAccessPanel() {
               No UPnP-capable router found, so this can't be opened automatically. Forward TCP port{" "}
               {status.adminPort} to this PC manually in your router's admin page if you want remote access.
             </p>
-          ) : mapping ? (
+          ) : (
             <div className="space-y-3">
-              {mapping.isThisMachine ? (
-                <p className="text-sm text-life-400">Remote access is open via {status.routerName}.</p>
+              {mapping ? (
+                mapping.isThisMachine ? (
+                  <p className="text-sm text-life-400">Remote access is open via {status.routerName}.</p>
+                ) : (
+                  <p className="text-sm text-gold-400">
+                    Port {status.adminPort} is currently forwarded to a different machine on this network (
+                    {mapping.internalClient}), not this PC.
+                  </p>
+                )
               ) : (
-                <p className="text-sm text-gold-400">
-                  Port {status.adminPort} is currently forwarded to a different machine on this network (
-                  {mapping.internalClient}), not this PC. Remove it here, then forward it again from whichever
-                  machine should actually receive it.
+                <p className="text-xs text-parchment-300/40">
+                  No mapping currently detected for this port - some routers don't report this reliably, so "Remove"
+                  is always available below just in case one exists anyway.
                 </p>
               )}
-              <RuneButton type="button" variant="danger" size="sm" onClick={handleUnforward} disabled={unforwarding}>
-                {unforwarding ? "Closing..." : "Remove This Forward"}
-              </RuneButton>
+              <div className="flex flex-wrap items-center gap-2">
+                <RuneButton type="button" variant="gold" size="sm" onClick={handleForward} disabled={forwarding}>
+                  {forwarding ? "Opening..." : "Open Remote Access"}
+                </RuneButton>
+                <RuneButton type="button" variant="danger" size="sm" onClick={handleUnforward} disabled={unforwarding}>
+                  {unforwarding ? "Closing..." : "Remove This Forward"}
+                </RuneButton>
+              </div>
             </div>
-          ) : (
-            <RuneButton type="button" variant="gold" size="sm" onClick={handleForward} disabled={forwarding}>
-              {forwarding ? "Opening..." : "Open Remote Access"}
-            </RuneButton>
           )}
         </div>
       </div>
