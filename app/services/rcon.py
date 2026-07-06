@@ -148,6 +148,17 @@ async def show_players(instance: dict[str, Any]) -> list[dict[str, str]]:
     return players
 
 
+def _kick_ban_id(steamid: str) -> str:
+    """Palworld's own server console logs a connecting Steam player as
+    "User id: steam_<SteamID64>", but ShowPlayers' steamid column returns
+    just the bare numeric ID with no prefix - KickPlayer/BanPlayer/UnBanPlayer
+    need the "steam_"-prefixed form (matching what the game itself logs), or
+    they silently don't match any connected player. Left as-is for anything
+    that isn't a bare numeric ID (e.g. a playeruid fallback for a non-Steam
+    connection), since there's no evidence that needs a prefix at all."""
+    return f"steam_{steamid}" if steamid.isdigit() else steamid
+
+
 def _check_result(action: str, steamid: str, response: str) -> None:
     # Palworld replies with a plain-text status line rather than an error
     # code - e.g. "Failed to Kick: <id>" - so a completed RCON round-trip
@@ -163,15 +174,15 @@ def _check_result(action: str, steamid: str, response: str) -> None:
 
 
 async def kick_player(instance: dict[str, Any], steamid: str) -> None:
-    response = await _run(instance, f"KickPlayer {steamid}")
+    response = await _run(instance, f"KickPlayer {_kick_ban_id(steamid)}")
     _check_result("kick", steamid, response)
 
 
 async def ban_player(instance: dict[str, Any], steamid: str) -> None:
-    response = await _run(instance, f"BanPlayer {steamid}")
+    response = await _run(instance, f"BanPlayer {_kick_ban_id(steamid)}")
     _check_result("ban", steamid, response)
 
 
 async def unban_player(instance: dict[str, Any], steamid: str) -> None:
-    response = await _run(instance, f"UnBanPlayer {steamid}")
+    response = await _run(instance, f"UnBanPlayer {_kick_ban_id(steamid)}")
     _check_result("unban", steamid, response)
