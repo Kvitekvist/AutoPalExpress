@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { Reorder } from "framer-motion";
-import { BookOpen, PlusCircle, ScrollText, TriangleAlert, UploadCloud } from "lucide-react";
+import { BookOpen, PlusCircle, ScrollText, TriangleAlert } from "lucide-react";
 import { modsApi } from "@/api";
 import type { Mod, ModsPathInfo } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
@@ -9,7 +9,6 @@ import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
 import { ModCard } from "@/components/mods/ModCard";
 import { NexusBrowseDialog } from "@/components/mods/NexusBrowseDialog";
-import { InstallFromFileDialog } from "@/components/mods/InstallFromFileDialog";
 import { Ue4ssPanel } from "@/components/mods/Ue4ssPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -25,7 +24,6 @@ export default function Mods() {
   const [installName, setInstallName] = React.useState("");
   const [installing, setInstalling] = React.useState(false);
   const [browseOpen, setBrowseOpen] = React.useState(false);
-  const [installFromFileOpen, setInstallFromFileOpen] = React.useState(false);
   const [modsPathInfo, setModsPathInfo] = React.useState<ModsPathInfo | null>(null);
   const notifications = useNotifications();
   const { user } = useAuth();
@@ -109,11 +107,6 @@ export default function Mods() {
             <RuneButton variant="mana" size="sm" icon={<ScrollText />} onClick={() => setBrowseOpen(true)}>
               Browse Nexus Mods
             </RuneButton>
-            {user.role === "super_admin" && (
-              <RuneButton variant="mana" size="sm" icon={<UploadCloud />} onClick={() => setInstallFromFileOpen(true)}>
-                Install From File
-              </RuneButton>
-            )}
             <RuneButton variant="gold" size="sm" icon={<PlusCircle />} onClick={() => setInstallOpen(true)}>
               Install Mod
             </RuneButton>
@@ -188,14 +181,6 @@ export default function Mods() {
         installedNames={mods.map((m) => m.name)}
         onInstalled={(updated) => setMods(updated)}
       />
-
-      {user.role === "super_admin" && (
-        <InstallFromFileDialog
-          open={installFromFileOpen}
-          onOpenChange={setInstallFromFileOpen}
-          onInstalled={(updated) => setMods(updated)}
-        />
-      )}
 
       <Dialog open={installOpen} onOpenChange={setInstallOpen}>
         <DialogContent>
