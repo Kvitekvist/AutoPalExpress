@@ -1,4 +1,3 @@
-import { ServerConnectionPanel } from "@/components/settings/ServerConnectionPanel";
 import { InstanceManagerPanel } from "@/components/settings/InstanceManagerPanel";
 import { Ue4ssPanel } from "@/components/settings/Ue4ssPanel";
 import { UsersPanel } from "@/components/settings/UsersPanel";
@@ -13,7 +12,6 @@ export default function Settings() {
       {user.role === "super_admin" && <UsersPanel />}
       <InstanceManagerPanel />
       <Ue4ssPanel />
-      <ServerConnectionPanel />
       <AutomationPanel />
     </div>
   );

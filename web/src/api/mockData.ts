@@ -1,4 +1,4 @@
-import type { Player, LogEntry, ServerSettings, DiscoveredServer } from "@/types/models";
+import type { Player, LogEntry, ServerSettings } from "@/types/models";
 
 export const mockPlayers: Player[] = [];
 
@@ -15,5 +15,3 @@ export const mockSettings: ServerSettings = {
   expRate: 1,
   dayNightLengthMinutes: 60,
 };
-
-export const mockDiscoveredServers: DiscoveredServer[] = [];

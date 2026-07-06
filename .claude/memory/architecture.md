@@ -10,7 +10,7 @@ AutoPalExpress is a self-hosted admin panel for one or more Palworld Dedicated S
 
 ### User Interface
 
-React 19 + Vite SPA (`web/src/`). Pages: Dashboard (now includes the player roster, merged in), Mods, Server Control, World Settings, Settings (instance management, UE4SS, server connection, automation/backups, users), Super Admin (network exposure - port forwarding, firewall, Nexus account connection). Styled with Tailwind CSS v4 (CSS-based theme, no `tailwind.config.js`) and custom "fantasy" components (`RuneButton`, `ScrollPanel`, `CrystalStatus`, etc.) wrapping restyled Radix UI primitives.
+React 19 + Vite SPA (`web/src/`). Pages: Dashboard (now includes the player roster, merged in), Mods, Server Control, World Settings (generic `.ini` editor, deliberately excludes the game port - see Super Admin), Settings (instance management, UE4SS, automation/backups, users), Super Admin (role-gated: active server's disk path, the one place to view/edit/save the game port, port-forward management for both the admin and game ports, firewall, Nexus account connection). Styled with Tailwind CSS v4 (CSS-based theme, no `tailwind.config.js`) and custom "fantasy" components (`RuneButton`, `ScrollPanel`, `CrystalStatus`, etc.) wrapping restyled Radix UI primitives.
 
 ### Backend
 

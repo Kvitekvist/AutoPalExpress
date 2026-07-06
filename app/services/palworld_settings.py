@@ -201,12 +201,18 @@ POPULAR_FIELDS: list[dict[str, Any]] = [
     {"key": "GuildPlayerMaxNum", "label": "Max Guild Size"},
     {"key": "AutoSaveSpan", "label": "Auto-Save Interval (minutes)"},
     {"key": "bIsUseBackupSaveData", "label": "Keep Save Backups"},
-    {"key": "PublicPort", "label": "Game Port"},
     {"key": "RCONEnabled", "label": "RCON Enabled"},
     {"key": "RCONPort", "label": "RCON Port"},
 ]
 _POPULAR_META = {f["key"]: f for f in POPULAR_FIELDS}
 _POPULAR_ORDER = {f["key"]: i for i, f in enumerate(POPULAR_FIELDS)}
+
+# Fields with their own dedicated control elsewhere (Super Admin's port
+# management) rather than the generic World Settings editor, so editing a
+# server's port only ever has the one place - hidden from read_all_settings,
+# but write_settings still accepts it, since that dedicated control uses the
+# same write path under the hood.
+_MANAGED_ELSEWHERE = {"PublicPort"}
 
 
 def _tokenize_option_body(body: str) -> list[str]:
@@ -320,6 +326,8 @@ def read_all_settings(server_path: Path) -> list[dict[str, Any]]:
 
     fields = []
     for key, raw_value in raw_pairs.items():
+        if key in _MANAGED_ELSEWHERE:
+            continue
         field_type = infer_field_type(raw_value)
         meta = _POPULAR_META.get(key)
         fields.append(

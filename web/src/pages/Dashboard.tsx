@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { Cpu, MemoryStick, Gauge, Users, Tag, BookOpen, Map, Save, HardDrive, TriangleAlert } from "lucide-react";
+import { Cpu, MemoryStick, Gauge, Users, Tag, BookOpen, Map, Save, TriangleAlert } from "lucide-react";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { CrystalStatus } from "@/components/fantasy/CrystalStatus";
 import { StatTile } from "@/components/fantasy/StatTile";
@@ -73,20 +73,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-        {instance && (
-          <div className="mt-4 flex items-center gap-2 border-t border-stone-700/60 pt-3 text-xs text-parchment-300/50">
-            <HardDrive className="h-3.5 w-3.5 shrink-0 text-gold-500/60" />
-            <span className="truncate">
-              {instance.name} &middot; <span className="font-mono">{instance.serverPath}</span>
-            </span>
-            <Link
-              to="/settings"
-              className="ml-auto shrink-0 font-semibold text-parchment-300/60 underline decoration-dotted underline-offset-2 hover:text-gold-300"
-            >
-              Manage
-            </Link>
-          </div>
-        )}
       </ScrollPanel>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">

@@ -167,15 +167,6 @@ export interface NexusModResult {
   nexusUrl: string;
 }
 
-export interface ServerConnection {
-  host: string;
-  port: number;
-  adminPassword: string;
-  connected: boolean;
-  serverName?: string;
-  serverVersion?: string;
-  lastConnectedAt?: string;
-}
 
 export type ModsPathSource = "override" | "derived" | null;
 export type InstanceSource = "steam" | "manual" | "deployed";
@@ -251,13 +242,3 @@ export interface PortForwardResult {
   routerName: string;
 }
 
-export interface DiscoveredServer {
-  id: string;
-  host: string;
-  port: number;
-  serverName: string;
-  playersOnline: number;
-  maxPlayers: number;
-  version: string;
-  requiresPassword: boolean;
-}

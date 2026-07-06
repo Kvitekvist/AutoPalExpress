@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Share2, Wifi, WifiOff, Copy, Check, ShieldCheck, ShieldAlert } from "lucide-react";
-import { networkApi, instancesApi } from "@/api";
+import { Share2, Wifi, WifiOff, Copy, Check, ShieldCheck, ShieldAlert, Save } from "lucide-react";
+import { networkApi, instancesApi, serverSettingsApi } from "@/api";
 import type { UpnpStatus } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,8 @@ export function PortForwardPanel() {
   const [hasInstance, setHasInstance] = React.useState<boolean | null>(null);
   const [status, setStatus] = React.useState<UpnpStatus | null>(null);
   const [port, setPort] = React.useState<number | null>(null);
-  const [portTouched, setPortTouched] = React.useState(false);
+  const [savedPort, setSavedPort] = React.useState<number | null>(null);
+  const [savingPort, setSavingPort] = React.useState(false);
   const [checking, setChecking] = React.useState(false);
   const [firewallOk, setFirewallOk] = React.useState<boolean | null>(null);
   const [checkingFirewall, setCheckingFirewall] = React.useState(false);
@@ -27,6 +28,7 @@ export function PortForwardPanel() {
   // session, still shows up as removable here instead of looking like
   // nothing is forwarded.
   const mapping = status?.gameMapping ?? null;
+  const portDirty = port !== null && port !== savedPort;
 
   const checkFirewall = React.useCallback(async (checkPort: number) => {
     setCheckingFirewall(true);
@@ -43,14 +45,15 @@ export function PortForwardPanel() {
     try {
       const data = await networkApi.getUpnpStatus();
       setStatus(data);
-      if (!portTouched && data.port) {
+      if (data.port) {
         setPort(data.port);
+        setSavedPort(data.port);
         checkFirewall(data.port);
       }
     } finally {
       setChecking(false);
     }
-  }, [portTouched, checkFirewall]);
+  }, [checkFirewall]);
 
   React.useEffect(() => {
     instancesApi.getActive().then((instance) => {
@@ -61,9 +64,24 @@ export function PortForwardPanel() {
 
   function handlePortChange(value: string) {
     const parsed = parseInt(value, 10);
-    setPortTouched(true);
     setPort(Number.isNaN(parsed) ? null : parsed);
-    setFirewallOk(null);
+  }
+
+  async function handleSavePort() {
+    if (!port) return;
+    setSavingPort(true);
+    try {
+      await serverSettingsApi.updateSettings({ PublicPort: port });
+      await check();
+      notifications.success({
+        title: "Game port updated",
+        message: "Takes effect the next time the server starts.",
+      });
+    } catch (e) {
+      notifications.error({ title: "Couldn't save", message: e instanceof Error ? e.message : "Unknown error." });
+    } finally {
+      setSavingPort(false);
+    }
   }
 
   async function handleAllowFirewall() {
@@ -138,22 +156,30 @@ export function PortForwardPanel() {
       ) : (
         <div className="space-y-4">
           <div>
-            <div className="mb-1.5 flex items-center justify-between">
-              <Label htmlFor="game-port">Game Port</Label>
-              <span className="text-[11px] uppercase tracking-wide text-parchment-300/40">
-                {portTouched ? "Manually set" : "Auto-detected"}
-              </span>
-            </div>
-            <Input
-              id="game-port"
-              type="number"
-              value={port ?? ""}
-              onChange={(e) => handlePortChange(e.target.value)}
-              className="max-w-[10rem]"
-            />
-            <p className="mt-1 text-[11px] text-parchment-300/40">
-              Defaults to your server's actual configured port. Only change this if you know what you're doing.
+            <Label htmlFor="game-port">Game Port</Label>
+            <p className="mb-1.5 text-[11px] text-parchment-300/40">
+              This is your server's actual configured port - the only place to change it. Takes effect the next time
+              the server starts.
             </p>
+            <div className="flex items-center gap-2">
+              <Input
+                id="game-port"
+                type="number"
+                value={port ?? ""}
+                onChange={(e) => handlePortChange(e.target.value)}
+                className="max-w-[10rem]"
+              />
+              <RuneButton
+                type="button"
+                variant="gold"
+                size="sm"
+                icon={<Save />}
+                onClick={handleSavePort}
+                disabled={!portDirty || savingPort || !port}
+              >
+                {savingPort ? "Saving..." : "Save Port"}
+              </RuneButton>
+            </div>
           </div>
 
           <div className="border-t border-stone-700/60 pt-4">
