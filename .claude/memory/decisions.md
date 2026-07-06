@@ -201,3 +201,25 @@ Try to make mapping detection more robust (e.g., retry, alternate SOAP action fo
 ### Date
 
 2026-07-06
+
+---
+
+### Decision
+
+`process_manager._tree_cpu_ram()` now divides its summed `cpu_percent` by `psutil.cpu_count()` before returning it.
+
+### Reason
+
+Reported: the Dashboard's CPU% didn't match Task Manager. Root cause - `psutil.Process.cpu_percent()` reports usage relative to a single CPU core (100% = one core fully busy) by default, while Task Manager normalizes to all logical cores (100% = the whole CPU maxed out). Summing this across the PalServer process tree without dividing by core count meant the reported percentage was inflated by a factor equal to the machine's logical core count - confirmed directly by spawning a process that fully pegs one core on this (16-core) dev machine: it read ~100%+ before the fix, ~7% after, which is what Task Manager would actually show.
+
+### Alternatives
+
+None seriously considered - this is a well-known psutil normalization gotcha with one correct fix.
+
+### Consequences
+
+CPU% now matches Task Manager's convention. RAM reporting was checked in the same pass and found already correct (sums `memory_info().rss` across the same process tree, which is the right scope).
+
+### Date
+
+2026-07-06

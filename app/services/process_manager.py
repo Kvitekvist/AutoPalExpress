@@ -157,6 +157,11 @@ def _tree_cpu_ram(pid: int) -> tuple[float, float]:
             ram_bytes += p.memory_info().rss
         except psutil.Error:
             continue
+    # psutil reports cpu_percent() relative to a single core (100% = one
+    # core fully busy), but Task Manager normalizes to all cores (100% =
+    # the whole CPU maxed out) - without dividing by core count, this
+    # number reads as inflated by however many cores the machine has.
+    cpu_percent /= psutil.cpu_count() or 1
     return cpu_percent, ram_bytes / (1024**3)
 
 

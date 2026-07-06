@@ -144,7 +144,7 @@ async def show_players(instance: dict[str, Any]) -> list[dict[str, str]]:
     for line in lines[1:]:
         parts = line.split(",")
         if len(parts) >= 3:
-            players.append({"name": parts[0], "playeruid": parts[1], "steamid": parts[2]})
+            players.append({"name": parts[0].strip(), "playeruid": parts[1].strip(), "steamid": parts[2].strip()})
     return players
 
 
@@ -153,6 +153,11 @@ def _check_result(action: str, steamid: str, response: str) -> None:
     # code - e.g. "Failed to Kick: <id>" - so a completed RCON round-trip
     # isn't proof the action actually happened; the response has to be
     # inspected or a failed kick/ban/unban silently reports as a success.
+    # Logged unconditionally (not just on failure) since a "success" reply
+    # for an ID Palworld didn't actually recognize looks identical to a real
+    # success from here - the raw text is the only way to tell them apart
+    # after the fact.
+    logger.info("rcon: %s %s -> %r", action, steamid, response)
     if "failed" in response.lower():
         raise RconError(response.strip() or f"Failed to {action} {steamid}.")
 
