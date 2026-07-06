@@ -62,7 +62,7 @@ class ModsPathRequest(BaseModel):
     path: str
 
 
-@router.post("/mods-path")
+@router.post("/mods-path", dependencies=[Depends(require_super_admin)])
 async def set_mods_path(body: ModsPathRequest) -> dict[str, Any]:
     instance = _require_active_instance()
     path = Path(body.path)
@@ -79,7 +79,7 @@ async def clear_mods_path() -> dict[str, Any]:
     return _mods_path_view(instance)
 
 
-@router.post("/mods-path/browse")
+@router.post("/mods-path/browse", dependencies=[Depends(require_super_admin)])
 async def browse_mods_path() -> dict[str, Any]:
     instance = _require_active_instance()
     current = local_config.get_mods_path(instance)

@@ -245,3 +245,29 @@ Ban/UnBan share the same `_kick_ban_id()` helper and should be correct for the s
 ### Date
 
 2026-07-06
+
+---
+
+### Decision
+
+A full security audit was run at the user's request (both static code review and live exploit attempts against sandboxed copies of the suspicious code paths, not the real production server). Four confirmed issues were fixed: RCON credential exposure to non-super-admins (TICKET-0008), regular admins registering arbitrary host folders as "instances" and triggering native dialogs (TICKET-0009), a login timing side-channel revealing valid usernames (TICKET-0010), and sessions never expiring server-side (TICKET-0011).
+
+### Reason
+
+Same rationale as each linked ticket. The instance/mods-path restriction (TICKET-0009) draws a line consistent with how comparable game-server panels (Crafty Controller, Pterodactyl) split responsibilities: server registration/deployment is an admin-level action, regular users are scoped to operating servers that already exist - this project's own stated model ("friends register as regular admins with full day-to-day operational access") means *operating*, not *provisioning*.
+
+### Alternatives
+
+For the instance-registration restriction: could have instead validated/restricted *which* folders any user can register (e.g. must be under a known games directory) rather than gating by role. Rejected as more complex and less clearly correct than simply matching the established admin/regular-user split already used elsewhere in this app (Nexus connect, install-from-file, user management).
+
+### Consequences
+
+Two lower-severity findings from the same audit were intentionally deferred, not fixed in this pass:
+* `firewall.py`'s UAC-elevated `.bat`-file rule-name interpolation is a latent batch-injection primitive - not currently exploitable since every caller today passes a validated int/enum, never free-form text, but the function itself has no defense of its own if that ever changes.
+* The login rate-limiter (`login_throttle.py`) is keyed by `request.client.host`, which is correct today but will become a single shared bucket for every external visitor once the in-progress Nginx Proxy Manager / reverse-proxy setup goes live (all requests will appear to come from the proxy's own IP) - needs trusted-proxy header handling (`X-Forwarded-For`) added as part of that migration, not before.
+
+Verified safe (not vulnerable) in the same pass, worth remembering so they aren't re-litigated from scratch later: zip-slip/path-traversal in mod installation (tested 5 exploit payload variants, all correctly rejected), the Nexus API key (confirmed never present in any API response to the browser), subprocess command construction throughout (list-form exec, never shell string interpolation), and router-level auth enforcement (looked like several routers had no auth at first glance - it's applied correctly via `include_router(..., dependencies=...)` in `main.py`, not per-route).
+
+### Date
+
+2026-07-06

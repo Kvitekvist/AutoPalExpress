@@ -7,6 +7,12 @@ import secrets
 import time
 from typing import Any
 
+# Matches the session cookie's own max_age (app/routes/auth.py) - without an
+# equivalent server-side check, a captured/leaked raw token stayed valid
+# forever regardless of what the cookie's expiry said, since only the
+# browser was ever enforcing it.
+_MAX_AGE_SECONDS = 60 * 60 * 24 * 30  # 30 days
+
 _sessions: dict[str, dict[str, Any]] = {}
 
 
@@ -18,7 +24,12 @@ def create_session(user_id: str) -> str:
 
 def get_user_id(token: str) -> str | None:
     session = _sessions.get(token)
-    return session["userId"] if session else None
+    if not session:
+        return None
+    if time.time() - session["createdAt"] > _MAX_AGE_SECONDS:
+        _sessions.pop(token, None)
+        return None
+    return session["userId"]
 
 
 def delete_session(token: str) -> None:

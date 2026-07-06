@@ -108,9 +108,17 @@ def _create_user(username: str, password: str, *, role: str) -> dict[str, Any]:
     return user
 
 
+# A fixed dummy hash so a nonexistent username still costs one real PBKDF2
+# round before returning - without this, "no such user" answers instantly
+# while "wrong password for a real user" takes ~200k iterations, and that
+# timing difference alone lets an attacker enumerate valid usernames.
+_DUMMY_SALT, _DUMMY_HASH = _hash_password(secrets.token_hex(16))
+
+
 def verify_login(username: str, password: str) -> dict[str, Any] | None:
     user = get_by_username(username)
     if not user:
+        _verify_password(password, _DUMMY_SALT, _DUMMY_HASH)
         return None
     if not _verify_password(password, user["passwordSalt"], user["passwordHash"]):
         return None

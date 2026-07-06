@@ -3,9 +3,10 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.auth_deps import require_super_admin
 from app.services import instance_store, local_config, native_dialog, steam_locator, ue4ss_installer, deploy_jobs
 
 logger = logging.getLogger("palworld_admin.instances")
@@ -57,7 +58,7 @@ async def set_active(body: SetActiveRequest) -> dict[str, Any]:
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
 
 
-@router.delete("/{instance_id}")
+@router.delete("/{instance_id}", dependencies=[Depends(require_super_admin)])
 async def remove_instance(instance_id: str) -> dict[str, Any]:
     if not instance_store.get(instance_id):
         raise HTTPException(status_code=404, detail="No such server instance.")
@@ -71,7 +72,7 @@ class ImportRequest(BaseModel):
     path: str
 
 
-@router.post("/import")
+@router.post("/import", dependencies=[Depends(require_super_admin)])
 async def import_existing(body: ImportRequest) -> dict[str, Any]:
     path = Path(body.path)
     if not path.is_dir():
@@ -83,7 +84,7 @@ async def import_existing(body: ImportRequest) -> dict[str, Any]:
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
 
 
-@router.post("/import/detect")
+@router.post("/import/detect", dependencies=[Depends(require_super_admin)])
 async def import_detected() -> dict[str, Any]:
     found = await asyncio.to_thread(steam_locator.find_install_path)
     if not found:
@@ -95,7 +96,7 @@ async def import_detected() -> dict[str, Any]:
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
 
 
-@router.post("/import/browse")
+@router.post("/import/browse", dependencies=[Depends(require_super_admin)])
 async def browse_import() -> dict[str, Any]:
     path = await asyncio.to_thread(native_dialog.pick_folder, "Select an existing Palworld Dedicated Server folder")
     return {"path": path}
@@ -109,7 +110,7 @@ class DeployRequest(BaseModel):
     maxPlayers: int = 32
 
 
-@router.post("/deploy")
+@router.post("/deploy", dependencies=[Depends(require_super_admin)])
 async def deploy(body: DeployRequest) -> dict[str, Any]:
     if not body.name.strip():
         raise HTTPException(status_code=400, detail="Give the server a name.")
@@ -136,7 +137,7 @@ async def get_deploy_status(job_id: str) -> dict[str, Any]:
     return job
 
 
-@router.post("/deploy/browse")
+@router.post("/deploy/browse", dependencies=[Depends(require_super_admin)])
 async def browse_deploy_dir() -> dict[str, Any]:
     path = await asyncio.to_thread(native_dialog.pick_folder, "Choose an empty folder for the new server")
     return {"path": path}
