@@ -1,0 +1,207 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+@theme {
+  /* ---- Fantasy palette ---- */
+  --color-abyss-950: #0a0908;
+  --color-abyss-900: #100d0a;
+  --color-abyss-800: #1a1512;
+  --color-abyss-700: #241d18;
+  --color-abyss-600: #332822;
+  --color-abyss-500: #453630;
+
+  --color-stone-900: #1c1917;
+  --color-stone-800: #2a2522;
+  --color-stone-700: #3a332e;
+  --color-stone-600: #4d443c;
+  --color-stone-500: #635850;
+
+  --color-parchment-100: #f3e9d2;
+  --color-parchment-200: #e8dcc0;
+  --color-parchment-300: #d9c9a3;
+
+  --color-gold-200: #f4e0a3;
+  --color-gold-300: #edc873;
+  --color-gold-400: #dfb15a;
+  --color-gold-500: #c99a45;
+  --color-gold-600: #a97d33;
+  --color-gold-700: #8a6427;
+
+  --color-bronze-400: #b8825a;
+  --color-bronze-500: #9c6740;
+  --color-bronze-600: #7d5332;
+
+  --color-mana-300: #8fd3f4;
+  --color-mana-400: #5bb8e8;
+  --color-mana-500: #3a97cc;
+  --color-mana-600: #2d75a3;
+
+  --color-arcane-400: #b18af8;
+  --color-arcane-500: #9560ef;
+  --color-arcane-600: #7841d4;
+
+  --color-life-400: #7ee6a3;
+  --color-life-500: #4fce7c;
+  --color-life-600: #34a75f;
+
+  --color-blood-400: #f2716a;
+  --color-blood-500: #e14b42;
+  --color-blood-600: #b6342c;
+
+  --font-display: "Cinzel", "Cinzel Decorative", serif;
+  --font-display-deco: "Cinzel Decorative", serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --animate-glow-pulse: glow-pulse 2.6s ease-in-out infinite;
+  --animate-rune-flicker: rune-flicker 4s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-drift: drift 18s linear infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+  --animate-crack-pulse: crack-pulse 2.2s ease-in-out infinite;
+
+  @keyframes glow-pulse {
+    0%,
+    100% {
+      opacity: 0.65;
+      filter: brightness(0.95);
+    }
+    50% {
+      opacity: 1;
+      filter: brightness(1.25);
+    }
+  }
+
+  @keyframes rune-flicker {
+    0%,
+    100% {
+      opacity: 0.85;
+    }
+    45% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+    55% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes drift {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(-120px, -180px);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  @keyframes crack-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-stone-700);
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply font-body antialiased;
+    background: radial-gradient(ellipse at top, #1a1512 0%, #0a0908 60%, #060504 100%);
+    color: var(--color-parchment-100);
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-wide;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-gold-500) 40%, transparent);
+    color: var(--color-parchment-100);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-abyss-900);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--color-gold-700), var(--color-bronze-600));
+    border-radius: 6px;
+    border: 2px solid var(--color-abyss-900);
+  }
+}
+
+@layer utilities {
+  .bg-noise {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/></svg>");
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(120deg, var(--color-gold-300), var(--color-gold-500) 45%, var(--color-parchment-200));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .shadow-rune-gold {
+    box-shadow: 0 0 12px 2px color-mix(in oklab, var(--color-gold-400) 55%, transparent);
+  }
+  .shadow-rune-mana {
+    box-shadow: 0 0 12px 2px color-mix(in oklab, var(--color-mana-400) 55%, transparent);
+  }
+  .shadow-rune-life {
+    box-shadow: 0 0 12px 2px color-mix(in oklab, var(--color-life-400) 55%, transparent);
+  }
+  .shadow-rune-blood {
+    box-shadow: 0 0 12px 2px color-mix(in oklab, var(--color-blood-400) 55%, transparent);
+  }
+}

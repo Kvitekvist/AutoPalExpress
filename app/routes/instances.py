@@ -1,0 +1,142 @@
+import asyncio
+import logging
+from pathlib import Path
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+
+from app.services import instance_store, local_config, native_dialog, steam_locator, ue4ss_installer, deploy_jobs
+
+logger = logging.getLogger("palworld_admin.instances")
+
+router = APIRouter()
+
+
+def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
+    server_path = instance["serverPath"]
+    exists = Path(server_path).is_dir()
+    executable_found = (Path(server_path) / steam_locator.EXE_NAME).is_file()
+    mods_info = local_config.get_mods_path_info(instance)
+    mods_path = mods_info["path"]
+    ue4ss_status = ue4ss_installer.get_status(instance)
+    return {
+        **instance,
+        "exists": exists,
+        "executableFound": executable_found,
+        "modsPath": mods_path,
+        "modsPathSource": mods_info["source"],
+        "modsPathExists": bool(mods_path and Path(mods_path).is_dir()),
+        "ue4ssInstalled": ue4ss_status["installed"],
+        "ue4ssVersion": ue4ss_status["installedVersion"],
+    }
+
+
+@router.get("")
+async def list_instances() -> dict[str, Any]:
+    data = instance_store.list_view()
+    return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+@router.get("/active")
+async def get_active() -> dict[str, Any] | None:
+    instance = instance_store.get_active()
+    return _instance_view(instance) if instance else None
+
+
+class SetActiveRequest(BaseModel):
+    id: str
+
+
+@router.post("/active")
+async def set_active(body: SetActiveRequest) -> dict[str, Any]:
+    if not instance_store.get(body.id):
+        raise HTTPException(status_code=404, detail="No such server instance.")
+    instance_store.set_active_instance(body.id)
+    data = instance_store.list_view()
+    return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+@router.delete("/{instance_id}")
+async def remove_instance(instance_id: str) -> dict[str, Any]:
+    if not instance_store.get(instance_id):
+        raise HTTPException(status_code=404, detail="No such server instance.")
+    instance_store.remove_instance(instance_id)
+    data = instance_store.list_view()
+    return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+class ImportRequest(BaseModel):
+    name: str
+    path: str
+
+
+@router.post("/import")
+async def import_existing(body: ImportRequest) -> dict[str, Any]:
+    path = Path(body.path)
+    if not path.is_dir():
+        raise HTTPException(status_code=400, detail=f"'{body.path}' is not a folder that exists on this machine.")
+    if not (path / steam_locator.EXE_NAME).is_file():
+        raise HTTPException(status_code=400, detail=f"No {steam_locator.EXE_NAME} found in '{body.path}'.")
+    instance_store.create_instance(name=body.name, server_path=str(path), source="manual")
+    data = instance_store.list_view()
+    return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+@router.post("/import/detect")
+async def import_detected() -> dict[str, Any]:
+    found = await asyncio.to_thread(steam_locator.find_install_path)
+    if not found:
+        raise HTTPException(
+            status_code=404, detail="Couldn't find a Palworld Dedicated Server in any Steam library."
+        )
+    instance_store.create_instance(name="Steam Library Server", server_path=str(found), source="steam")
+    data = instance_store.list_view()
+    return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+@router.post("/import/browse")
+async def browse_import() -> dict[str, Any]:
+    path = await asyncio.to_thread(native_dialog.pick_folder, "Select an existing Palworld Dedicated Server folder")
+    return {"path": path}
+
+
+class DeployRequest(BaseModel):
+    name: str
+    installDir: str
+    gamePort: int = 8211
+    rconPort: int = 25575
+    maxPlayers: int = 32
+
+
+@router.post("/deploy")
+async def deploy(body: DeployRequest) -> dict[str, Any]:
+    if not body.name.strip():
+        raise HTTPException(status_code=400, detail="Give the server a name.")
+    install_dir = Path(body.installDir)
+    if install_dir.exists() and any(install_dir.iterdir()):
+        raise HTTPException(
+            status_code=400, detail=f"'{body.installDir}' already exists and isn't empty. Choose an empty folder."
+        )
+    job_id = deploy_jobs.start_deploy(
+        name=body.name.strip(),
+        install_dir=install_dir,
+        game_port=body.gamePort,
+        rcon_port=body.rconPort,
+        max_players=body.maxPlayers,
+    )
+    return {"jobId": job_id}
+
+
+@router.get("/deploy/{job_id}")
+async def get_deploy_status(job_id: str) -> dict[str, Any]:
+    job = deploy_jobs.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="No such deploy job.")
+    return job
+
+
+@router.post("/deploy/browse")
+async def browse_deploy_dir() -> dict[str, Any]:
+    path = await asyncio.to_thread(native_dialog.pick_folder, "Choose an empty folder for the new server")
+    return {"path": path}

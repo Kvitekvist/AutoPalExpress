@@ -1,0 +1,106 @@
+import time
+from datetime import datetime
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
+
+from app.services import instance_store, player_history, rcon
+from app.services.rcon import RconError
+
+router = APIRouter()
+
+# Time this tool has observed the *current* connection lasting - separate
+# from player_history's persisted "ever seen" record, since a session
+# restarts at 0 every time a player reconnects, but the persisted roster
+# should never forget someone just because they logged off.
+_session_start: dict[str, dict[str, float]] = {}
+
+
+def _require_active_instance() -> dict[str, Any]:
+    instance = instance_store.get_active()
+    if not instance:
+        raise HTTPException(status_code=400, detail="No server selected. Create or import one in Settings.")
+    return instance
+
+
+def _track_session(instance_id: str, online_ids: set[str]) -> dict[str, float]:
+    starts = _session_start.setdefault(instance_id, {})
+    now = time.time()
+    for sid in online_ids:
+        starts.setdefault(sid, now)
+    for sid in [s for s in starts if s not in online_ids]:
+        del starts[sid]
+    return starts
+
+
+def _to_player_view(steamid: str, entry: dict[str, Any], session_starts: dict[str, float]) -> dict[str, Any]:
+    online = entry.get("online", False)
+    if online:
+        started = session_starts.get(steamid, time.time())
+        seconds = int(time.time() - started)
+        timestamp = started
+    else:
+        seconds = 0
+        timestamp = entry.get("lastSeen", time.time())
+    return {
+        "id": steamid,
+        "characterName": entry.get("name") or "Unknown",
+        "steamId": steamid,
+        "level": 0,
+        "guild": None,
+        "pingMs": 0,
+        "onlineSeconds": seconds,
+        "connectionStatus": "online" if online else "offline",
+        "joinedAt": datetime.fromtimestamp(timestamp).isoformat(),
+        "isBanned": entry.get("isBanned", False),
+        "avatarSeed": steamid,
+    }
+
+
+async def _list_players() -> list[dict[str, Any]]:
+    instance = _require_active_instance()
+    try:
+        raw_players = await rcon.show_players(instance)
+    except RconError as e:
+        raise HTTPException(status_code=400, detail=e.message)
+    online_ids = {p["steamid"] or p["playeruid"] for p in raw_players}
+    session_starts = _track_session(instance["id"], online_ids)
+    roster = player_history.sync_online(instance["id"], raw_players)
+    return [_to_player_view(steamid, entry, session_starts) for steamid, entry in roster.items()]
+
+
+@router.get("")
+async def list_players() -> list[dict[str, Any]]:
+    return await _list_players()
+
+
+@router.post("/{player_id}/kick")
+async def kick_player(player_id: str) -> list[dict[str, Any]]:
+    instance = _require_active_instance()
+    try:
+        await rcon.kick_player(instance, player_id)
+    except RconError as e:
+        raise HTTPException(status_code=400, detail=e.message)
+    return await _list_players()
+
+
+@router.post("/{player_id}/ban")
+async def ban_player(player_id: str) -> list[dict[str, Any]]:
+    instance = _require_active_instance()
+    try:
+        await rcon.ban_player(instance, player_id)
+    except RconError as e:
+        raise HTTPException(status_code=400, detail=e.message)
+    player_history.set_banned(instance["id"], player_id, True)
+    return await _list_players()
+
+
+@router.post("/{player_id}/unban")
+async def unban_player(player_id: str) -> list[dict[str, Any]]:
+    instance = _require_active_instance()
+    try:
+        await rcon.unban_player(instance, player_id)
+    except RconError as e:
+        raise HTTPException(status_code=400, detail=e.message)
+    player_history.set_banned(instance["id"], player_id, False)
+    return await _list_players()
