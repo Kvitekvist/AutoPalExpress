@@ -22,7 +22,7 @@ export function ManualForwardInstructions({ name, protocol, port, localIp }: Man
       </p>
       <Row label="Name" value={name} />
       <Row label="Protocol" value={protocol} />
-      <Row label="External IP" value="* (any)" />
+      <Row label="External IP" value="*" />
       <Row label="Internal IP" value={localIp ?? "this PC's local IP - check your network settings"} />
       <Row label="External Port" value={String(port)} />
       <Row label="Internal Port" value={String(port)} />

@@ -87,33 +87,6 @@ async def browse_mods_path() -> dict[str, Any]:
     return {"path": path}
 
 
-class ManualInstallRequest(BaseModel):
-    name: str
-
-
-@router.post("/manual-install")
-async def manual_install(body: ManualInstallRequest) -> list[dict[str, Any]]:
-    instance = _require_active_instance()
-    mods = mods_store.load_mods(instance["id"])
-    mods.append(
-        {
-            "id": mods_store.new_id("manual"),
-            "name": body.name,
-            "version": "1.0.0",
-            "author": "Unknown",
-            "description": "Manually added mod pending configuration.",
-            "dependencies": [],
-            "status": "enabled",
-            "loadPriority": len(mods) + 1,
-            "updateAvailable": False,
-            "sourceModId": None,
-            "folderName": None,
-        }
-    )
-    mods_store.save_mods(instance["id"], mods)
-    return mods_store.sorted_mods(mods)
-
-
 @router.post("/{mod_id}/enable")
 async def enable_mod(mod_id: str) -> list[dict[str, Any]]:
     instance = _require_active_instance()

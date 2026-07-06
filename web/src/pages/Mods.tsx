@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { Reorder } from "framer-motion";
-import { BookOpen, PlusCircle, ScrollText, TriangleAlert } from "lucide-react";
+import { BookOpen, ScrollText, TriangleAlert } from "lucide-react";
 import { modsApi } from "@/api";
 import type { Mod, ModsPathInfo } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
@@ -10,8 +10,6 @@ import { RuneDialog } from "@/components/fantasy/RuneDialog";
 import { ModCard } from "@/components/mods/ModCard";
 import { NexusBrowseDialog } from "@/components/mods/NexusBrowseDialog";
 import { Ue4ssPanel } from "@/components/mods/Ue4ssPanel";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -20,9 +18,6 @@ export default function Mods() {
   const [loading, setLoading] = React.useState(true);
   const [busyId, setBusyId] = React.useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = React.useState<Mod | null>(null);
-  const [installOpen, setInstallOpen] = React.useState(false);
-  const [installName, setInstallName] = React.useState("");
-  const [installing, setInstalling] = React.useState(false);
   const [browseOpen, setBrowseOpen] = React.useState(false);
   const [modsPathInfo, setModsPathInfo] = React.useState<ModsPathInfo | null>(null);
   const notifications = useNotifications();
@@ -80,20 +75,6 @@ export default function Mods() {
     }
   }
 
-  async function handleInstall() {
-    if (!installName.trim()) return;
-    setInstalling(true);
-    try {
-      const updated = await modsApi.installMod(installName.trim());
-      setMods(updated);
-      notifications.success({ title: "Mod installed", message: `${installName.trim()} has been bound to your server.` });
-      setInstallOpen(false);
-      setInstallName("");
-    } finally {
-      setInstalling(false);
-    }
-  }
-
   const enabledCount = mods.filter((m) => m.status === "enabled").length;
   const brokenCount = mods.filter((m) => m.status === "broken").length;
 
@@ -106,9 +87,6 @@ export default function Mods() {
           <>
             <RuneButton variant="mana" size="sm" icon={<ScrollText />} onClick={() => setBrowseOpen(true)}>
               Browse Nexus Mods
-            </RuneButton>
-            <RuneButton variant="gold" size="sm" icon={<PlusCircle />} onClick={() => setInstallOpen(true)}>
-              Install Mod
             </RuneButton>
           </>
         }
@@ -181,29 +159,6 @@ export default function Mods() {
         installedNames={mods.map((m) => m.name)}
         onInstalled={(updated) => setMods(updated)}
       />
-
-      <Dialog open={installOpen} onOpenChange={setInstallOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Bind a New Mod</DialogTitle>
-            <DialogDescription>Add a mod manually by name.</DialogDescription>
-          </DialogHeader>
-          <Input
-            value={installName}
-            onChange={(e) => setInstallName(e.target.value)}
-            placeholder="Mod name..."
-            autoFocus
-          />
-          <DialogFooter>
-            <RuneButton variant="ghost" onClick={() => setInstallOpen(false)} disabled={installing}>
-              Cancel
-            </RuneButton>
-            <RuneButton variant="gold" onClick={handleInstall} disabled={installing || !installName.trim()}>
-              {installing ? "Binding..." : "Install"}
-            </RuneButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

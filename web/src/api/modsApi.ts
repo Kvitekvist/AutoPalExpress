@@ -36,11 +36,6 @@ export async function disableMod(id: string): Promise<Mod[]> {
   return api.post<Mod[]>(`/api/mods/${id}/disable`);
 }
 
-// POST /api/mods/manual-install
-export async function installMod(name: string): Promise<Mod[]> {
-  return api.post<Mod[]>("/api/mods/manual-install", { name });
-}
-
 // POST /api/mods/{id}/remove
 export async function removeMod(id: string): Promise<Mod[]> {
   return api.post<Mod[]>(`/api/mods/${id}/remove`);
