@@ -19,6 +19,7 @@ PORT = 8000
 class _Tee:
     def __init__(self, *streams):
         self._streams = [stream for stream in streams if stream is not None]
+        self._primary = self._streams[0] if self._streams else None
 
     def write(self, text: str) -> int:
         for stream in self._streams:
@@ -29,6 +30,27 @@ class _Tee:
     def flush(self) -> None:
         for stream in self._streams:
             stream.flush()
+
+    def isatty(self) -> bool:
+        return bool(self._primary and self._primary.isatty())
+
+    def fileno(self) -> int:
+        if not self._primary:
+            raise OSError("No console stream available.")
+        return self._primary.fileno()
+
+    @property
+    def encoding(self) -> str | None:
+        return getattr(self._primary, "encoding", None)
+
+    @property
+    def errors(self) -> str | None:
+        return getattr(self._primary, "errors", None)
+
+    def __getattr__(self, name: str):
+        if not self._primary:
+            raise AttributeError(name)
+        return getattr(self._primary, name)
 
 
 def _tee_console_streams() -> None:

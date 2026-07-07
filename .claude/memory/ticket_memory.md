@@ -35,6 +35,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0023** (2026-07-07, Enhancement) - Restored visible command windows and improved Logs: packaged AutoPalExpress is console-visible again while teeing stdout/stderr to `backend.log`, Palworld launches without `CREATE_NO_WINDOW`, and the Logs page now shows AutoPalExpress output beside the real server activity feed. Palworld's exact CMD text still cannot be mirrored because it is not normal stdout/log-file text.
 * **TICKET-0024** (2026-07-07, Enhancement) - Reworked the root GitHub README for non-technical community readers: colorful shields, screenshot placeholders, GitHub alert blocks (`NOTE`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION`), simpler quick-start/security sections, and collapsible technical details.
 * **TICKET-0025** (2026-07-07, Enhancement) - Added the maintainer-provided Dashboard, Mods, Super Admin, and Logs screenshots from `images/` to the GitHub README and committed the image assets.
+* **TICKET-0026** (2026-07-07, Bug) - Fixed packaged startup crash after restoring the visible AutoPalExpress console: `_Tee` now exposes stream-like methods/attributes such as `isatty()`, `fileno()`, `encoding`, and `errors`, so Uvicorn's logging formatter can configure normally while stdout/stderr still tee into `backend.log`.
 
 ---
 
