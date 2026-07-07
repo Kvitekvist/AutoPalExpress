@@ -67,7 +67,19 @@ def start(instance: dict[str, Any]) -> None:
                 "-UseMultithreadForDS",
             ],
             cwd=str(exe.parent),
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
+            # CREATE_NO_WINDOW: PalServer.exe's real game process (a grandchild,
+            # PalServer-Win64-Shipping-Cmd.exe) allocates its own console
+            # regardless of how we launch the launcher - confirmed live that this
+            # flag suppresses that whole tree's window, not just the immediate
+            # child. stdout/stderr are discarded rather than piped: also confirmed
+            # live that Palworld's dedicated server writes through its own
+            # low-level console API, not the standard stdout handle (even with
+            # -log passed), so there's nothing useful to capture that way - piping
+            # it would just be an unread buffer for no benefit.
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
         )
         _processes[instance_id] = proc
         _started_at[instance_id] = time.time()

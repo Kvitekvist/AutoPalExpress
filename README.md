@@ -7,11 +7,11 @@ A self-hosted admin panel for a Palworld dedicated server: a FastAPI backend tha
 Almost the entire panel is wired to a real backend and does real things on the machine it runs on. Two Players-page actions are the only remaining frontend-only mock data (`playersApi.ts`, simulated latency, no backend call) - and that's a real Palworld limitation, not something left unbuilt:
 
 - **Whisper to a player** and **teleport a player** - mock. Palworld's RCON has no per-player whisper or teleport command, so there's no real backend equivalent possible without a different API.
-- **Logs page** - still mock data (`logsApi.ts` + `mockData.ts`), not wired to the server's actual log output yet.
+- **Logs page** - still mock data (`logsApi.ts` + `mockData.ts`). Palworld's dedicated server writes its console output through its own low-level console API (confirmed live: not stdout, and no log file is written even with `-log` passed), so wiring this up for real would mean reading the game's own hidden console buffer directly - a distinctly harder problem than it looks, not yet attempted.
 
 Everything else is real, backed by `app/`:
 
-- **Server process control** - start/stop/restart/save actually launch and manage `PalServer.exe` (`app/services/process_manager.py`), not simulated.
+- **Server process control** - start/stop/restart/save actually launch and manage `PalServer.exe` (`app/services/process_manager.py`), not simulated. Runs windowless (`CREATE_NO_WINDOW`) - Palworld's own dedicated server otherwise pops up its own separate console window regardless of how it's launched. The packaged admin app itself also runs windowless (`console=False` in `PalworldServerAdmin.spec`) - the browser tab it opens is the only UI you ever see, for either process.
 - **Multi-instance support** - manage multiple server installs, switch which one is "active" (`app/services/instance_store.py`), deploy new ones via SteamCMD, import existing ones (super admin only).
 - **Players** - the roster, kick, and ban are real, backed by a from-scratch Source RCON client (`app/services/rcon.py`) talking directly to the live game server.
 - **Automation** - scheduled backups and restarts, restart warnings, and join/leave announcements are real and actually run on schedule (`app/services/scheduler.py`), backed by the same RCON client.

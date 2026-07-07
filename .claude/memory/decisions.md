@@ -298,6 +298,31 @@ None for either fix - both are the direct, minimal corrections (explicit contain
 
 ### Decision
 
+Both floating console windows (the admin tool's own, and the one Palworld's dedicated server creates for itself) were eliminated (TICKET-0019). `process_manager.start()`'s launch now passes `CREATE_NO_WINDOW`; the admin backend itself is now packaged windowed (`console=False`), with `desktop_app.py` redirecting `sys.stdout`/`sys.stderr` to a real log file before anything else runs.
+
+### Reason
+
+User wanted everything to live inside one GUI (the browser tab) instead of two separate floating windows.
+
+### Investigation (worth remembering, so it isn't re-derived from scratch)
+
+Real, live testing against the dev machine's actual `TestServer1` instance, before writing any code:
+* PalServer.exe (the launcher we spawn) is not where the real game logic runs - it spawns a grandchild, `PalServer-Win64-Shipping-Cmd.exe`, which allocates its **own** console independent of how the launcher was started. `CREATE_NO_WINDOW` on our own `subprocess.Popen` call was confirmed (via `Get-Process ... MainWindowHandle`, checked twice, including through the real integrated `process_manager.start()`/`stop()` functions) to suppress the **entire** tree's window - launcher, grandchild, and the `conhost.exe` Windows spins up to host the console all show no window - not just the immediate child's.
+* Real console *content* cannot be captured this way, though. Piping the launcher's stdout captured zero lines even after a real 40-second run with the server fully up and genuinely writing world saves - Palworld writes through its own low-level console API, not the standard stdout handle. It also doesn't write a persistent log file by default: tested again with `-log` passed explicitly, and `Pal/Saved/Logs/` stayed empty across multiple full real runs. Getting real log *content* into the app would need reading the game's own hidden console screen buffer directly (far more invasive, not attempted) - this remains open, unrelated future work, not something this ticket claims to solve.
+* A windowed (`console=False`) PyInstaller build has `sys.stdout`/`sys.stderr` as `None`, since there's no console to attach either to - confirmed this would otherwise crash the instant anything writes to them (a stray `print()`, the logging module's default `StreamHandler`, or uvicorn's own internal logging config, which resolves `"ext://sys.stderr"` against whatever `sys.stderr` is when `uvicorn.run()` sets up its logging). Fixed by redirecting both to a real file at the very top of `desktop_app.py`'s `main()`, before uvicorn or the app itself is imported.
+
+### Consequences
+
+Real Palworld console log content is still not visible anywhere in the app - the existing mocked "Logs" page is unaffected by this change and remains a separate, harder problem if ever wanted. A startup crash with no seed data to show now writes to `backend.log` and shows a native message box, instead of a scrolling console - this was added specifically because removing the console also removes the only way a fatal startup error would previously have been visible at all.
+
+### Date
+
+2026-07-07
+
+---
+
+### Decision
+
 Initial setup (super admin account, Nexus API key, an optional first server) moved into the Windows installer (TICKET-0018), applied automatically on first launch via a new `first_run_setup.py` service reading a one-time seed file the installer writes. New server deployments now always go in `data_dir()/servers/<name>` instead of a browsed folder.
 
 ### Reason

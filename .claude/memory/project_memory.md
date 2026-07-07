@@ -24,6 +24,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * Consider a fix for `process_manager` forgetting a server is running after a backend restart (no process adoption currently).
 * Remaining mocked surfaces (Logs page, the general Settings blob's own fields) could be wired to something real if they matter to the user - not yet requested.
 * NEEDS MANUAL VERIFICATION (TICKET-0018): the new installer-driven first-run setup (custom wizard pages + progress page in `installer.iss`) compiles cleanly and every backend code path it depends on is tested via real HTTP requests, but the actual interactive GUI click-through hasn't been run through by a human yet - this dev sandbox has no interactive desktop session to drive an installer wizard with (confirmed: even a `/VERYSILENT` install hangs on an unrelated pre-existing privilege dialog). Next real install should be watched end-to-end.
+* Real Palworld server console log content still isn't captured anywhere in the app (TICKET-0019 eliminated the window itself, but confirmed live that the content can't be piped/read the same way - see Decision Log). Getting actual log text into the app's own "Logs" page would need reading the game's own hidden console screen buffer directly - a distinctly harder, separate problem from window suppression, not yet attempted.
 
 ---
 
