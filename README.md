@@ -1,67 +1,179 @@
-# AutoPalExpress: Palworld Dedicated Server Admin Panel
+# AutoPalExpress
 
-A self-hosted admin panel for a Palworld dedicated server: a FastAPI backend that actually manages the server process, plus a React (dark-fantasy themed) frontend. Runs as one process on one port when packaged; the backend also serves the built frontend directly.
+<p align="center">
+  <img src="https://img.shields.io/badge/Palworld-Server%20Admin-3BA6FF?style=for-the-badge" alt="Palworld Server Admin">
+  <img src="https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=for-the-badge" alt="Windows 10 and 11">
+  <img src="https://img.shields.io/badge/Install-One%20Click-2EA043?style=for-the-badge" alt="One click installer">
+  <img src="https://img.shields.io/badge/Status-Community%20Release-CB9A2D?style=for-the-badge" alt="Community release">
+</p>
 
-## What's real vs. still mocked
+**AutoPalExpress** is a Windows desktop app for running your own Palworld Dedicated Server without living in command windows, config files, firewall menus, and mod folders.
 
-Almost the entire panel is wired to a real backend and does real things on the machine it runs on. Two Players-page actions are the only remaining frontend-only mock data (`playersApi.ts`, simulated latency, no backend call) - and that's a real Palworld limitation, not something left unbuilt:
+It opens in your browser, but it runs on your own PC. You stay in control of the server, while trusted friends can get their own admin accounts to help with day-to-day server tasks.
 
-- **Whisper to a player** and **teleport a player** - mock. Palworld's RCON has no per-player whisper or teleport command, so there's no real backend equivalent possible without a different API.
-- **Logs page** - real AutoPalExpress output plus a real server activity feed. It does not mirror Palworld's own CMD-window text into the browser: live testing showed Palworld renders that window through its own console/overlay path rather than stdout or a log file, so the exact Palworld window remains visible separately.
+> [!IMPORTANT]
+> AutoPalExpress is built for private servers and trusted friend groups. It is not meant to be exposed publicly to random users.
 
-Everything else is real, backed by `app/`:
+## Screenshot Placeholders
 
-- **Server process control** - start/stop/restart/save actually launch and manage `PalServer.exe` (`app/services/process_manager.py`), not simulated. The packaged app intentionally leaves both the AutoPalExpress console and Palworld's own server window visible so the host can see that they are running.
-- **Multi-instance support** - manage multiple server installs, switch which one is "active" (`app/services/instance_store.py`), deploy new ones via SteamCMD, import existing ones (super admin only).
-- **Players** - the roster, kick, and ban are real, backed by a from-scratch Source RCON client (`app/services/rcon.py`) talking directly to the live game server.
-- **Automation** - scheduled backups and restarts, restart warnings, and join/leave announcements are real and actually run on schedule (`app/services/scheduler.py`), backed by the same RCON client.
-- **World Settings** - a generic editor for every field in `PalWorldSettings.ini`, not a hardcoded subset (`app/services/palworld_settings.py`). The game port is deliberately excluded here - see Super Admin below.
-- **Mods** - browse Nexus Mods after the super admin connects a Nexus Mods API key in Super Admin (free accounts can browse; Premium, a paid Nexus subscription, is required for one-click automated installs), or install a manually-downloaded file with its exact hash verified against Nexus's own catalog before anything is installed (`app/routes/mods.py`, `nexus_client.md5_search`).
-- **UE4SS installer** - one-click install/update of the UE4SS mod-loader itself, under Mods.
-- **Super Admin** (role-gated) - the one place to view/change a server's actual game port, UPnP router port forwarding and Windows Firewall rules for both the admin panel and game ports (including seeing and removing a port mapping regardless of which machine created it), a live public-IP display for sharing with friends, and the Nexus Mods account connection.
-- **Multi-user accounts** - the host machine gets exactly one super admin (first account created); friends register as regular admins via invite code. Regular admins get full day-to-day operational access (start/stop, mods, players, World Settings) but not server provisioning, user management, network exposure, or RCON/server credentials, which are reserved for the super admin.
-- **Login rate limiting** - failed login attempts are throttled per IP (`app/services/login_throttle.py`) to slow down brute-forcing, since the panel can be reached from the public internet if you've set up port forwarding for it.
+Add your screenshots here before publishing the GitHub release page.
 
-## Run from source
+| Dashboard | Mods |
+| --- | --- |
+| `TODO: Add dashboard screenshot` | `TODO: Add mods screenshot` |
+
+| Super Admin | Logs |
+| --- | --- |
+| `TODO: Add super admin screenshot` | `TODO: Add logs screenshot` |
+
+## What It Helps With
+
+If you just want to host a Palworld server for friends, AutoPalExpress handles the annoying parts:
+
+- Start, stop, restart, and save the real Palworld server.
+- Deploy a fresh dedicated server with SteamCMD.
+- Import an existing server.
+- Run multiple separate servers with their own folders, mods, and ports.
+- Edit world settings from the browser.
+- Install and update UE4SS.
+- Browse Nexus Mods after the super admin connects a Nexus API key.
+- Enable, disable, reorder, and remove mods.
+- View players, kick players, and ban players through RCON.
+- Schedule backups and restarts.
+- Create invite codes so friends can help administer the server.
+- Manage ports, Windows Firewall rules, public IP, and Nexus setup from Super Admin.
+
+> [!TIP]
+> The first account created becomes the super admin. Make sure that account belongs to the person hosting the server.
+
+## Quick Start
+
+1. Download `PalworldServerAdmin-Setup.exe` from the release page.
+2. Run the installer.
+3. Create the super admin account.
+4. Deploy a new server or import one you already have.
+5. Open the Mods page to install UE4SS and manage mods.
+6. Invite trusted friends if you want help running the server.
+
+> [!NOTE]
+> The Palworld Dedicated Server downloads anonymously through SteamCMD. A Steam account is not required just to deploy the server.
+
+## Remote Access And Security
+
+AutoPalExpress uses regular HTTP by default so setup can stay simple: no domain, certificate, reverse proxy, or manual browser-trust steps.
+
+> [!CAUTION]
+> If you port-forward the admin panel, login details and session cookies are not encrypted over the internet. Only invite people you trust, never post invite codes publicly, and do not treat the panel like a public website.
+
+> [!TIP]
+> For safer remote access, use something like Tailscale, ZeroTier, a VPN, or a reverse proxy with real HTTPS.
+
+## Nexus Mods
+
+AutoPalExpress can browse Palworld mods from Nexus Mods once the super admin connects a Nexus Mods API key in **Super Admin**.
+
+> [!NOTE]
+> Nexus Premium is required for one-click automatic downloads because Nexus restricts automated downloads through its API. That is a Nexus rule, not an AutoPalExpress rule.
+
+Free Nexus accounts can still browse mods. For manual downloads, AutoPalExpress verifies the uploaded file against Nexus' own file catalog before installing it.
+
+## Logs And Windows
+
+The app intentionally leaves command windows visible:
+
+- The AutoPalExpress console window shows the app running.
+- The Palworld server window shows the dedicated server running.
+- The Logs page shows AutoPalExpress output and server activity side by side.
+
+> [!WARNING]
+> Palworld's own server-window text cannot currently be mirrored into the browser. The game does not expose that text as normal stdout or a log file, so the real Palworld window stays visible separately.
+
+## What Is Real
+
+Most of the app is wired to the real machine and real server:
+
+- Server process control is real.
+- Multi-server management is real.
+- Player roster, kick, and ban are real through RCON.
+- Scheduled backups and restarts are real.
+- World Settings edits the real `PalWorldSettings.ini`.
+- Mods and UE4SS install to disk.
+- Super Admin networking tools affect real ports and Windows Firewall rules.
+- Logs show real AutoPalExpress output and real activity events.
+
+<details>
+<summary>Current limitations</summary>
+
+- Whisper and teleport are shown as UI concepts only. Palworld RCON does not provide per-player whisper or teleport commands.
+- Stop/restart should be treated carefully. Use **Save World** before stopping if you want a guaranteed save.
+- The active server selection is shared by everyone using the panel.
+- AutoPalExpress manages the UE4SS Mods folder, not Palworld's separate pak-mod system.
+- Windows SmartScreen may warn because the installer is not code-signed yet.
+
+</details>
+
+## Installer Verification
+
+After building a release, publish the SHA-256 checksum beside the installer so users can verify the file.
+
+Current release build:
+
+```text
+SHA256  PalworldServerAdmin-Setup.exe  580C187244F9F09416A0114B42D082657992A790813950D335ABEDDB34D69AD5
+```
+
+> [!IMPORTANT]
+> If the installer is rebuilt, the checksum changes. Update this section and `installer_output/CHECKSUMS.txt` after every release build.
+
+## For Developers
+
+<details>
+<summary>Run from source</summary>
 
 ```bash
 python -m venv .venv
-# Windows (PowerShell): .venv\Scripts\Activate.ps1
-# Windows (Git Bash):   source .venv/Scripts/activate
+# Windows PowerShell:
+# .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python Palworld_Server.py
 ```
 
-This starts uvicorn on `http://0.0.0.0:8000` with auto-reload. Run the frontend separately in dev:
+Run the frontend separately in development:
 
 ```bash
-# terminal 1
-python Palworld_Server.py
-
-# terminal 2
-cd web && npm run dev
+cd web
+npm install
+npm run dev
 ```
 
-The Vite dev server (`http://localhost:5173`) proxies `/api/*` to the backend (see `web/vite.config.ts`).
+The Vite dev server proxies `/api/*` to the backend.
 
-**Note on transport security**: the panel is plain HTTP, not HTTPS, so the installer can stay one-click with no domain or certificate setup. If you port-forward it for friends to reach over the public internet, login credentials and session cookies travel unencrypted. Only invite people you trust, never post invite codes publicly, and consider a private network tool or reverse proxy with real HTTPS if you need stronger remote-access protection. A self-signed certificate was tried and deliberately reverted - it stops cleartext sniffing, but every friend sees a real browser warning unless you own a domain or accept a higher-risk certificate setup.
+</details>
 
-**Unsigned installer**: public builds are not code-signed, so Windows SmartScreen may warn the first time you run the installer. Verify the download source and checksum before installing.
+<details>
+<summary>Build the Windows installer</summary>
 
-## Data storage
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build_installer.ps1
+```
 
-Persisted as JSON under `data/` (gitignored) when run from source, or `%LOCALAPPDATA%\PalworldServerAdmin\data` when running the packaged app (`app/paths.py`) - instances, mods, users/sessions, invite codes, and the Nexus connection all live there.
+Outputs:
 
-## Building the distributable installer
+- `dist/PalworldServerAdmin.exe`
+- `installer_output/PalworldServerAdmin-Setup.exe`
 
-`PalworldServerAdmin.spec` packages `desktop_app.py` (the real production entry point - opens a browser to the app instead of the dev-reload server) into a single `.exe` via PyInstaller, then `installer.iss` wraps that into an Inno Setup installer (`PalworldServerAdmin-Setup.exe`) with a desktop shortcut.
+</details>
 
-The packaged app shows the AutoPalExpress console window, and Palworld's own server window is also left visible when a server is running. The Logs page tails AutoPalExpress' own output file and shows server activity events side by side, so the same app information is available in the browser.
+## Where Data Is Stored
 
-The installer itself collects initial setup - a super admin username/password, an optional Nexus Mods API key, and an optional first server name - via custom wizard pages, writes them to a one-time seed file, then launches the app and shows live progress while it applies them (`app/services/first_run_setup.py`, using the exact same code paths the UI itself would call). A new server deployed this way, or later through the in-app Deploy Server Wizard, always lands in `data/servers/<name>` - there's no "choose an install folder" step anymore for new deployments (importing a server you already have installed elsewhere still lets you point at any folder).
+When installed, app data is stored under:
 
-## Known limitations
+```text
+%LOCALAPPDATA%\PalworldServerAdmin\data
+```
 
-- No confirmed graceful-shutdown path: stopping the server sends `CTRL_BREAK_EVENT` and waits, but this has never been observed to save the world before the 30s timeout hits and it's hard-killed. Use the in-app "Save World" action before stopping if you want a guaranteed save.
-- "Active instance" is a single value shared by everyone using the panel, not scoped per session - the Start Server dropdown on Server Control shows exactly which instance a click will affect, but two admins acting at the same time can still race.
-- No automated test suite - correctness has relied on manual verification of each feature as it was built.
+This includes server registry data, users, sessions, invites, mod records, and the Nexus connection.
+
+## Support
+
+Use the GitHub issues page or the release/community post where you found the download.

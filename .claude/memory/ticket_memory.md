@@ -33,6 +33,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0021** (2026-07-07, Enhancement) - Clarified the Nexus Mods browsing setup flow: the Mods page Browse dialog and disconnected Nexus state now explicitly tell users that the super admin must connect a Nexus Mods API key in Super Admin first, and the CTA routes to Super Admin instead of the old Settings location. Updated the Super Admin Nexus panel and README wording to match.
 * **TICKET-0022** (2026-07-07, Enhancement) - Refreshed public release docs before community sharing: README and Nexus description now match the current real feature set, no longer claim Logs/Players/World Settings are placeholders, point Nexus setup to Super Admin, and include clearer HTTP/trusted-invite/unsigned-installer notes.
 * **TICKET-0023** (2026-07-07, Enhancement) - Restored visible command windows and improved Logs: packaged AutoPalExpress is console-visible again while teeing stdout/stderr to `backend.log`, Palworld launches without `CREATE_NO_WINDOW`, and the Logs page now shows AutoPalExpress output beside the real server activity feed. Palworld's exact CMD text still cannot be mirrored because it is not normal stdout/log-file text.
+* **TICKET-0024** (2026-07-07, Enhancement) - Reworked the root GitHub README for non-technical community readers: colorful shields, screenshot placeholders, GitHub alert blocks (`NOTE`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION`), simpler quick-start/security sections, and collapsible technical details.
 
 ---
 
