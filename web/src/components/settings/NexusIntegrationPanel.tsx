@@ -49,13 +49,13 @@ export function NexusIntegrationPanel() {
   return (
     <ScrollPanel icon={<BookKey />} title="Nexus Mods Integration">
       <p className="mb-2 text-xs leading-relaxed text-parchment-300/50">
-        Link your Nexus Mods API key to search for and install Palworld mods directly from the Mods page. Find your
-        personal API key on your Nexus Mods account's API Access settings page.
+        Link the super admin's Nexus Mods API key here to unlock "Browse Nexus Mods" on the Mods page for the server.
+        Find your personal API key on your Nexus Mods account's API Access settings page.
       </p>
       <p className="mb-4 text-xs leading-relaxed text-gold-400/80">
         One-click automatic installs require <strong>Nexus Mods Premium</strong>, a paid subscription (Nexus's
         requirement, not this tool's). Free accounts can still connect, browse, and search; installing then means
-        downloading the file yourself and using "Install From File" on the Mods page instead.
+        downloading the file yourself and using "Install From File" here in Super Admin instead.
       </p>
 
       {account?.connected ? (

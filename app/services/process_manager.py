@@ -18,7 +18,7 @@ from typing import Any
 
 import psutil
 
-from app.services import instance_store, palworld_settings
+from app.services import activity_log, instance_store, palworld_settings
 
 logger = logging.getLogger("palworld_admin.process_manager")
 
@@ -67,16 +67,11 @@ def start(instance: dict[str, Any]) -> None:
                 "-UseMultithreadForDS",
             ],
             cwd=str(exe.parent),
-            # CREATE_NO_WINDOW: PalServer.exe's real game process (a grandchild,
-            # PalServer-Win64-Shipping-Cmd.exe) allocates its own console
-            # regardless of how we launch the launcher - confirmed live that this
-            # flag suppresses that whole tree's window, not just the immediate
-            # child. stdout/stderr are discarded rather than piped: also confirmed
-            # live that Palworld's dedicated server writes through its own
-            # low-level console API, not the standard stdout handle (even with
-            # -log passed), so there's nothing useful to capture that way - piping
-            # it would just be an unread buffer for no benefit.
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW,
+            # Keep Palworld's own server window visible so the host can see at
+            # a glance that it is running. stdout/stderr still do not contain
+            # the window text - Palworld renders that content through its own
+            # console/overlay path rather than writing normal process output.
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             stdin=subprocess.DEVNULL,
@@ -85,6 +80,7 @@ def start(instance: dict[str, Any]) -> None:
         _started_at[instance_id] = time.time()
         _stopping.discard(instance_id)
         logger.info("process_manager: started %r (pid=%s, port=%s)", instance["name"], proc.pid, game_port)
+        activity_log.log("info", instance["name"], f"Server started (port {game_port}).")
 
 
 def stop(instance_id: str, timeout: float = 30) -> None:
@@ -98,6 +94,7 @@ def stop(instance_id: str, timeout: float = 30) -> None:
         _stopping.add(instance_id)
 
     logger.info("process_manager: stopping pid=%s", proc.pid)
+    name = (instance_store.get(instance_id) or {}).get("name", instance_id)
 
     # PalServer.exe is a launcher, not the real game process (see
     # _tree_cpu_ram) - the launcher exiting doesn't stop its child, so the
@@ -125,14 +122,18 @@ def stop(instance_id: str, timeout: float = 30) -> None:
                 proc.pid,
                 timeout,
             )
+            activity_log.log("warning", name, f"Didn't stop gracefully within {int(timeout)}s - force-killed.")
         else:
             logger.warning("process_manager: launcher pid=%s exited but left child processes running, killing them", proc.pid)
+            activity_log.log("warning", name, "Launcher exited but left child processes running - killed them too.")
         for p in still_alive:
             try:
                 p.kill()
             except psutil.Error:
                 pass
         psutil.wait_procs(still_alive, timeout=10)
+    else:
+        activity_log.log("info", name, "Server stopped.")
 
     if proc.poll() is None:
         try:

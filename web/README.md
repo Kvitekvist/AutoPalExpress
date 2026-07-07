@@ -2,7 +2,7 @@
 
 A dark-fantasy administration dashboard for a Palworld dedicated server.
 
-Mods and Nexus Mods integration are wired to a real backend (see `../README.md` at the repo root; it needs to be running for the Mods page and Nexus connection to work). Everything else (server status, players, logs, settings, server connection) still goes through a mock API service layer (`src/api/`) with simulated latency and in-memory state.
+Most major pages are wired to the real FastAPI backend (see `../README.md` at the repo root; it needs to be running for live data). Mods/Nexus, server control, players, logs, world settings, instances, automation, users, networking, and UE4SS all call backend APIs. Only a few legacy surfaces remain frontend-only, mainly the general settings mock and player actions Palworld RCON does not support.
 
 ## Stack
 
@@ -25,13 +25,11 @@ Then open the printed local URL (defaults to http://localhost:5173). The dev ser
 ```
 src/
   api/
-    httpClient.ts   real fetch() wrapper (used by modsApi/nexusApi)
-    modsApi.ts      real: calls the FastAPI backend's /api/mods/*
-    nexusApi.ts     real: calls the FastAPI backend's /api/integrations/nexus/*
-    serverApi.ts, playersApi.ts, logsApi.ts, settingsApi.ts, connectionApi.ts
-                    still mocked: thin async wrappers with a comment naming the
-                    REST endpoint each stands in for; swap the body for a fetch()
-                    call when a real backend exists for those domains too
+    httpClient.ts   real fetch() wrapper
+    modsApi.ts      calls /api/mods/*
+    nexusApi.ts     calls /api/integrations/nexus/*
+    logsApi.ts      calls /api/logs/*
+    settingsApi.ts  legacy mocked general settings API
   types/models.ts shared data models (ServerStatus, Player, Mod, NexusModResult, ...)
   components/
     ui/           bare Radix-based primitives (button, dialog, tabs, switch, select, ...)
@@ -42,7 +40,7 @@ src/
     players/      PlayerCard
     mods/         ModCard (drag-to-reorder via Framer Motion's Reorder),
                   NexusBrowseDialog / NexusModBrowser / NexusModCard (real Nexus Mods browsing)
-    settings/     ServerConnectionPanel, NexusIntegrationPanel
-  pages/          Dashboard, Players, Mods, ServerControl, Logs, Settings
+    settings/     NexusIntegrationPanel and super-admin configuration panels
+  pages/          Dashboard, Mods, ServerControl, WorldSettings, Logs, Settings, SuperAdmin
   hooks/          useServerStatus (polling), useNotifications (magic toast system)
 ```

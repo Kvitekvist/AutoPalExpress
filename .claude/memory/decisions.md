@@ -323,6 +323,24 @@ Real Palworld console log content is still not visible anywhere in the app - the
 
 ### Decision
 
+The mocked Logs page was replaced with a real activity feed built from events this app already knows about or performs (TICKET-0020), instead of Palworld's own console text.
+
+### Reason
+
+Following directly from TICKET-0019's console-window work, the user asked to see the old console's actual log content in the panel. Investigating further found the real reason nothing could be captured: `Pal/Saved/Config/WindowsServer/ImGui.ini` exists on the real test server install, confirming Palworld's dedicated server renders its console via **Dear ImGui** - a GPU-rendered overlay, not a real Win32 text console. There is no text buffer anywhere to read; the console's content is pixels, not characters. This is strictly worse than "hard to capture" - it's not text at all, so console-buffer-reading APIs (`ReadConsoleOutputCharacter` etc.) wouldn't work regardless of console visibility. The only remaining paths (screen-capture OCR, or scanning the game's process memory for ImGui's internal text buffers) were judged unreliable and inappropriate to build against a third-party game process, so they weren't attempted - confirmed this pivot with the user via `AskUserQuestion` before writing any code.
+
+### Consequences
+
+`app/services/activity_log.py` is a new, independent real event log (JSON Lines, persisted, capped at 2000 entries with the file trimmed back down past ~2MB), fed by `process_manager` (start/stop/force-kill), `scheduler.py` (backup/restart outcomes, player join/leave), and `players.py` (kick/ban/unban, attributed to the acting admin). Player join/leave logging was deliberately decoupled from the `joinLeaveMessages` automation toggle - that toggle now only controls the in-game chat broadcast, not whether the activity is logged - since an admin may want the log visibility without in-game spam. This closes out the Logs page's mocked status from the README, but it is a genuinely different feature than "the old console" - real Palworld engine log text remains permanently out of reach short of OCR/memory-scanning, which this project has decided not to pursue.
+
+### Date
+
+2026-07-07
+
+---
+
+### Decision
+
 Initial setup (super admin account, Nexus API key, an optional first server) moved into the Windows installer (TICKET-0018), applied automatically on first launch via a new `first_run_setup.py` service reading a one-time seed file the installer writes. New server deployments now always go in `data_dir()/servers/<name>` instead of a browsed folder.
 
 ### Reason
@@ -340,3 +358,21 @@ Every seeded step (account, Nexus, deploy) has a pre-existing manual fallback al
 ### Date
 
 2026-07-06
+
+---
+
+### Decision
+
+Visible command windows were restored for both the packaged AutoPalExpress process and the Palworld server process (TICKET-0023), reversing the user-facing part of TICKET-0019 while preserving browser-visible AutoPalExpress logs.
+
+### Reason
+
+The user preferred visible windows because they make it obvious that the processes are running, and expected the Logs page to show what AutoPalExpress itself is printing. The packaged app now uses `console=True` again, and `desktop_app.py` tees stdout/stderr to `backend.log` while still writing to the visible console. `process_manager.start()` no longer passes `CREATE_NO_WINDOW`, so Palworld's own server window is visible again.
+
+### Consequences
+
+The Logs page now has two columns: AutoPalExpress output from `backend.log` and the real server activity feed from `activity_log.jsonl`. This still does not mirror Palworld's own CMD-window text into the browser: prior live testing showed Palworld does not write that text to stdout or a log file, and renders it through its own Dear ImGui/console path. The exact Palworld window is visible separately instead.
+
+### Date
+
+2026-07-07

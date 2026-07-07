@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.auth_deps import get_current_user, require_super_admin
 from app.paths import resource_dir
-from app.routes import automation, auth, instances, mods, network, nexus, players, server_control, server_settings, ue4ss, users
+from app.routes import automation, auth, instances, logs, mods, network, nexus, players, server_control, server_settings, ue4ss, users
 from app.services import first_run_setup, instance_store, scheduler
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -48,6 +48,7 @@ app.include_router(server_control.router, prefix="/api/server", tags=["server"],
 app.include_router(server_settings.router, prefix="/api/server-settings", tags=["server-settings"], dependencies=_authed)
 app.include_router(automation.router, prefix="/api/automation", tags=["automation"], dependencies=_super_admin_only)
 app.include_router(players.router, prefix="/api/players", tags=["players"], dependencies=_authed)
+app.include_router(logs.router, prefix="/api/logs", tags=["logs"], dependencies=_authed)
 # Port forwarding and firewall changes affect the host machine's network
 # exposure - reserved for the super admin, same as account management.
 app.include_router(network.router, prefix="/api/network", tags=["network"], dependencies=_super_admin_only)

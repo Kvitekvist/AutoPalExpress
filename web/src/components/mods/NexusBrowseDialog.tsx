@@ -15,7 +15,10 @@ export function NexusBrowseDialog({ open, onOpenChange, installedNames, onInstal
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Browse Nexus Mods</DialogTitle>
-          <DialogDescription>Search, filter, and add Palworld mods straight from Nexus Mods.</DialogDescription>
+          <DialogDescription>
+            Search, filter, and add Palworld mods straight from Nexus Mods. Browsing requires the super admin to connect
+            a Nexus Mods API key in Super Admin first.
+          </DialogDescription>
         </DialogHeader>
         <NexusModBrowser installedNames={installedNames} onInstalled={onInstalled} />
       </DialogContent>

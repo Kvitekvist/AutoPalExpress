@@ -1,10 +1,6 @@
-import type { Player, LogEntry, ServerSettings } from "@/types/models";
+import type { Player, ServerSettings } from "@/types/models";
 
 export const mockPlayers: Player[] = [];
-
-export function generateMockLogs(_count: number): LogEntry[] {
-  return [];
-}
 
 export const mockSettings: ServerSettings = {
   serverName: "",

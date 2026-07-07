@@ -38,6 +38,10 @@ def sync_online(instance_id: str, online: list[dict[str, str]]) -> dict[str, Any
     return data
 
 
+def get_name(instance_id: str, steamid: str) -> str | None:
+    return _load(instance_id).get(steamid, {}).get("name")
+
+
 def set_banned(instance_id: str, steamid: str, banned: bool) -> None:
     data = _load(instance_id)
     if steamid in data:

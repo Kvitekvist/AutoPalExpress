@@ -77,10 +77,10 @@ export function NexusModBrowser({ installedNames, onInstalled }: NexusModBrowser
       <div className="flex flex-col items-center gap-3 rounded-md border border-stone-700 bg-abyss-900/40 px-6 py-10 text-center">
         <Link2 className="h-8 w-8 text-gold-500/60" />
         <p className="text-sm text-parchment-300/70">
-          Connect your Nexus Mods API key in Settings to browse and install mods directly.
+          The super admin needs to connect a Nexus Mods API key in Super Admin before anyone can browse Nexus Mods here.
         </p>
-        <RuneButton variant="gold" size="sm" onClick={() => navigate("/settings")}>
-          Go to Settings
+        <RuneButton variant="gold" size="sm" onClick={() => navigate("/super-admin")}>
+          Go to Super Admin
         </RuneButton>
       </div>
     );

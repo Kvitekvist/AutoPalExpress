@@ -1,8 +1,6 @@
 """Entry point for the packaged (PyInstaller) build. Starts the backend and
 opens the default browser to it - the whole app is one process on one port,
-since app/main.py also serves the built frontend when it's present. Runs
-windowed (no console - see PalworldServerAdmin.spec's console=False): the
-browser tab this opens is the only UI a user ever needs to see.
+since app/main.py also serves the built frontend when it's present.
 """
 
 import socket
@@ -18,14 +16,24 @@ LOCAL_HOST = "127.0.0.1"
 PORT = 8000
 
 
-def _redirect_console_streams() -> None:
-    """A windowed build has no console, so sys.stdout/sys.stderr are None -
-    anything that writes to them (print(), the logging module's default
-    handler, uvicorn's own internal logging) would crash the instant it's
-    used. Redirect both to a real log file instead, so all of that keeps
-    working without reconfiguring each of them individually. Must run before
-    uvicorn.run() sets up its own logging, which resolves "ext://sys.stderr"
-    against whatever sys.stderr is at that point."""
+class _Tee:
+    def __init__(self, *streams):
+        self._streams = [stream for stream in streams if stream is not None]
+
+    def write(self, text: str) -> int:
+        for stream in self._streams:
+            stream.write(text)
+            stream.flush()
+        return len(text)
+
+    def flush(self) -> None:
+        for stream in self._streams:
+            stream.flush()
+
+
+def _tee_console_streams() -> None:
+    """Keep the packaged console visible and also copy stdout/stderr into
+    backend.log so the Logs page can show AutoPalExpress' own output."""
     from app.paths import data_dir
 
     try:
@@ -35,8 +43,8 @@ def _redirect_console_streams() -> None:
         import io
 
         log_file = io.StringIO()
-    sys.stdout = log_file
-    sys.stderr = log_file
+    sys.stdout = _Tee(sys.stdout, log_file)
+    sys.stderr = _Tee(sys.stderr, log_file)
 
 
 def _show_startup_error(message: str) -> None:
@@ -55,7 +63,7 @@ def _port_in_use(host: str, port: int) -> bool:
 
 
 def main() -> None:
-    _redirect_console_streams()
+    _tee_console_streams()
 
     url = f"http://{LOCAL_HOST}:{PORT}/"
 
@@ -80,7 +88,7 @@ def main() -> None:
 
         uvicorn.run(app, host=BIND_HOST, port=PORT, log_level="info")
     except Exception:
-        traceback.print_exc()  # goes to the redirected log file
+        traceback.print_exc()
         from app.paths import data_dir
 
         _show_startup_error(

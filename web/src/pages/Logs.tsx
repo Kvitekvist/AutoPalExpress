@@ -22,7 +22,8 @@ const LEVEL_CONFIG: Record<LogLevel, { icon: typeof Info; text: string; border: 
 };
 
 export default function Logs() {
-  const [logs, setLogs] = React.useState<LogEntry[]>([]);
+  const [activityLogs, setActivityLogs] = React.useState<LogEntry[]>([]);
+  const [appLines, setAppLines] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState("");
   const [level, setLevel] = React.useState<LevelFilter>("all");
@@ -30,8 +31,9 @@ export default function Logs() {
   const notifications = useNotifications();
 
   React.useEffect(() => {
-    logsApi.getLogs().then((l) => {
-      setLogs(l);
+    logsApi.getLogStreams().then((streams) => {
+      setActivityLogs(streams.activity);
+      setAppLines(streams.app);
       setLoading(false);
     });
   }, []);
@@ -39,12 +41,15 @@ export default function Logs() {
   React.useEffect(() => {
     if (!autoRefresh) return;
     const id = window.setInterval(() => {
-      logsApi.pollNewLogs().then(setLogs);
+      logsApi.pollLogStreams().then((streams) => {
+        setActivityLogs(streams.activity);
+        setAppLines(streams.app);
+      });
     }, 5000);
     return () => window.clearInterval(id);
   }, [autoRefresh]);
 
-  const filtered = logs.filter((l) => {
+  const filteredActivity = activityLogs.filter((l) => {
     if (level !== "all" && l.level !== level) return false;
     if (search) {
       const q = search.toLowerCase();
@@ -52,12 +57,13 @@ export default function Logs() {
     }
     return true;
   });
+  const filteredAppLines = appLines.filter((line) => !search || line.toLowerCase().includes(search.toLowerCase()));
 
-  const errorCount = logs.filter((l) => l.level === "error").length;
-  const warningCount = logs.filter((l) => l.level === "warning").length;
+  const errorCount = activityLogs.filter((l) => l.level === "error").length;
+  const warningCount = activityLogs.filter((l) => l.level === "warning").length;
 
-  async function handleExport() {
-    const blob = await logsApi.exportLogs();
+  function handleExport() {
+    const blob = logsApi.exportLogs(activityLogs, appLines);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -112,39 +118,73 @@ export default function Logs() {
           />
         </div>
 
-        <ScrollArea className="h-[520px] rounded-md border border-stone-700 bg-abyss-950/60">
-          {loading ? (
-            <div className="flex h-full items-center justify-center text-parchment-300/50">
-              <p className="animate-pulse font-display">Unfurling the scroll...</p>
+        <div className="grid gap-4 xl:grid-cols-2">
+          <div className="min-w-0">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <h2 className="font-display text-sm font-semibold text-gold-300">AutoPalExpress</h2>
+              <span className="font-mono text-xs text-parchment-300/40">{filteredAppLines.length} lines</span>
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex h-40 items-center justify-center text-parchment-300/40">
-              <p>No entries match your search.</p>
+            <ScrollArea className="h-[520px] rounded-md border border-stone-700 bg-abyss-950/60">
+              {loading ? (
+                <div className="flex h-full items-center justify-center text-parchment-300/50">
+                  <p className="animate-pulse font-display">Unfurling the scroll...</p>
+                </div>
+              ) : filteredAppLines.length === 0 ? (
+                <div className="flex h-40 items-center justify-center px-4 text-center text-parchment-300/40">
+                  <p>No AutoPalExpress output yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-1 p-3 font-mono text-[12px] leading-relaxed text-parchment-200/80">
+                  {filteredAppLines.map((line, index) => (
+                    <div key={`${index}-${line}`} className="break-words rounded bg-stone-950/40 px-2 py-1">
+                      {line}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+
+          <div className="min-w-0">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <h2 className="font-display text-sm font-semibold text-gold-300">Server Activity</h2>
+              <span className="font-mono text-xs text-parchment-300/40">{filteredActivity.length} entries</span>
             </div>
-          ) : (
-            <div className="divide-y divide-stone-800/80 font-mono text-[13px]">
-              {filtered.map((entry) => {
-                const config = LEVEL_CONFIG[entry.level];
-                const Icon = config.icon;
-                return (
-                  <div
-                    key={entry.id}
-                    className={cn("flex items-start gap-3 border-l-2 px-4 py-2", config.border, config.bg)}
-                  >
-                    <Icon className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", config.text)} />
-                    <span className="shrink-0 text-parchment-300/35">{formatTimestamp(entry.timestamp)}</span>
-                    <span className="shrink-0 rounded bg-stone-800/80 px-1.5 py-0.5 text-[11px] text-parchment-300/50">
-                      {entry.source}
-                    </span>
-                    <span className={cn("min-w-0 flex-1 break-words", config.text || "text-parchment-200")}>
-                      {entry.message}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </ScrollArea>
+            <ScrollArea className="h-[520px] rounded-md border border-stone-700 bg-abyss-950/60">
+              {loading ? (
+                <div className="flex h-full items-center justify-center text-parchment-300/50">
+                  <p className="animate-pulse font-display">Unfurling the scroll...</p>
+                </div>
+              ) : filteredActivity.length === 0 ? (
+                <div className="flex h-40 items-center justify-center px-4 text-center text-parchment-300/40">
+                  <p>No server activity matches your search.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-stone-800/80 font-mono text-[13px]">
+                  {filteredActivity.map((entry) => {
+                    const config = LEVEL_CONFIG[entry.level];
+                    const Icon = config.icon;
+                    return (
+                      <div
+                        key={entry.id}
+                        className={cn("flex items-start gap-3 border-l-2 px-4 py-2", config.border, config.bg)}
+                      >
+                        <Icon className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", config.text)} />
+                        <span className="shrink-0 text-parchment-300/35">{formatTimestamp(entry.timestamp)}</span>
+                        <span className="shrink-0 rounded bg-stone-800/80 px-1.5 py-0.5 text-[11px] text-parchment-300/50">
+                          {entry.source}
+                        </span>
+                        <span className={cn("min-w-0 flex-1 break-words", config.text || "text-parchment-200")}>
+                          {entry.message}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        </div>
       </ScrollPanel>
     </div>
   );

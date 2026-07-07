@@ -2,9 +2,10 @@ import time
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
-from app.services import instance_store, player_history, rcon
+from app.auth_deps import get_current_user
+from app.services import activity_log, instance_store, player_history, rcon
 from app.services.rcon import RconError
 
 router = APIRouter()
@@ -75,32 +76,38 @@ async def list_players() -> list[dict[str, Any]]:
 
 
 @router.post("/{player_id}/kick")
-async def kick_player(player_id: str) -> list[dict[str, Any]]:
+async def kick_player(player_id: str, user: dict[str, Any] = Depends(get_current_user)) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     try:
         await rcon.kick_player(instance, player_id)
     except RconError as e:
         raise HTTPException(status_code=400, detail=e.message)
+    name = player_history.get_name(instance["id"], player_id) or player_id
+    activity_log.log("warning", instance["name"], f"{name} was kicked by {user['username']}.")
     return await _list_players()
 
 
 @router.post("/{player_id}/ban")
-async def ban_player(player_id: str) -> list[dict[str, Any]]:
+async def ban_player(player_id: str, user: dict[str, Any] = Depends(get_current_user)) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     try:
         await rcon.ban_player(instance, player_id)
     except RconError as e:
         raise HTTPException(status_code=400, detail=e.message)
     player_history.set_banned(instance["id"], player_id, True)
+    name = player_history.get_name(instance["id"], player_id) or player_id
+    activity_log.log("warning", instance["name"], f"{name} was banned by {user['username']}.")
     return await _list_players()
 
 
 @router.post("/{player_id}/unban")
-async def unban_player(player_id: str) -> list[dict[str, Any]]:
+async def unban_player(player_id: str, user: dict[str, Any] = Depends(get_current_user)) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     try:
         await rcon.unban_player(instance, player_id)
     except RconError as e:
         raise HTTPException(status_code=400, detail=e.message)
     player_history.set_banned(instance["id"], player_id, False)
+    name = player_history.get_name(instance["id"], player_id) or player_id
+    activity_log.log("info", instance["name"], f"{name} was unbanned by {user['username']}.")
     return await _list_players()

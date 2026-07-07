@@ -98,6 +98,11 @@ export interface LogEntry {
   message: string;
 }
 
+export interface LogStreams {
+  app: string[];
+  activity: LogEntry[];
+}
+
 export interface ServerSettings {
   serverName: string;
   serverPassword: string;
@@ -242,4 +247,3 @@ export interface PortForwardResult {
   externalIp: string | null;
   routerName: string;
 }
-

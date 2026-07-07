@@ -14,7 +14,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any
 
-from app.services import automation_store, backup_service, instance_store, process_manager, rcon
+from app.services import activity_log, automation_store, backup_service, instance_store, process_manager, rcon
 from app.services.process_manager import ProcessError
 from app.services.rcon import RconError
 
@@ -68,8 +68,10 @@ async def _check_backup(instance: dict[str, Any], config: dict[str, Any]) -> Non
     try:
         await backup_service.run_backup(instance)
         logger.info("scheduler: backup completed for %s", instance["name"])
+        activity_log.log("info", instance["name"], "Scheduled backup completed.")
     except (OSError, FileNotFoundError) as e:
         logger.warning("scheduler: backup failed for %s: %s", instance["name"], e)
+        activity_log.log("error", instance["name"], f"Scheduled backup failed: {e}")
 
 
 async def _check_restart_and_warning(instance: dict[str, Any], config: dict[str, Any]) -> None:
@@ -97,6 +99,7 @@ async def _check_restart_and_warning(instance: dict[str, Any], config: dict[str,
 
     if _within_catch_up_window(restart_target, now) and _last_restart_fired.get(instance["id"]) != restart_key:
         _last_restart_fired[instance["id"]] = restart_key
+        activity_log.log("info", instance["name"], "Scheduled restart starting.")
         await _try_broadcast(instance, "The realm is restarting now for scheduled maintenance.")
         try:
             await rcon.save(instance)
@@ -107,11 +110,14 @@ async def _check_restart_and_warning(instance: dict[str, Any], config: dict[str,
             await asyncio.to_thread(process_manager.start, instance)
         except ProcessError as e:
             logger.warning("scheduler: restart failed to bring %s back up: %s", instance["name"], e.message)
+            activity_log.log("error", instance["name"], f"Scheduled restart failed to bring the server back up: {e.message}")
 
 
 async def _check_player_presence(instance: dict[str, Any], config: dict[str, Any]) -> None:
-    if not config.get("joinLeaveMessages"):
-        return
+    # Player activity is tracked (and logged to the Logs page) regardless of
+    # this setting - joinLeaveMessages only controls whether an in-game
+    # broadcast is also sent. An admin may want the log visibility without
+    # the "X has entered the realm" chat spam.
     if process_manager.get_status(instance["id"])["state"] != "online":
         return
     try:
@@ -131,10 +137,15 @@ async def _check_player_presence(instance: dict[str, Any], config: dict[str, Any
     left = known.keys() - current.keys()
     _known_players[instance["id"]] = current
 
+    announce = config.get("joinLeaveMessages")
     for uid in joined:
-        await _try_broadcast(instance, f"{current[uid]} has entered the realm.")
+        activity_log.log("info", instance["name"], f"{current[uid]} joined.")
+        if announce:
+            await _try_broadcast(instance, f"{current[uid]} has entered the realm.")
     for uid in left:
-        await _try_broadcast(instance, f"{known[uid]} has left the realm.")
+        activity_log.log("info", instance["name"], f"{known[uid]} left.")
+        if announce:
+            await _try_broadcast(instance, f"{known[uid]} has left the realm.")
 
 
 async def _check_instance(instance: dict[str, Any]) -> None:

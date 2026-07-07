@@ -22,9 +22,9 @@ Core feature set is complete and has been exercised live: multi-instance server 
 
 * Decide whether to extend RCON usage to the manual Stop/Restart buttons too (currently still `CTRL_BREAK_EVENT`-based, never confirmed graceful) now that a working RCON client exists.
 * Consider a fix for `process_manager` forgetting a server is running after a backend restart (no process adoption currently).
-* Remaining mocked surfaces (Logs page, the general Settings blob's own fields) could be wired to something real if they matter to the user - not yet requested.
+* Remaining mocked surfaces: the general Settings blob's own fields, plus per-player whisper/teleport on the Players page because Palworld RCON has no matching commands.
 * NEEDS MANUAL VERIFICATION (TICKET-0018): the new installer-driven first-run setup (custom wizard pages + progress page in `installer.iss`) compiles cleanly and every backend code path it depends on is tested via real HTTP requests, but the actual interactive GUI click-through hasn't been run through by a human yet - this dev sandbox has no interactive desktop session to drive an installer wizard with (confirmed: even a `/VERYSILENT` install hangs on an unrelated pre-existing privilege dialog). Next real install should be watched end-to-end.
-* Real Palworld server console log content still isn't captured anywhere in the app (TICKET-0019 eliminated the window itself, but confirmed live that the content can't be piped/read the same way - see Decision Log). Getting actual log text into the app's own "Logs" page would need reading the game's own hidden console screen buffer directly - a distinctly harder, separate problem from window suppression, not yet attempted.
+* Real Palworld server console log content will likely never be capturable (TICKET-0019/0020/0023): confirmed the console is rendered via Dear ImGui (`ImGui.ini` found in the server's own config), a GPU overlay with no real text buffer to read - not just "hard to pipe," genuinely not text at all. The Logs page is now real, with AutoPalExpress output from `backend.log` beside this app's own server activity feed, but not Palworld's own engine-window text.
 
 ---
 
@@ -33,7 +33,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * No automated test suite anywhere in the project - all verification has been manual/live (see memory/tech_stack.md Notes).
 * `process_manager`'s running-state tracking is in-memory only, lost on every backend restart.
 * No confirmed graceful shutdown path for the manual Stop/Restart actions.
-* No git repository has been initialized for this project yet, so there's no commit history, branches, or PR workflow - everything has been tracked through direct conversation and these memory files instead.
+* Git exists, but sandboxed Codex may hit "dubious ownership" because the sandbox user differs from the host owner. Check current git behavior before relying on git commands.
 
 ---
 
@@ -62,6 +62,6 @@ Core feature set is complete and has been exercised live: multi-instance server 
 
 ## Notes
 
-* No git repo exists yet for this project - a generic ".claude" project framework was added on 2026-07-05 (this memory system is part of it), but the framework's own suggested `tickets/`, `scripts/`, and git setup haven't been adopted yet. Don't assume they exist without checking.
+* The `.claude` memory system and ticket folder are active project records. Git exists, but may need a safe-directory exception from the host user before sandboxed git commands work.
 * The distributable installer (`PalworldServerAdmin-Setup.exe`) has been built and verified multiple times this project (silent install/uninstall, real launch, TLS-then-reverted rebuilds) - see memory/decisions.md for the TLS history specifically, since that installer was rebuilt more than once for reasons worth understanding before touching TLS again.
 * This project involves a live, real Palworld dedicated server and real players (the developer's own friends) - verification throughout has deliberately used real live testing (real UAC prompts, a real router, a real connected player for RCON) rather than only theoretical/unit testing, but destructive actions against real live sessions (e.g. testing kick/ban) have been deliberately avoided even when live-testing was otherwise appropriate.
