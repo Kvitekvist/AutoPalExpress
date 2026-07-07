@@ -34,6 +34,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0022** (2026-07-07, Enhancement) - Refreshed public release docs before community sharing: README and Nexus description now match the current real feature set, no longer claim Logs/Players/World Settings are placeholders, point Nexus setup to Super Admin, and include clearer HTTP/trusted-invite/unsigned-installer notes.
 * **TICKET-0023** (2026-07-07, Enhancement) - Restored visible command windows and improved Logs: packaged AutoPalExpress is console-visible again while teeing stdout/stderr to `backend.log`, Palworld launches without `CREATE_NO_WINDOW`, and the Logs page now shows AutoPalExpress output beside the real server activity feed. Palworld's exact CMD text still cannot be mirrored because it is not normal stdout/log-file text.
 * **TICKET-0024** (2026-07-07, Enhancement) - Reworked the root GitHub README for non-technical community readers: colorful shields, screenshot placeholders, GitHub alert blocks (`NOTE`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION`), simpler quick-start/security sections, and collapsible technical details.
+* **TICKET-0025** (2026-07-07, Enhancement) - Added the maintainer-provided Dashboard, Mods, Super Admin, and Logs screenshots from `images/` to the GitHub README and committed the image assets.
 
 ---
 

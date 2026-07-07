@@ -14,17 +14,15 @@ It opens in your browser, but it runs on your own PC. You stay in control of the
 > [!IMPORTANT]
 > AutoPalExpress is built for private servers and trusted friend groups. It is not meant to be exposed publicly to random users.
 
-## Screenshot Placeholders
-
-Add your screenshots here before publishing the GitHub release page.
+## Screenshots
 
 | Dashboard | Mods |
 | --- | --- |
-| `TODO: Add dashboard screenshot` | `TODO: Add mods screenshot` |
+| ![Dashboard](images/Dashboard.png) | ![Mods](images/Mods.png) |
 
 | Super Admin | Logs |
 | --- | --- |
-| `TODO: Add super admin screenshot` | `TODO: Add logs screenshot` |
+| ![Super Admin](images/SuperAdmin.png) | ![Logs](images/Logs.png) |
 
 ## What It Helps With
 
