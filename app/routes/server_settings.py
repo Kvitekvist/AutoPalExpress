@@ -32,11 +32,25 @@ def _redact_credentials(fields: list[dict[str, Any]], user: dict[str, Any]) -> l
     return [{**f, "value": _REDACTED} if f["key"] in _CREDENTIAL_FIELDS else f for f in fields]
 
 
+def _launch_options_view(instance: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "instanceId": instance["id"],
+        "name": instance["name"],
+        "performanceFlags": bool(instance.get("performanceFlags", True)),
+        "workerThreads": instance.get("workerThreads") if instance.get("workerThreads") is not None else None,
+        "jsonLogFormat": bool(instance.get("jsonLogFormat")),
+    }
+
+
+def _settings_view(instance: dict[str, Any], user: dict[str, Any]) -> dict[str, Any]:
+    fields = palworld_settings.read_all_settings(Path(instance["serverPath"]))
+    return {"fields": _redact_credentials(fields, user), "launchOptions": _launch_options_view(instance)}
+
+
 @router.get("")
 async def get_settings(user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
     instance = _require_active_instance()
-    fields = palworld_settings.read_all_settings(Path(instance["serverPath"]))
-    return {"fields": _redact_credentials(fields, user)}
+    return _settings_view(instance, user)
 
 
 class UpdateSettingsRequest(BaseModel):
@@ -61,5 +75,5 @@ async def update_settings(
     if "PublicPort" in body.values:
         instance_store.update_game_port(instance["id"], int(body.values["PublicPort"]))
 
-    fields = palworld_settings.read_all_settings(Path(instance["serverPath"]))
-    return {"fields": _redact_credentials(fields, user)}
+    updated_instance = instance_store.get(instance["id"]) or instance
+    return _settings_view(updated_instance, user)

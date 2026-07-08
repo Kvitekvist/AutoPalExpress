@@ -44,6 +44,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0032** (2026-07-08, Feature) - Added a noticeable Settings-page checkbox for showing an instance in Palworld's Community Server list. The option is stored per server and adds the `-publiclobby` launch argument on the next start.
 * **TICKET-0033** (2026-07-08, Feature) - Added safe per-server launch-option controls for Palworld's performance flags, optional worker thread count, and JSON log format. Existing single-source settings were intentionally not duplicated: port, player count, community listing, and public IP/port remain in their current flows.
 * **TICKET-0034** (2026-07-08, Enhancement) - Moved the safe launch-option controls from Settings to World Settings so performance flags, worker thread override, and JSON log format are easier to find beside the server behavior configuration. The controls remain backed by per-instance storage and still require a restart.
+* **TICKET-0035** (2026-07-08, Bug) - Fixed World Settings hiding the Launch Options panel by returning launch-option state in the same `/api/server-settings` response as the visible `.ini` fields, instead of relying on a separate active-instance request.
 
 ---
 

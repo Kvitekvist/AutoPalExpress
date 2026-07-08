@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.0.0 - 2026-07-07
+- Fixed World Settings hiding the Launch Options panel even though the active server's settings loaded.
 - Moved safe per-server Palworld launch-option controls from Settings into World Settings.
 - Added World Settings controls for safe per-server Palworld launch options: performance flags, worker thread override, and JSON log format.
 - Added a Settings checkbox to show a server in Palworld's Community Server list on next start.

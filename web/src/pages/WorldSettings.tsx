@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Sparkles, Sliders, Save, Rocket } from "lucide-react";
 import { instancesApi, serverSettingsApi } from "@/api";
-import type { ServerInstance, SettingField } from "@/types/models";
+import type { LaunchOptions, SettingField } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,7 +57,7 @@ function FieldControl({
 
 export default function WorldSettings() {
   const [fields, setFields] = React.useState<SettingField[] | null>(null);
-  const [activeInstance, setActiveInstance] = React.useState<ServerInstance | null>(null);
+  const [launchOptions, setLaunchOptions] = React.useState<LaunchOptions | null>(null);
   const [values, setValues] = React.useState<Record<string, FieldValue>>({});
   const [dirty, setDirty] = React.useState<Set<string>>(new Set());
   const [saving, setSaving] = React.useState(false);
@@ -70,10 +70,10 @@ export default function WorldSettings() {
   const load = React.useCallback(() => {
     serverSettingsApi.getSettings().then((data) => {
       setFields(data.fields);
+      setLaunchOptions(data.launchOptions);
       setValues(Object.fromEntries(data.fields.map((f) => [f.key, f.value])));
       setDirty(new Set());
     });
-    instancesApi.getActive().then(setActiveInstance);
   }, []);
 
   React.useEffect(() => {
@@ -92,6 +92,7 @@ export default function WorldSettings() {
       const updates = Object.fromEntries([...dirty].map((key) => [key, values[key]]));
       const data = await serverSettingsApi.updateSettings(updates);
       setFields(data.fields);
+      setLaunchOptions(data.launchOptions);
       setValues(Object.fromEntries(data.fields.map((f) => [f.key, f.value])));
       setDirty(new Set());
       notifications.success({
@@ -106,18 +107,27 @@ export default function WorldSettings() {
   }
 
   async function saveLaunchOptions(
-    nextOptions: Partial<Pick<ServerInstance, "performanceFlags" | "workerThreads" | "jsonLogFormat">>
+    nextOptions: Partial<Pick<LaunchOptions, "performanceFlags" | "workerThreads" | "jsonLogFormat">>
   ) {
-    if (!activeInstance || !canEditLaunchOptions) return;
+    if (!launchOptions || !canEditLaunchOptions) return;
     setSavingLaunch(true);
     try {
-      const next = await instancesApi.setLaunchOptions(activeInstance.id, {
+      const next = await instancesApi.setLaunchOptions(launchOptions.instanceId, {
         performanceFlags:
-          "performanceFlags" in nextOptions ? Boolean(nextOptions.performanceFlags) : activeInstance.performanceFlags,
-        workerThreads: "workerThreads" in nextOptions ? nextOptions.workerThreads ?? null : activeInstance.workerThreads,
-        jsonLogFormat: "jsonLogFormat" in nextOptions ? Boolean(nextOptions.jsonLogFormat) : activeInstance.jsonLogFormat,
+          "performanceFlags" in nextOptions ? Boolean(nextOptions.performanceFlags) : launchOptions.performanceFlags,
+        workerThreads: "workerThreads" in nextOptions ? nextOptions.workerThreads ?? null : launchOptions.workerThreads,
+        jsonLogFormat: "jsonLogFormat" in nextOptions ? Boolean(nextOptions.jsonLogFormat) : launchOptions.jsonLogFormat,
       });
-      setActiveInstance(next.instances.find((instance) => instance.id === activeInstance.id) ?? null);
+      const updated = next.instances.find((instance) => instance.id === launchOptions.instanceId);
+      if (updated) {
+        setLaunchOptions({
+          instanceId: updated.id,
+          name: updated.name,
+          performanceFlags: updated.performanceFlags,
+          workerThreads: updated.workerThreads,
+          jsonLogFormat: updated.jsonLogFormat,
+        });
+      }
       notifications.success({
         title: "Launch options saved",
         message: "Restart the server for these launch options to take effect.",
@@ -155,12 +165,12 @@ export default function WorldSettings() {
         </div>
       </ScrollPanel>
 
-      {activeInstance && (
+      {launchOptions && (
         <ScrollPanel icon={<Rocket />} title="Launch Options">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <EnchantedToggle
               id="launch-performance-flags"
-              checked={activeInstance.performanceFlags}
+              checked={launchOptions.performanceFlags}
               disabled={savingLaunch || !canEditLaunchOptions}
               onCheckedChange={(checked) => saveLaunchOptions({ performanceFlags: checked })}
               label="Performance launch flags"
@@ -178,25 +188,25 @@ export default function WorldSettings() {
                 </div>
                 <Switch
                   id="launch-worker-threads-enabled"
-                  checked={activeInstance.workerThreads !== null}
-                  disabled={!activeInstance.performanceFlags || savingLaunch || !canEditLaunchOptions}
+                  checked={launchOptions.workerThreads !== null}
+                  disabled={!launchOptions.performanceFlags || savingLaunch || !canEditLaunchOptions}
                   onCheckedChange={(checked) =>
-                    saveLaunchOptions({ workerThreads: checked ? activeInstance.workerThreads ?? 4 : null })
+                    saveLaunchOptions({ workerThreads: checked ? launchOptions.workerThreads ?? 4 : null })
                   }
                   aria-label="Use worker thread override"
                 />
               </div>
               <Input
-                key={`${activeInstance.id}-${activeInstance.workerThreads ?? "auto"}`}
+                key={`${launchOptions.instanceId}-${launchOptions.workerThreads ?? "auto"}`}
                 id="launch-worker-threads"
                 className="mt-3 h-9 max-w-28 text-sm"
                 type="number"
                 min={1}
                 max={128}
-                defaultValue={activeInstance.workerThreads ?? ""}
+                defaultValue={launchOptions.workerThreads ?? ""}
                 disabled={
-                  !activeInstance.performanceFlags ||
-                  activeInstance.workerThreads === null ||
+                  !launchOptions.performanceFlags ||
+                  launchOptions.workerThreads === null ||
                   savingLaunch ||
                   !canEditLaunchOptions
                 }
@@ -204,7 +214,7 @@ export default function WorldSettings() {
                   const value = Number.parseInt(event.target.value, 10);
                   if (Number.isFinite(value)) {
                     const workerThreads = Math.min(128, Math.max(1, value));
-                    if (workerThreads !== activeInstance.workerThreads) {
+                    if (workerThreads !== launchOptions.workerThreads) {
                       saveLaunchOptions({ workerThreads });
                     }
                   }
@@ -218,7 +228,7 @@ export default function WorldSettings() {
             </div>
             <EnchantedToggle
               id="launch-json-log-format"
-              checked={activeInstance.jsonLogFormat}
+              checked={launchOptions.jsonLogFormat}
               disabled={savingLaunch || !canEditLaunchOptions}
               onCheckedChange={(checked) => saveLaunchOptions({ jsonLogFormat: checked })}
               label="JSON log format"
@@ -226,7 +236,7 @@ export default function WorldSettings() {
             />
           </div>
           <p className="mt-3 text-xs text-parchment-300/45">
-            Launch options apply to {activeInstance.name} the next time it starts.
+            Launch options apply to {launchOptions.name} the next time it starts.
             {!canEditLaunchOptions ? " Only the super admin can change them." : ""}
           </p>
         </ScrollPanel>

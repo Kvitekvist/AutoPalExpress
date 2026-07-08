@@ -53,6 +53,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-08 (TICKET-0032): Settings now has a prominent per-server "Show in Community Server list" toggle. It persists on the instance record and adds Palworld's `-publiclobby` launch argument the next time that server starts.
 * FIXED 2026-07-08 (TICKET-0033): Added safe per-server launch options for Palworld's performance flags, optional worker thread count, and JSON log format. Port, players, community listing, and public IP/port remain owned by their existing app flows rather than duplicated.
 * FIXED 2026-07-08 (TICKET-0034): The safe launch options from TICKET-0033 now live on World Settings instead of the Settings server-instance cards. They still persist on the active instance and still require a restart to take effect.
+* FIXED 2026-07-08 (TICKET-0035): World Settings now gets Launch Options in the same `/api/server-settings` payload as the `.ini` fields, so the panel cannot disappear because a separate active-instance request failed.
 
 ---
 

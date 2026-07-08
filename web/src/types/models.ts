@@ -29,6 +29,19 @@ export interface SettingField {
   popular: boolean;
 }
 
+export interface LaunchOptions {
+  instanceId: string;
+  name: string;
+  performanceFlags: boolean;
+  workerThreads: number | null;
+  jsonLogFormat: boolean;
+}
+
+export interface WorldSettingsView {
+  fields: SettingField[];
+  launchOptions: LaunchOptions;
+}
+
 export type ServerRunState = "online" | "offline" | "starting" | "stopping" | "restarting";
 
 export interface ServerStatus {
