@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AncientTabs, AncientTabsList, AncientTabsTrigger } from "@/components/fantasy/AncientTabs";
 import { NexusModCard } from "@/components/mods/NexusModCard";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const LISTS: { value: NexusModList; label: string }[] = [
@@ -19,6 +20,7 @@ interface NexusModBrowserProps {
 }
 
 export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
+  const { user } = useAuth();
   const [list, setList] = React.useState<NexusModList>("trending");
   const [cache, setCache] = React.useState<Partial<Record<NexusModList, NexusModResult[]>>>({});
   const [loading, setLoading] = React.useState(false);
@@ -113,7 +115,7 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
                 key={mod.id}
                 mod={mod}
                 installed={installedNames.some((n) => n.toLowerCase() === mod.name.toLowerCase())}
-                installing={false}
+                canInstallFromFile={user.role === "super_admin"}
               />
             ))}
           </div>

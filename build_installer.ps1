@@ -7,12 +7,29 @@ $root = $PSScriptRoot
 
 Write-Host "==> Building frontend..." -ForegroundColor Cyan
 Push-Location "$root\web"
-npm run build
+npm.cmd run build
 Pop-Location
 
 Write-Host "==> Building PalworldServerAdmin.exe with PyInstaller..." -ForegroundColor Cyan
 Push-Location $root
-& "$root\.venv\Scripts\pyinstaller.exe" PalworldServerAdmin.spec --noconfirm
+$pythonCandidates = @(
+    "$root\.venv312\Scripts\python.exe",
+    "$root\.venv\Scripts\python.exe"
+)
+$python = $null
+foreach ($candidate in $pythonCandidates) {
+    if (Test-Path $candidate) {
+        & $candidate -c "import sys" *> $null
+        if ($LASTEXITCODE -eq 0) {
+            $python = $candidate
+            break
+        }
+    }
+}
+if (-not $python) {
+    throw "No working project Python environment found. Run scripts\setup.bat or recreate .venv first."
+}
+& $python -m PyInstaller PalworldServerAdmin.spec --noconfirm
 Pop-Location
 
 $innoCandidates = @(

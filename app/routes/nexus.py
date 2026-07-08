@@ -61,7 +61,7 @@ def _map_mod_summary(m: dict[str, Any]) -> dict[str, Any]:
         "endorsements": m.get("endorsements") or 0,
         "pictureUrl": m.get("pictureUrl"),
         "directDownloadEnabled": bool(m.get("directDownloadEnabled")),
-        "nexusUrl": f"https://www.nexusmods.com/games/{nexus_client.GAME_DOMAIN}/mods/{mod_id}",
+        "nexusUrl": f"https://www.nexusmods.com/{nexus_client.GAME_DOMAIN}/mods/{mod_id}",
     }
 
 

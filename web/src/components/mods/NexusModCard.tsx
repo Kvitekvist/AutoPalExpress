@@ -1,14 +1,15 @@
-import { Download, Check, ThumbsUp, ExternalLink, BookOpen, ShieldCheck } from "lucide-react";
+import { Download, Check, ThumbsUp, ExternalLink, BookOpen, ShieldCheck, Upload } from "lucide-react";
+import { Link } from "react-router-dom";
 import { SpellCard } from "@/components/fantasy/SpellCard";
 import type { NexusModResult } from "@/types/models";
 
 interface NexusModCardProps {
   mod: NexusModResult;
   installed: boolean;
-  installing: boolean;
+  canInstallFromFile: boolean;
 }
 
-export function NexusModCard({ mod, installed, installing }: NexusModCardProps) {
+export function NexusModCard({ mod, installed, canInstallFromFile }: NexusModCardProps) {
   return (
     <SpellCard status="neutral" className="flex h-full flex-col">
       <div className="flex items-start gap-3">
@@ -41,24 +42,44 @@ export function NexusModCard({ mod, installed, installing }: NexusModCardProps) 
         </span>
       </div>
 
-      <div className="mt-4 flex items-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <a
           href={mod.nexusUrl}
           target="_blank"
           rel="noreferrer"
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600 px-3 py-2 text-xs font-medium text-parchment-300/70 transition-colors hover:border-gold-600/40 hover:text-gold-300"
+          className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600 px-3 py-2 text-xs font-medium text-parchment-300/70 transition-colors hover:border-gold-600/40 hover:text-gold-300"
         >
           <ExternalLink className="h-3.5 w-3.5" /> View on Nexus
         </a>
-        <span className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80">
-          {installed ? <Check className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-          {installed ? "Installed" : installing ? "Checking..." : "Verified File Install"}
-        </span>
+        {installed ? (
+          <span className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80">
+            <Check className="h-3.5 w-3.5" />
+            Installed
+          </span>
+        ) : canInstallFromFile ? (
+          <Link
+            to="/super-admin"
+            className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80 transition-colors hover:border-life-400/50 hover:text-life-200"
+            title="Download this file on Nexus first, then upload it in Super Admin."
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Install File
+          </Link>
+        ) : (
+          <span
+            className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600/60 bg-stone-800/20 px-3 py-2 text-xs font-medium text-parchment-300/55"
+            title="Only the super admin can install downloaded mod files."
+          >
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Super Admin Only
+          </span>
+        )}
       </div>
       {!installed && (
         <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/40">
-          Download from Nexus, then use "Install From File" in Super Admin. AutoPalExpress checks the file's exact hash
-          before it touches your server.
+          "View on Nexus" opens the download page. After downloading,{" "}
+          {canInstallFromFile ? "use Install File" : "ask the super admin to use Install From File"} so AutoPalExpress
+          can verify the exact file before it touches your server.
         </p>
       )}
     </SpellCard>

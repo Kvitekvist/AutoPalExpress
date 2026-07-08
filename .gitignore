@@ -2,6 +2,7 @@ data/
 __pycache__/
 *.pyc
 .venv/
+.venv312/
 venv/
 .env
 
