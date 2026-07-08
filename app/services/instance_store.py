@@ -55,7 +55,7 @@ def instance_dir(instance_id: str) -> Path:
 
 
 def create_instance(
-    *, name: str, server_path: str, source: str, game_port: int = 8211, rcon_port: int = 25575
+    *, name: str, server_path: str, source: str, game_port: int = 8211, rcon_port: int = 8212
 ) -> dict[str, Any]:
     data = _load()
     instance = {

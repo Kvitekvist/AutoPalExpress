@@ -323,6 +323,50 @@ Real Palworld console log content is still not visible anywhere in the app - the
 
 ### Decision
 
+Replace the app's Palworld RCON client with Palworld's official local REST API for game-level operations.
+
+### Reason
+
+The official Palworld Server Guide documents a REST API gated by `RESTAPIEnabled=True`, `RESTAPIPort`, and HTTP Basic Auth. It covers the operations AutoPalExpress was using RCON for: server info/metrics, player list, announce, kick/ban/unban, save, shutdown, and force stop. Using the documented REST API is a better public-release default than maintaining a raw Source RCON protocol client.
+
+### Alternatives
+
+Keep RCON as the primary control path (rejected because the user asked to replace it and the REST API now covers the needed actions). Support both RCON and REST side by side (rejected for this pass because it doubles configuration and failure modes right before release). Rename the persisted `rconPort`/`rconReady` fields immediately (deferred to avoid a broader data migration; they now act as compatibility aliases while the UI says REST API).
+
+### Consequences
+
+`app/services/rcon.py` was removed. `app/services/palworld_rest.py` now handles `/v1/api/*` calls against `127.0.0.1` with username `admin` and the server's `AdminPassword`. Starting a managed server enforces `RESTAPIEnabled=True` and writes `RESTAPIPort`. Players, save, announce, backups, scheduled restart warnings, join/leave checks, metrics/status enrichment, and kick/ban/unban now use REST. Manual Stop/Restart and shutdown countdown try REST shutdown first, then still use local process cleanup so the app's Windows process tracking stays correct.
+
+### Date
+
+2026-07-08
+
+---
+
+### Decision
+
+Nexus browsing and manual-file verification now use Nexus Mods' public GraphQL API without a personal API key, and one-click Nexus downloads are paused for public release until AutoPalExpress follows Nexus's registered app/OAuth path.
+
+### Reason
+
+Nexus support pointed to the API Acceptable Use Policy and suggested GraphQL if the app only needs metadata and not file downloads. The policy says personal API keys are tolerated for testing/personal use, but public-facing apps should be registered, must identify requests with `Application-Name`/`Application-Version`, and should not use personal API keys in place of a public app integration. Public browsing and MD5 file-hash verification both work through `https://api.nexusmods.com/v2/graphql`, so there is no good reason to ask community users to paste a personal key for those flows.
+
+### Alternatives
+
+Continue requiring the super admin's personal API key for browsing and verified manual installs (rejected for public release because it conflicts with the direction Nexus gave). Keep one-click downloads behind the stored Premium personal key (rejected until Nexus approves the registered app/OAuth approach). Remove Nexus integration entirely (rejected because metadata browsing and hash verification are still useful and can be done through GraphQL).
+
+### Consequences
+
+Mods page browsing no longer requires a Nexus API key. The installer no longer asks for one. Super Admin's Nexus panel now explains that no key is needed for the current release and lets older installs remove a saved key. Manual "Install From File" still verifies the exact uploaded bytes against Nexus before installing. The old API-key validation code remains for backward compatibility/testing, but automated Nexus downloads now return a clear 403 telling users to download on Nexus and use verified file upload.
+
+### Date
+
+2026-07-07
+
+---
+
+### Decision
+
 The mocked Logs page was replaced with a real activity feed built from events this app already knows about or performs (TICKET-0020), instead of Palworld's own console text.
 
 ### Reason

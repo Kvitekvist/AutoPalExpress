@@ -1,9 +1,9 @@
-"""Thin wrapper around the real Nexus Mods public API (https://api.nexusmods.com/v1).
+"""Thin wrappers around Nexus Mods APIs.
 
-Reference: https://app.swaggerhub.com/apis-docs/NexusMods/nexus-mods_public_api_params_in_form_data/1.0
-The public API has no free-text search endpoint - only curated lists (trending,
-latest_added, latest_updated), lookup by exact mod id, and per-file download links
-(the latter restricted to Premium accounts).
+Public release behavior uses Nexus' GraphQL API for metadata and file-hash
+lookups so regular browsing and manual-upload verification do not rely on a
+shared personal API key. Legacy API-key calls are kept only for validation and
+future approved/OAuth work.
 """
 
 import logging
@@ -15,7 +15,10 @@ import httpx
 logger = logging.getLogger("palworld_admin.nexus_client")
 
 BASE_URL = "https://api.nexusmods.com/v1"
+GRAPHQL_URL = "https://api.nexusmods.com/v2/graphql"
 GAME_DOMAIN = "palworld"
+APP_NAME = "AutoPalExpress"
+APP_VERSION = "1.0.0"
 
 
 class NexusApiError(Exception):
@@ -25,6 +28,17 @@ class NexusApiError(Exception):
         super().__init__(message)
 
 
+def _headers(api_key: str | None = None) -> dict[str, str]:
+    headers = {
+        "Accept": "application/json",
+        "Application-Name": APP_NAME,
+        "Application-Version": APP_VERSION,
+    }
+    if api_key:
+        headers["apikey"] = api_key
+    return headers
+
+
 async def _get(path: str, api_key: str, params: dict[str, Any] | None = None, premium_hint: bool = False) -> Any:
     """premium_hint should only be set for calls confirmed to be Premium-gated
     (currently just get_download_link) - a 403 anywhere else is unexpected and
@@ -32,7 +46,7 @@ async def _get(path: str, api_key: str, params: dict[str, Any] | None = None, pr
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.get(
             f"{BASE_URL}{path}",
-            headers={"apikey": api_key, "Accept": "application/json"},
+            headers=_headers(api_key),
             params=params,
         )
     remaining = resp.headers.get("x-rl-hourly-remaining")
@@ -54,20 +68,62 @@ async def _get(path: str, api_key: str, params: dict[str, Any] | None = None, pr
     return resp.json()
 
 
+async def _graphql(query: str, variables: dict[str, Any] | None = None) -> Any:
+    async with httpx.AsyncClient(timeout=20) as client:
+        resp = await client.post(
+            GRAPHQL_URL,
+            headers=_headers(),
+            json={"query": query, "variables": variables or {}},
+        )
+    logger.info("POST GraphQL -> %s", resp.status_code)
+    if resp.status_code == 429:
+        raise NexusApiError(429, "Nexus Mods API rate limit exceeded. Try again later.")
+    if resp.status_code >= 400:
+        raise NexusApiError(resp.status_code, f"Nexus Mods API error ({resp.status_code}).")
+
+    data = resp.json()
+    if data.get("errors"):
+        message = data["errors"][0].get("message") or "Nexus Mods GraphQL request failed."
+        raise NexusApiError(502, message)
+    return data.get("data") or {}
+
+
 async def validate_key(api_key: str) -> dict[str, Any]:
     return await _get("/users/validate.json", api_key)
 
 
-_LIST_ENDPOINTS = {
-    "trending": "/trending.json",
-    "latest_added": "/latest_added.json",
-    "latest_updated": "/latest_updated.json",
+_GRAPHQL_SORTS = {
+    "trending": {"downloads": {"direction": "DESC"}},
+    "latest_added": {"createdAt": {"direction": "DESC"}},
+    "latest_updated": {"updatedAt": {"direction": "DESC"}},
 }
 
 
-async def get_mod_list(api_key: str, list_name: str) -> list[dict[str, Any]]:
-    endpoint = _LIST_ENDPOINTS[list_name]
-    return await _get(f"/games/{GAME_DOMAIN}/mods{endpoint}", api_key)
+async def get_mod_list(list_name: str) -> list[dict[str, Any]]:
+    query = """
+    query AutoPalExpressMods($filter: ModsFilter, $sort: [ModsSort!], $count: Int) {
+      mods(filter: $filter, sort: $sort, count: $count) {
+        nodes {
+          modId
+          name
+          author
+          summary
+          category
+          downloads
+          endorsements
+          pictureUrl
+          directDownloadEnabled
+        }
+      }
+    }
+    """
+    variables = {
+        "filter": {"gameDomainName": [{"value": GAME_DOMAIN, "op": "EQUALS"}]},
+        "sort": [_GRAPHQL_SORTS[list_name]],
+        "count": 60,
+    }
+    data = await _graphql(query, variables)
+    return ((data.get("mods") or {}).get("nodes") or [])
 
 
 async def get_game_categories(api_key: str) -> list[dict[str, Any]]:
@@ -90,6 +146,43 @@ async def md5_search(api_key: str, md5_hash: str) -> list[dict[str, Any]]:
     file for this game on Nexus at all - used to cryptographically verify an
     uploaded file actually matches a real mod, not just a claimed one."""
     return await _get(f"/games/{GAME_DOMAIN}/mods/md5_search/{md5_hash}.json", api_key)
+
+
+async def file_hash_search(md5_hash: str) -> list[dict[str, Any]]:
+    query = """
+    query AutoPalExpressFileHash($md5: String!) {
+      fileHash(md5: $md5) {
+        fileName
+        fileSize
+        fileType
+        gameId
+        md5
+        modFile {
+          fileId
+          modId
+          name
+          version
+          mod {
+            modId
+            name
+            author
+            summary
+            category
+            game {
+              domainName
+            }
+          }
+        }
+      }
+    }
+    """
+    data = await _graphql(query, {"md5": md5_hash})
+    matches = data.get("fileHash") or []
+    return [
+        match
+        for match in matches
+        if (((match.get("modFile") or {}).get("mod") or {}).get("game") or {}).get("domainName") == GAME_DOMAIN
+    ]
 
 
 async def get_download_link(api_key: str, mod_id: int, file_id: int) -> list[dict[str, Any]]:

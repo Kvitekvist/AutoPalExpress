@@ -19,8 +19,8 @@ It's not a mod for the game itself. It's a standalone Windows application that m
 - Real start/stop/restart/save actions that manage the actual server process.
 
 **Mods**
-- Browse mods from Nexus Mods after the super admin connects a Nexus Mods API key in Super Admin.
-- One-click downloads require Nexus Premium, per Nexus's own API rules. Free accounts can still browse and install manually downloaded files after the tool verifies their exact hash against Nexus's catalog.
+- Browse Palworld mods from Nexus Mods without entering a personal API key.
+- One-click Nexus downloads are paused while the tool follows Nexus's registered app/OAuth process. Download files on Nexus, then install them through the tool after it verifies the exact file hash against Nexus's catalog.
 - Enable, disable, reorder, and remove mods without digging through folders.
 - Installs go into the correct UE4SS Mods folder automatically.
 
@@ -29,7 +29,7 @@ It's not a mod for the game itself. It's a standalone Windows application that m
 - Installing or removing UE4SS leaves your installed mods alone.
 
 **Players, Settings, and Logs**
-- See the live player roster through RCON, including kick and ban actions.
+- See the live player roster through Palworld's REST API, including kick and ban actions.
 - Edit Palworld world settings from the browser instead of hand-editing `PalWorldSettings.ini`.
 - View AutoPalExpress output and server activity side by side in the Logs page. Palworld's own server window remains visible separately because the game does not expose that window text as a normal log stream.
 
@@ -45,13 +45,15 @@ This is built for private servers and trusted friend groups. The admin panel use
 
 For stronger remote access, use a private network tool like Tailscale or put the panel behind a reverse proxy with real HTTPS.
 
+Do not port-forward Palworld's REST API port directly. AutoPalExpress talks to it locally on the server PC; friends should use the AutoPalExpress panel, not the raw Palworld REST API.
+
 The installer is not code-signed yet, so Windows SmartScreen may warn on first run. That's expected for an unsigned community tool; verify the file came from the official download page before installing.
 
 ## Requirements
 
 - Windows 10 or 11, 64-bit.
 - A Steam account is not required: the dedicated server downloads anonymously via SteamCMD.
-- A free Nexus Mods account to browse mods; Nexus Premium is required for one-click mod downloads through the Nexus API.
+- A Nexus Mods account is only needed when you download files from Nexus itself. Browsing inside the tool does not require an API key.
 - If you plan to let friends connect from outside your home network: a router that supports UPnP makes this easier. Without it, you may need to forward ports manually.
 
 ## Installation
@@ -68,13 +70,12 @@ To uninstall later, use the Start Menu uninstall shortcut or Windows' "Add or Re
 1. On first launch, create the super admin account. This first account becomes the permanent super admin for this machine.
 2. From Super Admin, deploy a fresh server or import an existing one.
 3. Once a server is active, head to Mods to install UE4SS and start managing mods.
-4. To browse Nexus Mods, connect your Nexus API key from Super Admin -> Nexus Mods Integration.
+4. To install a Nexus mod, open it from the Mods page, download the file on Nexus, then use Super Admin -> Install From File.
 5. To let friends help administer, go to Settings -> Users & Access -> New Invite, then send them the code and your admin panel address.
 
 ## Known Limitations
 
-- No confirmed graceful "save and shut down" yet. Use the in-app Save World action before stopping if you want a guaranteed save.
-- Whisper and teleport are not real server actions. Palworld RCON does not provide per-player whisper or teleport commands.
+- Whisper and teleport are not real server actions. Palworld's REST API does not provide per-player whisper or teleport commands.
 - This tool manages the UE4SS Mods folder (`Pal/Binaries/Win64/Mods`), not Palworld's separate built-in pak-mod system.
 - Remote admin access is plain HTTP by default.
 - The Palworld server CMD text is not mirrored into the browser. AutoPalExpress shows its own output and real activity events in Logs, while the Palworld server window stays visible separately.
@@ -84,7 +85,7 @@ To uninstall later, use the Start Menu uninstall shortcut or Windows' "Add or Re
 
 **Friends get a connection timeout.** Check Windows Firewall, router port forwarding, and whether your public IP changed.
 
-**Mod install button is greyed out / says Premium required.** Nexus Mods restricts automated file downloads through its API to Premium accounts. Free accounts can still browse and manually download files from Nexus, then install them through the tool after hash verification.
+**Where did one-click Nexus install go?** It is paused for the public release while AutoPalExpress follows Nexus's registered app/OAuth process. You can still browse, download from Nexus manually, and install through verified file upload.
 
 **A friend's invite code doesn't work.** Codes are single-use. Check Settings -> Users & Access and generate a fresh one if needed.
 
@@ -98,4 +99,4 @@ Built with FastAPI, React, and a healthy amount of SteamCMD wrangling.
 
 ## Changelog
 
-**v1.0.0**: Initial release: multi-server management, Nexus mod browsing/installing, UE4SS installer, real server process control, player management, world settings editor, activity logs, UPnP port forwarding, multi-user accounts with invites.
+**v1.0.0**: Initial release: multi-server management, Nexus mod browsing with verified manual installs, UE4SS installer, real server process control, player management, world settings editor, activity logs, UPnP port forwarding, multi-user accounts with invites.

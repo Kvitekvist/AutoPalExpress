@@ -9,9 +9,9 @@ from app.services import instance_store, palworld_settings
 
 router = APIRouter()
 
-# AdminPassword/ServerPassword are real credentials (AdminPassword is the
-# RCON password - equivalent to direct, tool-bypassing control of the game
-# server), not day-to-day settings like difficulty or EXP rate. Only the
+# AdminPassword/ServerPassword are real credentials (AdminPassword is used by
+# Palworld's local REST API - equivalent to direct, tool-bypassing control of
+# the game server), not day-to-day settings like difficulty or EXP rate. Only the
 # super admin can see their real value or change them - a friend-admin whose
 # access is later revoked shouldn't have been able to read this out of the
 # Network tab and keep using it directly.
@@ -49,7 +49,7 @@ async def update_settings(
 ) -> dict[str, Any]:
     instance = _require_active_instance()
     if user["role"] != "super_admin" and _CREDENTIAL_FIELDS & body.values.keys():
-        raise HTTPException(status_code=403, detail="Only the super admin can change the RCON/server password.")
+        raise HTTPException(status_code=403, detail="Only the super admin can change the REST API/server password.")
     try:
         palworld_settings.write_settings(Path(instance["serverPath"]), body.values)
     except (ValueError, OSError) as e:

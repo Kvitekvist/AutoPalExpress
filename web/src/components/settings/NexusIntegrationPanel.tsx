@@ -1,61 +1,35 @@
 import * as React from "react";
-import { BookKey, Crown, LogOut, TriangleAlert, Eye, EyeOff } from "lucide-react";
+import { BookKey, Crown, LogOut, ShieldCheck } from "lucide-react";
 import { nexusApi } from "@/api";
 import type { NexusAccount } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export function NexusIntegrationPanel() {
   const [account, setAccount] = React.useState<NexusAccount | null>(null);
-  const [apiKey, setApiKey] = React.useState("");
-  const [showKey, setShowKey] = React.useState(false);
-  const [connecting, setConnecting] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
   const notifications = useNotifications();
 
   React.useEffect(() => {
     nexusApi.getAccount().then(setAccount);
   }, []);
 
-  async function handleConnect() {
-    setConnecting(true);
-    setError(null);
-    try {
-      const acc = await nexusApi.connectApiKey(apiKey);
-      setAccount(acc);
-      setApiKey("");
-      notifications.success({
-        title: "Nexus Mods linked",
-        message: `Connected as ${acc.username}${acc.isPremium ? " (Premium)" : ""}.`,
-      });
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to connect.";
-      setError(message);
-      notifications.error({ title: "Connection failed", message });
-    } finally {
-      setConnecting(false);
-    }
-  }
-
   async function handleDisconnect() {
     const acc = await nexusApi.disconnectAccount();
     setAccount(acc);
-    notifications.info({ title: "Nexus Mods unlinked", message: "Mod search and install has been disabled." });
+    notifications.info({ title: "Nexus Mods key removed", message: "Browsing still works without a personal API key." });
   }
 
   return (
     <ScrollPanel icon={<BookKey />} title="Nexus Mods Integration">
       <p className="mb-2 text-xs leading-relaxed text-parchment-300/50">
-        Link the super admin's Nexus Mods API key here to unlock "Browse Nexus Mods" on the Mods page for the server.
-        Find your personal API key on your Nexus Mods account's API Access settings page.
+        Browse Nexus Mods now uses Nexus's public GraphQL metadata, so the server no longer needs the super admin's
+        personal API key for browsing or verified manual installs.
       </p>
       <p className="mb-4 text-xs leading-relaxed text-gold-400/80">
-        One-click automatic installs require <strong>Nexus Mods Premium</strong>, a paid subscription (Nexus's
-        requirement, not this tool's). Free accounts can still connect, browse, and search; installing then means
-        downloading the file yourself and using "Install From File" here in Super Admin instead.
+        One-click Nexus downloads are paused for the public release while AutoPalExpress follows Nexus's registered
+        app/OAuth path. Download files on Nexus, then use "Install From File" here so the exact file can be checked
+        before install.
       </p>
 
       {account?.connected ? (
@@ -75,40 +49,13 @@ export function NexusIntegrationPanel() {
             </div>
           </div>
           <RuneButton variant="ghost" size="sm" icon={<LogOut />} onClick={handleDisconnect}>
-            Disconnect
+            Remove Saved Key
           </RuneButton>
         </div>
       ) : (
-        <div className="space-y-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="nexus-key">Nexus Mods API Key</Label>
-            <div className="relative">
-              <Input
-                id="nexus-key"
-                type={showKey ? "text" : "password"}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Paste your personal API key..."
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowKey((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-parchment-300/40 hover:text-gold-400"
-              >
-                {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-          {error && (
-            <div className="flex items-center gap-2 rounded-md border border-blood-600/30 bg-blood-500/5 px-3 py-2 text-xs text-blood-400">
-              <TriangleAlert className="h-3.5 w-3.5 shrink-0" />
-              {error}
-            </div>
-          )}
-          <RuneButton variant="gold" onClick={handleConnect} disabled={connecting || !apiKey.trim()}>
-            {connecting ? "Verifying..." : "Connect"}
-          </RuneButton>
+        <div className="flex items-center gap-3 rounded-md border border-life-600/30 bg-life-500/5 px-4 py-3 text-xs text-life-300/80">
+          <ShieldCheck className="h-4 w-4 shrink-0" />
+          No Nexus API key is needed for the current public release flow.
         </div>
       )}
     </ScrollPanel>

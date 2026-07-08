@@ -1,16 +1,16 @@
 """One-time provisioning from the installer's collected answers (super admin
-account, Nexus API key, initial server name) - lets a fresh install finish
+account, optional initial server name) - lets a fresh install finish
 setup automatically on first launch instead of the user re-entering the
 same things they already gave the installer.
 
 The installer writes a plaintext seed file (install_dir()/first_run_seed.json)
 with the collected answers. This applies them once, at startup, using the
 exact same code paths the UI itself would call (so there's no separate
-account-creation/Nexus-validation logic to keep in sync), then deletes the
+account-creation/deploy logic to keep in sync), then deletes the
 seed file - on both success and failure, since it holds a plaintext
 password and shouldn't linger on disk regardless of how setup went. Every
 step here has a manual fallback already built into the app (the normal
-first-visit Setup screen, the Nexus connect panel, Deploy Server Wizard),
+first-visit Setup screen, Deploy Server Wizard),
 so a failure at any one step is a degraded first run, not a broken one.
 """
 
@@ -119,7 +119,7 @@ async def apply_seed_if_present() -> None:
                 name=server_name,
                 install_dir=install_path,
                 game_port=8211,
-                rcon_port=25575,
+                rcon_port=8212,
                 max_players=32,
             )
             await _wait_for_deploy(job_id)

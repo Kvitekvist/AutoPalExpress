@@ -167,13 +167,13 @@ export function AutomationPanel() {
           <div className="flex flex-wrap items-center gap-2 rounded-md border border-gold-600/30 bg-gold-500/5 px-4 py-3 text-xs text-gold-300">
             <TriangleAlert className="h-4 w-4 shrink-0" />
             <span>
-              Restart warnings and player arrival/departure messages need RCON. Backups still work without it.
+              Restart warnings, fresh-save backups, and player arrival/departure messages need the Palworld REST API.
             </span>
             <Link
               to="/world-settings"
               className="ml-auto shrink-0 font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200"
             >
-              Enable RCON in World Settings
+              Enable REST API in World Settings
             </Link>
           </div>
         )}

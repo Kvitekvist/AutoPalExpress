@@ -14,9 +14,9 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any
 
-from app.services import activity_log, automation_store, backup_service, instance_store, process_manager, rcon
+from app.services import activity_log, automation_store, backup_service, instance_store, palworld_rest, process_manager
+from app.services.palworld_rest import PalworldRestError
 from app.services.process_manager import ProcessError
-from app.services.rcon import RconError
 
 logger = logging.getLogger("palworld_admin.scheduler")
 
@@ -48,8 +48,8 @@ def _within_catch_up_window(target: datetime, now: datetime) -> bool:
 
 async def _try_broadcast(instance: dict[str, Any], message: str) -> None:
     try:
-        await rcon.broadcast(instance, message)
-    except RconError as e:
+        await palworld_rest.announce(instance, message)
+    except PalworldRestError as e:
         logger.info("scheduler: broadcast skipped for %s (%s)", instance["name"], e.message)
 
 
@@ -102,8 +102,8 @@ async def _check_restart_and_warning(instance: dict[str, Any], config: dict[str,
         activity_log.log("info", instance["name"], "Scheduled restart starting.")
         await _try_broadcast(instance, "The realm is restarting now for scheduled maintenance.")
         try:
-            await rcon.save(instance)
-        except RconError as e:
+            await palworld_rest.save(instance)
+        except PalworldRestError as e:
             logger.info("scheduler: pre-restart save skipped for %s (%s)", instance["name"], e.message)
         await asyncio.to_thread(process_manager.stop, instance["id"])
         try:
@@ -121,11 +121,15 @@ async def _check_player_presence(instance: dict[str, Any], config: dict[str, Any
     if process_manager.get_status(instance["id"])["state"] != "online":
         return
     try:
-        players = await rcon.show_players(instance)
-    except RconError:
+        players = await palworld_rest.players(instance)
+    except PalworldRestError:
         return
 
-    current = {p["playeruid"]: p["name"] for p in players}
+    current = {
+        str(p.get("userId") or p.get("playerId")): p.get("name") or p.get("accountName") or "Unknown"
+        for p in players
+        if p.get("userId") or p.get("playerId")
+    }
     known = _known_players.get(instance["id"])
     if known is None:
         # First poll after (re)starting the scheduler: establish a baseline

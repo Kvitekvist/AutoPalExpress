@@ -11,8 +11,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from app.services import instance_store, rcon
-from app.services.rcon import RconError
+from app.services import instance_store, palworld_rest
+from app.services.palworld_rest import PalworldRestError
 
 logger = logging.getLogger("palworld_admin.backup_service")
 
@@ -50,10 +50,10 @@ async def run_backup(instance: dict[str, Any]) -> dict[str, Any]:
 
     live_save_forced = False
     try:
-        await rcon.save(instance)
+        await palworld_rest.save(instance)
         await asyncio.sleep(2)  # give the save write a moment to land on disk before copying
         live_save_forced = True
-    except RconError as e:
+    except PalworldRestError as e:
         logger.info("backup_service: skipping live save before backup (%s)", e.message)
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

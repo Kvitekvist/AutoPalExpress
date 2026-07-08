@@ -1,17 +1,14 @@
-import { Download, Check, ThumbsUp, ExternalLink, Lock, BookOpen } from "lucide-react";
+import { Download, Check, ThumbsUp, ExternalLink, BookOpen, ShieldCheck } from "lucide-react";
 import { SpellCard } from "@/components/fantasy/SpellCard";
-import { RuneButton } from "@/components/fantasy/RuneButton";
 import type { NexusModResult } from "@/types/models";
 
 interface NexusModCardProps {
   mod: NexusModResult;
   installed: boolean;
   installing: boolean;
-  isPremium: boolean;
-  onInstall: (mod: NexusModResult) => void;
 }
 
-export function NexusModCard({ mod, installed, installing, isPremium, onInstall }: NexusModCardProps) {
+export function NexusModCard({ mod, installed, installing }: NexusModCardProps) {
   return (
     <SpellCard status="neutral" className="flex h-full flex-col">
       <div className="flex items-start gap-3">
@@ -29,9 +26,7 @@ export function NexusModCard({ mod, installed, installing, isPremium, onInstall 
               {mod.categoryName}
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-parchment-300/50">
-            by {mod.author} &middot; v{mod.version}
-          </p>
+          <p className="mt-0.5 text-xs text-parchment-300/50">by {mod.author}</p>
         </div>
       </div>
 
@@ -55,22 +50,15 @@ export function NexusModCard({ mod, installed, installing, isPremium, onInstall 
         >
           <ExternalLink className="h-3.5 w-3.5" /> View on Nexus
         </a>
-        <RuneButton
-          variant={installed ? "life" : "gold"}
-          size="sm"
-          icon={installed ? <Check /> : isPremium ? <Download /> : <Lock />}
-          disabled={installed || installing || !isPremium}
-          onClick={() => onInstall(mod)}
-          className="flex-1"
-          title={!isPremium ? "Requires Nexus Mods Premium, a paid subscription - not this tool's requirement." : undefined}
-        >
-          {installed ? "Installed" : installing ? "Installing..." : isPremium ? "Add to Server" : "Premium Required"}
-        </RuneButton>
+        <span className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80">
+          {installed ? <Check className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+          {installed ? "Installed" : installing ? "Checking..." : "Verified File Install"}
+        </span>
       </div>
-      {!isPremium && !installed && (
+      {!installed && (
         <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/40">
-          One-click install needs Nexus Premium (paid). Without it: download manually via "View on Nexus," then use
-          "Install From File" on the Mods page.
+          Download from Nexus, then use "Install From File" in Super Admin. AutoPalExpress checks the file's exact hash
+          before it touches your server.
         </p>
       )}
     </SpellCard>

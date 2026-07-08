@@ -32,7 +32,7 @@ def account_view() -> dict[str, Any]:
 def require_api_key() -> str:
     record = get_record()
     if not record.get("connected") or not record.get("apiKey"):
-        raise HTTPException(status_code=401, detail="Connect your Nexus Mods API key in Settings first.")
+        raise HTTPException(status_code=401, detail="Connect a Nexus Mods API key in Super Admin first.")
     return record["apiKey"]
 
 

@@ -1,26 +1,24 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { NexusModBrowser } from "@/components/mods/NexusModBrowser";
-import type { Mod } from "@/types/models";
 
 interface NexusBrowseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   installedNames: string[];
-  onInstalled: (mods: Mod[]) => void;
 }
 
-export function NexusBrowseDialog({ open, onOpenChange, installedNames, onInstalled }: NexusBrowseDialogProps) {
+export function NexusBrowseDialog({ open, onOpenChange, installedNames }: NexusBrowseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Browse Nexus Mods</DialogTitle>
           <DialogDescription>
-            Search, filter, and add Palworld mods straight from Nexus Mods. Browsing requires the super admin to connect
-            a Nexus Mods API key in Super Admin first.
+            Search and filter Palworld mods from Nexus Mods. Downloads happen on Nexus; install them afterward with
+            Super Admin's verified file upload.
           </DialogDescription>
         </DialogHeader>
-        <NexusModBrowser installedNames={installedNames} onInstalled={onInstalled} />
+        <NexusModBrowser installedNames={installedNames} />
       </DialogContent>
     </Dialog>
   );

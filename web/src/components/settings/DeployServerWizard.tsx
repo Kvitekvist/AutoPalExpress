@@ -17,7 +17,7 @@ type WizardStatus = "idle" | "running" | "done" | "error";
 export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeployServerWizardProps) {
   const [name, setName] = React.useState("");
   const [gamePort, setGamePort] = React.useState(8211);
-  const [rconPort, setRconPort] = React.useState(25575);
+  const [rconPort, setRconPort] = React.useState(8212);
   const [maxPlayers, setMaxPlayers] = React.useState(32);
   const [jobId, setJobId] = React.useState<string | null>(null);
   const [log, setLog] = React.useState<string[]>([]);
@@ -116,7 +116,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="deploy-rcon">RCON Port</Label>
+                <Label htmlFor="deploy-rcon">REST API Port</Label>
                 <Input
                   id="deploy-rcon"
                   type="number"
@@ -135,7 +135,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
               </div>
             </div>
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
-              Each server needs its own Game/RCON ports if you plan to run more than one at the same time. This
+              Each server needs its own Game/REST API ports if you plan to run more than one at the same time. This
               downloads the server fresh from Steam (a few gigabytes), so it can take a while depending on your
               connection.
             </p>

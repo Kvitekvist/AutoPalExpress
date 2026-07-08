@@ -94,10 +94,10 @@ export default function Mods() {
         {modsPathInfo && !modsPathInfo.modsPath && (
           <div className="mb-5 flex flex-wrap items-center gap-2 rounded-md border border-gold-600/30 bg-gold-500/5 px-4 py-3 text-xs text-gold-300">
             <TriangleAlert className="h-4 w-4 shrink-0" />
-            <span>No Mods folder is configured, so installs are downloaded but not placed on disk yet.</span>
+            <span>No Mods folder is configured yet, so verified file installs need Super Admin setup first.</span>
             {user.role === "super_admin" ? (
-              <Link to="/settings" className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200">
-                Set it up in Settings
+              <Link to="/super-admin" className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200">
+                Set it up in Super Admin
               </Link>
             ) : (
               <span className="ml-auto text-gold-300/70">Ask the super admin to set it up.</span>
@@ -157,7 +157,6 @@ export default function Mods() {
         open={browseOpen}
         onOpenChange={setBrowseOpen}
         installedNames={mods.map((m) => m.name)}
-        onInstalled={(updated) => setMods(updated)}
       />
     </div>
   );

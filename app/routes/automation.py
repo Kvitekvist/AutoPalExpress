@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services import automation_store, backup_service, instance_store, rcon
+from app.services import automation_store, backup_service, instance_store, palworld_rest
 
 router = APIRouter()
 
@@ -15,15 +15,15 @@ def _require_active_instance() -> dict[str, Any]:
     return instance
 
 
-def _rcon_ready(instance: dict[str, Any]) -> bool:
-    return rcon.get_credentials(instance) is not None
+def _rest_ready(instance: dict[str, Any]) -> bool:
+    return palworld_rest.is_ready(instance)
 
 
 @router.get("")
 async def get_automation() -> dict[str, Any]:
     instance = _require_active_instance()
     config = automation_store.load(instance["id"])
-    return {**config, "rconReady": _rcon_ready(instance)}
+    return {**config, "rconReady": _rest_ready(instance)}
 
 
 class ScheduleModel(BaseModel):
@@ -66,7 +66,7 @@ async def update_automation(body: AutomationConfigRequest) -> dict[str, Any]:
         "joinLeaveMessages": body.joinLeaveMessages,
     }
     automation_store.save(instance["id"], config)
-    return {**config, "rconReady": _rcon_ready(instance)}
+    return {**config, "rconReady": _rest_ready(instance)}
 
 
 @router.get("/backups")

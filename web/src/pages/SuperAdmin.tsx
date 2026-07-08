@@ -34,7 +34,7 @@ export default function SuperAdmin() {
 
       <ScrollPanel icon={<UploadCloud />} title="Mod File Uploads">
         <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
-          Install a mod from a file you already downloaded, instead of Nexus's one-click install. Uploaded files are
+          Install a mod from a file you already downloaded from Nexus. Uploaded files are
           placed on this machine's disk, so it's kept super-admin-only rather than something any invited admin can do
           - the exact-hash verification against Nexus's own catalog (see the dialog) is what makes this safe to allow
           at all.

@@ -8,18 +8,16 @@ import psutil
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services import instance_store, mods_store, palworld_settings, process_manager, rcon
+from app.services import instance_store, mods_store, palworld_rest, palworld_settings, process_manager
 from app.services.process_manager import ProcessError
-from app.services.rcon import RconError
+from app.services.palworld_rest import PalworldRestError
 
 logger = logging.getLogger("palworld_admin.server_control")
 
 router = APIRouter()
 
-# Countdown timers are implemented as our own cancellable asyncio tasks
-# (broadcast the warning ourselves, call the existing stop() at zero) rather
-# than Palworld's native RCON `Shutdown` command, which has no way to cancel
-# once sent - this gives real, working cancel support instead.
+# Countdown timers are implemented as our own cancellable asyncio tasks so the
+# app can still cancel before the final shutdown call is sent.
 _countdown_tasks: dict[str, asyncio.Task] = {}
 
 _OFFLINE_STATUS: dict[str, Any] = {
@@ -66,10 +64,29 @@ def _status_view(instance: dict[str, Any] | None) -> dict[str, Any]:
     }
 
 
+async def _status_view_async(instance: dict[str, Any] | None) -> dict[str, Any]:
+    view = await asyncio.to_thread(_status_view, instance)
+    if not instance or view["state"] not in ("online", "starting"):
+        return view
+    try:
+        metrics, info = await asyncio.gather(palworld_rest.metrics(instance), palworld_rest.info(instance))
+    except PalworldRestError as e:
+        logger.info("status: REST metrics skipped for %s (%s)", instance["name"], e.message)
+        return view
+    return {
+        **view,
+        "tickRateMs": metrics.get("serverframetime") or view["tickRateMs"],
+        "playersOnline": metrics.get("currentplayernum") or 0,
+        "maxPlayers": metrics.get("maxplayernum") or view["maxPlayers"],
+        "serverVersion": info.get("version") or view["serverVersion"],
+        "uptimeSeconds": metrics.get("uptime") or view["uptimeSeconds"],
+    }
+
+
 @router.get("/status")
 async def get_status() -> dict[str, Any]:
     instance = instance_store.get_active()
-    return await asyncio.to_thread(_status_view, instance)
+    return await _status_view_async(instance)
 
 
 @router.post("/start")
@@ -79,33 +96,43 @@ async def start_server() -> dict[str, Any]:
         await asyncio.to_thread(process_manager.start, instance)
     except ProcessError as e:
         raise HTTPException(status_code=400, detail=e.message)
-    return await asyncio.to_thread(_status_view, instance)
+    return await _status_view_async(instance)
 
 
 @router.post("/stop")
 async def stop_server() -> dict[str, Any]:
     instance = _require_active_instance()
+    try:
+        await palworld_rest.shutdown(instance, 1, "Server stopping.")
+        await asyncio.sleep(3)
+    except PalworldRestError as e:
+        logger.info("stop: REST shutdown skipped for %s (%s)", instance["name"], e.message)
     await asyncio.to_thread(process_manager.stop, instance["id"])
-    return await asyncio.to_thread(_status_view, instance)
+    return await _status_view_async(instance)
 
 
 @router.post("/restart")
 async def restart_server() -> dict[str, Any]:
     instance = _require_active_instance()
+    try:
+        await palworld_rest.shutdown(instance, 1, "Server restarting.")
+        await asyncio.sleep(3)
+    except PalworldRestError as e:
+        logger.info("restart: REST shutdown skipped for %s (%s)", instance["name"], e.message)
     await asyncio.to_thread(process_manager.stop, instance["id"])
     try:
         await asyncio.to_thread(process_manager.start, instance)
     except ProcessError as e:
         raise HTTPException(status_code=400, detail=e.message)
-    return await asyncio.to_thread(_status_view, instance)
+    return await _status_view_async(instance)
 
 
 @router.post("/save")
 async def save_world() -> dict[str, Any]:
     instance = _require_active_instance()
     try:
-        await rcon.save(instance)
-    except RconError as e:
+        await palworld_rest.save(instance)
+    except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
     return {"savedAt": datetime.now().isoformat()}
 
@@ -118,16 +145,16 @@ class BroadcastRequest(BaseModel):
 async def broadcast_message(body: BroadcastRequest) -> dict[str, Any]:
     instance = _require_active_instance()
     try:
-        await rcon.broadcast(instance, body.message)
-    except RconError as e:
+        await palworld_rest.announce(instance, body.message)
+    except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
     return {"message": body.message}
 
 
 async def _try_broadcast(instance: dict[str, Any], message: str) -> None:
     try:
-        await rcon.broadcast(instance, message)
-    except RconError as e:
+        await palworld_rest.announce(instance, message)
+    except PalworldRestError as e:
         logger.info("shutdown countdown: broadcast skipped for %s (%s)", instance["name"], e.message)
 
 
@@ -141,6 +168,11 @@ async def _run_countdown(instance: dict[str, Any], seconds: int) -> None:
         else:
             await asyncio.sleep(seconds)
         await _try_broadcast(instance, "The realm falls silent now.")
+        try:
+            await palworld_rest.shutdown(instance, 1, "Server shutting down.")
+            await asyncio.sleep(3)
+        except PalworldRestError as e:
+            logger.info("shutdown countdown: REST shutdown skipped for %s (%s)", instance["name"], e.message)
         await asyncio.to_thread(process_manager.stop, instance["id"])
     except asyncio.CancelledError:
         await _try_broadcast(instance, "The scheduled shutdown was cancelled.")

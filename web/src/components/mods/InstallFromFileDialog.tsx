@@ -86,7 +86,7 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
         <DialogHeader>
           <DialogTitle>Install From a Downloaded File</DialogTitle>
           <DialogDescription>
-            For mods you can't auto-install without Nexus Premium. Upload the .zip you already downloaded; it's
+            For mods you downloaded from Nexus yourself. Upload the .zip you already downloaded; it's
             checked against Nexus's own records by its exact file hash before anything is installed. Files that
             don't match a real, published Palworld mod are rejected.
           </DialogDescription>

@@ -11,16 +11,13 @@ from pydantic import BaseModel
 
 from app import paths
 from app.auth_deps import require_super_admin
-from app.services import instance_store, local_config, mod_installer, mods_store, native_dialog, nexus_client, nexus_session
+from app.services import instance_store, local_config, mod_installer, mods_store, native_dialog, nexus_client
 from app.services.mod_installer import ModInstallError
 from app.services.nexus_client import NexusApiError
 
 logger = logging.getLogger("palworld_admin.mods")
 
 router = APIRouter()
-
-DOWNLOAD_DIR = paths.data_dir() / "nexus_downloads"
-DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 VERIFIED_UPLOAD_DIR = paths.data_dir() / "verified_uploads"
 VERIFIED_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -168,98 +165,21 @@ async def reorder(body: ReorderRequest) -> list[dict[str, Any]]:
     return mods_store.sorted_mods(mods)
 
 
-async def _install_from_nexus(instance: dict[str, Any], nexus_mod_id: int) -> list[dict[str, Any]]:
-    api_key = nexus_session.require_premium_api_key()
-    logger.info("install_from_nexus: mod_id=%s - fetching details", nexus_mod_id)
-
-    try:
-        details = await nexus_client.get_mod_details(api_key, nexus_mod_id)
-        logger.info("install_from_nexus: mod_id=%s name=%r", nexus_mod_id, details.get("name"))
-
-        files_data = await nexus_client.get_mod_files(api_key, nexus_mod_id)
-        files = files_data.get("files", [])
-        logger.info("install_from_nexus: mod_id=%s found %d file(s)", nexus_mod_id, len(files))
-        main_file = next((f for f in files if f.get("category_name") == "MAIN"), files[0] if files else None)
-        if not main_file:
-            raise HTTPException(status_code=404, detail="This mod has no downloadable files.")
-        logger.info(
-            "install_from_nexus: mod_id=%s selected file %r (file_id=%s)",
-            nexus_mod_id,
-            main_file.get("file_name"),
-            main_file.get("file_id"),
-        )
-
-        links = await nexus_client.get_download_link(api_key, nexus_mod_id, main_file["file_id"])
-        if not links:
-            raise HTTPException(status_code=502, detail="Nexus Mods did not return a download link.")
-
-        download_url = links[0]["URI"]
-        mod_dir = DOWNLOAD_DIR / str(nexus_mod_id)
-        mod_dir.mkdir(parents=True, exist_ok=True)
-        dest = mod_dir / main_file["file_name"]
-        logger.info(
-            "install_from_nexus: mod_id=%s downloading via %r mirror -> %s",
-            nexus_mod_id,
-            links[0].get("short_name"),
-            dest,
-        )
-        await nexus_client.download_file(download_url, dest)
-        logger.info("install_from_nexus: mod_id=%s download complete, %d bytes", nexus_mod_id, dest.stat().st_size)
-    except NexusApiError as e:
-        logger.warning("install_from_nexus: mod_id=%s Nexus API error %s: %s", nexus_mod_id, e.status_code, e.message)
-        raise HTTPException(status_code=e.status_code, detail=e.message)
-
-    mod_name = details.get("name") or f"Mod {nexus_mod_id}"
-    folder_name: str | None = None
-    mods_path = local_config.get_mods_path(instance)
-    if mods_path:
-        try:
-            folder_name = mod_installer.extract_and_install(dest, Path(mods_path), mod_name)
-        except zipfile.BadZipFile:
-            raise HTTPException(
-                status_code=422,
-                detail=f"'{main_file['file_name']}' isn't a .zip archive - .rar/.7z mod files aren't supported yet. "
-                "Download and extract it manually into the Mods folder.",
-            )
-        except ModInstallError as e:
-            raise HTTPException(status_code=422, detail=e.message)
-        except (OSError, ValueError) as e:
-            logger.exception("install_from_nexus: mod_id=%s extraction failed", nexus_mod_id)
-            raise HTTPException(status_code=500, detail=f"Downloaded, but couldn't place it in the Mods folder: {e}")
-    else:
-        logger.warning(
-            "install_from_nexus: mod_id=%s no Mods folder configured - archive cached only, not installed to disk",
-            nexus_mod_id,
-        )
-
-    mods = mods_store.load_mods(instance["id"])
-    existing = next((m for m in mods if m.get("sourceModId") == nexus_mod_id), None)
-    entry = {
-        "id": existing["id"] if existing else mods_store.new_id("nexus"),
-        "name": mod_name,
-        "version": details.get("version") or main_file.get("version") or "0.0.0",
-        "author": details.get("author") or "Unknown",
-        "description": details.get("summary") or "",
-        "dependencies": [],
-        "status": "enabled",
-        "loadPriority": existing["loadPriority"] if existing else len(mods) + 1,
-        "updateAvailable": False,
-        "sourceModId": nexus_mod_id,
-        "downloadedFile": str(dest),
-        "folderName": folder_name,
-    }
-    if existing:
-        mods = [entry if m["id"] == existing["id"] else m for m in mods]
-    else:
-        mods.append(entry)
-    mods_store.save_mods(instance["id"], mods)
-    return mods_store.sorted_mods(mods)
+def _raise_nexus_downloads_paused() -> None:
+    raise HTTPException(
+        status_code=403,
+        detail=(
+            "One-click Nexus downloads are paused for the public release while AutoPalExpress follows Nexus Mods' "
+            "registered app/OAuth process. Open the mod on Nexus Mods, download it there, then use Install From File "
+            "in Super Admin."
+        ),
+    )
 
 
 @router.post("/from-nexus/{nexus_mod_id}/install")
 async def install_from_nexus(nexus_mod_id: int) -> list[dict[str, Any]]:
-    instance = _require_active_instance()
-    return await _install_from_nexus(instance, nexus_mod_id)
+    _require_active_instance()
+    _raise_nexus_downloads_paused()
 
 
 @router.post("/{mod_id}/update")
@@ -269,13 +189,13 @@ async def update_mod(mod_id: str) -> list[dict[str, Any]]:
     target = next((m for m in mods if m["id"] == mod_id), None)
     if not target or not target.get("sourceModId"):
         raise HTTPException(status_code=400, detail="This mod has no Nexus Mods source to update from.")
-    return await _install_from_nexus(instance, target["sourceModId"])
+    _raise_nexus_downloads_paused()
 
 
 @router.post("/install-from-file/prepare", dependencies=[Depends(require_super_admin)])
 async def prepare_install_from_file(file: UploadFile = File(...)) -> dict[str, Any]:
     """Step 1 of installing an already-downloaded mod file: saves the upload,
-    computes its MD5, and checks that hash against Nexus's own md5_search
+    computes its MD5, and checks that hash against Nexus's own fileHash
     lookup. This is a real cryptographic check, not a claim - an empty
     result means these exact bytes have never been published as a Palworld
     mod on Nexus, and the upload is rejected outright. Super-admin-only:
@@ -284,8 +204,6 @@ async def prepare_install_from_file(file: UploadFile = File(...)) -> dict[str, A
     place external files into the live Mods folder still shouldn't be
     something any invited admin can do unilaterally."""
     _require_active_instance()
-    api_key = nexus_session.require_api_key()
-
     token = secrets.token_urlsafe(16)
     dest = VERIFIED_UPLOAD_DIR / f"{token}-{file.filename or 'upload.zip'}"
 
@@ -309,7 +227,7 @@ async def prepare_install_from_file(file: UploadFile = File(...)) -> dict[str, A
 
     md5_hash = digest.hexdigest()
     try:
-        results = await nexus_client.md5_search(api_key, md5_hash)
+        results = await nexus_client.file_hash_search(md5_hash)
     except NexusApiError as e:
         dest.unlink(missing_ok=True)
         raise HTTPException(status_code=e.status_code, detail=f"Couldn't verify this file against Nexus: {e.message}")
@@ -326,13 +244,13 @@ async def prepare_install_from_file(file: UploadFile = File(...)) -> dict[str, A
         )
 
     match = results[0]
-    mod_info = match.get("mod", {})
-    file_info = match.get("file_details", {})
+    file_info = match.get("modFile") or {}
+    mod_info = file_info.get("mod") or {}
     mod_name = mod_info.get("name") or file_info.get("name") or "Unknown Mod"
 
     _PENDING_VERIFIED_UPLOADS[token] = {
         "path": dest,
-        "modId": mod_info.get("mod_id"),
+        "modId": mod_info.get("modId") or file_info.get("modId"),
         "name": mod_name,
         "author": mod_info.get("author") or "Unknown",
         "summary": mod_info.get("summary") or "",

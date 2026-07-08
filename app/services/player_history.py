@@ -1,5 +1,5 @@
 """Persists a roster of every player ever seen connected to a given
-instance, keyed by steamid. Palworld's RCON `ShowPlayers` only lists
+instance, keyed by Palworld REST `userId`. Palworld only lists
 currently-connected players - without this, anyone who disconnects would
 vanish from the roster entirely instead of showing up as offline.
 """
@@ -20,17 +20,27 @@ def _save(instance_id: str, data: dict[str, Any]) -> None:
     instance_storage.save(instance_id, _STORE_NAME, data)
 
 
-def sync_online(instance_id: str, online: list[dict[str, str]]) -> dict[str, Any]:
+def _player_id(player: dict[str, Any]) -> str:
+    return str(player.get("userId") or player.get("steamid") or player.get("playerId") or player.get("playeruid") or "")
+
+
+def sync_online(instance_id: str, online: list[dict[str, Any]]) -> dict[str, Any]:
     """Records the given currently-connected players as seen now, and
     returns the full known roster (currently-online and previously-seen
     offline players) for this instance."""
     data = _load(instance_id)
     now = time.time()
-    online_ids = {p["steamid"] or p["playeruid"] for p in online}
+    online_ids = {pid for p in online if (pid := _player_id(p))}
     for p in online:
-        steamid = p["steamid"] or p["playeruid"]
+        steamid = _player_id(p)
+        if not steamid:
+            continue
         entry = data.setdefault(steamid, {"firstSeen": now, "isBanned": False})
-        entry["name"] = p["name"]
+        entry["name"] = p.get("name") or p.get("accountName") or steamid
+        entry["level"] = p.get("level") or 0
+        entry["ping"] = p.get("ping") or 0
+        entry["playerId"] = p.get("playerId") or p.get("playeruid")
+        entry["accountName"] = p.get("accountName")
         entry["lastSeen"] = now
     for steamid, entry in data.items():
         entry["online"] = steamid in online_ids

@@ -5,8 +5,8 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.auth_deps import get_current_user
-from app.services import activity_log, instance_store, player_history, rcon
-from app.services.rcon import RconError
+from app.services import activity_log, instance_store, palworld_rest, player_history
+from app.services.palworld_rest import PalworldRestError
 
 router = APIRouter()
 
@@ -47,9 +47,9 @@ def _to_player_view(steamid: str, entry: dict[str, Any], session_starts: dict[st
         "id": steamid,
         "characterName": entry.get("name") or "Unknown",
         "steamId": steamid,
-        "level": 0,
+        "level": entry.get("level") or 0,
         "guild": None,
-        "pingMs": 0,
+        "pingMs": int(entry.get("ping") or 0),
         "onlineSeconds": seconds,
         "connectionStatus": "online" if online else "offline",
         "joinedAt": datetime.fromtimestamp(timestamp).isoformat(),
@@ -61,10 +61,10 @@ def _to_player_view(steamid: str, entry: dict[str, Any], session_starts: dict[st
 async def _list_players() -> list[dict[str, Any]]:
     instance = _require_active_instance()
     try:
-        raw_players = await rcon.show_players(instance)
-    except RconError as e:
+        raw_players = await palworld_rest.players(instance)
+    except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
-    online_ids = {p["steamid"] or p["playeruid"] for p in raw_players}
+    online_ids = {pid for p in raw_players if (pid := p.get("userId") or p.get("playerId"))}
     session_starts = _track_session(instance["id"], online_ids)
     roster = player_history.sync_online(instance["id"], raw_players)
     return [_to_player_view(steamid, entry, session_starts) for steamid, entry in roster.items()]
@@ -79,8 +79,8 @@ async def list_players() -> list[dict[str, Any]]:
 async def kick_player(player_id: str, user: dict[str, Any] = Depends(get_current_user)) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     try:
-        await rcon.kick_player(instance, player_id)
-    except RconError as e:
+        await palworld_rest.kick_player(instance, player_id)
+    except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
     name = player_history.get_name(instance["id"], player_id) or player_id
     activity_log.log("warning", instance["name"], f"{name} was kicked by {user['username']}.")
@@ -91,8 +91,8 @@ async def kick_player(player_id: str, user: dict[str, Any] = Depends(get_current
 async def ban_player(player_id: str, user: dict[str, Any] = Depends(get_current_user)) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     try:
-        await rcon.ban_player(instance, player_id)
-    except RconError as e:
+        await palworld_rest.ban_player(instance, player_id)
+    except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
     player_history.set_banned(instance["id"], player_id, True)
     name = player_history.get_name(instance["id"], player_id) or player_id
@@ -104,8 +104,8 @@ async def ban_player(player_id: str, user: dict[str, Any] = Depends(get_current_
 async def unban_player(player_id: str, user: dict[str, Any] = Depends(get_current_user)) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     try:
-        await rcon.unban_player(instance, player_id)
-    except RconError as e:
+        await palworld_rest.unban_player(instance, player_id)
+    except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
     player_history.set_banned(instance["id"], player_id, False)
     name = player_history.get_name(instance["id"], player_id) or player_id

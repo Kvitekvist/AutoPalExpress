@@ -34,12 +34,12 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Run multiple separate servers with their own folders, mods, and ports.
 - Edit world settings from the browser.
 - Install and update UE4SS.
-- Browse Nexus Mods after the super admin connects a Nexus API key.
+- Browse Nexus Mods without entering a personal API key.
 - Enable, disable, reorder, and remove mods.
-- View players, kick players, and ban players through RCON.
+- View players, kick players, and ban players through Palworld's REST API.
 - Schedule backups and restarts.
 - Create invite codes so friends can help administer the server.
-- Manage ports, Windows Firewall rules, public IP, and Nexus setup from Super Admin.
+- Manage ports, Windows Firewall rules, public IP, and verified mod uploads from Super Admin.
 
 > [!TIP]
 > The first account created becomes the super admin. Make sure that account belongs to the person hosting the server.
@@ -66,14 +66,17 @@ AutoPalExpress uses regular HTTP by default so setup can stay simple: no domain,
 > [!TIP]
 > For safer remote access, use something like Tailscale, ZeroTier, a VPN, or a reverse proxy with real HTTPS.
 
+> [!WARNING]
+> Do not port-forward Palworld's REST API port directly. AutoPalExpress talks to it locally on the server PC; friends should use the AutoPalExpress panel, not the raw Palworld REST API.
+
 ## Nexus Mods
 
-AutoPalExpress can browse Palworld mods from Nexus Mods once the super admin connects a Nexus Mods API key in **Super Admin**.
+AutoPalExpress browses Palworld mod metadata through Nexus Mods' public GraphQL API, so browsing does **not** require anyone to paste a personal Nexus API key.
 
 > [!NOTE]
-> Nexus Premium is required for one-click automatic downloads because Nexus restricts automated downloads through its API. That is a Nexus rule, not an AutoPalExpress rule.
+> One-click automatic Nexus downloads are paused for the public release while AutoPalExpress follows Nexus Mods' registered app/OAuth process.
 
-Free Nexus accounts can still browse mods. For manual downloads, AutoPalExpress verifies the uploaded file against Nexus' own file catalog before installing it.
+Download files on Nexus Mods, then use **Install From File** in Super Admin. AutoPalExpress checks the uploaded file's exact hash against Nexus' catalog before installing it.
 
 ## Logs And Windows
 
@@ -92,7 +95,7 @@ Most of the app is wired to the real machine and real server:
 
 - Server process control is real.
 - Multi-server management is real.
-- Player roster, kick, and ban are real through RCON.
+- Player roster, kick, and ban are real through Palworld's REST API.
 - Scheduled backups and restarts are real.
 - World Settings edits the real `PalWorldSettings.ini`.
 - Mods and UE4SS install to disk.
@@ -102,8 +105,8 @@ Most of the app is wired to the real machine and real server:
 <details>
 <summary>Current limitations</summary>
 
-- Whisper and teleport are shown as UI concepts only. Palworld RCON does not provide per-player whisper or teleport commands.
-- Stop/restart should be treated carefully. Use **Save World** before stopping if you want a guaranteed save.
+- Whisper and teleport are shown as UI concepts only. Palworld's REST API does not provide per-player whisper or teleport commands.
+- Stop/restart use Palworld's REST shutdown path first, then clean up the local Windows process if needed.
 - The active server selection is shared by everyone using the panel.
 - AutoPalExpress manages the UE4SS Mods folder, not Palworld's separate pak-mod system.
 - Windows SmartScreen may warn because the installer is not code-signed yet.
@@ -117,7 +120,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  62065EF7CE2D96E018AD8073C98204F96B05A64F86F792CF80BB4CE65C91DD12
+SHA256  PalworldServerAdmin-Setup.exe  D87C006815AA445D4BCD5F5EF21A91D3D97C0A1EE57232A1F9B95F4A623AD9A0
 ```
 
 > [!IMPORTANT]
@@ -170,7 +173,7 @@ When installed, app data is stored under:
 %LOCALAPPDATA%\PalworldServerAdmin\data
 ```
 
-This includes server registry data, users, sessions, invites, mod records, and the Nexus connection.
+This includes server registry data, users, sessions, invites, and mod records.
 
 ## Support
 

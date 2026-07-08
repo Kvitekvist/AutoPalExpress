@@ -48,7 +48,6 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: no
 var
   ServerNamePage: TInputQueryWizardPage;
   SuperAdminPage: TInputQueryWizardPage;
-  NexusPage: TInputQueryWizardPage;
   SetupProgressPage: TOutputProgressWizardPage;
 
 procedure InitializeWizard;
@@ -66,14 +65,6 @@ begin
   SuperAdminPage.Add('Username:', False);
   SuperAdminPage.Add('Password (at least 8 characters):', True);
   SuperAdminPage.Add('Confirm password:', True);
-
-  NexusPage := CreateInputQueryPage(SuperAdminPage.ID,
-    'Nexus Mods (Optional)', 'Connect your Nexus Mods account',
-    'Enables browsing and installing mods from Nexus Mods directly in the app. A free Nexus account can ' +
-    'browse mods and install ones you upload yourself; Nexus Premium additionally allows one-click automatic ' +
-    'downloads. Get a personal API key at nexusmods.com -> Settings -> API Keys. Leave blank to skip - you can ' +
-    'connect this later from Super Admin.');
-  NexusPage.Add('Nexus API key (optional):', False);
 
   SetupProgressPage := CreateOutputProgressPage('Finishing Setup',
     'Applying what you entered - this window updates automatically.');
@@ -137,8 +128,6 @@ begin
   NL := Chr(13) + Chr(10);
   Body := '  "superAdminUsername": "' + JsonEscape(SuperAdminPage.Values[0]) + '",' + NL +
           '  "superAdminPassword": "' + JsonEscape(SuperAdminPage.Values[1]) + '"';
-  if Trim(NexusPage.Values[0]) <> '' then
-    Body := Body + ',' + NL + '  "nexusApiKey": "' + JsonEscape(NexusPage.Values[0]) + '"';
   if Trim(ServerNamePage.Values[0]) <> '' then
     Body := Body + ',' + NL + '  "serverName": "' + JsonEscape(ServerNamePage.Values[0]) + '"';
   Result := '{' + NL + Body + NL + '}' + NL;
@@ -172,7 +161,7 @@ begin
     try
       // Up to 15 minutes - long enough for a full SteamCMD download on a slow
       // connection. If it never finishes in time, the wizard just moves on;
-      // every step here (account, Nexus, deploy) has a manual fallback
+      // every step here (account, deploy) has a manual fallback
       // already built into the app, so this is a convenience, not the only
       // way any of it can happen.
       // Short sleep + explicit repaint each tick, rather than one long

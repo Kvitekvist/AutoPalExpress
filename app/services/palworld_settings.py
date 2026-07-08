@@ -92,11 +92,9 @@ def read_max_players(server_path: Path) -> int | None:
     return _read_ini_int_field(server_path, "ServerPlayerMaxNum")
 
 
-def read_rcon_config(server_path: Path) -> dict[str, Any] | None:
-    """Returns {"enabled", "port", "password"} from a live PalWorldSettings.ini,
-    or None if that file doesn't exist yet - used to decide whether an RCON
-    command can even be attempted for this server, without going through the
-    full read_all_settings() field-labeling machinery."""
+def read_rest_config(server_path: Path) -> dict[str, Any] | None:
+    """Returns {"enabled", "port", "password"} for Palworld's REST API.
+    The REST API uses the same AdminPassword as other admin operations."""
     ini_path = _settings_ini_path(server_path)
     if not ini_path.is_file():
         return None
@@ -105,13 +103,28 @@ def read_rcon_config(server_path: Path) -> dict[str, Any] | None:
     if not match:
         return None
     body = match.group(1)
-    port_raw = _get_field(body, "RCONPort")
+    port_raw = _get_field(body, "RESTAPIPort")
     password_raw = _get_field(body, "AdminPassword")
     return {
-        "enabled": _get_field(body, "RCONEnabled") == "True",
+        "enabled": _get_field(body, "RESTAPIEnabled") == "True",
         "port": int(port_raw) if port_raw and port_raw.isdigit() else None,
         "password": password_raw[1:-1] if password_raw and password_raw.startswith('"') else password_raw,
     }
+
+
+def enforce_rest_api(server_path: Path, fallback_port: int) -> int:
+    """Ensures the Palworld REST API is enabled before launch. The existing
+    instance field is still named rconPort for backward compatibility, but it
+    now represents this tool's local management API port."""
+    text = _read_ini_or_template_text(server_path)
+    match = _OPTION_LINE_RE.search(text)
+    body = match.group(1) if match else ""
+    port_raw = _get_field(body, "RESTAPIPort")
+    port = int(port_raw) if port_raw and port_raw.isdigit() else fallback_port
+    body = _set_field(body, "RESTAPIEnabled", "True")
+    body = _set_field(body, "RESTAPIPort", str(port))
+    _write_option_body(server_path, text, match, body)
+    return port
 
 
 def _read_ini_or_template_text(server_path: Path) -> str:
@@ -154,8 +167,8 @@ def initialize_settings(
     body = _set_field(body, "ServerName", f'"{server_name}"')
     body = _set_field(body, "PublicPort", str(game_port))
     if rcon_port is not None:
-        body = _set_field(body, "RCONPort", str(rcon_port))
-        body = _set_field(body, "RCONEnabled", "True")
+        body = _set_field(body, "RESTAPIPort", str(rcon_port))
+        body = _set_field(body, "RESTAPIEnabled", "True")
     if max_players is not None:
         body = _set_field(body, "ServerPlayerMaxNum", str(max_players))
 
@@ -201,8 +214,8 @@ POPULAR_FIELDS: list[dict[str, Any]] = [
     {"key": "GuildPlayerMaxNum", "label": "Max Guild Size"},
     {"key": "AutoSaveSpan", "label": "Auto-Save Interval (minutes)"},
     {"key": "bIsUseBackupSaveData", "label": "Keep Save Backups"},
-    {"key": "RCONEnabled", "label": "RCON Enabled"},
-    {"key": "RCONPort", "label": "RCON Port"},
+    {"key": "RESTAPIEnabled", "label": "REST API Enabled"},
+    {"key": "RESTAPIPort", "label": "REST API Port"},
 ]
 _POPULAR_META = {f["key"]: f for f in POPULAR_FIELDS}
 _POPULAR_ORDER = {f["key"]: i for i, f in enumerate(POPULAR_FIELDS)}
@@ -212,7 +225,7 @@ _POPULAR_ORDER = {f["key"]: i for i, f in enumerate(POPULAR_FIELDS)}
 # server's port only ever has the one place - hidden from read_all_settings,
 # but write_settings still accepts it, since that dedicated control uses the
 # same write path under the hood.
-_MANAGED_ELSEWHERE = {"PublicPort"}
+_MANAGED_ELSEWHERE = {"PublicPort", "RCONEnabled", "RCONPort"}
 
 
 def _tokenize_option_body(body: str) -> list[str]:

@@ -105,7 +105,7 @@ async def browse_import() -> dict[str, Any]:
 class DeployRequest(BaseModel):
     name: str
     gamePort: int = 8211
-    rconPort: int = 25575
+    rconPort: int = 8212
     maxPlayers: int = 32
 
 
