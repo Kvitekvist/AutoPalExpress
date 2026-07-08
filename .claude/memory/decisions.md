@@ -429,6 +429,28 @@ Every seeded step (account, Nexus, deploy) has a pre-existing manual fallback al
 
 ### Decision
 
+Community Server listing is a per-instance Settings toggle that adds Palworld's `-publiclobby` launch argument on the next server start.
+
+### Reason
+
+Users familiar with manually hosting Palworld expect to configure this via launch arguments, but AutoPalExpress owns the launch command and previously hid that surface completely. The Settings page already owns super-admin-only instance management, so the option belongs on each server instance card where the selected server path, port, and setup controls are visible.
+
+### Alternatives
+
+Expose a free-form launch-arguments textbox (rejected because it invites invalid or unsafe combinations and makes support harder), or add the toggle to World Settings (rejected because this is not a `PalWorldSettings.ini` field and only takes effect at process launch).
+
+### Consequences
+
+The setting is stored in `instances.json` as `communityServer`, defaults false for existing servers, and requires a server restart to take effect. The UI calls that out directly beside the switch.
+
+### Date
+
+2026-07-08
+
+---
+
+### Decision
+
 Fresh Palworld server deployments now support an optional super-admin-selected install parent folder while keeping AutoPalExpress' data `servers` folder as the default.
 
 ### Reason

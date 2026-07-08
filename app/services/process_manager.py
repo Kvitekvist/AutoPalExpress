@@ -143,6 +143,7 @@ def start(instance: dict[str, Any]) -> None:
                 "-useperfthreads",
                 "-NoAsyncLoadingThread",
                 "-UseMultithreadForDS",
+                *(["-publiclobby"] if instance.get("communityServer") else []),
             ],
             cwd=str(exe.parent),
             # Keep Palworld's own server window visible so the host can see at

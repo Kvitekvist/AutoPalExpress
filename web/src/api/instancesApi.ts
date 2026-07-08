@@ -21,6 +21,11 @@ export async function removeInstance(id: string): Promise<InstanceListView> {
   return api.delete<InstanceListView>(`/api/instances/${id}`);
 }
 
+// POST /api/instances/{id}/community-server
+export async function setCommunityServer(id: string, enabled: boolean): Promise<InstanceListView> {
+  return api.post<InstanceListView>(`/api/instances/${id}/community-server`, { enabled });
+}
+
 // POST /api/instances/import
 export async function importExisting(name: string, path: string): Promise<InstanceListView> {
   return api.post<InstanceListView>("/api/instances/import", { name, path });

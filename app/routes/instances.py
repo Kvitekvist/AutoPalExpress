@@ -23,6 +23,7 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
     ue4ss_status = ue4ss_installer.get_status(instance)
     return {
         **instance,
+        "communityServer": bool(instance.get("communityServer")),
         "exists": exists,
         "executableFound": executable_found,
         "modsPath": mods_path,
@@ -54,6 +55,19 @@ async def set_active(body: SetActiveRequest) -> dict[str, Any]:
     if not instance_store.get(body.id):
         raise HTTPException(status_code=404, detail="No such server instance.")
     instance_store.set_active_instance(body.id)
+    data = instance_store.list_view()
+    return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+class CommunityServerRequest(BaseModel):
+    enabled: bool
+
+
+@router.post("/{instance_id}/community-server", dependencies=[Depends(require_super_admin)])
+async def set_community_server(instance_id: str, body: CommunityServerRequest) -> dict[str, Any]:
+    if not instance_store.get(instance_id):
+        raise HTTPException(status_code=404, detail="No such server instance.")
+    instance_store.update_community_server(instance_id, body.enabled)
     data = instance_store.list_view()
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
 

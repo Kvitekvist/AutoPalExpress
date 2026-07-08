@@ -183,6 +183,7 @@ export interface ServerInstance {
   source: InstanceSource;
   gamePort: number;
   rconPort: number;
+  communityServer: boolean;
   createdAt: number;
   exists: boolean;
   executableFound: boolean;

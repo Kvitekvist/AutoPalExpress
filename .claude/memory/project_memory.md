@@ -50,6 +50,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-06 (TICKET-0013/0014, see Decision Log): second security audit pass, informed by reading Crafty Controller's source for inspiration. `spa_fallback` (serves the built frontend) had no path-containment check of its own - safe only by incidental Starlette URL normalization, confirmed by calling the function directly with a raw traversal string. Added an explicit check. Also closed a gap TICKET-0012 left open: `automation.router` was still reachable by any regular admin via direct API call even though its only UI entry point is now super-admin-only.
 * FIXED 2026-07-08 (TICKET-0029): Nexus Browse cards generated the wrong public Nexus URL path and made the manual verified upload path look like a one-click install button. Cards now open `nexusmods.com/palworld/mods/<id>` and show a Super Admin install-file shortcut or a Super Admin-only notice.
 * FIXED 2026-07-08 (TICKET-0031): New server deployments now keep the AutoPalExpress data `servers` folder as the default, but the super admin can choose another parent folder. The installer first-server flow carries the same optional location into `first_run_seed.json`.
+* FIXED 2026-07-08 (TICKET-0032): Settings now has a prominent per-server "Show in Community Server list" toggle. It persists on the instance record and adds Palworld's `-publiclobby` launch argument the next time that server starts.
 
 ---
 

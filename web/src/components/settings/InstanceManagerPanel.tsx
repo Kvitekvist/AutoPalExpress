@@ -5,6 +5,7 @@ import type { InstanceListView, ServerInstance } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
+import { Switch } from "@/components/ui/switch";
 import { useNotifications } from "@/hooks/useNotifications";
 import { DeployServerWizard } from "./DeployServerWizard";
 import { ImportServerDialog } from "./ImportServerDialog";
@@ -23,6 +24,7 @@ export function InstanceManagerPanel() {
   const [removeTarget, setRemoveTarget] = React.useState<ServerInstance | null>(null);
   const [removing, setRemoving] = React.useState(false);
   const [switching, setSwitching] = React.useState<string | null>(null);
+  const [updatingCommunity, setUpdatingCommunity] = React.useState<string | null>(null);
   const notifications = useNotifications();
 
   const refresh = React.useCallback(() => {
@@ -60,6 +62,20 @@ export function InstanceManagerPanel() {
     } finally {
       setRemoving(false);
       setRemoveTarget(null);
+    }
+  }
+
+  async function handleCommunityToggle(instance: ServerInstance, enabled: boolean) {
+    setUpdatingCommunity(instance.id);
+    try {
+      const next = await instancesApi.setCommunityServer(instance.id, enabled);
+      setData(next);
+      notifications.success({
+        title: enabled ? "Community listing enabled" : "Community listing disabled",
+        message: "Restart the server for this launch option to take effect.",
+      });
+    } finally {
+      setUpdatingCommunity(null);
     }
   }
 
@@ -133,6 +149,20 @@ export function InstanceManagerPanel() {
                     <span>Port {instance.gamePort}</span>
                     <span>{instance.ue4ssInstalled ? `UE4SS ${instance.ue4ssVersion}` : "UE4SS not installed"}</span>
                   </div>
+                  <label className="mt-3 flex max-w-xl items-center justify-between gap-4 rounded-md border border-gold-500/25 bg-gold-500/5 px-3 py-2">
+                    <span className="min-w-0">
+                      <span className="block text-xs font-semibold text-parchment-100">Show in Community Server list</span>
+                      <span className="block text-[11px] leading-relaxed text-parchment-300/55">
+                        Adds Palworld&apos;s public lobby launch option next time this server starts.
+                      </span>
+                    </span>
+                    <Switch
+                      checked={instance.communityServer}
+                      disabled={updatingCommunity === instance.id}
+                      onCheckedChange={(checked) => handleCommunityToggle(instance, checked)}
+                      aria-label={`Show ${instance.name} in the Community Server list`}
+                    />
+                  </label>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {!active && (

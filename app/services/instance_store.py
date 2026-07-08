@@ -65,6 +65,7 @@ def create_instance(
         "source": source,  # "deployed" | "steam" | "manual"
         "gamePort": game_port,
         "rconPort": rcon_port,
+        "communityServer": False,
         "createdAt": time.time(),
     }
     data["instances"].append(instance)
@@ -110,6 +111,19 @@ def update_game_port(instance_id: str, game_port: int) -> None:
         if i["id"] == instance_id:
             i["gamePort"] = game_port
     _save(data)
+
+
+def update_community_server(instance_id: str, enabled: bool) -> dict[str, Any] | None:
+    data = _load()
+    updated = None
+    for instance in data["instances"]:
+        if instance["id"] == instance_id:
+            instance["communityServer"] = enabled
+            updated = instance
+            break
+    if updated:
+        _save(data)
+    return updated
 
 
 def list_view() -> dict[str, Any]:
