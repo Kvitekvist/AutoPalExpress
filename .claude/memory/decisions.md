@@ -495,6 +495,28 @@ World Settings now loads the active server instance and shows a Launch Options p
 
 ### Decision
 
+Launcher flags now have a dedicated super-admin-only sidebar page.
+
+### Reason
+
+After trying Settings and then World Settings, the user still could not find the new controls and explicitly asked for a dedicated sidebar menu named Launcher Flags. Launch arguments are not `.ini` world settings and are not just instance-management metadata, so a direct page is the clearest long-term home.
+
+### Alternatives
+
+Keep the controls on World Settings (rejected because the user reported they were still not visible/discoverable), keep Community Server listing on Settings while only moving newer flags (rejected because `-publiclobby` is also a launcher flag), or duplicate controls in multiple pages (rejected because each setting must have one editable place).
+
+### Consequences
+
+Launcher Flags is the only visible editor for Community Server listing, performance flags, worker thread override, and JSON log format. Settings no longer shows Community Server listing, and World Settings no longer shows launch-option controls. The stored instance fields and process launch behavior are unchanged.
+
+### Date
+
+2026-07-08
+
+---
+
+### Decision
+
 Fresh Palworld server deployments now support an optional super-admin-selected install parent folder while keeping AutoPalExpress' data `servers` folder as the default.
 
 ### Reason

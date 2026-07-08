@@ -20,6 +20,7 @@ const TITLES: Record<string, { title: string; subtitle: string }> = {
   "/mods": { title: "Mods", subtitle: "Enchantments woven into your server" },
   "/control": { title: "Server Control", subtitle: "Command the fate of your realm" },
   "/world-settings": { title: "World Settings", subtitle: "Every rule your server's config file can express" },
+  "/launcher-flags": { title: "Launcher Flags", subtitle: "Startup arguments for the selected server" },
   "/logs": { title: "Logs", subtitle: "The chronicle of recent events" },
   "/settings": { title: "Settings", subtitle: "Configure the laws of your world" },
   "/super-admin": { title: "Super Admin", subtitle: "Network exposure and access, reserved for the host" },

@@ -54,6 +54,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-08 (TICKET-0033): Added safe per-server launch options for Palworld's performance flags, optional worker thread count, and JSON log format. Port, players, community listing, and public IP/port remain owned by their existing app flows rather than duplicated.
 * FIXED 2026-07-08 (TICKET-0034): The safe launch options from TICKET-0033 now live on World Settings instead of the Settings server-instance cards. They still persist on the active instance and still require a restart to take effect.
 * FIXED 2026-07-08 (TICKET-0035): World Settings now gets Launch Options in the same `/api/server-settings` payload as the `.ini` fields, so the panel cannot disappear because a separate active-instance request failed.
+* FIXED 2026-07-08 (TICKET-0036): Launcher flags now have their own super-admin-only sidebar page. Community Server listing, performance flags, worker thread override, and JSON log format all live there, and no longer appear in Settings or World Settings.
 
 ---
 

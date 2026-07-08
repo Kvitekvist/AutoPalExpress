@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.0.0 - 2026-07-07
+- Added a dedicated Launcher Flags sidebar page for Community Server visibility, performance flags, worker thread override, and JSON log format.
 - Fixed World Settings hiding the Launch Options panel even though the active server's settings loaded.
 - Moved safe per-server Palworld launch-option controls from Settings into World Settings.
 - Added World Settings controls for safe per-server Palworld launch options: performance flags, worker thread override, and JSON log format.

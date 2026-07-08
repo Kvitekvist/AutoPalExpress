@@ -1,15 +1,13 @@
 import * as React from "react";
-import { Sparkles, Sliders, Save, Rocket } from "lucide-react";
-import { instancesApi, serverSettingsApi } from "@/api";
-import type { LaunchOptions, SettingField } from "@/types/models";
+import { Sparkles, Sliders, Save } from "lucide-react";
+import { serverSettingsApi } from "@/api";
+import type { SettingField } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
 import { useNotifications } from "@/hooks/useNotifications";
-import { useAuth } from "@/hooks/useAuth";
 
 type FieldValue = boolean | number | string;
 
@@ -57,20 +55,15 @@ function FieldControl({
 
 export default function WorldSettings() {
   const [fields, setFields] = React.useState<SettingField[] | null>(null);
-  const [launchOptions, setLaunchOptions] = React.useState<LaunchOptions | null>(null);
   const [values, setValues] = React.useState<Record<string, FieldValue>>({});
   const [dirty, setDirty] = React.useState<Set<string>>(new Set());
   const [saving, setSaving] = React.useState(false);
-  const [savingLaunch, setSavingLaunch] = React.useState(false);
   const [showAdvanced, setShowAdvanced] = React.useState(false);
   const notifications = useNotifications();
-  const { user } = useAuth();
-  const canEditLaunchOptions = user.role === "super_admin";
 
   const load = React.useCallback(() => {
     serverSettingsApi.getSettings().then((data) => {
       setFields(data.fields);
-      setLaunchOptions(data.launchOptions);
       setValues(Object.fromEntries(data.fields.map((f) => [f.key, f.value])));
       setDirty(new Set());
     });
@@ -92,7 +85,6 @@ export default function WorldSettings() {
       const updates = Object.fromEntries([...dirty].map((key) => [key, values[key]]));
       const data = await serverSettingsApi.updateSettings(updates);
       setFields(data.fields);
-      setLaunchOptions(data.launchOptions);
       setValues(Object.fromEntries(data.fields.map((f) => [f.key, f.value])));
       setDirty(new Set());
       notifications.success({
@@ -103,39 +95,6 @@ export default function WorldSettings() {
       notifications.error({ title: "Couldn't save", message: e instanceof Error ? e.message : "Unknown error." });
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function saveLaunchOptions(
-    nextOptions: Partial<Pick<LaunchOptions, "performanceFlags" | "workerThreads" | "jsonLogFormat">>
-  ) {
-    if (!launchOptions || !canEditLaunchOptions) return;
-    setSavingLaunch(true);
-    try {
-      const next = await instancesApi.setLaunchOptions(launchOptions.instanceId, {
-        performanceFlags:
-          "performanceFlags" in nextOptions ? Boolean(nextOptions.performanceFlags) : launchOptions.performanceFlags,
-        workerThreads: "workerThreads" in nextOptions ? nextOptions.workerThreads ?? null : launchOptions.workerThreads,
-        jsonLogFormat: "jsonLogFormat" in nextOptions ? Boolean(nextOptions.jsonLogFormat) : launchOptions.jsonLogFormat,
-      });
-      const updated = next.instances.find((instance) => instance.id === launchOptions.instanceId);
-      if (updated) {
-        setLaunchOptions({
-          instanceId: updated.id,
-          name: updated.name,
-          performanceFlags: updated.performanceFlags,
-          workerThreads: updated.workerThreads,
-          jsonLogFormat: updated.jsonLogFormat,
-        });
-      }
-      notifications.success({
-        title: "Launch options saved",
-        message: "Restart the server for these launch options to take effect.",
-      });
-    } catch (e) {
-      notifications.error({ title: "Couldn't save", message: e instanceof Error ? e.message : "Unknown error." });
-    } finally {
-      setSavingLaunch(false);
     }
   }
 
@@ -164,83 +123,6 @@ export default function WorldSettings() {
           ))}
         </div>
       </ScrollPanel>
-
-      {launchOptions && (
-        <ScrollPanel icon={<Rocket />} title="Launch Options">
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <EnchantedToggle
-              id="launch-performance-flags"
-              checked={launchOptions.performanceFlags}
-              disabled={savingLaunch || !canEditLaunchOptions}
-              onCheckedChange={(checked) => saveLaunchOptions({ performanceFlags: checked })}
-              label="Performance launch flags"
-              description="Uses Palworld's multi-threaded server startup arguments."
-            />
-            <div className="rounded-md border border-stone-700 bg-abyss-900/40 px-4 py-3">
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <Label htmlFor="launch-worker-threads" className="normal-case text-sm font-medium text-parchment-100 tracking-normal">
-                    Worker thread override
-                  </Label>
-                  <p className="mt-0.5 text-xs text-parchment-300/60">
-                    Adds a specific process thread count when performance flags are on.
-                  </p>
-                </div>
-                <Switch
-                  id="launch-worker-threads-enabled"
-                  checked={launchOptions.workerThreads !== null}
-                  disabled={!launchOptions.performanceFlags || savingLaunch || !canEditLaunchOptions}
-                  onCheckedChange={(checked) =>
-                    saveLaunchOptions({ workerThreads: checked ? launchOptions.workerThreads ?? 4 : null })
-                  }
-                  aria-label="Use worker thread override"
-                />
-              </div>
-              <Input
-                key={`${launchOptions.instanceId}-${launchOptions.workerThreads ?? "auto"}`}
-                id="launch-worker-threads"
-                className="mt-3 h-9 max-w-28 text-sm"
-                type="number"
-                min={1}
-                max={128}
-                defaultValue={launchOptions.workerThreads ?? ""}
-                disabled={
-                  !launchOptions.performanceFlags ||
-                  launchOptions.workerThreads === null ||
-                  savingLaunch ||
-                  !canEditLaunchOptions
-                }
-                onBlur={(event) => {
-                  const value = Number.parseInt(event.target.value, 10);
-                  if (Number.isFinite(value)) {
-                    const workerThreads = Math.min(128, Math.max(1, value));
-                    if (workerThreads !== launchOptions.workerThreads) {
-                      saveLaunchOptions({ workerThreads });
-                    }
-                  }
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.currentTarget.blur();
-                  }
-                }}
-              />
-            </div>
-            <EnchantedToggle
-              id="launch-json-log-format"
-              checked={launchOptions.jsonLogFormat}
-              disabled={savingLaunch || !canEditLaunchOptions}
-              onCheckedChange={(checked) => saveLaunchOptions({ jsonLogFormat: checked })}
-              label="JSON log format"
-              description="Starts Palworld with structured JSON log output."
-            />
-          </div>
-          <p className="mt-3 text-xs text-parchment-300/45">
-            Launch options apply to {launchOptions.name} the next time it starts.
-            {!canEditLaunchOptions ? " Only the super admin can change them." : ""}
-          </p>
-        </ScrollPanel>
-      )}
 
       <ScrollPanel
         icon={<Sliders />}

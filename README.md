@@ -34,8 +34,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Run multiple separate servers with their own folders, mods, and ports.
 - Choose where new server installs are stored, including another drive.
 - Edit world settings from the browser.
-- Toggle whether a server should appear in Palworld's Community Server list.
-- Adjust safe per-server launch options from World Settings, like performance flags, worker threads, and JSON logs.
+- Manage launcher flags from their own sidebar page, including Community Server visibility, performance flags, worker threads, and JSON logs.
 - Install and update UE4SS.
 - Browse Nexus Mods without entering a personal API key.
 - Enable, disable, reorder, and remove mods.
@@ -100,8 +99,7 @@ Most of the app is wired to the real machine and real server:
 - Server process control is real.
 - Multi-server management is real.
 - Fresh server deployments can use AutoPalExpress' default storage folder or a super-admin-selected install location.
-- Community Server visibility is a real per-server launch option.
-- Performance flags, worker thread override, and JSON log format are real per-server launch options.
+- Launcher Flags controls real per-server launch options: Community Server visibility, performance flags, worker thread override, and JSON log format.
 - Player roster, kick, and ban are real through Palworld's REST API.
 - Dashboard CPU and RAM are read from the selected server's Palworld processes.
 - Scheduled backups and restarts are real.

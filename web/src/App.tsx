@@ -4,6 +4,7 @@ import Dashboard from "@/pages/Dashboard";
 import Mods from "@/pages/Mods";
 import ServerControl from "@/pages/ServerControl";
 import WorldSettings from "@/pages/WorldSettings";
+import LauncherFlags from "@/pages/LauncherFlags";
 import Logs from "@/pages/Logs";
 import Settings from "@/pages/Settings";
 import SuperAdmin from "@/pages/SuperAdmin";
@@ -23,6 +24,14 @@ function App() {
         <Route path="mods" element={<Mods />} />
         <Route path="control" element={<ServerControl />} />
         <Route path="world-settings" element={<WorldSettings />} />
+        <Route
+          path="launcher-flags"
+          element={
+            <RequireSuperAdmin>
+              <LauncherFlags />
+            </RequireSuperAdmin>
+          }
+        />
         <Route path="logs" element={<Logs />} />
         <Route
           path="settings"

@@ -45,6 +45,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0033** (2026-07-08, Feature) - Added safe per-server launch-option controls for Palworld's performance flags, optional worker thread count, and JSON log format. Existing single-source settings were intentionally not duplicated: port, player count, community listing, and public IP/port remain in their current flows.
 * **TICKET-0034** (2026-07-08, Enhancement) - Moved the safe launch-option controls from Settings to World Settings so performance flags, worker thread override, and JSON log format are easier to find beside the server behavior configuration. The controls remain backed by per-instance storage and still require a restart.
 * **TICKET-0035** (2026-07-08, Bug) - Fixed World Settings hiding the Launch Options panel by returning launch-option state in the same `/api/server-settings` response as the visible `.ini` fields, instead of relying on a separate active-instance request.
+* **TICKET-0036** (2026-07-08, Enhancement) - Added a dedicated Launcher Flags sidebar page for Community Server listing, performance flags, worker thread override, and JSON log format. Removed those launch-argument controls from Settings and World Settings so the new page is the only visible editor.
 
 ---
 
