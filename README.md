@@ -35,7 +35,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Choose where new server installs are stored, including another drive.
 - Edit world settings from the browser.
 - Toggle whether a server should appear in Palworld's Community Server list.
-- Adjust safe per-server launch options like performance flags, worker threads, and JSON logs.
+- Adjust safe per-server launch options from World Settings, like performance flags, worker threads, and JSON logs.
 - Install and update UE4SS.
 - Browse Nexus Mods without entering a personal API key.
 - Enable, disable, reorder, and remove mods.

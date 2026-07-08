@@ -51,7 +51,8 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-08 (TICKET-0029): Nexus Browse cards generated the wrong public Nexus URL path and made the manual verified upload path look like a one-click install button. Cards now open `nexusmods.com/palworld/mods/<id>` and show a Super Admin install-file shortcut or a Super Admin-only notice.
 * FIXED 2026-07-08 (TICKET-0031): New server deployments now keep the AutoPalExpress data `servers` folder as the default, but the super admin can choose another parent folder. The installer first-server flow carries the same optional location into `first_run_seed.json`.
 * FIXED 2026-07-08 (TICKET-0032): Settings now has a prominent per-server "Show in Community Server list" toggle. It persists on the instance record and adds Palworld's `-publiclobby` launch argument the next time that server starts.
-* FIXED 2026-07-08 (TICKET-0033): Settings now exposes safe per-server launch options for Palworld's performance flags, optional worker thread count, and JSON log format. Port, players, community listing, and public IP/port remain owned by their existing app flows rather than duplicated.
+* FIXED 2026-07-08 (TICKET-0033): Added safe per-server launch options for Palworld's performance flags, optional worker thread count, and JSON log format. Port, players, community listing, and public IP/port remain owned by their existing app flows rather than duplicated.
+* FIXED 2026-07-08 (TICKET-0034): The safe launch options from TICKET-0033 now live on World Settings instead of the Settings server-instance cards. They still persist on the active instance and still require a restart to take effect.
 
 ---
 

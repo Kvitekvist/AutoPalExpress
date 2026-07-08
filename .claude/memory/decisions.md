@@ -473,6 +473,28 @@ Existing servers keep the previous default performance flags unless the super ad
 
 ### Decision
 
+Move the safe Palworld launch-option controls from Settings to World Settings.
+
+### Reason
+
+After using the new controls, the user expected performance flags, worker thread override, and JSON log format to be in World Settings, not inside the server-instance management card. These options change how the active server behaves on next start, so World Settings is the more discoverable home even though they are stored on the instance record rather than in `PalWorldSettings.ini`.
+
+### Alternatives
+
+Keep them in Settings (rejected because the host could not find them there), duplicate them in both pages (rejected because each setting should be editable in only one place), or move every launch argument including Community Server listing at the same time (deferred because the user only asked for the new flags).
+
+### Consequences
+
+World Settings now loads the active server instance and shows a Launch Options panel for these flags. The backend storage and launch behavior from TICKET-0033 stay the same. The API remains super-admin-only for writes; regular admins can view the panel but cannot change these launch arguments.
+
+### Date
+
+2026-07-08
+
+---
+
+### Decision
+
 Fresh Palworld server deployments now support an optional super-admin-selected install parent folder while keeping AutoPalExpress' data `servers` folder as the default.
 
 ### Reason
