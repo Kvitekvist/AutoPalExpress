@@ -31,11 +31,16 @@ def _sanitize_server_folder_name(name: str) -> str:
     return cleaned or "Server"
 
 
+def install_dir_for(name: str, parent_dir: Path | None = None) -> Path:
+    """Every new deployment gets its own sanitized folder name. By default it
+    lives under this app's data/servers folder; super admins may choose a
+    different existing parent folder for large installs or alternate drives."""
+    base = parent_dir or data_dir() / "servers"
+    return base / _sanitize_server_folder_name(name)
+
+
 def default_install_dir(name: str) -> Path:
-    """Every new deployment goes in its own folder under data_dir()/servers/
-    - a fixed, predictable convention instead of asking the user to browse
-    for an empty folder each time."""
-    return data_dir() / "servers" / _sanitize_server_folder_name(name)
+    return install_dir_for(name)
 
 
 def get_job(job_id: str) -> dict[str, Any] | None:

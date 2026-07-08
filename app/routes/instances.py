@@ -107,17 +107,37 @@ class DeployRequest(BaseModel):
     gamePort: int = 8211
     rconPort: int = 8212
     maxPlayers: int = 32
+    installParentDir: str | None = None
+
+
+@router.post("/deploy/browse", dependencies=[Depends(require_super_admin)])
+async def browse_deploy_parent() -> dict[str, Any]:
+    path = await asyncio.to_thread(
+        native_dialog.pick_folder,
+        "Select where new Palworld server folders should be created",
+    )
+    return {"path": path}
 
 
 @router.post("/deploy", dependencies=[Depends(require_super_admin)])
 async def deploy(body: DeployRequest) -> dict[str, Any]:
     if not body.name.strip():
         raise HTTPException(status_code=400, detail="Give the server a name.")
-    install_dir = deploy_jobs.default_install_dir(body.name.strip())
+
+    install_parent = None
+    if body.installParentDir and body.installParentDir.strip():
+        install_parent = Path(body.installParentDir.strip())
+        if not install_parent.is_dir():
+            raise HTTPException(
+                status_code=400,
+                detail=f"'{body.installParentDir}' is not a folder that exists on this machine.",
+            )
+
+    install_dir = deploy_jobs.install_dir_for(body.name.strip(), install_parent)
     if install_dir.exists() and any(install_dir.iterdir()):
         raise HTTPException(
             status_code=400,
-            detail=f"A server folder for '{body.name.strip()}' already exists. Choose a different name.",
+            detail=f"The install folder '{install_dir}' already exists and is not empty. Choose a different name or location.",
         )
     job_id = deploy_jobs.start_deploy(
         name=body.name.strip(),

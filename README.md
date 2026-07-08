@@ -32,6 +32,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Deploy a fresh dedicated server with SteamCMD.
 - Import an existing server.
 - Run multiple separate servers with their own folders, mods, and ports.
+- Choose where new server installs are stored, including another drive.
 - Edit world settings from the browser.
 - Install and update UE4SS.
 - Browse Nexus Mods without entering a personal API key.
@@ -96,6 +97,7 @@ Most of the app is wired to the real machine and real server:
 
 - Server process control is real.
 - Multi-server management is real.
+- Fresh server deployments can use AutoPalExpress' default storage folder or a super-admin-selected install location.
 - Player roster, kick, and ban are real through Palworld's REST API.
 - Dashboard CPU and RAM are read from the selected server's Palworld processes.
 - Scheduled backups and restarts are real.

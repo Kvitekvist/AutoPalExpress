@@ -47,6 +47,7 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: no
 [Code]
 var
   ServerNamePage: TInputQueryWizardPage;
+  ServerInstallDirPage: TInputDirWizardPage;
   SuperAdminPage: TInputQueryWizardPage;
   SetupProgressPage: TOutputProgressWizardPage;
 
@@ -58,7 +59,14 @@ begin
     'folder as soon as setup finishes. Leave this blank to skip - you can deploy one later from the app instead.');
   ServerNamePage.Add('Server name (optional):', False);
 
-  SuperAdminPage := CreateInputQueryPage(ServerNamePage.ID,
+  ServerInstallDirPage := CreateInputDirPage(ServerNamePage.ID,
+    'Server Install Location', 'Choose where the first Palworld server will be stored',
+    'AutoPalExpress will create a server folder named after your server inside this location.',
+    False, '');
+  ServerInstallDirPage.Add('Parent folder for the first server:');
+  ServerInstallDirPage.Values[0] := ExpandConstant('{localappdata}\PalworldServerAdmin\data\servers');
+
+  SuperAdminPage := CreateInputQueryPage(ServerInstallDirPage.ID,
     'Super Admin Account', 'Create the account that fully controls this tool',
     'This machine gets exactly one super admin - that''s you. Friends you invite later register as regular ' +
     'admins with day-to-day access (start/stop, mods, players), not this level of control.');
@@ -68,6 +76,13 @@ begin
 
   SetupProgressPage := CreateOutputProgressPage('Finishing Setup',
     'Applying what you entered - this window updates automatically.');
+end;
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  Result := False;
+  if PageID = ServerInstallDirPage.ID then
+    Result := Trim(ServerNamePage.Values[0]) = '';
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -129,7 +144,11 @@ begin
   Body := '  "superAdminUsername": "' + JsonEscape(SuperAdminPage.Values[0]) + '",' + NL +
           '  "superAdminPassword": "' + JsonEscape(SuperAdminPage.Values[1]) + '"';
   if Trim(ServerNamePage.Values[0]) <> '' then
+  begin
     Body := Body + ',' + NL + '  "serverName": "' + JsonEscape(ServerNamePage.Values[0]) + '"';
+    if Trim(ServerInstallDirPage.Values[0]) <> '' then
+      Body := Body + ',' + NL + '  "serverInstallParentDir": "' + JsonEscape(ServerInstallDirPage.Values[0]) + '"';
+  end;
   Result := '{' + NL + Body + NL + '}' + NL;
 end;
 

@@ -36,11 +36,17 @@ export async function browseImportDir(): Promise<{ path: string | null }> {
   return api.post<{ path: string | null }>("/api/instances/import/browse");
 }
 
+// POST /api/instances/deploy/browse
+export async function browseDeployParentDir(): Promise<{ path: string | null }> {
+  return api.post<{ path: string | null }>("/api/instances/deploy/browse");
+}
+
 export interface DeployParams {
   name: string;
   gamePort: number;
   rconPort: number;
   maxPlayers: number;
+  installParentDir?: string | null;
 }
 
 // POST /api/instances/deploy

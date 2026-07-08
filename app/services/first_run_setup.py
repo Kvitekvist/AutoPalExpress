@@ -113,7 +113,11 @@ async def apply_seed_if_present() -> None:
     server_name = seed.get("serverName")
     if server_name:
         try:
-            install_path = deploy_jobs.default_install_dir(server_name)
+            install_parent = seed.get("serverInstallParentDir")
+            install_path = deploy_jobs.install_dir_for(
+                server_name,
+                Path(install_parent) if install_parent and Path(install_parent).is_dir() else None,
+            )
             _log(f"Deploying '{server_name}'...")
             job_id = deploy_jobs.start_deploy(
                 name=server_name,

@@ -429,6 +429,28 @@ Every seeded step (account, Nexus, deploy) has a pre-existing manual fallback al
 
 ### Decision
 
+Fresh Palworld server deployments now support an optional super-admin-selected install parent folder while keeping AutoPalExpress' data `servers` folder as the default.
+
+### Reason
+
+The fixed `data_dir()/servers/<name>` convention from TICKET-0018 was simple and avoided arbitrary path input during first-run setup, but users with limited system-drive space need to place large Palworld installs and world data on another drive. The deploy flow already had an internal `install_dir` parameter, so this reopens that flexibility through a controlled super-admin-only path.
+
+### Alternatives
+
+Keep all deployments under app data and tell users to import manually afterward (rejected as too clumsy), or let the browser submit an exact arbitrary install folder (rejected because the app can safely generate the per-server folder name itself).
+
+### Consequences
+
+The in-app deploy wizard and installer first-server flow now let the host choose a parent folder. AutoPalExpress still creates the final per-server folder from the sanitized server name, preserving multi-instance isolation and reducing path mistakes. Regular admins still cannot trigger deployment or native folder pickers.
+
+### Date
+
+2026-07-08
+
+---
+
+### Decision
+
 Visible command windows were restored for both the packaged AutoPalExpress process and the Palworld server process (TICKET-0023), reversing the user-facing part of TICKET-0019 while preserving browser-visible AutoPalExpress logs.
 
 ### Reason

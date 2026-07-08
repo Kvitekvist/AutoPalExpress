@@ -2,6 +2,7 @@
 
 ## 1.0.0 - 2026-07-07
 
+- Added a custom install-location picker for new Palworld server deployments, including the optional first server created during setup.
 - Fixed Nexus Browse cards opening the wrong Nexus URL path.
 - Clarified the Nexus Browse install flow so cards no longer look like one-click installs; super admins now get an Install File shortcut to the verified upload area.
 - Fixed Dashboard CPU/RAM reporting so status samples the real Palworld worker process in the selected server folder, even when the launcher tree is incomplete or the backend restarted.

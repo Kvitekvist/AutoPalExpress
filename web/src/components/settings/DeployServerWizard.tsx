@@ -1,4 +1,5 @@
 import * as React from "react";
+import { FolderOpen, RotateCcw } from "lucide-react";
 import { instancesApi } from "@/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
   const [gamePort, setGamePort] = React.useState(8211);
   const [rconPort, setRconPort] = React.useState(8212);
   const [maxPlayers, setMaxPlayers] = React.useState(32);
+  const [installParentDir, setInstallParentDir] = React.useState("");
   const [jobId, setJobId] = React.useState<string | null>(null);
   const [log, setLog] = React.useState<string[]>([]);
   const [status, setStatus] = React.useState<WizardStatus>("idle");
@@ -32,6 +34,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       setLog([]);
       setStatus("idle");
       setError(null);
+      setInstallParentDir("");
     }
   }, [open]);
 
@@ -66,6 +69,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
         gamePort,
         rconPort,
         maxPlayers,
+        installParentDir: installParentDir.trim() || null,
       });
       setJobId(id);
     } catch (e) {
@@ -79,6 +83,16 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
     onOpenChange(next);
   }
 
+  async function handleBrowseInstallLocation() {
+    setError(null);
+    try {
+      const { path } = await instancesApi.browseDeployParentDir();
+      if (path) setInstallParentDir(path);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't open the folder picker.");
+    }
+  }
+
   const canSubmit = !!name.trim() && status === "idle";
 
   return (
@@ -88,8 +102,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
           <DialogTitle>Deploy a New Server</DialogTitle>
           <DialogDescription>
             Installs a fresh, fully isolated Palworld Dedicated Server via SteamCMD - its own folder, mods, and
-            ports, so it can't conflict with any other server this tool manages. Stored under this tool's own
-            "servers" folder, named after whatever you type below.
+            ports, so it can't conflict with any other server this tool manages.
           </DialogDescription>
         </DialogHeader>
 
@@ -134,10 +147,35 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                 />
               </div>
             </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="deploy-location">Install Location</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="deploy-location"
+                  value={installParentDir || "Default AutoPalExpress servers folder"}
+                  readOnly
+                  className="flex-1"
+                />
+                {installParentDir && (
+                  <RuneButton
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    icon={<RotateCcw />}
+                    onClick={() => setInstallParentDir("")}
+                  >
+                    Default
+                  </RuneButton>
+                )}
+                <RuneButton type="button" variant="ghost" size="sm" icon={<FolderOpen />} onClick={handleBrowseInstallLocation}>
+                  Browse
+                </RuneButton>
+              </div>
+            </div>
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
-              Each server needs its own Game/REST API ports if you plan to run more than one at the same time. This
-              downloads the server fresh from Steam (a few gigabytes), so it can take a while depending on your
-              connection.
+              AutoPalExpress creates a server folder named after this server inside the selected location. Each server
+              needs its own Game/REST API ports if you plan to run more than one at the same time. This downloads the
+              server fresh from Steam, so it can take a while.
             </p>
           </div>
         )}
