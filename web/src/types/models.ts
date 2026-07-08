@@ -38,7 +38,7 @@ export interface ServerStatus {
   cpuPercent: number;
   ramUsedGB: number;
   ramTotalGB: number;
-  tickRateMs: number;
+  tickRateMs: number | null;
   targetTickRateMs: number;
   playersOnline: number;
   maxPlayers: number;

@@ -37,6 +37,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Browse Nexus Mods without entering a personal API key.
 - Enable, disable, reorder, and remove mods.
 - View players, kick players, and ban players through Palworld's REST API.
+- Monitor Dashboard CPU, RAM, players, uptime, and REST-backed server metrics.
 - Schedule backups and restarts.
 - Create invite codes so friends can help administer the server.
 - Manage ports, Windows Firewall rules, public IP, and verified mod uploads from Super Admin.
@@ -96,6 +97,7 @@ Most of the app is wired to the real machine and real server:
 - Server process control is real.
 - Multi-server management is real.
 - Player roster, kick, and ban are real through Palworld's REST API.
+- Dashboard CPU and RAM are read from the selected server's Palworld processes.
 - Scheduled backups and restarts are real.
 - World Settings edits the real `PalWorldSettings.ini`.
 - Mods and UE4SS install to disk.
@@ -120,7 +122,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  D87C006815AA445D4BCD5F5EF21A91D3D97C0A1EE57232A1F9B95F4A623AD9A0
+SHA256  PalworldServerAdmin-Setup.exe  D4E6ADF01C1A172E8172C4C225556901B516A8DA5406890151BA03BC333EEA1A
 ```
 
 > [!IMPORTANT]

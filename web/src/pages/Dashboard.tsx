@@ -31,7 +31,9 @@ export default function Dashboard() {
 
   const ramPercent = status.ramTotalGB > 0 ? (status.ramUsedGB / status.ramTotalGB) * 100 : 0;
   const tickHealth =
-    status.targetTickRateMs > 0 ? Math.max(0, 100 - Math.abs(status.tickRateMs - status.targetTickRateMs) * 4) : 0;
+    status.tickRateMs !== null && status.targetTickRateMs > 0
+      ? Math.max(0, 100 - Math.abs(status.tickRateMs - status.targetTickRateMs) * 4)
+      : 0;
   const playersPercent = status.maxPlayers > 0 ? (status.playersOnline / status.maxPlayers) * 100 : 0;
 
   return (
@@ -98,8 +100,8 @@ export default function Dashboard() {
         <StatTile
           icon={<Gauge />}
           label="Tick Rate"
-          value={`${status.tickRateMs.toFixed(0)} ms`}
-          hint={`target ${status.targetTickRateMs} ms`}
+          value={status.tickRateMs === null ? "-" : `${status.tickRateMs.toFixed(0)} ms`}
+          hint={status.targetTickRateMs > 0 ? `target ${status.targetTickRateMs} ms` : "REST metric unavailable"}
           accent="gold"
         >
           <ManaProgressBar value={tickHealth} variant="gold" className="mt-3" />

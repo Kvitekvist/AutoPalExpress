@@ -27,7 +27,7 @@ _OFFLINE_STATUS: dict[str, Any] = {
     "cpuPercent": 0,
     "ramUsedGB": 0,
     "ramTotalGB": 0,
-    "tickRateMs": 0,
+    "tickRateMs": None,
     "targetTickRateMs": 0,
     "playersOnline": 0,
     "maxPlayers": 0,
@@ -75,7 +75,7 @@ async def _status_view_async(instance: dict[str, Any] | None) -> dict[str, Any]:
         return view
     return {
         **view,
-        "tickRateMs": metrics.get("serverframetime") or view["tickRateMs"],
+        "tickRateMs": metrics.get("serverframetime"),
         "playersOnline": metrics.get("currentplayernum") or 0,
         "maxPlayers": metrics.get("maxplayernum") or view["maxPlayers"],
         "serverVersion": info.get("version") or view["serverVersion"],

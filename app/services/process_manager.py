@@ -1,14 +1,14 @@
 """Starts, stops, and reports on the actual PalServer.exe process for a
 server instance.
 
-Tracking is in-memory only, keyed by instance id - it only knows about
-servers started through this tool during the current run of this backend. A
-server started outside the tool (or a stale one left running from a previous
-backend process) won't show as online here; this is a scoped MVP, not full
-process discovery/adoption.
+Control tracking is in-memory, keyed by instance id. Status metrics also scan
+for matching Palworld processes under the selected server folder so the
+Dashboard can recover CPU/RAM when the launcher tree is incomplete or the
+backend restarted while Palworld stayed online.
 """
 
 import logging
+import os
 import signal
 import subprocess
 import threading
@@ -28,6 +28,7 @@ _lock = threading.Lock()
 _processes: dict[str, subprocess.Popen] = {}
 _started_at: dict[str, float] = {}
 _stopping: set[str] = set()
+_PALWORLD_PROCESS_NAMES = {"palserver.exe", "palserver-win64-shipping-cmd.exe"}
 
 
 class ProcessError(Exception):
@@ -45,10 +46,86 @@ def _is_alive(instance_id: str) -> bool:
     return bool(proc and proc.poll() is None)
 
 
+def _path_key(path: Path | str) -> str:
+    try:
+        return os.path.normcase(str(Path(path).resolve()))
+    except OSError:
+        return os.path.normcase(str(path))
+
+
+def _path_is_inside(path: str, root: str) -> bool:
+    try:
+        return os.path.commonpath([root, _path_key(path)]) == root
+    except (OSError, ValueError):
+        return False
+
+
+def _safe_process_tree(pid: int) -> list[psutil.Process]:
+    try:
+        root = psutil.Process(pid)
+    except psutil.Error:
+        return []
+    try:
+        return [root, *root.children(recursive=True)]
+    except psutil.Error:
+        return [root]
+
+
+def _process_matches_instance(proc: psutil.Process, server_root: str) -> bool:
+    try:
+        name = (proc.name() or "").lower()
+    except psutil.Error:
+        return False
+    if name not in _PALWORLD_PROCESS_NAMES:
+        return False
+
+    for attr in (proc.exe, proc.cwd):
+        try:
+            value = attr()
+        except psutil.Error:
+            continue
+        if value and _path_is_inside(value, server_root):
+            return True
+
+    try:
+        cmdline = proc.cmdline()
+    except psutil.Error:
+        cmdline = []
+    return any(_path_is_inside(part, server_root) for part in cmdline if part)
+
+
+def _instance_processes(instance: dict[str, Any]) -> list[psutil.Process]:
+    """Return tracked and discoverable Palworld processes for one instance.
+
+    PalServer.exe can hand work to PalServer-Win64-Shipping-Cmd.exe, and the
+    backend can also be restarted while the game keeps running. Sampling by
+    instance folder lets status recover the real worker process in both cases.
+    """
+    seen: set[int] = set()
+    processes: list[psutil.Process] = []
+
+    tracked = _processes.get(instance["id"])
+    if tracked and tracked.poll() is None:
+        for proc in _safe_process_tree(tracked.pid):
+            if proc.pid not in seen:
+                seen.add(proc.pid)
+                processes.append(proc)
+
+    server_root = _path_key(instance["serverPath"])
+    for proc in psutil.process_iter():
+        if proc.pid in seen:
+            continue
+        if _process_matches_instance(proc, server_root):
+            seen.add(proc.pid)
+            processes.append(proc)
+
+    return processes
+
+
 def start(instance: dict[str, Any]) -> None:
     instance_id = instance["id"]
     with _lock:
-        if _is_alive(instance_id):
+        if _is_alive(instance_id) or _instance_processes(instance):
             raise ProcessError("This server is already running.")
 
         exe = _exe_path(instance)
@@ -97,8 +174,8 @@ def stop(instance_id: str, timeout: float = 30) -> None:
     logger.info("process_manager: stopping pid=%s", proc.pid)
     name = (instance_store.get(instance_id) or {}).get("name", instance_id)
 
-    # PalServer.exe is a launcher, not the real game process (see
-    # _tree_cpu_ram) - the launcher exiting doesn't stop its child, so the
+    # PalServer.exe is a launcher, not always the real game process. The
+    # launcher exiting doesn't stop its child, so the
     # whole tree has to be tracked and killed explicitly or the actual game
     # process is orphaned, still running, still holding the port.
     try:
@@ -149,26 +226,13 @@ def stop(instance_id: str, timeout: float = 30) -> None:
     logger.info("process_manager: stopped pid=%s", proc.pid)
 
 
-def _tree_cpu_ram(pid: int) -> tuple[float, float]:
-    """PalServer.exe is a thin launcher that spawns the real game process
-    (PalServer-Win64-Shipping-Cmd.exe) as a child - almost all CPU/RAM shows
-    up there, not on the launcher's own PID, so this sums the whole tree."""
-    try:
-        root = psutil.Process(pid)
-    except psutil.Error:
-        return 0.0, 0.0
-
-    try:
-        procs = [root, *root.children(recursive=True)]
-    except psutil.Error:
-        procs = [root]
-
+def _process_cpu_ram(procs: list[psutil.Process]) -> tuple[float, float]:
     cpu_percent = 0.0
     ram_bytes = 0
-    for p in procs:
+    for proc in procs:
         try:
-            cpu_percent += p.cpu_percent(interval=0.1)
-            ram_bytes += p.memory_info().rss
+            cpu_percent += proc.cpu_percent(interval=0.1)
+            ram_bytes += proc.memory_info().rss
         except psutil.Error:
             continue
     # psutil reports cpu_percent() relative to a single core (100% = one
@@ -183,15 +247,28 @@ def get_status(instance_id: str) -> dict[str, Any]:
     if instance_id in _stopping:
         return {"state": "stopping", "uptimeSeconds": 0, "cpuPercent": 0.0, "ramUsedGB": 0.0}
 
-    if not _is_alive(instance_id):
+    instance = instance_store.get(instance_id)
+    processes = _instance_processes(instance) if instance else []
+
+    if not processes:
+        with _lock:
+            _processes.pop(instance_id, None)
+            _started_at.pop(instance_id, None)
         return {"state": "offline", "uptimeSeconds": 0, "cpuPercent": 0.0, "ramUsedGB": 0.0}
 
-    started_at = _started_at.get(instance_id, time.time())
+    started_at = _started_at.get(instance_id)
+    if started_at is None:
+        create_times = []
+        for proc in processes:
+            try:
+                create_times.append(proc.create_time())
+            except psutil.Error:
+                continue
+        started_at = min(create_times) if create_times else time.time()
     uptime = time.time() - started_at
     state = "starting" if uptime < _STARTUP_GRACE_SECONDS else "online"
 
-    proc = _processes[instance_id]
-    cpu_percent, ram_gb = _tree_cpu_ram(proc.pid)
+    cpu_percent, ram_gb = _process_cpu_ram(processes)
 
     return {
         "state": state,

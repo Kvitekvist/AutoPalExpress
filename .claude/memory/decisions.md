@@ -323,6 +323,28 @@ Real Palworld console log content is still not visible anywhere in the app - the
 
 ### Decision
 
+Dashboard status now samples CPU/RAM from discoverable Palworld processes inside the selected server folder, not only from the remembered launcher process tree.
+
+### Reason
+
+The user reported the Dashboard showing 0% CPU and low RAM while Task Manager showed real usage. The prior CPU-normalization fix was still correct, but the sampling scope was too narrow: `process_manager` only knew about the launcher process started during the current backend run, while the actual work can live in `PalServer-Win64-Shipping-Cmd.exe`, and the backend can also restart while Palworld keeps running. Status now combines the tracked process tree with any `PalServer.exe`/`PalServer-Win64-Shipping-Cmd.exe` processes whose executable, working directory, or command line resolves under the selected instance's server folder.
+
+### Alternatives
+
+Trust Palworld REST metrics for CPU/RAM (not available there), sample every process with a Palworld-like name globally (rejected because multiple instances can run on one host), or implement full process adoption immediately (deferred because the reported bug was status metrics, while Stop/Restart control has more lifecycle risk).
+
+### Consequences
+
+Dashboard CPU/RAM should now match the selected server's Task Manager process usage much more closely while preserving the existing Task Manager-style whole-machine CPU normalization. This is status discovery only, not full process-control adoption. Missing Palworld REST frame-time data now renders as unavailable in the UI instead of `0 ms`.
+
+### Date
+
+2026-07-08
+
+---
+
+### Decision
+
 Replace the app's Palworld RCON client with Palworld's official local REST API for game-level operations.
 
 ### Reason
