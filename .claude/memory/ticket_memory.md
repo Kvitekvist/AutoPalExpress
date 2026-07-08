@@ -42,6 +42,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0030** (2026-07-08, Bug) - Fixed Dashboard CPU/RAM reporting by discovering matching `PalServer.exe` and `PalServer-Win64-Shipping-Cmd.exe` processes inside the selected server folder instead of only sampling the remembered launcher tree. Tick-rate milliseconds now show as unavailable when Palworld REST metrics omit frame time instead of displaying `0 ms`.
 * **TICKET-0031** (2026-07-08, Feature) - Added a custom install-location picker for new Palworld server deployments. The deploy wizard and installer first-server flow both default to AutoPalExpress' data `servers` folder but can place the generated per-server folder under a super-admin-selected parent folder.
 * **TICKET-0032** (2026-07-08, Feature) - Added a noticeable Settings-page checkbox for showing an instance in Palworld's Community Server list. The option is stored per server and adds the `-publiclobby` launch argument on the next start.
+* **TICKET-0033** (2026-07-08, Feature) - Added safe per-server launch-option controls on Settings for Palworld's performance flags, optional worker thread count, and JSON log format. Existing single-source settings were intentionally not duplicated: port, player count, community listing, and public IP/port remain in their current flows.
 
 ---
 

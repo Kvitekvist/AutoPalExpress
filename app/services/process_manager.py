@@ -136,15 +136,19 @@ def start(instance: dict[str, Any]) -> None:
         palworld_settings.enforce_rest_api(exe.parent, instance.get("rconPort") or 8212)
         if game_port != instance["gamePort"]:
             instance_store.update_game_port(instance_id, game_port)
+        launch_args = [str(exe), f"-port={game_port}"]
+        if instance.get("performanceFlags", True):
+            launch_args.extend(["-useperfthreads", "-NoAsyncLoadingThread", "-UseMultithreadForDS"])
+            worker_threads = instance.get("workerThreads")
+            if worker_threads:
+                launch_args.append(f"-NumberOfWorkerThreadsServer={worker_threads}")
+        if instance.get("communityServer"):
+            launch_args.append("-publiclobby")
+        if instance.get("jsonLogFormat"):
+            launch_args.append("-logformat=json")
+
         proc = subprocess.Popen(
-            [
-                str(exe),
-                f"-port={game_port}",
-                "-useperfthreads",
-                "-NoAsyncLoadingThread",
-                "-UseMultithreadForDS",
-                *(["-publiclobby"] if instance.get("communityServer") else []),
-            ],
+            launch_args,
             cwd=str(exe.parent),
             # Keep Palworld's own server window visible so the host can see at
             # a glance that it is running. stdout/stderr still do not contain

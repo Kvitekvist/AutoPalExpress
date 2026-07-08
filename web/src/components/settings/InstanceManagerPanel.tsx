@@ -5,6 +5,7 @@ import type { InstanceListView, ServerInstance } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useNotifications } from "@/hooks/useNotifications";
 import { DeployServerWizard } from "./DeployServerWizard";
@@ -25,6 +26,7 @@ export function InstanceManagerPanel() {
   const [removing, setRemoving] = React.useState(false);
   const [switching, setSwitching] = React.useState<string | null>(null);
   const [updatingCommunity, setUpdatingCommunity] = React.useState<string | null>(null);
+  const [updatingLaunch, setUpdatingLaunch] = React.useState<string | null>(null);
   const notifications = useNotifications();
 
   const refresh = React.useCallback(() => {
@@ -76,6 +78,30 @@ export function InstanceManagerPanel() {
       });
     } finally {
       setUpdatingCommunity(null);
+    }
+  }
+
+  async function saveLaunchOptions(
+    instance: ServerInstance,
+    nextOptions: Partial<
+      Pick<ServerInstance, "performanceFlags" | "workerThreads" | "jsonLogFormat">
+    >
+  ) {
+    setUpdatingLaunch(instance.id);
+    try {
+      const next = await instancesApi.setLaunchOptions(instance.id, {
+        performanceFlags:
+          "performanceFlags" in nextOptions ? Boolean(nextOptions.performanceFlags) : instance.performanceFlags,
+        workerThreads: "workerThreads" in nextOptions ? nextOptions.workerThreads ?? null : instance.workerThreads,
+        jsonLogFormat: "jsonLogFormat" in nextOptions ? Boolean(nextOptions.jsonLogFormat) : instance.jsonLogFormat,
+      });
+      setData(next);
+      notifications.success({
+        title: "Launch options saved",
+        message: "Restart the server for these launch options to take effect.",
+      });
+    } finally {
+      setUpdatingLaunch(null);
     }
   }
 
@@ -163,6 +189,78 @@ export function InstanceManagerPanel() {
                       aria-label={`Show ${instance.name} in the Community Server list`}
                     />
                   </label>
+                  <div className="mt-3 grid max-w-xl gap-2 rounded-md border border-stone-700 bg-abyss-950/35 px-3 py-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="min-w-0">
+                        <span className="block text-xs font-semibold text-parchment-100">Performance launch flags</span>
+                        <span className="block text-[11px] leading-relaxed text-parchment-300/55">
+                          Uses Palworld&apos;s multi-threaded server startup arguments.
+                        </span>
+                      </span>
+                      <Switch
+                        checked={instance.performanceFlags}
+                        disabled={updatingLaunch === instance.id}
+                        onCheckedChange={(checked) => saveLaunchOptions(instance, { performanceFlags: checked })}
+                        aria-label={`Use performance launch flags for ${instance.name}`}
+                      />
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-700/70 pt-2">
+                      <span className="min-w-0">
+                        <span className="block text-xs font-semibold text-parchment-100">Worker thread override</span>
+                        <span className="block text-[11px] leading-relaxed text-parchment-300/55">
+                          Adds a specific process thread count when performance flags are on.
+                        </span>
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={instance.workerThreads !== null}
+                          disabled={!instance.performanceFlags || updatingLaunch === instance.id}
+                          onCheckedChange={(checked) =>
+                            saveLaunchOptions(instance, { workerThreads: checked ? instance.workerThreads ?? 4 : null })
+                          }
+                          aria-label={`Set worker thread count for ${instance.name}`}
+                        />
+                        <Input
+                          key={`${instance.id}-${instance.workerThreads ?? "auto"}`}
+                          className="h-8 w-20 text-xs"
+                          type="number"
+                          min={1}
+                          max={128}
+                          defaultValue={instance.workerThreads ?? ""}
+                          disabled={!instance.performanceFlags || instance.workerThreads === null || updatingLaunch === instance.id}
+                          onBlur={(event) => {
+                            const value = Number.parseInt(event.target.value, 10);
+                            if (Number.isFinite(value)) {
+                              const workerThreads = Math.min(128, Math.max(1, value));
+                              if (workerThreads !== instance.workerThreads) {
+                                saveLaunchOptions(instance, { workerThreads });
+                              }
+                            }
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.currentTarget.blur();
+                            }
+                          }}
+                          aria-label={`Worker threads for ${instance.name}`}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 border-t border-stone-700/70 pt-2">
+                      <span className="min-w-0">
+                        <span className="block text-xs font-semibold text-parchment-100">JSON log format</span>
+                        <span className="block text-[11px] leading-relaxed text-parchment-300/55">
+                          Starts Palworld with structured JSON log output.
+                        </span>
+                      </span>
+                      <Switch
+                        checked={instance.jsonLogFormat}
+                        disabled={updatingLaunch === instance.id}
+                        onCheckedChange={(checked) => saveLaunchOptions(instance, { jsonLogFormat: checked })}
+                        aria-label={`Use JSON logs for ${instance.name}`}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   {!active && (

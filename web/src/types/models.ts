@@ -184,6 +184,9 @@ export interface ServerInstance {
   gamePort: number;
   rconPort: number;
   communityServer: boolean;
+  performanceFlags: boolean;
+  workerThreads: number | null;
+  jsonLogFormat: boolean;
   createdAt: number;
   exists: boolean;
   executableFound: boolean;

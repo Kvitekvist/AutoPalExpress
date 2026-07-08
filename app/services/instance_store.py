@@ -66,6 +66,9 @@ def create_instance(
         "gamePort": game_port,
         "rconPort": rcon_port,
         "communityServer": False,
+        "performanceFlags": True,
+        "workerThreads": None,
+        "jsonLogFormat": False,
         "createdAt": time.time(),
     }
     data["instances"].append(instance)
@@ -119,6 +122,27 @@ def update_community_server(instance_id: str, enabled: bool) -> dict[str, Any] |
     for instance in data["instances"]:
         if instance["id"] == instance_id:
             instance["communityServer"] = enabled
+            updated = instance
+            break
+    if updated:
+        _save(data)
+    return updated
+
+
+def update_launch_options(
+    instance_id: str,
+    *,
+    performance_flags: bool,
+    worker_threads: int | None,
+    json_log_format: bool,
+) -> dict[str, Any] | None:
+    data = _load()
+    updated = None
+    for instance in data["instances"]:
+        if instance["id"] == instance_id:
+            instance["performanceFlags"] = performance_flags
+            instance["workerThreads"] = worker_threads
+            instance["jsonLogFormat"] = json_log_format
             updated = instance
             break
     if updated:

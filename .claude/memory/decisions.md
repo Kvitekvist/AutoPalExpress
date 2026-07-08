@@ -451,6 +451,28 @@ The setting is stored in `instances.json` as `communityServer`, defaults false f
 
 ### Decision
 
+Settings exposes only non-conflicting Palworld launch arguments as per-instance controls: performance flags, optional `-NumberOfWorkerThreadsServer`, and `-logformat=json`.
+
+### Reason
+
+The current Palworld Server Guide documents launch arguments for port, players, performance, worker thread count, community listing, public IP/port, and log format. AutoPalExpress already has single-source owners for port, player count/deploy defaults, and community listing. Adding only the remaining safe launch-only options preserves the project rule that a setting should be editable in one place.
+
+### Alternatives
+
+Expose every documented argument (rejected because `-port`, `-players`, and `-publiclobby` would duplicate existing app settings), add a free-form launch-argument textbox (rejected for the same support/safety reasons as TICKET-0032), or add public IP/public port overrides immediately (deferred because those overlap the Super Admin networking/share flow and need a clearer single-source design).
+
+### Consequences
+
+Existing servers keep the previous default performance flags unless the super admin turns them off. Worker thread override defaults off and is only applied with the performance flags because Palworld documents it as part of that performance mode. JSON logs default off and add `-logformat=json` only when enabled. All three options require a server restart because they affect the process launch command.
+
+### Date
+
+2026-07-08
+
+---
+
+### Decision
+
 Fresh Palworld server deployments now support an optional super-admin-selected install parent folder while keeping AutoPalExpress' data `servers` folder as the default.
 
 ### Reason

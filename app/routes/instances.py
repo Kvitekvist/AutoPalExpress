@@ -24,6 +24,9 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
     return {
         **instance,
         "communityServer": bool(instance.get("communityServer")),
+        "performanceFlags": bool(instance.get("performanceFlags", True)),
+        "workerThreads": instance.get("workerThreads") if instance.get("workerThreads") is not None else None,
+        "jsonLogFormat": bool(instance.get("jsonLogFormat")),
         "exists": exists,
         "executableFound": executable_found,
         "modsPath": mods_path,
@@ -63,11 +66,33 @@ class CommunityServerRequest(BaseModel):
     enabled: bool
 
 
+class LaunchOptionsRequest(BaseModel):
+    performanceFlags: bool
+    workerThreads: int | None = None
+    jsonLogFormat: bool
+
+
 @router.post("/{instance_id}/community-server", dependencies=[Depends(require_super_admin)])
 async def set_community_server(instance_id: str, body: CommunityServerRequest) -> dict[str, Any]:
     if not instance_store.get(instance_id):
         raise HTTPException(status_code=404, detail="No such server instance.")
     instance_store.update_community_server(instance_id, body.enabled)
+    data = instance_store.list_view()
+    return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+@router.post("/{instance_id}/launch-options", dependencies=[Depends(require_super_admin)])
+async def set_launch_options(instance_id: str, body: LaunchOptionsRequest) -> dict[str, Any]:
+    if not instance_store.get(instance_id):
+        raise HTTPException(status_code=404, detail="No such server instance.")
+    if body.workerThreads is not None and not 1 <= body.workerThreads <= 128:
+        raise HTTPException(status_code=400, detail="Worker threads must be between 1 and 128.")
+    instance_store.update_launch_options(
+        instance_id,
+        performance_flags=body.performanceFlags,
+        worker_threads=body.workerThreads,
+        json_log_format=body.jsonLogFormat,
+    )
     data = instance_store.list_view()
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
 

@@ -26,6 +26,17 @@ export async function setCommunityServer(id: string, enabled: boolean): Promise<
   return api.post<InstanceListView>(`/api/instances/${id}/community-server`, { enabled });
 }
 
+export interface LaunchOptionsParams {
+  performanceFlags: boolean;
+  workerThreads: number | null;
+  jsonLogFormat: boolean;
+}
+
+// POST /api/instances/{id}/launch-options
+export async function setLaunchOptions(id: string, params: LaunchOptionsParams): Promise<InstanceListView> {
+  return api.post<InstanceListView>(`/api/instances/${id}/launch-options`, params);
+}
+
 // POST /api/instances/import
 export async function importExisting(name: string, path: string): Promise<InstanceListView> {
   return api.post<InstanceListView>("/api/instances/import", { name, path });

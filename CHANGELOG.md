@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.0.0 - 2026-07-07
+- Added Settings controls for safe per-server Palworld launch options: performance flags, worker thread override, and JSON log format.
 - Added a Settings checkbox to show a server in Palworld's Community Server list on next start.
 
 - Added a custom install-location picker for new Palworld server deployments, including the optional first server created during setup.
