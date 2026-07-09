@@ -51,6 +51,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0039** (2026-07-09, Bug) - Fixed duplicate Server Instances rows by deduplicating instance records by normalized server folder and preventing future duplicate creates for the same path. Settings now has per-server actions for Switch To, Open in Explorer, Remove, and Remove and Delete; the destructive delete path refuses to run while that server is online and then deletes the registered server folder.
 * **TICKET-0040** (2026-07-09, Enhancement) - Installer update/repair runs now detect existing `%LOCALAPPDATA%\PalworldServerAdmin\data`, skip first-time server/admin setup pages, delete any stale `first_run_seed.json`, and leave the existing server list and admin account in place. Verified with a successful Inno Setup compile.
 * **TICKET-0041** (2026-07-09, Bug / Enhancement) - Follow-up after installed-build verification: Nexus Browse now shows Direct Install for super admins even before a Premium key is connected, with clear requirement text; Launcher Flags is renamed Launcher Options and exposes separate `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby` toggles; server-instance dedupe now canonicalizes stored paths and the folder action is labeled Browse Files.
+* **TICKET-0042** (2026-07-09, Bug) - Rebuilt the Windows installer after verifying that source and `web/dist` already contained Launcher Options. Updated the release checksum to `DE47FB088842FA3135856407919601A759B642BFADF328CCED007B7E1EC2042B`.
 
 ---
 

@@ -137,7 +137,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  BF3AAE87E499DC0FF47E4BBFCF0FB3C7BDBE5B0EB78331752D47539BE7DA8F55
+SHA256  PalworldServerAdmin-Setup.exe  DE47FB088842FA3135856407919601A759B642BFADF328CCED007B7E1EC2042B
 ```
 
 > [!IMPORTANT]

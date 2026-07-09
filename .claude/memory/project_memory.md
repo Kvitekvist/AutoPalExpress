@@ -61,6 +61,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-09 (TICKET-0039): Server Instances now deduplicates records by normalized server folder, so reinstalling or re-importing the same Palworld server no longer shows repeated rows. Settings also has per-server actions to switch to it, open the folder in Explorer, unregister it without touching files, or unregister and delete the server folder after it is stopped.
 * FIXED 2026-07-09 (TICKET-0040): The installer now treats existing `%LOCALAPPDATA%\PalworldServerAdmin\data` as update/repair mode. It skips first-time server/admin setup pages, removes stale `first_run_seed.json`, and preserves the existing server list and admin account.
 * FIXED 2026-07-09 (TICKET-0041): Nexus Browse now keeps Direct Install visible for super admins and explains the saved Premium key requirement. Launcher Flags was renamed Launcher Options and now exposes separate toggles for `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby`. Server-instance dedupe now canonicalizes stored paths, and the per-instance folder action is labeled Browse Files.
+* FIXED 2026-07-09 (TICKET-0042): Rebuilt the Windows installer after verifying the current source and `web/dist` already contain Launcher Options. The new installer checksum is `DE47FB088842FA3135856407919601A759B642BFADF328CCED007B7E1EC2042B`.
 
 ---
 
