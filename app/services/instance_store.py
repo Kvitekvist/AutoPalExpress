@@ -16,6 +16,7 @@ from typing import Any
 
 from app import storage
 from app.paths import data_dir
+from app.services import palworld_settings
 
 _STORE_NAME = "instances"
 
@@ -198,17 +199,30 @@ def rename_instance(instance_id: str, name: str) -> None:
 
 
 def update_game_port(instance_id: str, game_port: int) -> None:
-    """Keeps the stored gamePort in sync with whatever's actually live in the
-    instance's ini - that file is the real source of truth once it exists
-    (see palworld_settings.enforce_game_port/effective_game_port); this is
-    just so the stored value doesn't silently go stale for display purposes
-    (instance list, Server Control) or as the fallback for instances that
-    don't have a PublicPort field yet."""
+    """Stores the Super Admin-owned game port for display, reinstall/update
+    memory, and as the launch-time port once the host has chosen a custom
+    value."""
     data = _load_clean()
     for i in data["instances"]:
         if i["id"] == instance_id:
             i["gamePort"] = game_port
     _save(data)
+
+
+def resolve_game_port(instance: dict[str, Any]) -> int:
+    """Returns the port AutoPalExpress should treat as authoritative.
+
+    Existing installs can have an old default stored in instances.json while a
+    live PalWorldSettings.ini has the real custom port. Once the super admin has
+    saved a custom port into the instance record, that remembered value wins so
+    reinstall/update does not drift back to 8211.
+    """
+    stored_port = int(instance.get("gamePort") or 8211)
+    ini_port = palworld_settings.read_public_port(Path(instance["serverPath"]))
+    if stored_port == 8211 and ini_port and ini_port != stored_port:
+        update_game_port(instance["id"], ini_port)
+        return ini_port
+    return stored_port or ini_port or 8211
 
 
 def update_community_server(instance_id: str, enabled: bool) -> dict[str, Any] | None:

@@ -144,7 +144,8 @@ def start(instance: dict[str, Any]) -> None:
         if not exe.is_file():
             raise ProcessError(f"PalServer.exe wasn't found at '{exe}'.")
 
-        game_port = palworld_settings.enforce_game_port(exe.parent, instance["gamePort"])
+        game_port = instance_store.resolve_game_port(instance)
+        game_port = palworld_settings.enforce_game_port(exe.parent, game_port, prefer_fallback=True)
         palworld_settings.enforce_rest_api(exe.parent, instance.get("rconPort") or 8212)
         if game_port != instance["gamePort"]:
             instance_store.update_game_port(instance_id, game_port)

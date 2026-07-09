@@ -69,16 +69,14 @@ def effective_game_port(server_path: Path, fallback_port: int) -> int:
     return read_public_port(server_path) or fallback_port
 
 
-def enforce_game_port(server_path: Path, fallback_port: int) -> int:
+def enforce_game_port(server_path: Path, fallback_port: int, *, prefer_fallback: bool = False) -> int:
     """The one point where the port a server is about to start on gets
-    decided and enforced: the ini's own PublicPort wins if it's already set
-    (that's the single place World Settings lets you edit it), otherwise
-    fallback_port is written into the ini so the file and the launch
-    argument can never disagree - and so the field exists for World Settings
-    to show/edit from then on, even for a server imported from outside this
-    tool that never had one."""
+    decided and enforced. By default, the ini's own PublicPort wins if it is
+    already set; when prefer_fallback is true, the caller's remembered Super
+    Admin port is written back into the ini so reinstall/update does not drift
+    back to Palworld's default."""
     existing = read_public_port(server_path)
-    if existing is not None:
+    if existing is not None and (not prefer_fallback or existing == fallback_port):
         return existing
 
     text = _read_ini_or_template_text(server_path)

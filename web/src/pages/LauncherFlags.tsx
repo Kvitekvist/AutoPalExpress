@@ -76,7 +76,7 @@ export default function LauncherFlags() {
   }
 
   const publicIp = networkStatus?.externalIp ?? "";
-  const publicPort = instance?.effectiveGamePort ?? networkStatus?.port ?? instance?.gamePort ?? "";
+  const publicPort = networkStatus?.port ?? instance?.effectiveGamePort ?? instance?.gamePort ?? "";
 
   if (!loaded) {
     return (

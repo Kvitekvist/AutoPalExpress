@@ -13,7 +13,6 @@ from app.services import (
     instance_store,
     local_config,
     native_dialog,
-    palworld_settings,
     process_manager,
     steam_locator,
     ue4ss_installer,
@@ -26,7 +25,7 @@ router = APIRouter()
 
 def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
     server_path = instance["serverPath"]
-    effective_game_port = palworld_settings.effective_game_port(Path(server_path), int(instance.get("gamePort") or 8211))
+    effective_game_port = instance_store.resolve_game_port(instance)
     exists = Path(server_path).is_dir()
     executable_found = (Path(server_path) / steam_locator.EXE_NAME).is_file()
     mods_info = local_config.get_mods_path_info(instance)
