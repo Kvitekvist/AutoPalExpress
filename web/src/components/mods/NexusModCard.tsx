@@ -8,6 +8,7 @@ interface NexusModCardProps {
   installed: boolean;
   canInstallFromFile: boolean;
   canDirectInstall: boolean;
+  directInstallUnavailableReason?: string | null;
   installing: boolean;
   onInstall: () => void;
 }
@@ -17,6 +18,7 @@ export function NexusModCard({
   installed,
   canInstallFromFile,
   canDirectInstall,
+  directInstallUnavailableReason,
   installing,
   onInstall,
 }: NexusModCardProps) {
@@ -66,26 +68,31 @@ export function NexusModCard({
             <Check className="h-3.5 w-3.5" />
             Installed
           </span>
-        ) : canDirectInstall ? (
-          <button
-            type="button"
-            onClick={onInstall}
-            disabled={installing}
-            className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80 transition-colors hover:border-life-400/50 hover:text-life-200 disabled:pointer-events-none disabled:opacity-50"
-            title="Download directly from Nexus and install into the active server's Mods folder."
-          >
-            <Download className="h-3.5 w-3.5" />
-            {installing ? "Installing..." : "Install"}
-          </button>
         ) : canInstallFromFile ? (
-          <Link
-            to="/super-admin"
-            className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80 transition-colors hover:border-life-400/50 hover:text-life-200"
-            title="Download this file on Nexus first, then upload it in Super Admin."
-          >
-            <Upload className="h-3.5 w-3.5" />
-            Install File
-          </Link>
+          <>
+            <button
+              type="button"
+              onClick={onInstall}
+              disabled={installing || !canDirectInstall}
+              className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80 transition-colors hover:border-life-400/50 hover:text-life-200 disabled:pointer-events-none disabled:opacity-50"
+              title={
+                canDirectInstall
+                  ? "Download directly from Nexus and install into the active server's Mods folder."
+                  : directInstallUnavailableReason ?? "Direct install needs a saved Nexus Premium API key."
+              }
+            >
+              <Download className="h-3.5 w-3.5" />
+              {installing ? "Installing..." : "Direct Install"}
+            </button>
+            <Link
+              to="/super-admin"
+              className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600 px-3 py-2 text-xs font-medium text-parchment-300/70 transition-colors hover:border-gold-600/40 hover:text-gold-300"
+              title="Download this file on Nexus first, then upload it in Super Admin."
+            >
+              <Upload className="h-3.5 w-3.5" />
+              Install File
+            </Link>
+          </>
         ) : (
           <span
             className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600/60 bg-stone-800/20 px-3 py-2 text-xs font-medium text-parchment-300/55"
@@ -100,11 +107,11 @@ export function NexusModCard({
         <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/40">
           {canDirectInstall
             ? "Direct install uses your saved Nexus key and Premium download access."
-            : '"View on Nexus" opens the download page. After downloading, '}
+            : canInstallFromFile
+              ? directInstallUnavailableReason ?? "Direct install needs a saved Nexus Premium API key."
+              : '"View on Nexus" opens the download page. After downloading, '}
           {!canDirectInstall &&
-            (canInstallFromFile
-              ? "use Install File so AutoPalExpress can verify the exact file before it touches your server."
-              : "ask the super admin to use Install From File.")}
+            (canInstallFromFile ? " You can still use Install File after downloading." : "ask the super admin to use Install From File.")}
         </p>
       )}
     </SpellCard>

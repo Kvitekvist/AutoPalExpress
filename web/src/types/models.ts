@@ -190,6 +190,9 @@ export interface ServerInstance {
   gamePort: number;
   rconPort: number;
   communityServer: boolean;
+  usePerfThreads: boolean;
+  noAsyncLoadingThread: boolean;
+  useMultithreadForDs: boolean;
   performanceFlags: boolean;
   workerThreads: number | null;
   jsonLogFormat: boolean;

@@ -21,7 +21,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 ## Active Priorities
 
 * REST API has replaced RCON for game-level control; manual Stop/Restart now try Palworld's REST shutdown path before local process cleanup.
-* Consider a fix for `process_manager` forgetting a server is running after a backend restart (no process adoption currently).
+* `process_manager` now discovers Palworld server processes by executable name and selected server folder for status metrics, even if the backend forgot the original launcher process.
 * Remaining mocked surfaces: the general Settings blob's own fields, plus per-player whisper/teleport on the Players page because Palworld's REST API has no matching commands.
 * NEEDS MANUAL VERIFICATION (TICKET-0018): the new installer-driven first-run setup (custom wizard pages + progress page in `installer.iss`) compiles cleanly and every backend code path it depends on is tested via real HTTP requests, but the actual interactive GUI click-through hasn't been run through by a human yet - this dev sandbox has no interactive desktop session to drive an installer wizard with (confirmed: even a `/VERYSILENT` install hangs on an unrelated pre-existing privilege dialog). Next real install should be watched end-to-end.
 * Real Palworld server console log content will likely never be capturable (TICKET-0019/0020/0023): confirmed the console is rendered via Dear ImGui (`ImGui.ini` found in the server's own config), a GPU overlay with no real text buffer to read - not just "hard to pipe," genuinely not text at all. The Logs page is now real, with AutoPalExpress output from `backend.log` beside this app's own server activity feed, but not Palworld's own engine-window text.
@@ -31,7 +31,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 ## Technical Debt
 
 * No automated test suite anywhere in the project - all verification has been manual/live (see memory/tech_stack.md Notes).
-* `process_manager`'s running-state tracking is in-memory only, lost on every backend restart.
+* `process_manager`'s command/control tracking is still in-memory only, lost on every backend restart. Status metrics can rediscover matching Palworld processes by server folder, but Stop/Restart still rely on the tracked launcher plus REST cleanup path.
 * No confirmed graceful shutdown path for the manual Stop/Restart actions.
 * Git exists, but sandboxed Codex may hit "dubious ownership" because the sandbox user differs from the host owner. Check current git behavior before relying on git commands.
 
@@ -49,6 +49,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * OPEN, deferred from the same audit: `firewall.py`'s UAC-elevated `.bat` rule-name interpolation is a latent batch-injection risk (not currently exploitable - every caller passes validated int/enum today). `login_throttle.py`'s per-IP rate limiting will become a single shared bucket for all users once the in-progress reverse-proxy (Nginx Proxy Manager) setup is live, since every request will appear to come from the proxy's own IP - needs trusted-proxy `X-Forwarded-For` handling added as part of that migration.
 * FIXED 2026-07-06 (TICKET-0013/0014, see Decision Log): second security audit pass, informed by reading Crafty Controller's source for inspiration. `spa_fallback` (serves the built frontend) had no path-containment check of its own - safe only by incidental Starlette URL normalization, confirmed by calling the function directly with a raw traversal string. Added an explicit check. Also closed a gap TICKET-0012 left open: `automation.router` was still reachable by any regular admin via direct API call even though its only UI entry point is now super-admin-only.
 * FIXED 2026-07-08 (TICKET-0029): Nexus Browse cards generated the wrong public Nexus URL path and made the manual verified upload path look like a one-click install button. Cards now open `nexusmods.com/palworld/mods/<id>` and show a Super Admin install-file shortcut or a Super Admin-only notice.
+* FIXED 2026-07-08 (TICKET-0030): Dashboard CPU/RAM could show 0% or low memory while Task Manager showed active Palworld usage because status only sampled the remembered launcher tree. Status now samples discovered `PalServer.exe`/`PalServer-Win64-Shipping-Cmd.exe` processes inside the selected server folder, and missing REST frame-time metrics render as unavailable instead of `0 ms`.
 * FIXED 2026-07-08 (TICKET-0031): New server deployments now keep the AutoPalExpress data `servers` folder as the default, but the super admin can choose another parent folder. The installer first-server flow carries the same optional location into `first_run_seed.json`.
 * FIXED 2026-07-08 (TICKET-0032): Settings now has a prominent per-server "Show in Community Server list" toggle. It persists on the instance record and adds Palworld's `-publiclobby` launch argument the next time that server starts.
 * FIXED 2026-07-08 (TICKET-0033): Added safe per-server launch options for Palworld's performance flags, optional worker thread count, and JSON log format. Port, players, community listing, and public IP/port remain owned by their existing app flows rather than duplicated.
@@ -57,13 +58,16 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-08 (TICKET-0036): Launcher flags now have their own super-admin-only sidebar page. Community Server listing, performance flags, worker thread override, and JSON log format all live there, and no longer appear in Settings or World Settings.
 * FIXED 2026-07-09 (TICKET-0037): Windows startup recovery can now start AutoPalExpress at sign-in and auto-start the active server when the app launches. The installer includes the same option and explains that it helps bring the server back after machine restarts.
 * FIXED 2026-07-09 (TICKET-0038): Direct Nexus installs are restored for super admins with a saved Nexus Premium API key. The app still keeps public GraphQL browsing and verified manual file upload as fallback paths.
+* FIXED 2026-07-09 (TICKET-0039): Server Instances now deduplicates records by normalized server folder, so reinstalling or re-importing the same Palworld server no longer shows repeated rows. Settings also has per-server actions to switch to it, open the folder in Explorer, unregister it without touching files, or unregister and delete the server folder after it is stopped.
+* FIXED 2026-07-09 (TICKET-0040): The installer now treats existing `%LOCALAPPDATA%\PalworldServerAdmin\data` as update/repair mode. It skips first-time server/admin setup pages, removes stale `first_run_seed.json`, and preserves the existing server list and admin account.
+* FIXED 2026-07-09 (TICKET-0041): Nexus Browse now keeps Direct Install visible for super admins and explains the saved Premium key requirement. Launcher Flags was renamed Launcher Options and now exposes separate toggles for `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby`. Server-instance dedupe now canonicalizes stored paths, and the per-instance folder action is labeled Browse Files.
 
 ---
 
 ## Future Ideas
 
 * Real domain name -> makes Let's Encrypt or a stable Cloudflare Tunnel practical, removing the plain-HTTP trade-off entirely.
-* Process adoption on backend startup (detect an already-running `PalServer.exe` for a known instance and re-attach tracking) would fix the "forgets running state on restart" issue.
+* Full process adoption on backend startup (re-attaching Stop/Restart control to an already-running server, not just status metrics) would further improve the "forgets running state on restart" issue.
 * Restore-from-backup UI (backups are already structured per-folder with a `meta.json`, deliberately left as a future extension point when the backup feature was built).
 * A real automated test suite, if the project's complexity keeps growing - currently proportionate given the single-developer, live-verification-heavy workflow used so far.
 

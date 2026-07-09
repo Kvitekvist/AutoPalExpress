@@ -24,8 +24,9 @@ function App() {
         <Route path="mods" element={<Mods />} />
         <Route path="control" element={<ServerControl />} />
         <Route path="world-settings" element={<WorldSettings />} />
+        <Route path="launcher-flags" element={<Navigate to="/launcher-options" replace />} />
         <Route
-          path="launcher-flags"
+          path="launcher-options"
           element={
             <RequireSuperAdmin>
               <LauncherFlags />

@@ -2,6 +2,9 @@
 
 ## 1.0.0 - 2026-07-07
 
+- Renamed Launcher Flags to Launcher Options and split the combined performance toggle into individual `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby` toggles.
+- Nexus Browse now always shows the Direct Install action to super admins and explains when a saved Premium Nexus key is required, instead of hiding the option.
+- Tightened server-instance dedupe by canonicalizing server paths and relabeled the per-instance folder action as Browse Files.
 - Installer update/repair runs now preserve existing setup and skip the first-time server/account questions when AutoPalExpress data already exists.
 - Fixed duplicate server-instance rows caused by re-importing or reinstalling the same server folder.
 - Added Settings actions to switch servers, open a server folder in Explorer, unregister a server, or unregister and delete its server files.

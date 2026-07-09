@@ -25,6 +25,9 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
     return {
         **instance,
         "communityServer": bool(instance.get("communityServer")),
+        "usePerfThreads": bool(instance.get("usePerfThreads", instance.get("performanceFlags", True))),
+        "noAsyncLoadingThread": bool(instance.get("noAsyncLoadingThread", instance.get("performanceFlags", True))),
+        "useMultithreadForDs": bool(instance.get("useMultithreadForDs", instance.get("performanceFlags", True))),
         "performanceFlags": bool(instance.get("performanceFlags", True)),
         "workerThreads": instance.get("workerThreads") if instance.get("workerThreads") is not None else None,
         "jsonLogFormat": bool(instance.get("jsonLogFormat")),
@@ -68,9 +71,10 @@ class CommunityServerRequest(BaseModel):
 
 
 class LaunchOptionsRequest(BaseModel):
-    performanceFlags: bool
-    workerThreads: int | None = None
-    jsonLogFormat: bool
+    usePerfThreads: bool
+    noAsyncLoadingThread: bool
+    useMultithreadForDs: bool
+    publicLobby: bool
 
 
 @router.post("/{instance_id}/community-server", dependencies=[Depends(require_super_admin)])
@@ -86,13 +90,12 @@ async def set_community_server(instance_id: str, body: CommunityServerRequest) -
 async def set_launch_options(instance_id: str, body: LaunchOptionsRequest) -> dict[str, Any]:
     if not instance_store.get(instance_id):
         raise HTTPException(status_code=404, detail="No such server instance.")
-    if body.workerThreads is not None and not 1 <= body.workerThreads <= 128:
-        raise HTTPException(status_code=400, detail="Worker threads must be between 1 and 128.")
     instance_store.update_launch_options(
         instance_id,
-        performance_flags=body.performanceFlags,
-        worker_threads=body.workerThreads,
-        json_log_format=body.jsonLogFormat,
+        use_perf_threads=body.usePerfThreads,
+        no_async_loading_thread=body.noAsyncLoadingThread,
+        use_multithread_for_ds=body.useMultithreadForDs,
+        public_lobby=body.publicLobby,
     )
     data = instance_store.list_view()
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}

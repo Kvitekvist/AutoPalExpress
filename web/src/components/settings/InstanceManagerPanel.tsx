@@ -53,7 +53,7 @@ export function InstanceManagerPanel() {
     setOpening(instance.id);
     try {
       await instancesApi.openInstanceFolder(instance.id);
-      notifications.info({ title: "Opened folder", message: instance.serverPath });
+      notifications.info({ title: "Browsing server files", message: instance.serverPath });
     } catch (e) {
       notifications.error({ title: "Could not open folder", message: e instanceof Error ? e.message : "Unknown error." });
     } finally {
@@ -167,7 +167,7 @@ export function InstanceManagerPanel() {
                     onClick={() => handleOpen(instance)}
                     disabled={opening === instance.id || !instance.exists}
                   >
-                    {opening === instance.id ? "Opening..." : "Open in Explorer"}
+                    {opening === instance.id ? "Opening..." : "Browse Files"}
                   </RuneButton>
                   {!active && (
                     <RuneButton

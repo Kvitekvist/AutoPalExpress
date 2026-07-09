@@ -49,7 +49,15 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   }, [list, cache]);
 
   const results = cache[list] ?? [];
-  const canDirectInstall = user.role === "super_admin" && Boolean(account?.connected && account.isPremium);
+  const isSuperAdmin = user.role === "super_admin";
+  const canDirectInstall = isSuperAdmin && Boolean(account?.connected && account.isPremium);
+  const directInstallUnavailableReason = !isSuperAdmin
+    ? null
+    : !account?.connected
+      ? "Direct install needs a saved Nexus Mods API key in Super Admin."
+      : !account.isPremium
+        ? "Direct install needs Nexus Premium download access."
+        : null;
   const categories = ["All", ...Array.from(new Set(results.map((m) => m.categoryName))).sort()];
   const filtered = results.filter((m) => {
     if (category !== "All" && m.categoryName !== category) return false;
@@ -77,8 +85,8 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   return (
     <div className="space-y-4">
       <div className="rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs text-gold-400/90">
-        Browsing uses Nexus Mods metadata only. Direct install uses the saved Nexus key and Premium download access;
-        if that is not available, open Nexus and use "Install From File" in Super Admin.
+        Browsing uses Nexus Mods metadata only. Direct Install appears on each card and turns on when Super Admin has a
+        saved Nexus Premium API key; Install File remains available for downloaded archives.
       </div>
 
       <AncientTabs value={list} onValueChange={(v) => setList(v as NexusModList)}>
@@ -141,8 +149,9 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
                 key={mod.id}
                 mod={mod}
                 installed={installedNames.some((n) => n.toLowerCase() === mod.name.toLowerCase())}
-                canInstallFromFile={user.role === "super_admin"}
+                canInstallFromFile={isSuperAdmin}
                 canDirectInstall={canDirectInstall}
+                directInstallUnavailableReason={directInstallUnavailableReason}
                 installing={installingId === mod.modId}
                 onInstall={() => handleInstall(mod)}
               />

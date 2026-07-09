@@ -33,9 +33,10 @@ export async function setCommunityServer(id: string, enabled: boolean): Promise<
 }
 
 export interface LaunchOptionsParams {
-  performanceFlags: boolean;
-  workerThreads: number | null;
-  jsonLogFormat: boolean;
+  usePerfThreads: boolean;
+  noAsyncLoadingThread: boolean;
+  useMultithreadForDs: boolean;
+  publicLobby: boolean;
 }
 
 // POST /api/instances/{id}/launch-options

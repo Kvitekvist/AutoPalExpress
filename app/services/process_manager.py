@@ -137,11 +137,12 @@ def start(instance: dict[str, Any]) -> None:
         if game_port != instance["gamePort"]:
             instance_store.update_game_port(instance_id, game_port)
         launch_args = [str(exe), f"-port={game_port}"]
-        if instance.get("performanceFlags", True):
-            launch_args.extend(["-useperfthreads", "-NoAsyncLoadingThread", "-UseMultithreadForDS"])
-            worker_threads = instance.get("workerThreads")
-            if worker_threads:
-                launch_args.append(f"-NumberOfWorkerThreadsServer={worker_threads}")
+        if instance.get("usePerfThreads", instance.get("performanceFlags", True)):
+            launch_args.append("-useperfthreads")
+        if instance.get("noAsyncLoadingThread", instance.get("performanceFlags", True)):
+            launch_args.append("-NoAsyncLoadingThread")
+        if instance.get("useMultithreadForDs", instance.get("performanceFlags", True)):
+            launch_args.append("-UseMultithreadForDS")
         if instance.get("communityServer"):
             launch_args.append("-publiclobby")
         if instance.get("jsonLogFormat"):

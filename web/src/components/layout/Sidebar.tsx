@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { to: "/mods", label: "Mods", icon: BookOpen },
   { to: "/control", label: "Server Control", icon: Swords },
   { to: "/world-settings", label: "World Settings", icon: SlidersHorizontal },
-  { to: "/launcher-flags", label: "Launcher Flags", icon: Rocket, superAdminOnly: true },
+  { to: "/launcher-options", label: "Launcher Options", icon: Rocket, superAdminOnly: true },
   { to: "/logs", label: "Logs", icon: ScrollText },
   { to: "/settings", label: "Settings", icon: Settings2, superAdminOnly: true },
   { to: "/super-admin", label: "Super Admin", icon: Crown, superAdminOnly: true },

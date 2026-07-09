@@ -34,29 +34,53 @@ def _save(data: dict[str, Any]) -> None:
 
 def _server_path_key(server_path: str) -> str:
     try:
-        return os.path.normcase(str(Path(server_path).resolve()))
+        return os.path.normcase(os.path.normpath(str(Path(server_path).resolve())))
     except OSError:
-        return os.path.normcase(str(Path(server_path)))
+        return os.path.normcase(os.path.normpath(str(Path(server_path))))
+
+
+def _canonical_server_path(server_path: str) -> str:
+    try:
+        return str(Path(server_path).resolve())
+    except OSError:
+        return str(Path(server_path))
 
 
 def _dedupe_data(data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
     active_id = data.get("activeId")
     instances = data.get("instances", [])
     by_path: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
     changed = False
 
     for instance in instances:
         key = _server_path_key(instance.get("serverPath", ""))
+        canonical_path = _canonical_server_path(instance.get("serverPath", ""))
+        if instance.get("serverPath") != canonical_path:
+            instance["serverPath"] = canonical_path
+            changed = True
+        if "usePerfThreads" not in instance:
+            instance["usePerfThreads"] = bool(instance.get("performanceFlags", True))
+            changed = True
+        if "noAsyncLoadingThread" not in instance:
+            instance["noAsyncLoadingThread"] = bool(instance.get("performanceFlags", True))
+            changed = True
+        if "useMultithreadForDs" not in instance:
+            instance["useMultithreadForDs"] = bool(instance.get("performanceFlags", True))
+            changed = True
         existing = by_path.get(key)
         if not existing:
             by_path[key] = instance
+            order.append(key)
             continue
 
         changed = True
-        if instance.get("id") == active_id:
+        if instance.get("id") == active_id or (
+            existing.get("id") != active_id and instance.get("createdAt", 0) < existing.get("createdAt", 0)
+        ):
             by_path[key] = instance
 
-    deduped = list(by_path.values())
+    deduped = [by_path[key] for key in order]
     if len(deduped) != len(instances):
         changed = True
 
@@ -103,22 +127,27 @@ def create_instance(
     *, name: str, server_path: str, source: str, game_port: int = 8211, rcon_port: int = 8212
 ) -> dict[str, Any]:
     data = _load_clean()
-    path_key = _server_path_key(server_path)
+    canonical_path = _canonical_server_path(server_path)
+    path_key = _server_path_key(canonical_path)
     for existing in data["instances"]:
         if _server_path_key(existing["serverPath"]) == path_key:
             data["activeId"] = existing["id"]
+            existing["name"] = existing.get("name") or name
             _save(data)
             return existing
 
     instance = {
         "id": f"srv-{uuid.uuid4().hex[:10]}",
         "name": name,
-        "serverPath": server_path,
+        "serverPath": canonical_path,
         "source": source,  # "deployed" | "steam" | "manual"
         "gamePort": game_port,
         "rconPort": rcon_port,
         "communityServer": False,
         "performanceFlags": True,
+        "usePerfThreads": True,
+        "noAsyncLoadingThread": True,
+        "useMultithreadForDs": True,
         "workerThreads": None,
         "jsonLogFormat": False,
         "createdAt": time.time(),
@@ -190,17 +219,20 @@ def update_community_server(instance_id: str, enabled: bool) -> dict[str, Any] |
 def update_launch_options(
     instance_id: str,
     *,
-    performance_flags: bool,
-    worker_threads: int | None,
-    json_log_format: bool,
+    use_perf_threads: bool,
+    no_async_loading_thread: bool,
+    use_multithread_for_ds: bool,
+    public_lobby: bool,
 ) -> dict[str, Any] | None:
     data = _load_clean()
     updated = None
     for instance in data["instances"]:
         if instance["id"] == instance_id:
-            instance["performanceFlags"] = performance_flags
-            instance["workerThreads"] = worker_threads
-            instance["jsonLogFormat"] = json_log_format
+            instance["usePerfThreads"] = use_perf_threads
+            instance["noAsyncLoadingThread"] = no_async_loading_thread
+            instance["useMultithreadForDs"] = use_multithread_for_ds
+            instance["performanceFlags"] = use_perf_threads and no_async_loading_thread and use_multithread_for_ds
+            instance["communityServer"] = public_lobby
             updated = instance
             break
     if updated:

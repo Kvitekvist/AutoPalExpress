@@ -579,6 +579,28 @@ The feature applies to the Windows account that installed/enabled it. On app lau
 
 ### Decision
 
+Launcher Flags was renamed Launcher Options and now exposes the exact Palworld launch arguments as separate toggles: `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby`. Nexus Browse also keeps Direct Install visible to super admins even when it is unavailable, with explanatory text for the saved Premium key requirement.
+
+### Reason
+
+The user installed the latest build and still only saw Install File, because the direct Nexus button was hidden until a connected Premium Nexus key was already detected. The feature existed but was too invisible to discover. The launcher page had a similar discoverability problem: the old "Launcher Flags" name and combined performance toggle did not match the requested flags one-to-one.
+
+### Alternatives
+
+Keep hiding Direct Install until fully available (rejected because it makes a supported feature look absent), duplicate launcher flags across Settings or World Settings (rejected because each setting should still be editable in one place), or keep the grouped performance toggle (rejected because the user asked for the specific flags).
+
+### Consequences
+
+Direct install is still gated by the same backend Premium-key checks, but the UI now shows the path and its requirement. Existing combined `performanceFlags` data migrates into three per-argument booleans, and `-publiclobby` stays the single stored community-listing flag behind the Launcher Options toggle.
+
+### Date
+
+2026-07-09
+
+---
+
+### Decision
+
 Installer first-time setup pages now only run when AutoPalExpress has no existing app data.
 
 ### Reason
