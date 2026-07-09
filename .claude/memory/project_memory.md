@@ -64,6 +64,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-09 (TICKET-0042): Rebuilt the Windows installer after verifying the current source and `web/dist` already contain Launcher Options. The new installer checksum is `DE47FB088842FA3135856407919601A759B642BFADF328CCED007B7E1EC2042B`.
 * FIXED 2026-07-09 (TICKET-0043): Server Control can now check SteamCMD build ids for the active Palworld Dedicated Server, ask before updating when Steam has a newer public build, and run the stopped-server update as a pollable SteamCMD job. The rebuilt installer checksum is `3C1F74E39D9DC3DFF7BDD5532ACE2DA64A3C11E361036138E570DAEEBAA77F0E`.
 * FIXED 2026-07-09 (TICKET-0044): Launcher Options now has super-admin-only toggles for Palworld's `-publicip` and `-publicport` community-listing overrides. The override values are displayed read-only and sourced from the existing Super Admin public-address/game-port flow, so IP and port remain owned in one place. The rebuilt installer checksum is `BB415DF6CFD8163FF406C7C1C023CCF1F3C69E7B510BE43E369CE4A70EE88AE2`.
+* FIXED 2026-07-09 (TICKET-0045): Launcher Options' `-publicport` read-only field now uses the live effective game port from the active server's `PalWorldSettings.ini` instead of falling back to the originally stored instance port. Network status also syncs stale stored ports when it resolves a different live port. The rebuilt installer checksum is `4849C5BD3A46DFE7A6C5CC873C7172F7157815C0C461E8F5FD71D1780F1EA216`.
 
 ---
 

@@ -8,7 +8,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from app.auth_deps import require_super_admin
-from app.services import deploy_jobs, instance_store, local_config, native_dialog, process_manager, steam_locator, ue4ss_installer
+from app.services import (
+    deploy_jobs,
+    instance_store,
+    local_config,
+    native_dialog,
+    palworld_settings,
+    process_manager,
+    steam_locator,
+    ue4ss_installer,
+)
 
 logger = logging.getLogger("palworld_admin.instances")
 
@@ -17,6 +26,7 @@ router = APIRouter()
 
 def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
     server_path = instance["serverPath"]
+    effective_game_port = palworld_settings.effective_game_port(Path(server_path), int(instance.get("gamePort") or 8211))
     exists = Path(server_path).is_dir()
     executable_found = (Path(server_path) / steam_locator.EXE_NAME).is_file()
     mods_info = local_config.get_mods_path_info(instance)
@@ -24,6 +34,8 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
     ue4ss_status = ue4ss_installer.get_status(instance)
     return {
         **instance,
+        "gamePort": effective_game_port,
+        "effectiveGamePort": effective_game_port,
         "communityServer": bool(instance.get("communityServer")),
         "usePerfThreads": bool(instance.get("usePerfThreads", instance.get("performanceFlags", True))),
         "noAsyncLoadingThread": bool(instance.get("noAsyncLoadingThread", instance.get("performanceFlags", True))),

@@ -32,7 +32,10 @@ def _require_active_instance() -> dict[str, Any]:
 
 
 def _resolve_port(instance: dict[str, Any]) -> int:
-    return palworld_settings.effective_game_port(Path(instance["serverPath"]), instance["gamePort"])
+    port = palworld_settings.effective_game_port(Path(instance["serverPath"]), instance["gamePort"])
+    if port != instance.get("gamePort"):
+        instance_store.update_game_port(instance["id"], port)
+    return port
 
 
 async def _forward(*, port: int, protocol: str, description: str) -> dict[str, Any]:

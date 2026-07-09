@@ -205,6 +205,7 @@ export interface ServerInstance {
   serverPath: string;
   source: InstanceSource;
   gamePort: number;
+  effectiveGamePort: number;
   rconPort: number;
   communityServer: boolean;
   usePerfThreads: boolean;

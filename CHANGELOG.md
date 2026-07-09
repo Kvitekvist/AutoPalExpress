@@ -2,6 +2,7 @@
 
 ## 1.0.0 - 2026-07-07
 
+- Fixed Launcher Options `-publicport` showing the original default port instead of the live Super Admin game port.
 - Added Super Admin-only Launcher Options toggles for `-publicip` and `-publicport`; their values are shown read-only and come from the existing public address/game-port flow.
 - Added Server Control update checks: AutoPalExpress compares the installed Palworld Dedicated Server build with Steam's public build and asks before running a SteamCMD update.
 - Rebuilt the Windows installer so the packaged app includes the Launcher Options sidebar item and updated the release checksum.
