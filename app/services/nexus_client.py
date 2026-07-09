@@ -1,9 +1,8 @@
 """Thin wrappers around Nexus Mods APIs.
 
-Public release behavior uses Nexus' GraphQL API for metadata and file-hash
-lookups so regular browsing and manual-upload verification do not rely on a
-shared personal API key. Legacy API-key calls are kept only for validation and
-future approved/OAuth work.
+Public browsing and file-hash lookups use Nexus' GraphQL API so they do not
+depend on a personal API key. Direct installs use the stored super-admin API
+key and Nexus' REST download-link endpoint.
 """
 
 import logging

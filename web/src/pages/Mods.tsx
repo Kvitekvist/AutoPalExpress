@@ -157,6 +157,7 @@ export default function Mods() {
         open={browseOpen}
         onOpenChange={setBrowseOpen}
         installedNames={mods.map((m) => m.name)}
+        onModsChanged={setMods}
       />
     </div>
   );

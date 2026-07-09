@@ -574,3 +574,25 @@ The feature applies to the Windows account that installed/enabled it. On app lau
 ### Date
 
 2026-07-09
+
+---
+
+### Decision
+
+Restore direct Nexus installs for super admins with a saved Nexus Premium API key, while keeping public GraphQL browsing and verified manual file upload.
+
+### Reason
+
+The user explicitly wanted the old direct-install convenience back. The safer compromise is not to make browsing depend on a personal key again, and not to share a bundled key, but to use the host's own saved Nexus key only when the super admin chooses direct install. The backend still installs through the same zip-slip and zip-bomb guarded extractor used by verified uploads.
+
+### Alternatives
+
+Keep direct installs paused pending Nexus registered app/OAuth approval (rejected because the user asked to restore the old feature), require every user to download and upload files manually (rejected as too clumsy for Premium hosts), or add a free-form URL downloader (rejected because previous designs found that too easy to abuse or misverify).
+
+### Consequences
+
+Direct installs require a connected Nexus account with Premium download access. Users without that still get public mod browsing and Super Admin's verified file upload path. The downloaded archive is stored under app data and recorded on the mod entry so update/reinstall can replace the existing source-mod record.
+
+### Date
+
+2026-07-09

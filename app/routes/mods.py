@@ -6,12 +6,13 @@ import zipfile
 from pathlib import Path
 from typing import Any
 
+import httpx
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
 
 from app import paths
 from app.auth_deps import require_super_admin
-from app.services import instance_store, local_config, mod_installer, mods_store, native_dialog, nexus_client
+from app.services import instance_store, local_config, mod_installer, mods_store, native_dialog, nexus_client, nexus_session
 from app.services.mod_installer import ModInstallError
 from app.services.nexus_client import NexusApiError
 
@@ -21,6 +22,8 @@ router = APIRouter()
 
 VERIFIED_UPLOAD_DIR = paths.data_dir() / "verified_uploads"
 VERIFIED_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+NEXUS_DOWNLOAD_DIR = paths.data_dir() / "nexus_downloads"
+NEXUS_DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 MAX_UPLOAD_BYTES = 500 * 1024 * 1024  # 500 MB
 _PENDING_VERIFIED_UPLOADS: dict[str, dict[str, Any]] = {}
@@ -45,6 +48,108 @@ def _mods_path_view(instance: dict[str, Any]) -> dict[str, Any]:
     info = local_config.get_mods_path_info(instance)
     path = info["path"]
     return {"modsPath": path, "source": info["source"], "exists": bool(path and Path(path).is_dir())}
+
+
+def _safe_download_name(name: str, fallback: str) -> str:
+    cleaned = "".join(ch for ch in name if ch.isalnum() or ch in " ._-").strip()
+    return cleaned or fallback
+
+
+def _select_installable_nexus_file(files_payload: dict[str, Any]) -> dict[str, Any]:
+    files = files_payload.get("files") or []
+    if not files:
+        raise HTTPException(status_code=404, detail="Nexus returned no downloadable files for this mod.")
+
+    def is_main_file(file_info: dict[str, Any]) -> bool:
+        category_id = file_info.get("category_id")
+        category_name = str(file_info.get("category_name") or "").lower()
+        return category_id == 1 or "main" in category_name
+
+    candidates = [f for f in files if not f.get("is_old_version") and is_main_file(f)]
+    if not candidates:
+        candidates = [f for f in files if not f.get("is_old_version")]
+    if not candidates:
+        candidates = files
+
+    return max(candidates, key=lambda f: f.get("uploaded_timestamp") or 0)
+
+
+def _download_link_url(links: list[dict[str, Any]]) -> str:
+    for link in links:
+        url = link.get("URI") or link.get("uri")
+        if url:
+            return str(url)
+    raise HTTPException(status_code=502, detail="Nexus did not return a usable download mirror.")
+
+
+async def _install_nexus_mod(instance: dict[str, Any], nexus_mod_id: int) -> list[dict[str, Any]]:
+    api_key = nexus_session.require_premium_api_key()
+    mods_path = local_config.get_mods_path(instance)
+    if not mods_path:
+        raise HTTPException(status_code=400, detail="No Mods folder configured for this server yet.")
+
+    try:
+        details = await nexus_client.get_mod_details(api_key, nexus_mod_id)
+        files_payload = await nexus_client.get_mod_files(api_key, nexus_mod_id)
+        file_info = _select_installable_nexus_file(files_payload)
+        file_id = int(file_info["file_id"])
+        links = await nexus_client.get_download_link(api_key, nexus_mod_id, file_id)
+    except NexusApiError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    except (KeyError, TypeError, ValueError):
+        raise HTTPException(status_code=502, detail="Nexus returned an unexpected file response.")
+
+    file_name = _safe_download_name(
+        str(file_info.get("file_name") or file_info.get("name") or ""),
+        f"nexus-{nexus_mod_id}-{file_id}.zip",
+    )
+    if not file_name.lower().endswith(".zip"):
+        file_name = f"{file_name}.zip"
+    dest = NEXUS_DOWNLOAD_DIR / f"{nexus_mod_id}-{file_id}-{file_name}"
+
+    try:
+        await nexus_client.download_file(_download_link_url(links), dest)
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail="Nexus file download failed.")
+    except httpx.HTTPError as e:
+        raise HTTPException(status_code=502, detail=f"Nexus file download failed: {e}")
+
+    if not zipfile.is_zipfile(dest):
+        dest.unlink(missing_ok=True)
+        raise HTTPException(status_code=422, detail="The downloaded Nexus file is not a .zip archive.")
+
+    mod_name = details.get("name") or file_info.get("name") or "Nexus Mod"
+    try:
+        folder_name = mod_installer.extract_and_install(dest, Path(mods_path), mod_name)
+    except zipfile.BadZipFile:
+        raise HTTPException(status_code=422, detail="The downloaded Nexus file is not a valid .zip archive.")
+    except ModInstallError as e:
+        raise HTTPException(status_code=422, detail=e.message)
+    except (OSError, ValueError) as e:
+        raise HTTPException(status_code=500, detail=f"Couldn't place mod files on disk: {e}")
+
+    mods = mods_store.load_mods(instance["id"])
+    existing = next((m for m in mods if m.get("sourceModId") == nexus_mod_id), None)
+    entry = {
+        "id": existing["id"] if existing else mods_store.new_id("nexus"),
+        "name": mod_name,
+        "version": file_info.get("version") or details.get("version") or "See Nexus",
+        "author": details.get("author") or "Unknown",
+        "description": details.get("summary") or details.get("description") or "",
+        "dependencies": existing.get("dependencies", []) if existing else [],
+        "status": "enabled",
+        "loadPriority": existing["loadPriority"] if existing else len(mods) + 1,
+        "updateAvailable": False,
+        "sourceModId": nexus_mod_id,
+        "downloadedFile": str(dest),
+        "folderName": folder_name,
+    }
+    if existing:
+        mods = [entry if m["id"] == existing["id"] else m for m in mods]
+    else:
+        mods.append(entry)
+    mods_store.save_mods(instance["id"], mods)
+    return mods_store.sorted_mods(mods)
 
 
 @router.get("/mods-path")
@@ -165,21 +270,10 @@ async def reorder(body: ReorderRequest) -> list[dict[str, Any]]:
     return mods_store.sorted_mods(mods)
 
 
-def _raise_nexus_downloads_paused() -> None:
-    raise HTTPException(
-        status_code=403,
-        detail=(
-            "One-click Nexus downloads are paused for the public release while AutoPalExpress follows Nexus Mods' "
-            "registered app/OAuth process. Open the mod on Nexus Mods, download it there, then use Install From File "
-            "in Super Admin."
-        ),
-    )
-
-
-@router.post("/from-nexus/{nexus_mod_id}/install")
+@router.post("/from-nexus/{nexus_mod_id}/install", dependencies=[Depends(require_super_admin)])
 async def install_from_nexus(nexus_mod_id: int) -> list[dict[str, Any]]:
-    _require_active_instance()
-    _raise_nexus_downloads_paused()
+    instance = _require_active_instance()
+    return await _install_nexus_mod(instance, nexus_mod_id)
 
 
 @router.post("/{mod_id}/update")
@@ -189,7 +283,7 @@ async def update_mod(mod_id: str) -> list[dict[str, Any]]:
     target = next((m for m in mods if m["id"] == mod_id), None)
     if not target or not target.get("sourceModId"):
         raise HTTPException(status_code=400, detail="This mod has no Nexus Mods source to update from.")
-    _raise_nexus_downloads_paused()
+    return await _install_nexus_mod(instance, int(target["sourceModId"]))
 
 
 @router.post("/install-from-file/prepare", dependencies=[Depends(require_super_admin)])

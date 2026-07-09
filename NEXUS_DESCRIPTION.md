@@ -21,7 +21,8 @@ It's not a mod for the game itself. It's a standalone Windows application that m
 
 **Mods**
 - Browse Palworld mods from Nexus Mods without entering a personal API key.
-- One-click Nexus downloads are paused while the tool follows Nexus's registered app/OAuth process. Download files on Nexus, then install them through the tool after it verifies the exact file hash against Nexus's catalog.
+- Install directly from Nexus when the super admin connects a Nexus API key with Premium download access.
+- Or download files on Nexus, then install them through the tool after it verifies the exact file hash against Nexus's catalog.
 - Enable, disable, reorder, and remove mods without digging through folders.
 - Installs go into the correct UE4SS Mods folder automatically.
 
@@ -55,6 +56,7 @@ The installer is not code-signed yet, so Windows SmartScreen may warn on first r
 - Windows 10 or 11, 64-bit.
 - A Steam account is not required: the dedicated server downloads anonymously via SteamCMD.
 - A Nexus Mods account is only needed when you download files from Nexus itself. Browsing inside the tool does not require an API key.
+- Direct installs require Nexus Premium download access through the saved super-admin API key.
 - If you plan to let friends connect from outside your home network: a router that supports UPnP makes this easier. Without it, you may need to forward ports manually.
 
 ## Installation
@@ -72,7 +74,7 @@ To uninstall later, use the Start Menu uninstall shortcut or Windows' "Add or Re
 1. On first launch, create the super admin account. This first account becomes the permanent super admin for this machine.
 2. From Super Admin, deploy a fresh server or import an existing one.
 3. Once a server is active, head to Mods to install UE4SS and start managing mods.
-4. To install a Nexus mod, open it from the Mods page, download the file on Nexus, then use Super Admin -> Install From File.
+4. To install a Nexus mod, use direct install from the Mods page if the super admin saved a Premium Nexus key, or download the file on Nexus and use Super Admin -> Install From File.
 5. To let friends help administer, go to Settings -> Users & Access -> New Invite, then send them the code and your admin panel address.
 
 ## Known Limitations
@@ -87,7 +89,7 @@ To uninstall later, use the Start Menu uninstall shortcut or Windows' "Add or Re
 
 **Friends get a connection timeout.** Check Windows Firewall, router port forwarding, and whether your public IP changed.
 
-**Where did one-click Nexus install go?** It is paused for the public release while AutoPalExpress follows Nexus's registered app/OAuth process. You can still browse, download from Nexus manually, and install through verified file upload.
+**Why does direct Nexus install ask for Premium?** Nexus's API download-link endpoint requires an authenticated account with Premium download access. Without that, you can still browse, download from Nexus manually, and install through verified file upload.
 
 **A friend's invite code doesn't work.** Codes are single-use. Check Settings -> Users & Access and generate a fresh one if needed.
 
@@ -101,4 +103,4 @@ Built with FastAPI, React, and a healthy amount of SteamCMD wrangling.
 
 ## Changelog
 
-**v1.0.0**: Initial release: multi-server management, Nexus mod browsing with verified manual installs, UE4SS installer, real server process control, Windows startup recovery, player management, world settings editor, activity logs, UPnP port forwarding, multi-user accounts with invites.
+**v1.0.0**: Initial release: multi-server management, Nexus mod browsing with direct Premium installs and verified manual installs, UE4SS installer, real server process control, Windows startup recovery, player management, world settings editor, activity logs, UPnP port forwarding, multi-user accounts with invites.

@@ -14,7 +14,7 @@ A self-hosted Palworld Dedicated Server admin panel that lets a small group of f
 
 ## Current Milestone
 
-Core feature set is complete and has been exercised live: multi-instance server management (deploy new via SteamCMD, or import existing), real process control, a generic World Settings (`.ini`) editor, Nexus GraphQL mod browsing with hash-verified manual file installs, UE4SS installer, networking (UPnP port forwarding, Windows Firewall automation, public IP display), multi-user auth with invites, and Palworld REST API-backed scheduled backups/restarts, restart warnings, join/leave announcements, metrics, and Players page actions (list/kick/ban/unban). Automated Nexus downloads are paused for public release until Nexus approves the registered app/OAuth route. Currently in a polish/hardening phase rather than adding wholesale new feature areas.
+Core feature set is complete and has been exercised live: multi-instance server management (deploy new via SteamCMD, or import existing), real process control, a generic World Settings (`.ini`) editor, Nexus GraphQL mod browsing with direct Premium API-key installs and hash-verified manual file installs, UE4SS installer, networking (UPnP port forwarding, Windows Firewall automation, public IP display), multi-user auth with invites, and Palworld REST API-backed scheduled backups/restarts, restart warnings, join/leave announcements, metrics, and Players page actions (list/kick/ban/unban). Currently in a polish/hardening phase rather than adding wholesale new feature areas.
 
 ---
 
@@ -56,6 +56,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-08 (TICKET-0035): World Settings now gets Launch Options in the same `/api/server-settings` payload as the `.ini` fields, so the panel cannot disappear because a separate active-instance request failed.
 * FIXED 2026-07-08 (TICKET-0036): Launcher flags now have their own super-admin-only sidebar page. Community Server listing, performance flags, worker thread override, and JSON log format all live there, and no longer appear in Settings or World Settings.
 * FIXED 2026-07-09 (TICKET-0037): Windows startup recovery can now start AutoPalExpress at sign-in and auto-start the active server when the app launches. The installer includes the same option and explains that it helps bring the server back after machine restarts.
+* FIXED 2026-07-09 (TICKET-0038): Direct Nexus installs are restored for super admins with a saved Nexus Premium API key. The app still keeps public GraphQL browsing and verified manual file upload as fallback paths.
 
 ---
 

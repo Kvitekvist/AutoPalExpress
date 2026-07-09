@@ -7,9 +7,19 @@ interface NexusModCardProps {
   mod: NexusModResult;
   installed: boolean;
   canInstallFromFile: boolean;
+  canDirectInstall: boolean;
+  installing: boolean;
+  onInstall: () => void;
 }
 
-export function NexusModCard({ mod, installed, canInstallFromFile }: NexusModCardProps) {
+export function NexusModCard({
+  mod,
+  installed,
+  canInstallFromFile,
+  canDirectInstall,
+  installing,
+  onInstall,
+}: NexusModCardProps) {
   return (
     <SpellCard status="neutral" className="flex h-full flex-col">
       <div className="flex items-start gap-3">
@@ -56,6 +66,17 @@ export function NexusModCard({ mod, installed, canInstallFromFile }: NexusModCar
             <Check className="h-3.5 w-3.5" />
             Installed
           </span>
+        ) : canDirectInstall ? (
+          <button
+            type="button"
+            onClick={onInstall}
+            disabled={installing}
+            className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80 transition-colors hover:border-life-400/50 hover:text-life-200 disabled:pointer-events-none disabled:opacity-50"
+            title="Download directly from Nexus and install into the active server's Mods folder."
+          >
+            <Download className="h-3.5 w-3.5" />
+            {installing ? "Installing..." : "Install"}
+          </button>
         ) : canInstallFromFile ? (
           <Link
             to="/super-admin"
@@ -77,9 +98,13 @@ export function NexusModCard({ mod, installed, canInstallFromFile }: NexusModCar
       </div>
       {!installed && (
         <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/40">
-          "View on Nexus" opens the download page. After downloading,{" "}
-          {canInstallFromFile ? "use Install File" : "ask the super admin to use Install From File"} so AutoPalExpress
-          can verify the exact file before it touches your server.
+          {canDirectInstall
+            ? "Direct install uses your saved Nexus key and Premium download access."
+            : '"View on Nexus" opens the download page. After downloading, '}
+          {!canDirectInstall &&
+            (canInstallFromFile
+              ? "use Install File so AutoPalExpress can verify the exact file before it touches your server."
+              : "ask the super admin to use Install From File.")}
         </p>
       )}
     </SpellCard>

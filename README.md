@@ -38,6 +38,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Start AutoPalExpress with Windows and bring the active server back online after a machine restart.
 - Install and update UE4SS.
 - Browse Nexus Mods without entering a personal API key.
+- Install directly from Nexus when the super admin connects a Premium API key.
 - Enable, disable, reorder, and remove mods.
 - View players, kick players, and ban players through Palworld's REST API.
 - Monitor Dashboard CPU, RAM, players, uptime, and REST-backed server metrics.
@@ -79,9 +80,9 @@ AutoPalExpress uses regular HTTP by default so setup can stay simple: no domain,
 AutoPalExpress browses Palworld mod metadata through Nexus Mods' public GraphQL API, so browsing does **not** require anyone to paste a personal Nexus API key.
 
 > [!NOTE]
-> One-click automatic Nexus downloads are paused for the public release while AutoPalExpress follows Nexus Mods' registered app/OAuth process.
+> Direct Nexus installs require the super admin to save a Nexus API key with Premium download access. Browsing still works without a key.
 
-Download files on Nexus Mods, then use **Install From File** in Super Admin. AutoPalExpress checks the uploaded file's exact hash against Nexus' catalog before installing it.
+If you do not use direct install, download files on Nexus Mods, then use **Install From File** in Super Admin. AutoPalExpress checks the uploaded file's exact hash against Nexus' catalog before installing it.
 
 ## Logs And Windows
 
@@ -102,6 +103,7 @@ Most of the app is wired to the real machine and real server:
 - Multi-server management is real.
 - Fresh server deployments can use AutoPalExpress' default storage folder or a super-admin-selected install location.
 - Launcher Flags controls real per-server launch options: Community Server visibility, performance flags, worker thread override, and JSON log format.
+- Direct Nexus installs and verified manual file installs are real.
 - Player roster, kick, and ban are real through Palworld's REST API.
 - Dashboard CPU and RAM are read from the selected server's Palworld processes.
 - Scheduled backups and restarts are real.

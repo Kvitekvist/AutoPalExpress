@@ -46,6 +46,11 @@ export async function updateMod(id: string): Promise<Mod[]> {
   return api.post<Mod[]>(`/api/mods/${id}/update`);
 }
 
+// POST /api/mods/from-nexus/{nexusModId}/install
+export async function installFromNexus(nexusModId: number): Promise<Mod[]> {
+  return api.post<Mod[]>(`/api/mods/from-nexus/${nexusModId}/install`);
+}
+
 // POST /api/mods/reorder
 export async function reorderMods(orderedIds: string[]): Promise<Mod[]> {
   return api.post<Mod[]>("/api/mods/reorder", { orderedIds });

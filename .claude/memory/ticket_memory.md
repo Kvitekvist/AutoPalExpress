@@ -47,6 +47,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0035** (2026-07-08, Bug) - Fixed World Settings hiding the Launch Options panel by returning launch-option state in the same `/api/server-settings` response as the visible `.ini` fields, instead of relying on a separate active-instance request.
 * **TICKET-0036** (2026-07-08, Enhancement) - Added a dedicated Launcher Flags sidebar page for Community Server listing, performance flags, worker thread override, and JSON log format. Removed those launch-argument controls from Settings and World Settings so the new page is the only visible editor.
 * **TICKET-0037** (2026-07-09, Feature) - Added Windows startup recovery. Settings now lets the super admin start AutoPalExpress with Windows and auto-start the active server when the app launches; the installer has the same optional startup-recovery task and explains that it helps bring the server back after machine restarts.
+* **TICKET-0038** (2026-07-09, Feature) - Restored direct Nexus installs for super admins with a saved Nexus Premium API key. Nexus Browse now shows an Install button for that path, the backend downloads through Nexus's download-link endpoint, installs with the existing archive safety checks, and keeps verified manual upload as the fallback.
 
 ---
 

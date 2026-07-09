@@ -174,6 +174,7 @@ export interface NexusModResult {
   downloads: number;
   endorsements: number;
   pictureUrl?: string;
+  directDownloadEnabled: boolean;
   nexusUrl: string;
 }
 

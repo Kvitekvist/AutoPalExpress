@@ -1,12 +1,13 @@
 import * as React from "react";
 import { Search } from "lucide-react";
-import { nexusApi } from "@/api";
-import type { NexusModList, NexusModResult } from "@/types/models";
+import { modsApi, nexusApi } from "@/api";
+import type { Mod, NexusAccount, NexusModList, NexusModResult } from "@/types/models";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AncientTabs, AncientTabsList, AncientTabsTrigger } from "@/components/fantasy/AncientTabs";
 import { NexusModCard } from "@/components/mods/NexusModCard";
 import { useAuth } from "@/hooks/useAuth";
+import { useNotifications } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 
 const LISTS: { value: NexusModList; label: string }[] = [
@@ -17,16 +18,24 @@ const LISTS: { value: NexusModList; label: string }[] = [
 
 interface NexusModBrowserProps {
   installedNames: string[];
+  onModsChanged: (mods: Mod[]) => void;
 }
 
-export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
+export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrowserProps) {
   const { user } = useAuth();
+  const notifications = useNotifications();
+  const [account, setAccount] = React.useState<NexusAccount | null>(null);
   const [list, setList] = React.useState<NexusModList>("trending");
   const [cache, setCache] = React.useState<Partial<Record<NexusModList, NexusModResult[]>>>({});
   const [loading, setLoading] = React.useState(false);
   const [loadError, setLoadError] = React.useState<string | null>(null);
+  const [installingId, setInstallingId] = React.useState<number | null>(null);
   const [query, setQuery] = React.useState("");
   const [category, setCategory] = React.useState("All");
+
+  React.useEffect(() => {
+    nexusApi.getAccount().then(setAccount);
+  }, []);
 
   React.useEffect(() => {
     if (cache[list]) return;
@@ -40,6 +49,7 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
   }, [list, cache]);
 
   const results = cache[list] ?? [];
+  const canDirectInstall = user.role === "super_admin" && Boolean(account?.connected && account.isPremium);
   const categories = ["All", ...Array.from(new Set(results.map((m) => m.categoryName))).sort()];
   const filtered = results.filter((m) => {
     if (category !== "All" && m.categoryName !== category) return false;
@@ -48,11 +58,27 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
     return m.name.toLowerCase().includes(q) || m.summary.toLowerCase().includes(q) || m.author.toLowerCase().includes(q);
   });
 
+  async function handleInstall(mod: NexusModResult) {
+    setInstallingId(mod.modId);
+    try {
+      const updated = await modsApi.installFromNexus(mod.modId);
+      onModsChanged(updated);
+      notifications.success({ title: "Mod installed", message: `${mod.name} was installed from Nexus Mods.` });
+    } catch (e) {
+      notifications.error({
+        title: "Nexus install failed",
+        message: e instanceof Error ? e.message : "Unknown error.",
+      });
+    } finally {
+      setInstallingId(null);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs text-gold-400/90">
-        Browsing uses Nexus Mods metadata only, so no personal API key is needed. Download files on Nexus, then use
-        "Install From File" in Super Admin so AutoPalExpress can verify the exact file before installing it.
+        Browsing uses Nexus Mods metadata only. Direct install uses the saved Nexus key and Premium download access;
+        if that is not available, open Nexus and use "Install From File" in Super Admin.
       </div>
 
       <AncientTabs value={list} onValueChange={(v) => setList(v as NexusModList)}>
@@ -116,6 +142,9 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
                 mod={mod}
                 installed={installedNames.some((n) => n.toLowerCase() === mod.name.toLowerCase())}
                 canInstallFromFile={user.role === "super_admin"}
+                canDirectInstall={canDirectInstall}
+                installing={installingId === mod.modId}
+                onInstall={() => handleInstall(mod)}
               />
             ))}
           </div>

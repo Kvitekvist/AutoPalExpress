@@ -1,6 +1,7 @@
 # Changelog
 
 ## 1.0.0 - 2026-07-07
+- Restored direct Nexus installs for super admins with a saved Premium API key.
 - Added Windows startup recovery: AutoPalExpress can start at Windows sign-in and restart the active server after the machine reboots.
 - Added a dedicated Launcher Flags sidebar page for Community Server visibility, performance flags, worker thread override, and JSON log format.
 - Fixed World Settings hiding the Launch Options panel even though the active server's settings loaded.
