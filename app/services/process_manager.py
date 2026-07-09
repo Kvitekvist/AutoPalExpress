@@ -146,7 +146,9 @@ def start(instance: dict[str, Any]) -> None:
 
         game_port = instance_store.resolve_game_port(instance)
         game_port = palworld_settings.enforce_game_port(exe.parent, game_port, prefer_fallback=True)
-        palworld_settings.enforce_rest_api(exe.parent, instance.get("rconPort") or 8212)
+        rest_config = palworld_settings.enforce_rest_api(exe.parent, instance.get("rconPort") or 8212)
+        if rest_config["passwordGenerated"]:
+            logger.info("process_manager: generated AdminPassword for %r so Palworld REST API can authenticate", instance["name"])
         if game_port != instance["gamePort"]:
             instance_store.update_game_port(instance_id, game_port)
         launch_args = [str(exe), f"-port={game_port}"]

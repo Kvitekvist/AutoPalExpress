@@ -113,6 +113,7 @@ Most of the app is wired to the real machine and real server:
 - Launcher Options controls real per-server launch options: `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, `-publiclobby`, and optional `-publicip`/`-publicport` overrides that read their values from Super Admin.
 - Direct Nexus installs and verified manual file installs are real.
 - Player roster, kick, and ban are real through Palworld's REST API, with the app normalizing Palworld's current player fields before showing the roster.
+- If a server has REST enabled but an empty Admin Password, starting it through AutoPalExpress fills one in so REST-backed controls can authenticate.
 - Dashboard CPU and RAM are read from the selected server's Palworld processes.
 - Scheduled backups and restarts are real.
 - Windows startup recovery is real: the app can start at sign-in and restart the active server.
@@ -139,7 +140,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  650B493B8A108A33F9EFFDD25C440DFEFBDC47953A96DE4F553948689180C243
+SHA256  PalworldServerAdmin-Setup.exe  59DC70DB4707C0DBBFFBFF13E9850BF3B59E10111BC18B240904600AD43176F9
 ```
 
 > [!IMPORTANT]

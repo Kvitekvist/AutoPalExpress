@@ -45,6 +45,8 @@ def get_credentials(instance: dict[str, Any]) -> tuple[str, int, str] | None:
     if not port:
         return None
     password = config.get("password") if config else None
+    if config and config.get("enabled") and config.get("port") and not password:
+        return None
     return "127.0.0.1", int(port), password or ""
 
 
@@ -64,7 +66,8 @@ async def _request(
     if not creds:
         raise PalworldRestNotConfiguredError(
             "Palworld REST API is not ready for this server. Turn on REST API Enabled and set a REST API Port "
-            "in World Settings first."
+            "in World Settings first. Admin Password must also be set, or restart the server through AutoPalExpress "
+            "so it can create one."
         )
 
     host, port, password = creds

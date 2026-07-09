@@ -9,6 +9,7 @@ and only overwrites the handful of fields this tool actually sets.
 """
 
 import re
+import secrets
 from pathlib import Path
 from typing import Any
 
@@ -110,19 +111,39 @@ def read_rest_config(server_path: Path) -> dict[str, Any] | None:
     }
 
 
-def enforce_rest_api(server_path: Path, fallback_port: int) -> int:
+def _read_live_or_template_text(server_path: Path) -> str:
+    dest_path = _settings_ini_path(server_path)
+    if dest_path.is_file():
+        return dest_path.read_text(encoding="utf-8-sig")
+    return _read_ini_or_template_text(server_path)
+
+
+def _new_admin_password() -> str:
+    return secrets.token_urlsafe(18)
+
+
+def enforce_rest_api(server_path: Path, fallback_port: int) -> dict[str, Any]:
     """Ensures the Palworld REST API is enabled before launch. The existing
     instance field is still named rconPort for backward compatibility, but it
-    now represents this tool's local management API port."""
-    text = _read_ini_or_template_text(server_path)
+    now represents this tool's local management API port. Palworld requires
+    AdminPassword for REST Basic Auth, so fill one only when it is missing or
+    blank and leave user-set passwords alone."""
+    text = _read_live_or_template_text(server_path)
     match = _OPTION_LINE_RE.search(text)
     body = match.group(1) if match else ""
     port_raw = _get_field(body, "RESTAPIPort")
     port = int(port_raw) if port_raw and port_raw.isdigit() else fallback_port
+    password_raw = _get_field(body, "AdminPassword")
+    password = password_raw[1:-1] if password_raw and password_raw.startswith('"') else password_raw
     body = _set_field(body, "RESTAPIEnabled", "True")
     body = _set_field(body, "RESTAPIPort", str(port))
+    password_generated = False
+    if not password:
+        password = _new_admin_password()
+        body = _set_field(body, "AdminPassword", f'"{password}"')
+        password_generated = True
     _write_option_body(server_path, text, match, body)
-    return port
+    return {"port": port, "passwordGenerated": password_generated}
 
 
 def _read_ini_or_template_text(server_path: Path) -> str:
@@ -188,7 +209,7 @@ POPULAR_FIELDS: list[dict[str, Any]] = [
     {"key": "ServerName", "label": "Server Name"},
     {"key": "ServerDescription", "label": "Server Description"},
     {"key": "ServerPassword", "label": "Server Password", "sensitive": True, "description": "Leave blank for no password."},
-    {"key": "AdminPassword", "label": "Admin Password", "sensitive": True, "description": "Needed for in-game admin commands."},
+    {"key": "AdminPassword", "label": "Admin Password", "sensitive": True, "description": "Needed for in-game admin commands and the local REST API."},
     {"key": "ServerPlayerMaxNum", "label": "Max Players"},
     {"key": "CoopPlayerMaxNum", "label": "Max Players Per Party"},
     {"key": "Difficulty", "label": "Difficulty"},

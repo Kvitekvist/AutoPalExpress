@@ -2,6 +2,7 @@
 
 ## 1.0.0 - 2026-07-07
 
+- Fixed REST Unauthorized failures caused by blank `AdminPassword`: starting a server through AutoPalExpress now creates one only when missing or empty.
 - Fixed Dashboard roster detection after the REST migration by trying the stored REST management port when the ini check is incomplete and normalizing Palworld player fields before displaying them.
 - Fixed reinstall/update port drift: a remembered Super Admin game port now wins over Palworld's default and is used by Launcher Options.
 - Fixed Launcher Options `-publicport` showing the original default port instead of the live Super Admin game port.
