@@ -1,5 +1,16 @@
 # Changelog
 
+## Current build vs. origin/main - 2026-07-09
+
+- **TICKET-0041**: Fixed Launcher Options visibility/naming, restored visible Nexus Direct Install requirements, tightened instance dedupe, and renamed Browse Files.
+- **TICKET-0042**: Rebuilt the installer so the packaged app actually includes Launcher Options.
+- **TICKET-0043**: Added Server Control update checks and confirmed SteamCMD update jobs.
+- **TICKET-0044**: Added Super Admin-only `-publicip` and `-publicport` launcher overrides sourced from existing network/game-port settings.
+- **TICKET-0045**: Fixed Launcher Options showing stale default `8211` for `-publicport`.
+- **TICKET-0046**: Preserved custom Super Admin game ports across reinstall/update and enforced them into the live ini on launch.
+- **TICKET-0047**: Fixed Dashboard roster detection after the REST migration by falling back to the stored REST port and normalizing Palworld player fields.
+- **TICKET-0048**: Fixed REST Unauthorized failures caused by blank `AdminPassword`; AutoPalExpress now generates one only when missing or empty.
+
 ## 1.0.0 - 2026-07-07
 
 - Fixed REST Unauthorized failures caused by blank `AdminPassword`: starting a server through AutoPalExpress now creates one only when missing or empty.
