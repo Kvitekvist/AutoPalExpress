@@ -59,6 +59,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0047** (2026-07-09, Bug) - Fixed the Dashboard roster staying empty after the REST migration when Palworld was running its REST API but AutoPalExpress skipped calls because the ini credential check looked incomplete. The REST client now falls back to the stored local management port and normalizes player field names before Dashboard roster and join/leave tracking consume them.
 * **TICKET-0048** (2026-07-09, Bug) - Fixed Palworld REST Unauthorized failures when `AdminPassword` was blank. The launch path now preserves the live ini and user-set passwords, but creates a random AdminPassword when the field is missing or empty so REST-backed Dashboard, Players, Server Control, and scheduler calls can authenticate.
 * **TICKET-0049** (2026-07-09, Release) - Added a release changelog section summarizing the local changes ahead of `origin/main` (TICKET-0041 through TICKET-0048), rebuilt the final executable/installer, and refreshed the release checksum.
+* **TICKET-0050** (2026-07-10, Bug) - Fixed launch-time game-port enforcement so it edits the live `PalWorldSettings.ini` in place instead of starting from Palworld's default template, preserving unrelated world settings while still syncing the remembered Super Admin port.
 
 ---
 

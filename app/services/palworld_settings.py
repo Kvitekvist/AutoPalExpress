@@ -80,7 +80,7 @@ def enforce_game_port(server_path: Path, fallback_port: int, *, prefer_fallback:
     if existing is not None and (not prefer_fallback or existing == fallback_port):
         return existing
 
-    text = _read_ini_or_template_text(server_path)
+    text = _read_live_or_template_text(server_path)
     match = _OPTION_LINE_RE.search(text)
     body = _set_field(match.group(1) if match else "", "PublicPort", str(fallback_port))
     _write_option_body(server_path, text, match, body)
