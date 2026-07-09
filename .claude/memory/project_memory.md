@@ -70,6 +70,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-09 (TICKET-0048): Palworld REST Unauthorized errors caused by an empty `AdminPassword` are now self-healed on launch. Starting a server through AutoPalExpress preserves the live ini, enables REST, preserves any user-set AdminPassword, and generates a random AdminPassword only when the field is missing or blank. The rebuilt installer checksum is `59DC70DB4707C0DBBFFBFF13E9850BF3B59E10111BC18B240904600AD43176F9`.
 * FIXED 2026-07-09 (TICKET-0049): Added a release-delta changelog section covering TICKET-0041 through TICKET-0048, rebuilt the final executable/installer, and updated the release checksum to `18D018D9A59C247E36F0CF4CD2622AC75F1E4A6D27FB01F4E2B890993944DC1E`.
 * FIXED 2026-07-10 (TICKET-0050): Game-port enforcement now edits the live `PalWorldSettings.ini` when present instead of rebuilding from `DefaultPalWorldSettings.ini`, so remembering/enforcing the Super Admin port no longer risks resetting unrelated world settings.
+* FIXED 2026-07-10 (TICKET-0051): Rebuilt the packaged executable and installer after TICKET-0050. Current installer checksum is `1116A3ABE445BC3684415134BCC90FFA819F4FB1948305A426A2F04C74A8E034`.
 
 ---
 
