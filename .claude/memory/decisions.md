@@ -662,3 +662,25 @@ Direct installs require a connected Nexus account with Premium download access. 
 ### Date
 
 2026-07-09
+
+---
+
+### Decision
+
+Launcher Options exposes Palworld's `-publicip` and `-publicport` as enable toggles only. Their values are read-only in Launcher Options and come from the existing Super Admin public-address/game-port flow.
+
+### Reason
+
+Palworld documents these arguments as troubleshooting overrides for community-server detection, but AutoPalExpress already has a single owner for the active server's public address and game port: Super Admin's Share With Friends/networking tools. Letting Launcher Options edit raw IP or port values would create another place for the same setting and make support harder.
+
+### Alternatives
+
+Expose free-form `-publicip` and `-publicport` text fields in Launcher Options (rejected because it duplicates Super Admin and can drift from the real forwarded port), keep deferring these flags entirely (rejected because the user is debugging a real community-listing issue), or append them automatically whenever `-publiclobby` is enabled (rejected because the override should stay explicit).
+
+### Consequences
+
+The backend stores only booleans for these overrides. On start, `process_manager` appends `-publicip=<detected public IP>` and `-publicport=<effective game port>` when enabled. If the public IP cannot be detected, startup continues and logs the skipped `-publicip` override instead of blocking the server.
+
+### Date
+
+2026-07-09

@@ -28,6 +28,8 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
         "usePerfThreads": bool(instance.get("usePerfThreads", instance.get("performanceFlags", True))),
         "noAsyncLoadingThread": bool(instance.get("noAsyncLoadingThread", instance.get("performanceFlags", True))),
         "useMultithreadForDs": bool(instance.get("useMultithreadForDs", instance.get("performanceFlags", True))),
+        "usePublicIpOverride": bool(instance.get("usePublicIpOverride")),
+        "usePublicPortOverride": bool(instance.get("usePublicPortOverride")),
         "performanceFlags": bool(instance.get("performanceFlags", True)),
         "workerThreads": instance.get("workerThreads") if instance.get("workerThreads") is not None else None,
         "jsonLogFormat": bool(instance.get("jsonLogFormat")),
@@ -75,6 +77,8 @@ class LaunchOptionsRequest(BaseModel):
     noAsyncLoadingThread: bool
     useMultithreadForDs: bool
     publicLobby: bool
+    usePublicIpOverride: bool
+    usePublicPortOverride: bool
 
 
 @router.post("/{instance_id}/community-server", dependencies=[Depends(require_super_admin)])
@@ -96,6 +100,8 @@ async def set_launch_options(instance_id: str, body: LaunchOptionsRequest) -> di
         no_async_loading_thread=body.noAsyncLoadingThread,
         use_multithread_for_ds=body.useMultithreadForDs,
         public_lobby=body.publicLobby,
+        use_public_ip_override=body.usePublicIpOverride,
+        use_public_port_override=body.usePublicPortOverride,
     )
     data = instance_store.list_view()
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}

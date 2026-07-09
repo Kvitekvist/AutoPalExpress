@@ -37,7 +37,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Switch servers, open a server folder in Explorer, unregister it, or unregister and delete its files.
 - Choose where new server installs are stored, including another drive.
 - Edit world settings from the browser.
-- Manage Launcher Options from their own sidebar page, including `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby`.
+- Manage Super Admin-only Launcher Options from their own sidebar page, including `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, `-publiclobby`, and read-only Super Admin-derived `-publicip`/`-publicport` overrides.
 - Start AutoPalExpress with Windows and bring the active server back online after a machine restart.
 - Install and update UE4SS.
 - Browse Nexus Mods without entering a personal API key.
@@ -110,7 +110,7 @@ Most of the app is wired to the real machine and real server:
 - Multi-server management is real.
 - Server-instance cleanup is real: duplicate records are deduped by folder, normal Remove leaves files alone, and Remove and Delete deletes the registered server folder after the server is stopped.
 - Fresh server deployments can use AutoPalExpress' default storage folder or a super-admin-selected install location.
-- Launcher Options controls real per-server launch options: `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby`.
+- Launcher Options controls real per-server launch options: `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, `-publiclobby`, and optional `-publicip`/`-publicport` overrides that read their values from Super Admin.
 - Direct Nexus installs and verified manual file installs are real.
 - Player roster, kick, and ban are real through Palworld's REST API.
 - Dashboard CPU and RAM are read from the selected server's Palworld processes.
@@ -139,7 +139,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  3C1F74E39D9DC3DFF7BDD5532ACE2DA64A3C11E361036138E570DAEEBAA77F0E
+SHA256  PalworldServerAdmin-Setup.exe  BB415DF6CFD8163FF406C7C1C023CCF1F3C69E7B510BE43E369CE4A70EE88AE2
 ```
 
 > [!IMPORTANT]

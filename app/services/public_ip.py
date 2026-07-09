@@ -25,3 +25,18 @@ async def fetch_public_ip() -> str | None:
                 logger.info("public_ip: %s failed: %s", url, e)
                 continue
     return None
+
+
+def fetch_public_ip_sync() -> str | None:
+    with httpx.Client(timeout=5) as client:
+        for url in ECHO_SERVICES:
+            try:
+                resp = client.get(url)
+                resp.raise_for_status()
+                ip = resp.text.strip()
+                if ip:
+                    return ip
+            except httpx.HTTPError as e:
+                logger.info("public_ip: %s failed: %s", url, e)
+                continue
+    return None

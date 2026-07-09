@@ -18,7 +18,7 @@ from typing import Any
 
 import psutil
 
-from app.services import activity_log, instance_store, palworld_settings
+from app.services import activity_log, instance_store, palworld_settings, public_ip, upnp
 
 logger = logging.getLogger("palworld_admin.process_manager")
 
@@ -39,6 +39,18 @@ class ProcessError(Exception):
 
 def _exe_path(instance: dict[str, Any]) -> Path:
     return Path(instance["serverPath"]) / "PalServer.exe"
+
+
+def _public_ip_override_value() -> str | None:
+    gateway = upnp.discover_gateway()
+    if gateway:
+        try:
+            ip = upnp.get_external_ip(gateway)
+            if ip:
+                return ip
+        except upnp.UpnpError as e:
+            logger.info("process_manager: router public IP lookup failed: %s", e.message)
+    return public_ip.fetch_public_ip_sync()
 
 
 def _is_alive(instance_id: str) -> bool:
@@ -145,6 +157,14 @@ def start(instance: dict[str, Any]) -> None:
             launch_args.append("-UseMultithreadForDS")
         if instance.get("communityServer"):
             launch_args.append("-publiclobby")
+        if instance.get("usePublicIpOverride"):
+            public_ip_override = _public_ip_override_value()
+            if public_ip_override:
+                launch_args.append(f"-publicip={public_ip_override}")
+            else:
+                logger.warning("process_manager: -publicip override enabled, but no public IP could be detected")
+        if instance.get("usePublicPortOverride"):
+            launch_args.append(f"-publicport={game_port}")
         if instance.get("jsonLogFormat"):
             launch_args.append("-logformat=json")
 

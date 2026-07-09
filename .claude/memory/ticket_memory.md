@@ -53,6 +53,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0041** (2026-07-09, Bug / Enhancement) - Follow-up after installed-build verification: Nexus Browse now shows Direct Install for super admins even before a Premium key is connected, with clear requirement text; Launcher Flags is renamed Launcher Options and exposes separate `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby` toggles; server-instance dedupe now canonicalizes stored paths and the folder action is labeled Browse Files.
 * **TICKET-0042** (2026-07-09, Bug) - Rebuilt the Windows installer after verifying that source and `web/dist` already contained Launcher Options. Updated the release checksum to `DE47FB088842FA3135856407919601A759B642BFADF328CCED007B7E1EC2042B`.
 * **TICKET-0043** (2026-07-09, Feature) - Added Server Control update checks and confirmed updates. AutoPalExpress reads the active server's installed Steam build id, compares it to SteamCMD's current public build id, asks before updating when a newer build is available, and runs the update as a pollable SteamCMD job only while the server is offline.
+* **TICKET-0044** (2026-07-09, Feature) - Added Super Admin-only Launcher Options toggles for `-publicip` and `-publicport`. The actual values are read-only and sourced from the same public address/game-port flow used by Super Admin's Share With Friends panel, preserving one place to edit the port.
 
 ---
 

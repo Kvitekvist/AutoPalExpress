@@ -37,6 +37,8 @@ export interface LaunchOptionsParams {
   noAsyncLoadingThread: boolean;
   useMultithreadForDs: boolean;
   publicLobby: boolean;
+  usePublicIpOverride: boolean;
+  usePublicPortOverride: boolean;
 }
 
 // POST /api/instances/{id}/launch-options

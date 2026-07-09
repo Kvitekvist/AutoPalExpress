@@ -210,6 +210,8 @@ export interface ServerInstance {
   usePerfThreads: boolean;
   noAsyncLoadingThread: boolean;
   useMultithreadForDs: boolean;
+  usePublicIpOverride: boolean;
+  usePublicPortOverride: boolean;
   performanceFlags: boolean;
   workerThreads: number | null;
   jsonLogFormat: boolean;

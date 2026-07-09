@@ -68,6 +68,12 @@ def _dedupe_data(data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         if "useMultithreadForDs" not in instance:
             instance["useMultithreadForDs"] = bool(instance.get("performanceFlags", True))
             changed = True
+        if "usePublicIpOverride" not in instance:
+            instance["usePublicIpOverride"] = False
+            changed = True
+        if "usePublicPortOverride" not in instance:
+            instance["usePublicPortOverride"] = False
+            changed = True
         existing = by_path.get(key)
         if not existing:
             by_path[key] = instance
@@ -148,6 +154,8 @@ def create_instance(
         "usePerfThreads": True,
         "noAsyncLoadingThread": True,
         "useMultithreadForDs": True,
+        "usePublicIpOverride": False,
+        "usePublicPortOverride": False,
         "workerThreads": None,
         "jsonLogFormat": False,
         "createdAt": time.time(),
@@ -223,6 +231,8 @@ def update_launch_options(
     no_async_loading_thread: bool,
     use_multithread_for_ds: bool,
     public_lobby: bool,
+    use_public_ip_override: bool,
+    use_public_port_override: bool,
 ) -> dict[str, Any] | None:
     data = _load_clean()
     updated = None
@@ -233,6 +243,8 @@ def update_launch_options(
             instance["useMultithreadForDs"] = use_multithread_for_ds
             instance["performanceFlags"] = use_perf_threads and no_async_loading_thread and use_multithread_for_ds
             instance["communityServer"] = public_lobby
+            instance["usePublicIpOverride"] = use_public_ip_override
+            instance["usePublicPortOverride"] = use_public_port_override
             updated = instance
             break
     if updated:
