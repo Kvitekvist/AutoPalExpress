@@ -56,6 +56,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0044** (2026-07-09, Feature) - Added Super Admin-only Launcher Options toggles for `-publicip` and `-publicport`. The actual values are read-only and sourced from the same public address/game-port flow used by Super Admin's Share With Friends panel, preserving one place to edit the port.
 * **TICKET-0045** (2026-07-09, Bug) - Fixed Launcher Options showing the stale default port for `-publicport` after the live server port had been changed. Instance API views now expose the effective live game port and Launcher Options prefers that value.
 * **TICKET-0046** (2026-07-09, Bug) - Fixed remaining port drift by centralizing game-port resolution: a stored custom Super Admin port now survives reinstall/update and is enforced into the ini at launch, while old default records can still adopt a custom ini port.
+* **TICKET-0047** (2026-07-09, Bug) - Fixed the Dashboard roster staying empty after the REST migration when Palworld was running its REST API but AutoPalExpress skipped calls because the ini credential check looked incomplete. The REST client now falls back to the stored local management port and normalizes player field names before Dashboard roster and join/leave tracking consume them.
 
 ---
 

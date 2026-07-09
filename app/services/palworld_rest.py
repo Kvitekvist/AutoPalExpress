@@ -31,11 +31,21 @@ class PalworldRestConnectionError(PalworldRestError):
     pass
 
 
+def _instance_rest_port(instance: dict[str, Any]) -> int | None:
+    port = instance.get("rconPort") or instance.get("restPort")
+    try:
+        return int(port) if port else None
+    except (TypeError, ValueError):
+        return None
+
+
 def get_credentials(instance: dict[str, Any]) -> tuple[str, int, str] | None:
     config = palworld_settings.read_rest_config(Path(instance["serverPath"]))
-    if not config or not config["enabled"] or not config["port"] or not config["password"]:
+    port = config["port"] if config and config.get("enabled") and config.get("port") else _instance_rest_port(instance)
+    if not port:
         return None
-    return "127.0.0.1", config["port"], config["password"]
+    password = config.get("password") if config else None
+    return "127.0.0.1", int(port), password or ""
 
 
 def is_ready(instance: dict[str, Any]) -> bool:
@@ -53,8 +63,8 @@ async def _request(
     creds = get_credentials(instance)
     if not creds:
         raise PalworldRestNotConfiguredError(
-            "Palworld REST API is not ready for this server. Turn on REST API Enabled, set a REST API Port, "
-            "and set an Admin Password in World Settings first."
+            "Palworld REST API is not ready for this server. Turn on REST API Enabled and set a REST API Port "
+            "in World Settings first."
         )
 
     host, port, password = creds
@@ -86,9 +96,56 @@ async def metrics(instance: dict[str, Any]) -> dict[str, Any]:
     return await _request(instance, "GET", "/metrics")
 
 
+def _first_present(player: dict[str, Any], *keys: str) -> Any:
+    for key in keys:
+        value = player.get(key)
+        if value not in (None, ""):
+            return value
+    return None
+
+
+def normalize_player(player: dict[str, Any]) -> dict[str, Any]:
+    """Accept small naming differences between Palworld REST builds.
+
+    The rest of the app uses camelCase. Some observed/documented payloads use
+    all-lowercase or snake_case names, so normalize once at the API boundary.
+    """
+    normalized = dict(player)
+    user_id = _first_present(player, "userId", "userid", "user_id", "steamId", "steamid", "steam_id")
+    player_id = _first_present(player, "playerId", "playeruid", "playerUid", "player_id", "player_uid")
+    name = _first_present(player, "name", "characterName", "character_name", "playerName", "player_name")
+    account_name = _first_present(player, "accountName", "account_name")
+    level = _first_present(player, "level", "playerLevel", "player_level")
+    ping = _first_present(player, "ping", "pingMs", "ping_ms")
+
+    if user_id is not None:
+        normalized["userId"] = str(user_id)
+    if player_id is not None:
+        normalized["playerId"] = str(player_id)
+    if name is not None:
+        normalized["name"] = str(name)
+    if account_name is not None:
+        normalized["accountName"] = str(account_name)
+    if level is not None:
+        normalized["level"] = level
+    if ping is not None:
+        normalized["ping"] = ping
+    return normalized
+
+
+def player_key(player: dict[str, Any]) -> str:
+    normalized = normalize_player(player)
+    return str(normalized.get("userId") or normalized.get("playerId") or "")
+
+
+def player_display_name(player: dict[str, Any]) -> str:
+    normalized = normalize_player(player)
+    return str(normalized.get("name") or normalized.get("accountName") or player_key(normalized) or "Unknown")
+
+
 async def players(instance: dict[str, Any]) -> list[dict[str, Any]]:
     data = await _request(instance, "GET", "/players")
-    return (data or {}).get("players") or []
+    return [normalize_player(player) for player in ((data or {}).get("players") or [])]
 
 
 async def announce(instance: dict[str, Any], message: str) -> None:

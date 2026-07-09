@@ -126,9 +126,9 @@ async def _check_player_presence(instance: dict[str, Any], config: dict[str, Any
         return
 
     current = {
-        str(p.get("userId") or p.get("playerId")): p.get("name") or p.get("accountName") or "Unknown"
+        player_id: palworld_rest.player_display_name(p)
         for p in players
-        if p.get("userId") or p.get("playerId")
+        if (player_id := palworld_rest.player_key(p))
     }
     known = _known_players.get(instance["id"])
     if known is None:

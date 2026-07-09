@@ -7,7 +7,7 @@ vanish from the roster entirely instead of showing up as offline.
 import time
 from typing import Any
 
-from app.services import instance_storage
+from app.services import instance_storage, palworld_rest
 
 _STORE_NAME = "players"
 
@@ -21,7 +21,7 @@ def _save(instance_id: str, data: dict[str, Any]) -> None:
 
 
 def _player_id(player: dict[str, Any]) -> str:
-    return str(player.get("userId") or player.get("steamid") or player.get("playerId") or player.get("playeruid") or "")
+    return palworld_rest.player_key(player)
 
 
 def sync_online(instance_id: str, online: list[dict[str, Any]]) -> dict[str, Any]:
@@ -36,7 +36,7 @@ def sync_online(instance_id: str, online: list[dict[str, Any]]) -> dict[str, Any
         if not steamid:
             continue
         entry = data.setdefault(steamid, {"firstSeen": now, "isBanned": False})
-        entry["name"] = p.get("name") or p.get("accountName") or steamid
+        entry["name"] = palworld_rest.player_display_name(p) or steamid
         entry["level"] = p.get("level") or 0
         entry["ping"] = p.get("ping") or 0
         entry["playerId"] = p.get("playerId") or p.get("playeruid")

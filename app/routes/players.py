@@ -64,7 +64,7 @@ async def _list_players() -> list[dict[str, Any]]:
         raw_players = await palworld_rest.players(instance)
     except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
-    online_ids = {pid for p in raw_players if (pid := p.get("userId") or p.get("playerId"))}
+    online_ids = {pid for p in raw_players if (pid := palworld_rest.player_key(p))}
     session_starts = _track_session(instance["id"], online_ids)
     roster = player_history.sync_online(instance["id"], raw_players)
     return [_to_player_view(steamid, entry, session_starts) for steamid, entry in roster.items()]
