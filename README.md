@@ -35,6 +35,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Choose where new server installs are stored, including another drive.
 - Edit world settings from the browser.
 - Manage launcher flags from their own sidebar page, including Community Server visibility, performance flags, worker threads, and JSON logs.
+- Start AutoPalExpress with Windows and bring the active server back online after a machine restart.
 - Install and update UE4SS.
 - Browse Nexus Mods without entering a personal API key.
 - Enable, disable, reorder, and remove mods.
@@ -53,8 +54,9 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 2. Run the installer.
 3. Create the super admin account.
 4. Deploy a new server or import one you already have.
-5. Open the Mods page to install UE4SS and manage mods.
-6. Invite trusted friends if you want help running the server.
+5. Enable Windows startup recovery in Settings if you want the server to come back after Windows updates or power loss.
+6. Open the Mods page to install UE4SS and manage mods.
+7. Invite trusted friends if you want help running the server.
 
 > [!NOTE]
 > The Palworld Dedicated Server downloads anonymously through SteamCMD. A Steam account is not required just to deploy the server.
@@ -103,6 +105,7 @@ Most of the app is wired to the real machine and real server:
 - Player roster, kick, and ban are real through Palworld's REST API.
 - Dashboard CPU and RAM are read from the selected server's Palworld processes.
 - Scheduled backups and restarts are real.
+- Windows startup recovery is real: the app can start at sign-in and restart the active server.
 - World Settings edits the real `PalWorldSettings.ini`.
 - Mods and UE4SS install to disk.
 - Super Admin networking tools affect real ports and Windows Firewall rules.

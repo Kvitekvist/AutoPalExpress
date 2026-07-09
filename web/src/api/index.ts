@@ -11,3 +11,4 @@ export * as authApi from "./authApi";
 export * as usersApi from "./usersApi";
 export * as serverSettingsApi from "./serverSettingsApi";
 export * as automationApi from "./automationApi";
+export * as systemSettingsApi from "./systemSettingsApi";

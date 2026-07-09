@@ -55,6 +55,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-08 (TICKET-0034): The safe launch options from TICKET-0033 now live on World Settings instead of the Settings server-instance cards. They still persist on the active instance and still require a restart to take effect.
 * FIXED 2026-07-08 (TICKET-0035): World Settings now gets Launch Options in the same `/api/server-settings` payload as the `.ini` fields, so the panel cannot disappear because a separate active-instance request failed.
 * FIXED 2026-07-08 (TICKET-0036): Launcher flags now have their own super-admin-only sidebar page. Community Server listing, performance flags, worker thread override, and JSON log format all live there, and no longer appear in Settings or World Settings.
+* FIXED 2026-07-09 (TICKET-0037): Windows startup recovery can now start AutoPalExpress at sign-in and auto-start the active server when the app launches. The installer includes the same option and explains that it helps bring the server back after machine restarts.
 
 ---
 

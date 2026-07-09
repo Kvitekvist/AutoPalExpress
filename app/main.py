@@ -8,8 +8,23 @@ from fastapi.staticfiles import StaticFiles
 
 from app.auth_deps import get_current_user, require_super_admin
 from app.paths import resource_dir
-from app.routes import automation, auth, instances, logs, mods, network, nexus, players, server_control, server_settings, ue4ss, users
+from app.routes import (
+    automation,
+    auth,
+    instances,
+    logs,
+    mods,
+    network,
+    nexus,
+    players,
+    server_control,
+    server_settings,
+    system_settings,
+    ue4ss,
+    users,
+)
 from app.services import first_run_setup, instance_store, scheduler
+from app.services import system_settings as system_settings_service
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
@@ -21,6 +36,7 @@ app = FastAPI(title="Palworld Admin Backend")
 @app.on_event("startup")
 async def _start_scheduler() -> None:
     asyncio.create_task(scheduler.run_forever())
+    asyncio.create_task(asyncio.to_thread(system_settings_service.restore_active_server_if_enabled))
     # Runs in the background rather than being awaited here - a fresh
     # install's seeded server deploy can take minutes (SteamCMD), and the
     # rest of the app (including the installer's own progress page, which
@@ -46,6 +62,7 @@ app.include_router(instances.router, prefix="/api/instances", tags=["instances"]
 app.include_router(ue4ss.router, prefix="/api/ue4ss", tags=["ue4ss"], dependencies=_authed)
 app.include_router(server_control.router, prefix="/api/server", tags=["server"], dependencies=_authed)
 app.include_router(server_settings.router, prefix="/api/server-settings", tags=["server-settings"], dependencies=_authed)
+app.include_router(system_settings.router, prefix="/api/system-settings", tags=["system-settings"], dependencies=_super_admin_only)
 app.include_router(automation.router, prefix="/api/automation", tags=["automation"], dependencies=_super_admin_only)
 app.include_router(players.router, prefix="/api/players", tags=["players"], dependencies=_authed)
 app.include_router(logs.router, prefix="/api/logs", tags=["logs"], dependencies=_authed)

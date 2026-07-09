@@ -17,6 +17,7 @@ It's not a mod for the game itself. It's a standalone Windows application that m
 - Or import a server you already have installed.
 - Run multiple servers side by side, each with its own folder, mods, and ports.
 - Real start/stop/restart/save actions that manage the actual server process.
+- Optional Windows startup recovery can open the tool at sign-in and bring the active server back after Windows updates or power loss.
 
 **Mods**
 - Browse Palworld mods from Nexus Mods without entering a personal API key.
@@ -61,7 +62,8 @@ The installer is not code-signed yet, so Windows SmartScreen may warn on first r
 1. Download `PalworldServerAdmin-Setup.exe` from the Files tab.
 2. Run it. It installs to your user profile.
 3. Launch it from the Start Menu or desktop shortcut.
-4. A browser window opens automatically pointing at the admin panel.
+4. Optional: enable startup recovery during install if you want the server to come back automatically after the machine restarts.
+5. A browser window opens automatically pointing at the admin panel.
 
 To uninstall later, use the Start Menu uninstall shortcut or Windows' "Add or Remove Programs." Your server configs and downloaded mods are kept.
 
@@ -99,4 +101,4 @@ Built with FastAPI, React, and a healthy amount of SteamCMD wrangling.
 
 ## Changelog
 
-**v1.0.0**: Initial release: multi-server management, Nexus mod browsing with verified manual installs, UE4SS installer, real server process control, player management, world settings editor, activity logs, UPnP port forwarding, multi-user accounts with invites.
+**v1.0.0**: Initial release: multi-server management, Nexus mod browsing with verified manual installs, UE4SS installer, real server process control, Windows startup recovery, player management, world settings editor, activity logs, UPnP port forwarding, multi-user accounts with invites.

@@ -27,6 +27,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"
+Name: "startuprecovery"; Description: "Start AutoPalExpress with Windows (helps restart your server after this machine reboots)"; GroupDescription: "Startup recovery:"; Flags: unchecked
 
 [Files]
 Source: "dist\PalworldServerAdmin.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -38,6 +39,9 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
+
+[Registry]
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AutoPalExpress"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: startuprecovery
 
 ; App data (server configs, mod lists, downloaded archives) lives in
 ; %LOCALAPPDATA%\PalworldServerAdmin and is deliberately left in place on
@@ -152,6 +156,27 @@ begin
   Result := '{' + NL + Body + NL + '}' + NL;
 end;
 
+procedure SaveStartupRecoverySettings;
+var
+  SettingsDir: String;
+  SettingsPath: String;
+  NL: String;
+  Body: String;
+begin
+  if not WizardIsTaskSelected('startuprecovery') then
+    Exit;
+
+  NL := Chr(13) + Chr(10);
+  SettingsDir := ExpandConstant('{localappdata}\PalworldServerAdmin\data');
+  SettingsPath := SettingsDir + '\system_settings.json';
+  ForceDirectories(SettingsDir);
+  Body := '{' + NL +
+          '  "bootWithWindows": true,' + NL +
+          '  "autoStartActiveServer": true' + NL +
+          '}' + NL;
+  SaveStringToFile(SettingsPath, Body, False);
+end;
+
 procedure RunFirstTimeSetup;
 var
   ResultCode: Integer;
@@ -213,10 +238,14 @@ procedure CurStepChanged(CurStep: TSetupStep);
 var
   SeedPath: String;
 begin
-  if (CurStep = ssPostInstall) and (not WizardSilent()) then
+  if CurStep = ssPostInstall then
   begin
-    SeedPath := ExpandConstant('{app}\first_run_seed.json');
-    SaveStringToFile(SeedPath, BuildSeedJson(), False);
-    RunFirstTimeSetup;
+    SaveStartupRecoverySettings;
+    if not WizardSilent() then
+    begin
+      SeedPath := ExpandConstant('{app}\first_run_seed.json');
+      SaveStringToFile(SeedPath, BuildSeedJson(), False);
+      RunFirstTimeSetup;
+    end;
   end;
 end;

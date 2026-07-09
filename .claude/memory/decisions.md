@@ -552,3 +552,25 @@ The Logs page now has two columns: AutoPalExpress output from `backend.log` and 
 ### Date
 
 2026-07-07
+
+---
+
+### Decision
+
+Windows startup recovery uses the current user's `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` entry, plus an app setting that auto-starts the active server when AutoPalExpress launches.
+
+### Reason
+
+The user wanted the program to boot with Windows and explain that this is useful for automatically restarting the server if the machine restarts. A current-user Run entry matches the installer's per-user, lowest-privilege model and avoids turning AutoPalExpress into a Windows service or requiring UAC just to open the admin tool at sign-in. The separate auto-start-active-server setting makes the recovery behavior explicit instead of merely opening the dashboard.
+
+### Alternatives
+
+Install a Windows service (rejected as too heavy and privilege-hungry for this app), create a Startup-folder shortcut (rejected in favor of the cleaner Run-key entry), or only start the app without starting a server (rejected because it would not satisfy the reboot-recovery reason).
+
+### Consequences
+
+The feature applies to the Windows account that installed/enabled it. On app launch, AutoPalExpress quietly skips recovery if there is no active server or the server is already running. The installer can seed both the Run entry and the recovery setting when the user selects the startup-recovery task.
+
+### Date
+
+2026-07-09

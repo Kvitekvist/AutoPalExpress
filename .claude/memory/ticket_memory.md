@@ -46,6 +46,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0034** (2026-07-08, Enhancement) - Moved the safe launch-option controls from Settings to World Settings so performance flags, worker thread override, and JSON log format are easier to find beside the server behavior configuration. The controls remain backed by per-instance storage and still require a restart.
 * **TICKET-0035** (2026-07-08, Bug) - Fixed World Settings hiding the Launch Options panel by returning launch-option state in the same `/api/server-settings` response as the visible `.ini` fields, instead of relying on a separate active-instance request.
 * **TICKET-0036** (2026-07-08, Enhancement) - Added a dedicated Launcher Flags sidebar page for Community Server listing, performance flags, worker thread override, and JSON log format. Removed those launch-argument controls from Settings and World Settings so the new page is the only visible editor.
+* **TICKET-0037** (2026-07-09, Feature) - Added Windows startup recovery. Settings now lets the super admin start AutoPalExpress with Windows and auto-start the active server when the app launches; the installer has the same optional startup-recovery task and explains that it helps bring the server back after machine restarts.
 
 ---
 

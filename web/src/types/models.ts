@@ -113,6 +113,11 @@ export interface ServerSettings {
   dayNightLengthMinutes: number;
 }
 
+export interface SystemStartupSettings {
+  bootWithWindows: boolean;
+  autoStartActiveServer: boolean;
+}
+
 export interface ScheduleConfig {
   enabled: boolean;
   frequency: "daily" | "weekly";
