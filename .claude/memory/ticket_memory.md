@@ -61,6 +61,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0049** (2026-07-09, Release) - Added a release changelog section summarizing the local changes ahead of `origin/main` (TICKET-0041 through TICKET-0048), rebuilt the final executable/installer, and refreshed the release checksum.
 * **TICKET-0050** (2026-07-10, Bug) - Fixed launch-time game-port enforcement so it edits the live `PalWorldSettings.ini` in place instead of starting from Palworld's default template, preserving unrelated world settings while still syncing the remembered Super Admin port.
 * **TICKET-0051** (2026-07-10, Release) - Rebuilt the packaged executable and installer after the TICKET-0050 ini-preservation fix and refreshed the release checksum.
+* **TICKET-0052** (2026-07-10, Feature) - Added a bundled Diagnose AutoPalExpress command for users who cannot tell why a server is not working. The command elevates for firewall inspection, checks the active instance, server folder, `PalWorldSettings.ini`, game/REST ports, local listeners, REST authentication, and Windows Firewall, then saves a support report under `%LOCALAPPDATA%\PalworldServerAdmin\diagnostics`.
 
 ---
 

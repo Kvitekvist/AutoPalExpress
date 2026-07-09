@@ -71,6 +71,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-09 (TICKET-0049): Added a release-delta changelog section covering TICKET-0041 through TICKET-0048, rebuilt the final executable/installer, and updated the release checksum to `18D018D9A59C247E36F0CF4CD2622AC75F1E4A6D27FB01F4E2B890993944DC1E`.
 * FIXED 2026-07-10 (TICKET-0050): Game-port enforcement now edits the live `PalWorldSettings.ini` when present instead of rebuilding from `DefaultPalWorldSettings.ini`, so remembering/enforcing the Super Admin port no longer risks resetting unrelated world settings.
 * FIXED 2026-07-10 (TICKET-0051): Rebuilt the packaged executable and installer after TICKET-0050. Current installer checksum is `1116A3ABE445BC3684415134BCC90FFA819F4FB1948305A426A2F04C74A8E034`.
+* FIXED 2026-07-10 (TICKET-0052): Added a packaged `Diagnose AutoPalExpress` support command. It elevates for firewall inspection, checks the active instance, Palworld files, live ports, REST API auth, local listeners, and Windows Firewall, then writes a report under `%LOCALAPPDATA%\PalworldServerAdmin\diagnostics`. Current installer checksum is `C97F70ADD720C577EE694A676E3DA0CCF5DE3B94AA93613FEF276AB611879281`.
 
 ---
 

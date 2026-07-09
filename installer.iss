@@ -31,9 +31,12 @@ Name: "startuprecovery"; Description: "Start AutoPalExpress with Windows (helps 
 
 [Files]
 Source: "dist\PalworldServerAdmin.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "support\Diagnose-AutoPalExpress.cmd"; DestDir: "{app}"; Flags: ignoreversion
+Source: "support\diagnose-autopalexpress.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\Diagnose AutoPalExpress"; Filename: "{app}\Diagnose-AutoPalExpress.cmd"
 Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 

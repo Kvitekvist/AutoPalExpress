@@ -48,6 +48,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Schedule backups and restarts.
 - Create invite codes so friends can help administer the server.
 - Manage ports, Windows Firewall rules, public IP, and verified mod uploads from Super Admin.
+- Run a bundled diagnostics command that checks the active server, local ports, firewall, REST API, and produces a support report.
 
 > [!TIP]
 > The first account created becomes the super admin. Make sure that account belongs to the person hosting the server.
@@ -140,7 +141,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  1116A3ABE445BC3684415134BCC90FFA819F4FB1948305A426A2F04C74A8E034
+SHA256  PalworldServerAdmin-Setup.exe  C97F70ADD720C577EE694A676E3DA0CCF5DE3B94AA93613FEF276AB611879281
 ```
 
 > [!IMPORTANT]
@@ -196,5 +197,13 @@ When installed, app data is stored under:
 This includes server registry data, users, sessions, invites, and mod records.
 
 ## Support
+
+If something does not work and you are not sure why, run **Diagnose AutoPalExpress** from the Start Menu. It checks the active server setup, Palworld files, local game port, Windows Firewall, REST API access, and writes a report to:
+
+```text
+%LOCALAPPDATA%\PalworldServerAdmin\diagnostics
+```
+
+If the report says local checks passed but outside players still cannot connect, the remaining cause is usually router forwarding, double NAT/CGNAT from the ISP, the wrong public IP, or an upstream firewall.
 
 Use the GitHub issues page or the release/community post where you found the download.

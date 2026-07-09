@@ -25,6 +25,7 @@ None. See "Storage" below - flat JSON files instead, since this is a single-host
 * UPnP IGD client (`app/services/upnp.py`) - from-scratch SSDP discovery + SOAP calls, for automatic router port forwarding (both the game port and, separately, the admin panel's own port for remote access).
 * Windows Firewall rule management (`app/services/firewall.py`) - UAC-elevated `netsh` calls via a temp `.bat` + `Start-Process -Verb RunAs`, so the user gets Windows' own permission prompt instead of needing to open PowerShell themselves.
 * Palworld REST API client (`app/services/palworld_rest.py`) - local HTTP Basic Auth client for `/v1/api/*`, used for broadcast messages, forced saves, metrics/info, player list, kick/ban/unban, and graceful shutdown attempts.
+* Packaged support diagnostics (`support/Diagnose-AutoPalExpress.cmd` + `support/diagnose-autopalexpress.ps1`) - installed beside the exe and as a Start Menu shortcut. The command elevates for firewall inspection, reads the active instance from app data, checks Palworld files/config, local listeners, REST auth, and Windows Firewall, then writes a support report under `%LOCALAPPDATA%\PalworldServerAdmin\diagnostics`.
 * Plain HTTP only (no TLS) - see Decision Log.
 
 ### Services
