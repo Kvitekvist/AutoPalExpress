@@ -47,6 +47,23 @@ export interface ServerStatus {
   lastSavedAt: string;
 }
 
+export interface ServerUpdateCheck {
+  installedBuildId: string | null;
+  latestBuildId: string | null;
+  updateAvailable: boolean;
+  canCompare: boolean;
+}
+
+export type ServerUpdateJobStatus = "running" | "done" | "error";
+
+export interface ServerUpdateJob {
+  status: ServerUpdateJobStatus;
+  log: string[];
+  error: string | null;
+  installedBuildId: string | null;
+  latestBuildId: string | null;
+}
+
 export type ConnectionStatus = "online" | "idle" | "offline";
 
 export interface Player {

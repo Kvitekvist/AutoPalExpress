@@ -8,9 +8,10 @@ import psutil
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services import instance_store, mods_store, palworld_rest, palworld_settings, process_manager
+from app.services import instance_store, mods_store, palworld_rest, palworld_settings, process_manager, server_update
 from app.services.process_manager import ProcessError
 from app.services.palworld_rest import PalworldRestError
+from app.services.steamcmd import SteamCmdError
 
 logger = logging.getLogger("palworld_admin.server_control")
 
@@ -135,6 +136,32 @@ async def save_world() -> dict[str, Any]:
     except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
     return {"savedAt": datetime.now().isoformat()}
+
+
+@router.get("/update/check")
+async def check_update() -> dict[str, Any]:
+    instance = _require_active_instance()
+    try:
+        return await server_update.check_for_update(instance)
+    except SteamCmdError as e:
+        raise HTTPException(status_code=502, detail=e.message)
+
+
+@router.post("/update/start")
+async def start_update() -> dict[str, Any]:
+    instance = _require_active_instance()
+    status = process_manager.get_status(instance["id"])
+    if status["state"] != "offline":
+        raise HTTPException(status_code=400, detail="Stop this server before updating its files.")
+    return {"jobId": server_update.start_update(instance)}
+
+
+@router.get("/update/{job_id}")
+async def get_update_status(job_id: str) -> dict[str, Any]:
+    job = server_update.get_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="No such update job.")
+    return job
 
 
 class BroadcastRequest(BaseModel):

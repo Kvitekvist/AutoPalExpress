@@ -579,6 +579,28 @@ The feature applies to the Windows account that installed/enabled it. On app lau
 
 ### Decision
 
+Server Control owns Palworld Dedicated Server update checks and upgrades. The backend compares SteamCMD's installed app manifest build id with the current public Steam build id, asks for confirmation when a newer build is found, and only runs the SteamCMD update job while the active server is stopped.
+
+### Reason
+
+Version upgrades are an operational server-control task for hosts, and AutoPalExpress already owns the SteamCMD install path. Reusing SteamCMD avoids inventing a parallel updater and keeps installed servers repairable through the same `app_update 2394010 validate` command that fresh deployments use.
+
+### Alternatives
+
+Always run SteamCMD update without a check (rejected because the user explicitly asked to check first and confirm), expose a manual SteamCMD command/instructions only (rejected because the app can do this safely), or allow updating while the server is online (rejected because replacing server files under a running Palworld process is needlessly risky).
+
+### Consequences
+
+The update check depends on SteamCMD/network availability and Steam's app info output format. If either build id cannot be read, the UI reports that comparison was unavailable instead of claiming up-to-date. Actual updates are pollable background jobs and require the active server to be offline first.
+
+### Date
+
+2026-07-09
+
+---
+
+### Decision
+
 Launcher Flags was renamed Launcher Options and now exposes the exact Palworld launch arguments as separate toggles: `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby`. Nexus Browse also keeps Direct Install visible to super admins even when it is unavailable, with explanatory text for the saved Premium key requirement.
 
 ### Reason

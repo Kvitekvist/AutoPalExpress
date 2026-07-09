@@ -6,6 +6,7 @@ own folder, so multiple instances never share files or mods.
 
 import asyncio
 import logging
+import re
 import zipfile
 from collections.abc import Callable
 from pathlib import Path
@@ -22,6 +23,7 @@ STEAMCMD_EXE = STEAMCMD_DIR / "steamcmd.exe"
 STEAMCMD_ZIP_URL = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
 
 PALSERVER_APP_ID = "2394010"
+_PUBLIC_BUILD_RE = re.compile(r'"public"\s*\{.*?"buildid"\s*"(?P<buildid>\d+)"', re.DOTALL)
 
 
 class SteamCmdError(Exception):
@@ -108,3 +110,43 @@ async def install_palserver(install_dir: Path, on_output: Callable[[str], None] 
 
     if not (install_dir / "PalServer.exe").is_file():
         raise SteamCmdError("SteamCMD finished, but PalServer.exe wasn't found in the install folder.")
+
+
+def installed_build_id(install_dir: Path) -> str | None:
+    manifest = install_dir / "steamapps" / f"appmanifest_{PALSERVER_APP_ID}.acf"
+    if not manifest.is_file():
+        return None
+    try:
+        text = manifest.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    match = re.search(r'"buildid"\s*"(?P<buildid>\d+)"', text)
+    return match.group("buildid") if match else None
+
+
+async def latest_public_build_id(on_output: Callable[[str], None] | None = None) -> str | None:
+    exe = await ensure_steamcmd()
+    lines: list[str] = []
+
+    def collect(line: str) -> None:
+        lines.append(line)
+        if on_output:
+            on_output(line)
+
+    args = [
+        str(exe),
+        "+login", "anonymous",
+        "+app_info_update", "1",
+        "+app_info_print", PALSERVER_APP_ID,
+        "+quit",
+    ]
+    returncode = await _run(args, collect)
+    if returncode != 0:
+        raise SteamCmdError(f"SteamCMD exited with code {returncode} while checking for updates.")
+
+    output = "\n".join(lines)
+    match = _PUBLIC_BUILD_RE.search(output)
+    if match:
+        return match.group("buildid")
+    fallback = re.search(r'"buildid"\s*"(?P<buildid>\d+)"', output)
+    return fallback.group("buildid") if fallback else None

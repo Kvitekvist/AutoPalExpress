@@ -2,6 +2,7 @@
 
 ## 1.0.0 - 2026-07-07
 
+- Added Server Control update checks: AutoPalExpress compares the installed Palworld Dedicated Server build with Steam's public build and asks before running a SteamCMD update.
 - Rebuilt the Windows installer so the packaged app includes the Launcher Options sidebar item and updated the release checksum.
 - Renamed Launcher Flags to Launcher Options and split the combined performance toggle into individual `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, and `-publiclobby` toggles.
 - Nexus Browse now always shows the Direct Install action to super admins and explains when a saved Premium Nexus key is required, instead of hiding the option.

@@ -1,5 +1,5 @@
 import { api } from "./httpClient";
-import type { ServerStatus } from "@/types/models";
+import type { ServerStatus, ServerUpdateCheck, ServerUpdateJob } from "@/types/models";
 
 // GET /api/server/status
 export async function getServerStatus(): Promise<ServerStatus> {
@@ -24,6 +24,21 @@ export async function restartServer(): Promise<ServerStatus> {
 // POST /api/server/save
 export async function saveWorld(): Promise<{ savedAt: string }> {
   return api.post<{ savedAt: string }>("/api/server/save");
+}
+
+// GET /api/server/update/check
+export async function checkServerUpdate(): Promise<ServerUpdateCheck> {
+  return api.get<ServerUpdateCheck>("/api/server/update/check");
+}
+
+// POST /api/server/update/start
+export async function startServerUpdate(): Promise<{ jobId: string }> {
+  return api.post<{ jobId: string }>("/api/server/update/start");
+}
+
+// GET /api/server/update/{jobId}
+export async function getServerUpdateJob(jobId: string): Promise<ServerUpdateJob> {
+  return api.get<ServerUpdateJob>(`/api/server/update/${jobId}`);
 }
 
 // POST /api/server/broadcast

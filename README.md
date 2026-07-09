@@ -29,6 +29,7 @@ It opens in your browser, but it runs on your own PC. You stay in control of the
 If you just want to host a Palworld server for friends, AutoPalExpress handles the annoying parts:
 
 - Start, stop, restart, and save the real Palworld server.
+- Check for Palworld Dedicated Server updates and run SteamCMD upgrades after confirmation.
 - Deploy a fresh dedicated server with SteamCMD.
 - Import an existing server.
 - Run multiple separate servers with their own folders, mods, and ports.
@@ -105,6 +106,7 @@ The app intentionally leaves command windows visible:
 Most of the app is wired to the real machine and real server:
 
 - Server process control is real.
+- Server update checks and upgrades are real SteamCMD operations against the active server.
 - Multi-server management is real.
 - Server-instance cleanup is real: duplicate records are deduped by folder, normal Remove leaves files alone, and Remove and Delete deletes the registered server folder after the server is stopped.
 - Fresh server deployments can use AutoPalExpress' default storage folder or a super-admin-selected install location.
@@ -137,7 +139,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  DE47FB088842FA3135856407919601A759B642BFADF328CCED007B7E1EC2042B
+SHA256  PalworldServerAdmin-Setup.exe  3C1F74E39D9DC3DFF7BDD5532ACE2DA64A3C11E361036138E570DAEEBAA77F0E
 ```
 
 > [!IMPORTANT]

@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Play, Square, RotateCw, Save, Megaphone, TimerOff, Ban, ChevronDown } from "lucide-react";
+import { Play, Square, RotateCw, Save, Megaphone, TimerOff, Ban, ChevronDown, DownloadCloud } from "lucide-react";
 import { serverApi, instancesApi } from "@/api";
-import type { InstanceListView } from "@/types/models";
+import type { InstanceListView, ServerUpdateCheck, ServerUpdateJob } from "@/types/models";
 import { useServerStatus } from "@/hooks/useServerStatus";
 import { useNotifications } from "@/hooks/useNotifications";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-type Action = "start" | "stop" | "restart" | "save" | null;
+type Action = "start" | "stop" | "restart" | "save" | "check-update" | "update" | null;
 
 const COUNTDOWN_PRESETS = [30, 60, 120, 300];
 
@@ -109,6 +109,10 @@ export default function ServerControl() {
   const [shutdownOpen, setShutdownOpen] = React.useState(false);
   const [shutdownSeconds, setShutdownSeconds] = React.useState(60);
   const [countdown, setCountdown] = React.useState<number | null>(null);
+  const [updateCheck, setUpdateCheck] = React.useState<ServerUpdateCheck | null>(null);
+  const [updateConfirmOpen, setUpdateConfirmOpen] = React.useState(false);
+  const [updateJobId, setUpdateJobId] = React.useState<string | null>(null);
+  const [updateJob, setUpdateJob] = React.useState<ServerUpdateJob | null>(null);
 
   React.useEffect(() => {
     if (countdown === null) return;
@@ -126,6 +130,44 @@ export default function ServerControl() {
 
   const isOnline = status?.state === "online";
   const isTransitioning = status?.state === "starting" || status?.state === "stopping" || status?.state === "restarting";
+  const updateRunning = updateJob?.status === "running" || busyAction === "update";
+
+  React.useEffect(() => {
+    if (!updateJobId) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const job = await serverApi.getServerUpdateJob(updateJobId);
+        if (cancelled) return;
+        setUpdateJob(job);
+        if (job.status === "done") {
+          setBusyAction(null);
+          setUpdateJobId(null);
+          notifications.success({
+            title: "Server updated",
+            message: job.installedBuildId ? `Installed build ${job.installedBuildId}.` : "SteamCMD finished the update.",
+          });
+          await refresh();
+        } else if (job.status === "error") {
+          setBusyAction(null);
+          setUpdateJobId(null);
+          notifications.error({ title: "Update failed", message: job.error ?? "SteamCMD could not update the server." });
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setBusyAction(null);
+          setUpdateJobId(null);
+          notifications.error({ title: "Update status failed", message: e instanceof Error ? e.message : "Unknown error." });
+        }
+      }
+    };
+    poll();
+    const timer = window.setInterval(poll, 1500);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [updateJobId, notifications, refresh]);
 
   async function handleStart() {
     setBusyAction("start");
@@ -170,6 +212,47 @@ export default function ServerControl() {
       notifications.success({ title: "World saved", message: "Your realm's fate has been etched into stone." });
     } finally {
       setBusyAction(null);
+    }
+  }
+
+  async function handleCheckUpdate() {
+    setBusyAction("check-update");
+    try {
+      const check = await serverApi.checkServerUpdate();
+      setUpdateCheck(check);
+      if (check.updateAvailable) {
+        setUpdateConfirmOpen(true);
+      } else if (check.canCompare) {
+        notifications.success({
+          title: "Server is up to date",
+          message: check.installedBuildId ? `Installed build ${check.installedBuildId}.` : undefined,
+        });
+      } else {
+        notifications.warning({
+          title: "Could not compare builds",
+          message: "SteamCMD responded, but the installed or latest build id was not available.",
+        });
+      }
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleUpdateServer() {
+    if (isOnline) {
+      notifications.warning({ title: "Stop the server first", message: "Updates can only run while the server is offline." });
+      return;
+    }
+    setBusyAction("update");
+    try {
+      const job = await serverApi.startServerUpdate();
+      setUpdateJobId(job.jobId);
+      setUpdateJob({ status: "running", log: ["Starting SteamCMD update..."], error: null, installedBuildId: null, latestBuildId: null });
+      setUpdateConfirmOpen(false);
+      notifications.info({ title: "Update started", message: "SteamCMD is updating the stopped server." });
+    } catch (e) {
+      setBusyAction(null);
+      notifications.error({ title: "Could not start update", message: e instanceof Error ? e.message : "Unknown error." });
     }
   }
 
@@ -227,7 +310,7 @@ export default function ServerControl() {
       </ScrollPanel>
 
       <ScrollPanel title="Rites of Command">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StartServerControl disabled={isOnline || isTransitioning} busy={busyAction === "start"} onStart={handleStart} />
           <ActionButton
             icon={<Square />}
@@ -254,6 +337,14 @@ export default function ServerControl() {
             onClick={handleSave}
           />
           <ActionButton
+            icon={<DownloadCloud />}
+            label="Check Updates"
+            variant="life"
+            disabled={isTransitioning || updateRunning}
+            loading={busyAction === "check-update" || updateRunning}
+            onClick={handleCheckUpdate}
+          />
+          <ActionButton
             icon={<Megaphone />}
             label="Broadcast Message"
             variant="arcane"
@@ -269,6 +360,25 @@ export default function ServerControl() {
           />
         </div>
       </ScrollPanel>
+
+      {updateJob && (
+        <ScrollPanel title="Server Update">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-parchment-300/70">
+              <span className="capitalize">Status: {updateJob.status}</span>
+              {updateJob.installedBuildId && <span>Installed build {updateJob.installedBuildId}</span>}
+              {updateJob.latestBuildId && <span>Latest build {updateJob.latestBuildId}</span>}
+            </div>
+            {updateJob.log.length > 0 && (
+              <div className="max-h-48 overflow-auto rounded-md border border-stone-700 bg-abyss-950/60 p-3 font-mono text-[11px] leading-relaxed text-parchment-300/55">
+                {updateJob.log.slice(-12).map((line, index) => (
+                  <div key={`${index}-${line}`}>{line}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        </ScrollPanel>
+      )}
 
       <RuneDialog
         open={confirmAction === "stop"}
@@ -290,6 +400,23 @@ export default function ServerControl() {
         confirmLabel="Restart Server"
         onConfirm={handleRestart}
         confirming={busyAction === "restart"}
+      />
+
+      <RuneDialog
+        open={updateConfirmOpen}
+        onOpenChange={(o) => setUpdateConfirmOpen(o)}
+        tone="warning"
+        title="Update server files?"
+        description={
+          isOnline
+            ? "An update is available, but the server must be stopped before AutoPalExpress can update its files."
+            : `Steam reports a newer Palworld Dedicated Server build${
+                updateCheck?.latestBuildId ? ` (${updateCheck.latestBuildId})` : ""
+              }. Update the active server now?`
+        }
+        confirmLabel="Update Server"
+        onConfirm={handleUpdateServer}
+        confirming={busyAction === "update"}
       />
 
       <Dialog open={broadcastOpen} onOpenChange={setBroadcastOpen}>
