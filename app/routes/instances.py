@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from pathlib import Path
 from typing import Any
 
@@ -7,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from app.auth_deps import require_super_admin
-from app.services import instance_store, local_config, native_dialog, steam_locator, ue4ss_installer, deploy_jobs
+from app.services import deploy_jobs, instance_store, local_config, native_dialog, process_manager, steam_locator, ue4ss_installer
 
 logger = logging.getLogger("palworld_admin.instances")
 
@@ -98,12 +99,38 @@ async def set_launch_options(instance_id: str, body: LaunchOptionsRequest) -> di
 
 
 @router.delete("/{instance_id}", dependencies=[Depends(require_super_admin)])
-async def remove_instance(instance_id: str) -> dict[str, Any]:
-    if not instance_store.get(instance_id):
+async def remove_instance(instance_id: str, deleteFiles: bool = False) -> dict[str, Any]:
+    instance = instance_store.get(instance_id)
+    if not instance:
         raise HTTPException(status_code=404, detail="No such server instance.")
-    instance_store.remove_instance(instance_id)
+    if deleteFiles:
+        status = process_manager.get_status(instance_id)
+        if status["state"] != "offline":
+            raise HTTPException(status_code=400, detail="Stop this server before deleting its files.")
+        server_path = Path(instance["serverPath"])
+        if server_path.exists() and not server_path.is_dir():
+            raise HTTPException(status_code=400, detail=f"'{instance['serverPath']}' is not a server folder.")
+    try:
+        instance_store.remove_instance(instance_id, delete_server_files=deleteFiles)
+    except OSError as e:
+        raise HTTPException(status_code=500, detail=f"Could not delete server files: {e}")
     data = instance_store.list_view()
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+@router.post("/{instance_id}/open", dependencies=[Depends(require_super_admin)])
+async def open_instance_folder(instance_id: str) -> dict[str, Any]:
+    instance = instance_store.get(instance_id)
+    if not instance:
+        raise HTTPException(status_code=404, detail="No such server instance.")
+    server_path = Path(instance["serverPath"])
+    if not server_path.is_dir():
+        raise HTTPException(status_code=400, detail=f"'{instance['serverPath']}' is not a folder that exists on this machine.")
+    try:
+        os.startfile(str(server_path))  # type: ignore[attr-defined]
+    except OSError as e:
+        raise HTTPException(status_code=500, detail=f"Could not open the server folder: {e}")
+    return {"opened": True}
 
 
 class ImportRequest(BaseModel):

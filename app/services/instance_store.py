@@ -7,6 +7,7 @@ switching instances is what changes what those endpoints act on.
 """
 
 import json
+import os
 import shutil
 import time
 import uuid
@@ -31,12 +32,56 @@ def _save(data: dict[str, Any]) -> None:
     storage.save(_STORE_NAME, data)
 
 
+def _server_path_key(server_path: str) -> str:
+    try:
+        return os.path.normcase(str(Path(server_path).resolve()))
+    except OSError:
+        return os.path.normcase(str(Path(server_path)))
+
+
+def _dedupe_data(data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
+    active_id = data.get("activeId")
+    instances = data.get("instances", [])
+    by_path: dict[str, dict[str, Any]] = {}
+    changed = False
+
+    for instance in instances:
+        key = _server_path_key(instance.get("serverPath", ""))
+        existing = by_path.get(key)
+        if not existing:
+            by_path[key] = instance
+            continue
+
+        changed = True
+        if instance.get("id") == active_id:
+            by_path[key] = instance
+
+    deduped = list(by_path.values())
+    if len(deduped) != len(instances):
+        changed = True
+
+    valid_ids = {instance["id"] for instance in deduped}
+    if active_id not in valid_ids:
+        data["activeId"] = deduped[0]["id"] if deduped else None
+        changed = True
+
+    data["instances"] = deduped
+    return data, changed
+
+
+def _load_clean() -> dict[str, Any]:
+    data, changed = _dedupe_data(_load())
+    if changed:
+        _save(data)
+    return data
+
+
 def list_instances() -> list[dict[str, Any]]:
-    return _load()["instances"]
+    return _load_clean()["instances"]
 
 
 def get_active_id() -> str | None:
-    return _load()["activeId"]
+    return _load_clean()["activeId"]
 
 
 def get(instance_id: str) -> dict[str, Any] | None:
@@ -57,7 +102,14 @@ def instance_dir(instance_id: str) -> Path:
 def create_instance(
     *, name: str, server_path: str, source: str, game_port: int = 8211, rcon_port: int = 8212
 ) -> dict[str, Any]:
-    data = _load()
+    data = _load_clean()
+    path_key = _server_path_key(server_path)
+    for existing in data["instances"]:
+        if _server_path_key(existing["serverPath"]) == path_key:
+            data["activeId"] = existing["id"]
+            _save(data)
+            return existing
+
     instance = {
         "id": f"srv-{uuid.uuid4().hex[:10]}",
         "name": name,
@@ -79,23 +131,29 @@ def create_instance(
 
 
 def set_active_instance(instance_id: str) -> None:
-    data = _load()
+    data = _load_clean()
     data["activeId"] = instance_id
     _save(data)
 
 
-def remove_instance(instance_id: str) -> None:
+def remove_instance(instance_id: str, *, delete_server_files: bool = False) -> None:
     """Unregisters the instance from this tool only - it never touches the
-    actual server folder on disk, since that may contain real world saves."""
-    data = _load()
+    actual server folder on disk unless the caller explicitly asks for the
+    destructive delete-server-files path."""
+    data = _load_clean()
+    instance = next((i for i in data["instances"] if i["id"] == instance_id), None)
     data["instances"] = [i for i in data["instances"] if i["id"] != instance_id]
     if data["activeId"] == instance_id:
         data["activeId"] = data["instances"][0]["id"] if data["instances"] else None
     _save(data)
+    if delete_server_files and instance:
+        server_path = Path(instance["serverPath"])
+        if server_path.exists():
+            shutil.rmtree(server_path)
 
 
 def rename_instance(instance_id: str, name: str) -> None:
-    data = _load()
+    data = _load_clean()
     for i in data["instances"]:
         if i["id"] == instance_id:
             i["name"] = name
@@ -109,7 +167,7 @@ def update_game_port(instance_id: str, game_port: int) -> None:
     just so the stored value doesn't silently go stale for display purposes
     (instance list, Server Control) or as the fallback for instances that
     don't have a PublicPort field yet."""
-    data = _load()
+    data = _load_clean()
     for i in data["instances"]:
         if i["id"] == instance_id:
             i["gamePort"] = game_port
@@ -117,7 +175,7 @@ def update_game_port(instance_id: str, game_port: int) -> None:
 
 
 def update_community_server(instance_id: str, enabled: bool) -> dict[str, Any] | None:
-    data = _load()
+    data = _load_clean()
     updated = None
     for instance in data["instances"]:
         if instance["id"] == instance_id:
@@ -136,7 +194,7 @@ def update_launch_options(
     worker_threads: int | None,
     json_log_format: bool,
 ) -> dict[str, Any] | None:
-    data = _load()
+    data = _load_clean()
     updated = None
     for instance in data["instances"]:
         if instance["id"] == instance_id:

@@ -17,8 +17,14 @@ export async function setActive(id: string): Promise<InstanceListView> {
 }
 
 // DELETE /api/instances/{id}
-export async function removeInstance(id: string): Promise<InstanceListView> {
-  return api.delete<InstanceListView>(`/api/instances/${id}`);
+export async function removeInstance(id: string, deleteFiles = false): Promise<InstanceListView> {
+  const suffix = deleteFiles ? "?deleteFiles=true" : "";
+  return api.delete<InstanceListView>(`/api/instances/${id}${suffix}`);
+}
+
+// POST /api/instances/{id}/open
+export async function openInstanceFolder(id: string): Promise<{ opened: boolean }> {
+  return api.post<{ opened: boolean }>(`/api/instances/${id}/open`);
 }
 
 // POST /api/instances/{id}/community-server

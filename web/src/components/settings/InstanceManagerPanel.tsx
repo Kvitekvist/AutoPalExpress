@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Server, Plus, FolderPlus, Trash2, CircleCheck, CircleAlert } from "lucide-react";
+import { Server, Plus, FolderPlus, Trash2, CircleCheck, CircleAlert, FolderOpen } from "lucide-react";
 import { instancesApi } from "@/api";
 import type { InstanceListView, ServerInstance } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
@@ -21,8 +21,10 @@ export function InstanceManagerPanel() {
   const [deployOpen, setDeployOpen] = React.useState(false);
   const [importOpen, setImportOpen] = React.useState(false);
   const [removeTarget, setRemoveTarget] = React.useState<ServerInstance | null>(null);
+  const [deleteFiles, setDeleteFiles] = React.useState(false);
   const [removing, setRemoving] = React.useState(false);
   const [switching, setSwitching] = React.useState<string | null>(null);
+  const [opening, setOpening] = React.useState<string | null>(null);
   const notifications = useNotifications();
 
   const refresh = React.useCallback(() => {
@@ -47,19 +49,41 @@ export function InstanceManagerPanel() {
     }
   }
 
+  async function handleOpen(instance: ServerInstance) {
+    setOpening(instance.id);
+    try {
+      await instancesApi.openInstanceFolder(instance.id);
+      notifications.info({ title: "Opened folder", message: instance.serverPath });
+    } catch (e) {
+      notifications.error({ title: "Could not open folder", message: e instanceof Error ? e.message : "Unknown error." });
+    } finally {
+      setOpening(null);
+    }
+  }
+
   async function handleRemove() {
     if (!removeTarget) return;
     setRemoving(true);
     try {
-      const next = await instancesApi.removeInstance(removeTarget.id);
+      const next = await instancesApi.removeInstance(removeTarget.id, deleteFiles);
       setData(next);
-      notifications.warning({
-        title: "Server unregistered",
-        message: `${removeTarget.name} was removed from this tool. Its files were not touched.`,
-      });
+      if (deleteFiles) {
+        notifications.warning({
+          title: "Server deleted",
+          message: `${removeTarget.name} was removed from this tool and its server folder was deleted.`,
+        });
+      } else {
+        notifications.warning({
+          title: "Server unregistered",
+          message: `${removeTarget.name} was removed from this tool. Its files were not touched.`,
+        });
+      }
+    } catch (e) {
+      notifications.error({ title: "Could not remove server", message: e instanceof Error ? e.message : "Unknown error." });
     } finally {
       setRemoving(false);
       setRemoveTarget(null);
+      setDeleteFiles(false);
     }
   }
 
@@ -134,7 +158,17 @@ export function InstanceManagerPanel() {
                     <span>{instance.ue4ssInstalled ? `UE4SS ${instance.ue4ssVersion}` : "UE4SS not installed"}</span>
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                  <RuneButton
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    icon={<FolderOpen />}
+                    onClick={() => handleOpen(instance)}
+                    disabled={opening === instance.id || !instance.exists}
+                  >
+                    {opening === instance.id ? "Opening..." : "Open in Explorer"}
+                  </RuneButton>
                   {!active && (
                     <RuneButton
                       type="button"
@@ -151,9 +185,24 @@ export function InstanceManagerPanel() {
                     variant="danger"
                     size="sm"
                     icon={<Trash2 />}
-                    onClick={() => setRemoveTarget(instance)}
+                    onClick={() => {
+                      setDeleteFiles(false);
+                      setRemoveTarget(instance);
+                    }}
                   >
                     Remove
+                  </RuneButton>
+                  <RuneButton
+                    type="button"
+                    variant="danger"
+                    size="sm"
+                    icon={<Trash2 />}
+                    onClick={() => {
+                      setDeleteFiles(true);
+                      setRemoveTarget(instance);
+                    }}
+                  >
+                    Remove and Delete
                   </RuneButton>
                 </div>
               </div>
@@ -167,11 +216,20 @@ export function InstanceManagerPanel() {
 
       <RuneDialog
         open={!!removeTarget}
-        onOpenChange={(o) => !o && setRemoveTarget(null)}
+        onOpenChange={(o) => {
+          if (!o) {
+            setRemoveTarget(null);
+            setDeleteFiles(false);
+          }
+        }}
         tone="danger"
-        title="Remove this server?"
-        description={`${removeTarget?.name} will be unregistered from this tool. Its actual files, mods, and world saves are left untouched on disk.`}
-        confirmLabel="Remove"
+        title={deleteFiles ? "Remove and delete this server?" : "Remove this server?"}
+        description={
+          deleteFiles
+            ? `${removeTarget?.name} will be unregistered from this tool and its server folder will be deleted from disk, including mods and world saves. Stop the server first.`
+            : `${removeTarget?.name} will be unregistered from this tool. Its actual files, mods, and world saves are left untouched on disk.`
+        }
+        confirmLabel={deleteFiles ? "Remove and Delete" : "Remove"}
         onConfirm={handleRemove}
         confirming={removing}
       />

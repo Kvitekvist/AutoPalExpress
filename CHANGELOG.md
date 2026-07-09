@@ -1,6 +1,9 @@
 # Changelog
 
 ## 1.0.0 - 2026-07-07
+
+- Fixed duplicate server-instance rows caused by re-importing or reinstalling the same server folder.
+- Added Settings actions to switch servers, open a server folder in Explorer, unregister a server, or unregister and delete its server files.
 - Restored direct Nexus installs for super admins with a saved Premium API key.
 - Added Windows startup recovery: AutoPalExpress can start at Windows sign-in and restart the active server after the machine reboots.
 - Added a dedicated Launcher Flags sidebar page for Community Server visibility, performance flags, worker thread override, and JSON log format.

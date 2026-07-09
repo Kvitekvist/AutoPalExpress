@@ -56,7 +56,7 @@ web/
     types/models.ts  Shared TypeScript interfaces matching backend response shapes
 
 data/ (dev) or %LOCALAPPDATA%\PalworldServerAdmin\data (packaged)
-  instances.json                     Registry of managed server instances
+  instances.json                     Registry of managed server instances, deduped by normalized server folder
   instances/<id>/*.json              Per-instance state (mods, automation config, backups/)
   users.json, sessions, invites.json Auth state
   nexus.json                         Legacy Nexus Mods account connection, if an older install saved one
