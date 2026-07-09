@@ -49,6 +49,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0037** (2026-07-09, Feature) - Added Windows startup recovery. Settings now lets the super admin start AutoPalExpress with Windows and auto-start the active server when the app launches; the installer has the same optional startup-recovery task and explains that it helps bring the server back after machine restarts.
 * **TICKET-0038** (2026-07-09, Feature) - Restored direct Nexus installs for super admins with a saved Nexus Premium API key. Nexus Browse now shows an Install button for that path, the backend downloads through Nexus's download-link endpoint, installs with the existing archive safety checks, and keeps verified manual upload as the fallback.
 * **TICKET-0039** (2026-07-09, Bug) - Fixed duplicate Server Instances rows by deduplicating instance records by normalized server folder and preventing future duplicate creates for the same path. Settings now has per-server actions for Switch To, Open in Explorer, Remove, and Remove and Delete; the destructive delete path refuses to run while that server is online and then deletes the registered server folder.
+* **TICKET-0040** (2026-07-09, Enhancement) - Installer update/repair runs now detect existing `%LOCALAPPDATA%\PalworldServerAdmin\data`, skip first-time server/admin setup pages, delete any stale `first_run_seed.json`, and leave the existing server list and admin account in place. Verified with a successful Inno Setup compile.
 
 ---
 

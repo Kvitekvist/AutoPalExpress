@@ -64,6 +64,9 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 > [!NOTE]
 > The Palworld Dedicated Server downloads anonymously through SteamCMD. A Steam account is not required just to deploy the server.
 
+> [!TIP]
+> Run the same installer again to update or repair AutoPalExpress. If your existing app data is still present, setup keeps your server list and admin account and skips the first-time questions.
+
 ## Remote Access And Security
 
 AutoPalExpress uses regular HTTP by default so setup can stay simple: no domain, certificate, reverse proxy, or manual browser-trust steps.
@@ -134,7 +137,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  D4E6ADF01C1A172E8172C4C225556901B516A8DA5406890151BA03BC333EEA1A
+SHA256  PalworldServerAdmin-Setup.exe  BF3AAE87E499DC0FF47E4BBFCF0FB3C7BDBE5B0EB78331752D47539BE7DA8F55
 ```
 
 > [!IMPORTANT]

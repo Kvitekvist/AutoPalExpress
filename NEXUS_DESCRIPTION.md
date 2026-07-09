@@ -18,6 +18,7 @@ It's not a mod for the game itself. It's a standalone Windows application that m
 - Run multiple servers side by side, each with its own folder, mods, and ports.
 - Real start/stop/restart/save actions that manage the actual server process.
 - Optional Windows startup recovery can open the tool at sign-in and bring the active server back after Windows updates or power loss.
+- Re-running the installer now works as an update/repair when existing AutoPalExpress data is present, so you keep your server list and admin account instead of re-entering first-time setup.
 
 **Mods**
 - Browse Palworld mods from Nexus Mods without entering a personal API key.
@@ -103,4 +104,4 @@ Built with FastAPI, React, and a healthy amount of SteamCMD wrangling.
 
 ## Changelog
 
-**v1.0.0**: Initial release: multi-server management, Nexus mod browsing with direct Premium installs and verified manual installs, UE4SS installer, real server process control, Windows startup recovery, player management, world settings editor, activity logs, UPnP port forwarding, multi-user accounts with invites.
+**v1.0.0**: Initial release: multi-server management, Nexus mod browsing with direct Premium installs and verified manual installs, UE4SS installer, real server process control, Windows startup recovery, update/repair-aware installer, player management, world settings editor, activity logs, UPnP port forwarding, multi-user accounts with invites.

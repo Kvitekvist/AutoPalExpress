@@ -2,6 +2,7 @@
 
 ## 1.0.0 - 2026-07-07
 
+- Installer update/repair runs now preserve existing setup and skip the first-time server/account questions when AutoPalExpress data already exists.
 - Fixed duplicate server-instance rows caused by re-importing or reinstalling the same server folder.
 - Added Settings actions to switch servers, open a server folder in Explorer, unregister a server, or unregister and delete its server files.
 - Restored direct Nexus installs for super admins with a saved Premium API key.

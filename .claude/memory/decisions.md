@@ -579,6 +579,28 @@ The feature applies to the Windows account that installed/enabled it. On app lau
 
 ### Decision
 
+Installer first-time setup pages now only run when AutoPalExpress has no existing app data.
+
+### Reason
+
+Re-running the installer should work as an update or repair for existing hosts. Asking for server name, username, and password every time made upgrades feel like a fresh install and could create unnecessary `first_run_seed.json` files even though the real account and server registry already live in `%LOCALAPPDATA%\PalworldServerAdmin\data`.
+
+### Alternatives
+
+Always show the setup pages and let the backend reject duplicate account creation (rejected because it still forces needless password entry), or add a full custom install-mode chooser (deferred because existing app data is enough to distinguish fresh setup from update/repair for this single-user Windows app).
+
+### Consequences
+
+Fresh installs still collect first server and super-admin details. Update/repair runs skip those pages, remove any stale first-run seed file, and only replace the application files. Existing app data remains the source of truth.
+
+### Date
+
+2026-07-09
+
+---
+
+### Decision
+
 Restore direct Nexus installs for super admins with a saved Nexus Premium API key, while keeping public GraphQL browsing and verified manual file upload.
 
 ### Reason

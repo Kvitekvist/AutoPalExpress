@@ -54,9 +54,22 @@ var
   ServerInstallDirPage: TInputDirWizardPage;
   SuperAdminPage: TInputQueryWizardPage;
   SetupProgressPage: TOutputProgressWizardPage;
+  ExistingSetup: Boolean;
+
+function HasExistingSetup(): Boolean;
+var
+  DataDir: String;
+begin
+  DataDir := ExpandConstant('{localappdata}\PalworldServerAdmin\data');
+  Result := FileExists(DataDir + '\users.json') or
+            FileExists(DataDir + '\instances.json') or
+            FileExists(DataDir + '\system_settings.json');
+end;
 
 procedure InitializeWizard;
 begin
+  ExistingSetup := HasExistingSetup;
+
   ServerNamePage := CreateInputQueryPage(wpSelectTasks,
     'New Server', 'Deploy a Palworld Dedicated Server now',
     'Give your first server a name and it will be downloaded via SteamCMD into this tool''s own "servers" ' +
@@ -85,6 +98,13 @@ end;
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := False;
+  if ExistingSetup then
+  begin
+    if (PageID = ServerNamePage.ID) or (PageID = ServerInstallDirPage.ID) or (PageID = SuperAdminPage.ID) then
+      Result := True;
+    Exit;
+  end;
+
   if PageID = ServerInstallDirPage.ID then
     Result := Trim(ServerNamePage.Values[0]) = '';
 end;
@@ -241,9 +261,15 @@ begin
   if CurStep = ssPostInstall then
   begin
     SaveStartupRecoverySettings;
+    SeedPath := ExpandConstant('{app}\first_run_seed.json');
+    if ExistingSetup then
+    begin
+      DeleteFile(SeedPath);
+      Exit;
+    end;
+
     if not WizardSilent() then
     begin
-      SeedPath := ExpandConstant('{app}\first_run_seed.json');
       SaveStringToFile(SeedPath, BuildSeedJson(), False);
       RunFirstTimeSetup;
     end;
