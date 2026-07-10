@@ -497,38 +497,47 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "help": "Maximum bases one guild can own. Higher values allow larger guild infrastructure but increase server load.",
     },
     "CollectionDropRate": {
+        "label": "Gathering Drop Rate",
         "group": "Progression",
         "help": "Gathered item amount multiplier. Example: 0.5 gives fewer gathered resources, 1 is normal, 2 doubles gathered drops.",
     },
     "CollectionObjectHpRate": {
+        "label": "Gatherable Object HP Rate",
         "group": "Progression",
         "help": "Health of gatherable objects. Example: 0.5 makes nodes break faster, 1 is normal, 2 makes nodes take longer to break.",
     },
     "CollectionObjectRespawnSpeedRate": {
+        "label": "Gatherable Respawn Rate",
         "group": "Progression",
         "help": "Gatherable respawn speed. Example: 0.5 slows resource returns, 1 is normal, 2 makes gatherables come back sooner.",
     },
     "EnemyDropItemRate": {
+        "label": "Enemy Drop Rate",
         "group": "Progression",
         "help": "Enemy drop quantity multiplier. Example: 0.5 gives less loot, 1 is normal, 2 doubles enemy drops.",
     },
     "PalEggDefaultHatchingTime": {
+        "label": "Egg Hatching Time (hours)",
         "group": "Progression",
         "help": "Huge Egg hatch time in hours. Example: 0 speeds eggs up heavily, 2 is short, 72 is very long.",
     },
     "SupplyDropSpan": {
+        "label": "Supply Drop Interval (minutes)",
         "group": "World Density",
         "help": "Minutes between meteorite or supply-drop events. Example: 30 is frequent, 180 is moderate, 360 is rare.",
     },
     "BuildObjectDamageRate": {
+        "label": "Structure Damage Rate",
         "group": "Combat",
         "help": "Damage dealt to buildings. Example: 0.5 halves structure damage, 1 is normal, 2 doubles structure damage.",
     },
     "BuildObjectDeteriorationDamageRate": {
+        "label": "Building Decay Rate",
         "group": "Bases and Work",
         "help": "Building decay speed. Example: 0 disables or greatly slows decay on many servers, 1 is normal, 2 decays faster.",
     },
     "ItemWeightRate": {
+        "label": "Item Weight Rate",
         "group": "Time and Survival",
         "help": "Item weight multiplier. Example: 0.5 makes items lighter, 1 is normal, 2 makes items twice as heavy.",
     },
@@ -563,18 +572,22 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "help": "Pal natural HP regeneration multiplier. Example: 0.5 heals slower, 1 is normal, 2 heals twice as fast.",
     },
     "ServerReplicatePawnCullDistance": {
+        "label": "Pal Sync Distance",
         "group": "Performance Limits",
         "help": "Distance in centimeters for syncing Pals to players. Example: 10000 is shorter range, 15000 is moderate, 20000+ syncs farther away but costs performance.",
     },
     "MaxBuildingLimitNum": {
+        "label": "Max Buildings Per Player",
         "group": "Performance Limits",
         "help": "Per-player building cap. Example: 0 means unlimited, 5000 is restrictive, 20000 allows much more building but can cost performance.",
     },
     "PhysicsActiveDropItemMaxNum": {
+        "label": "Max Physics Items",
         "group": "Performance Limits",
         "help": "Maximum dropped items using physics behavior. Example: 50 is light, 100 is moderate, 300 keeps more physics items active but can cost performance.",
     },
     "RandomizerSeed": {
+        "label": "Randomizer Seed",
         "group": "World Rules",
         "help": "Optional seed for Pal spawn randomization. Leave blank for a random seed each time; set a value to reproduce the same randomized layout.",
     },
@@ -599,6 +612,7 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "help": "Palworld's own in-game system message when a player joins or leaves. Separate from AutoPalExpress's own join/leave broadcast option in Automation.",
     },
     "ChatPostLimitPerMinute": {
+        "label": "Chat Messages Per Minute",
         "group": "Identity and Access",
         "help": "Maximum chat messages one player can send per minute. Lower values reduce chat spam.",
     },
@@ -618,6 +632,7 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "help": "Lets players load a Pal previously saved to the shared Global Palbox.",
     },
     "GuildRejoinCooldownMinutes": {
+        "label": "Guild Rejoin Cooldown (minutes)",
         "group": "Identity and Access",
         "help": "Minutes a player must wait before rejoining a guild they recently left.",
     },
@@ -632,10 +647,12 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "help": "Hours with no guild members online before auto-reset triggers, if enabled above.",
     },
     "VoiceChatMaxVolumeDistance": {
+        "label": "Voice Chat Full Volume Distance",
         "group": "Identity and Access",
         "help": "Distance at which voice chat reaches full volume. Example: 3000 is Palworld's common default.",
     },
     "VoiceChatZeroVolumeDistance": {
+        "label": "Voice Chat Silent Distance",
         "group": "Identity and Access",
         "help": "Distance at which voice chat fades to silent. Example: 15000 is Palworld's common default.",
     },
@@ -680,6 +697,7 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "help": "Player HP regen multiplier while sleeping. Example: 0.5 heals slower, 1 is normal, 2 heals twice as fast.",
     },
     "EquipmentDurabilityDamageRate": {
+        "label": "Equipment Durability Loss Rate",
         "group": "Time and Survival",
         "help": "Equipment durability loss multiplier. Example: 0.5 halves durability loss, 1 is normal, 2 wears gear out twice as fast.",
     },
@@ -689,10 +707,12 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "help": "Base respawn cooldown in seconds after death.",
     },
     "RespawnPenaltyDurationThreshold": {
+        "label": "Quick-Death Threshold (seconds)",
         "group": "Time and Survival",
         "help": "Survival time in seconds below which a short recent life counts toward the repeated-death respawn penalty.",
     },
     "RespawnPenaltyTimeScale": {
+        "label": "Respawn Penalty Multiplier",
         "group": "Time and Survival",
         "help": "Multiplier applied to respawn cooldown for repeated quick deaths.",
     },
@@ -747,10 +767,12 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "help": "Shows which player placed a structure when inspecting it.",
     },
     "MonsterFarmActionSpeedRate": {
+        "label": "Ranch Action Speed Rate",
         "group": "Bases and Work",
         "help": "Speed multiplier for Pal ranch/farm production actions. Example: 0.5 is slower, 1 is normal, 2 is twice as fast.",
     },
     "ItemCorruptionMultiplier": {
+        "label": "Item Corrosion Rate",
         "group": "Time and Survival",
         "help": "Multiplier for how quickly items corrupt or degrade over time, on servers that track item corruption.",
     },

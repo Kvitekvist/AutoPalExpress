@@ -11,14 +11,38 @@
   },
   "topbar": {
     "pages": {
-      "dashboard": { "title": "仪表盘", "subtitle": "你的领地生机与游荡其中的灵魂" },
-      "mods": { "title": "模组", "subtitle": "编织入你服务器的魔法附魔" },
-      "control": { "title": "服务器控制", "subtitle": "掌控你领地的命运" },
-      "worldSettings": { "title": "世界设置", "subtitle": "你服务器配置文件所能表达的每一条规则" },
-      "launcherOptions": { "title": "启动选项", "subtitle": "所选服务器的启动参数" },
-      "logs": { "title": "日志", "subtitle": "近期事件的编年史" },
-      "settings": { "title": "设置", "subtitle": "制定你世界的律法" },
-      "superAdmin": { "title": "超级管理员", "subtitle": "网络暴露与访问权限，仅限主机持有者" }
+      "dashboard": {
+        "title": "仪表盘",
+        "subtitle": "你的领地生机与游荡其中的灵魂"
+      },
+      "mods": {
+        "title": "模组",
+        "subtitle": "编织入你服务器的魔法附魔"
+      },
+      "control": {
+        "title": "服务器控制",
+        "subtitle": "掌控你领地的命运"
+      },
+      "worldSettings": {
+        "title": "世界设置",
+        "subtitle": "你服务器配置文件所能表达的每一条规则"
+      },
+      "launcherOptions": {
+        "title": "启动选项",
+        "subtitle": "所选服务器的启动参数"
+      },
+      "logs": {
+        "title": "日志",
+        "subtitle": "近期事件的编年史"
+      },
+      "settings": {
+        "title": "设置",
+        "subtitle": "制定你世界的律法"
+      },
+      "superAdmin": {
+        "title": "超级管理员",
+        "subtitle": "网络暴露与访问权限，仅限主机持有者"
+      }
     },
     "instanceSwitcher": {
       "currentServer": "当前服务器：",
@@ -33,6 +57,538 @@
     },
     "languageSwitcher": {
       "label": "语言"
+    }
+  },
+  "worldSettings": {
+    "groups": {
+      "Identity and Access": "身份与访问",
+      "World Rules": "世界规则",
+      "Combat": "战斗",
+      "Progression": "成长进度",
+      "Time and Survival": "时间与生存",
+      "World Density": "世界密度",
+      "Bases and Work": "基地与工作",
+      "Saving and Backups": "存档与备份",
+      "Performance Limits": "性能上限",
+      "Mods and Compatibility": "模组与兼容性",
+      "Local API": "本地API",
+      "Other": "其他"
+    },
+    "fields": {
+      "ServerName": {
+        "label": "服务器名称",
+        "help": "玩家在直接连接和服务器列表中看到的名称。更改后请重启服务器。"
+      },
+      "ServerDescription": {
+        "label": "服务器描述",
+        "help": "Palworld在显示服务器详情的地方展示的简短公开描述。"
+      },
+      "ServerPassword": {
+        "label": "服务器密码",
+        "help": "玩家加入需要此密码。留空表示任何能连接到服务器的人都可以尝试加入。",
+        "description": "留空表示无需密码。"
+      },
+      "AdminPassword": {
+        "label": "管理员密码",
+        "help": "AutoPalExpress使用此密码执行Palworld REST API操作，例如玩家列表、保存、广播、踢出和封禁。",
+        "description": "游戏内管理员命令和本地REST API所需。"
+      },
+      "ServerPlayerMaxNum": {
+        "label": "最大玩家数",
+        "help": "最大连接玩家数。数值越高允许的玩家越多，但可能增加CPU、内存和网络负载。"
+      },
+      "CoopPlayerMaxNum": {
+        "label": "队伍最大人数",
+        "help": "队伍/公会游戏组的最大玩家数。数值越高可组成的团队越大。"
+      },
+      "Difficulty": {
+        "label": "难度",
+        "help": "预设难度选择器。「无」是专用服务器常用的自定义模式；其他值仅在已安装的Palworld服务器支持时生效。",
+        "options": {
+          "None": {
+            "label": "无",
+            "description": "Palworld默认的自定义服务器模式。"
+          },
+          "Easy": {
+            "label": "简单",
+            "description": "如果已安装的服务器支持，则为较柔和的预设。"
+          },
+          "Normal": {
+            "label": "普通",
+            "description": "如果已安装的服务器支持，则为标准预设。"
+          },
+          "Hard": {
+            "label": "困难",
+            "description": "如果已安装的服务器支持，则为更严苛的预设。"
+          }
+        }
+      },
+      "DeathPenalty": {
+        "label": "死亡惩罚",
+        "help": "控制玩家死亡时会失去什么。惩罚越高越严厉。",
+        "options": {
+          "None": {
+            "label": "无",
+            "description": "死亡时不掉落物品或帕鲁。"
+          },
+          "Item": {
+            "label": "物品",
+            "description": "掉落背包物品，但保留装备和帕鲁。"
+          },
+          "ItemAndEquipment": {
+            "label": "物品与装备",
+            "description": "掉落背包物品和已装备的装备。"
+          },
+          "All": {
+            "label": "全部",
+            "description": "掉落背包、装备以及队伍中的帕鲁。"
+          }
+        }
+      },
+      "bIsPvP": {
+        "label": "启用PvP",
+        "help": "启用后允许玩家之间互相造成伤害并战斗。"
+      },
+      "bEnableFriendlyFire": {
+        "label": "友军伤害",
+        "help": "允许对盟友或友方目标造成伤害。若想要更安全的合作服务器请保持关闭。"
+      },
+      "bHardcore": {
+        "label": "硬核模式",
+        "help": "带有永久死亡后果的严酷生存模式。其本身不会导致帕鲁丢失 - 见下方「帕鲁永久丢失」。"
+      },
+      "bPalLost": {
+        "label": "帕鲁永久丢失",
+        "help": "Palworld专用的帕鲁永久死亡开关。与硬核模式相互独立 - 两者可单独启用。",
+        "description": "帕鲁死亡后将永久消失。"
+      },
+      "ExpRate": {
+        "label": "经验值倍率",
+        "help": "经验值倍率。例如：0.5表示升级速度减半，1为正常，2表示获得的经验值翻倍。"
+      },
+      "PalCaptureRate": {
+        "label": "捕获率",
+        "help": "捕获几率倍率。例如：0.5使捕获几率大约减半，1为正常，2使捕获容易得多。"
+      },
+      "PalSpawnNumRate": {
+        "label": "帕鲁生成率",
+        "help": "帕鲁生成倍率。例如：0.5表示野生帕鲁减少，1为正常，2大约使生成密度和服务器负载翻倍。"
+      },
+      "PalDamageRateAttack": {
+        "label": "帕鲁攻击伤害倍率",
+        "help": "帕鲁造成的伤害。例如：0.5使帕鲁攻击伤害减半，1为正常，2使其翻倍。"
+      },
+      "PalDamageRateDefense": {
+        "label": "帕鲁受伤倍率",
+        "help": "帕鲁承受的伤害。例如：0.5使帕鲁承受的伤害减半，1为正常，2使其承受双倍伤害。"
+      },
+      "PlayerDamageRateAttack": {
+        "label": "玩家攻击伤害倍率",
+        "help": "玩家造成的伤害。例如：0.5使玩家伤害减半，1为正常，2使玩家伤害翻倍。"
+      },
+      "PlayerDamageRateDefense": {
+        "label": "玩家受伤倍率",
+        "help": "玩家承受的伤害。例如：0.5使玩家承受的伤害减半，1为正常，2使玩家承受双倍伤害。"
+      },
+      "DayTimeSpeedRate": {
+        "label": "白天时长倍率",
+        "help": "白天速度倍率。例如：0.5使白天持续更长，1为正常，2使白天流逝速度加快一倍。"
+      },
+      "NightTimeSpeedRate": {
+        "label": "夜晚时长倍率",
+        "help": "夜晚速度倍率。例如：0.5使夜晚持续更长，1为正常，2使夜晚流逝速度加快一倍。"
+      },
+      "WorkSpeedRate": {
+        "label": "工作速度倍率",
+        "help": "工作速度倍率。例如：0.5使工作速度减半，1为正常，2使工作速度翻倍。"
+      },
+      "DropItemMaxNum": {
+        "label": "最大掉落物品数",
+        "help": "世界中最大掉落物品数量。例如：500使世界更整洁，3000是Palworld的常见默认值，5000保留更多掉落物但可能影响性能。"
+      },
+      "BaseCampMaxNum": {
+        "label": "最大基地数",
+        "help": "服务器上允许的基地总数。例如：32较为严格，128较为常见，256允许更多基地但会增加服务器负载。"
+      },
+      "BaseCampWorkerMaxNum": {
+        "label": "每个基地最大工作帕鲁数",
+        "help": "分配给一个基地的最大帕鲁数。例如：10较为轻量，15较为常见，20以上允许更繁忙的基地但会增加处理负载。"
+      },
+      "GuildPlayerMaxNum": {
+        "label": "最大公会人数",
+        "help": "公会中的最大玩家数。例如：10使公会保持较小规模，20较为常见，32允许更大的共享团队。"
+      },
+      "AutoSaveSpan": {
+        "label": "自动保存间隔（分钟）",
+        "help": "自动保存之间的分钟数。例如：10表示保存频繁，30为适中，60减少磁盘活动但在崩溃后可能损失更多进度。"
+      },
+      "bIsUseBackupSaveData": {
+        "label": "保留存档备份",
+        "help": "Palworld会保留轮换的存档备份。便于恢复，但会增加磁盘活动和存储占用。"
+      },
+      "RESTAPIEnabled": {
+        "label": "启用REST API",
+        "help": "AutoPalExpress的玩家列表、保存、指标、踢出/封禁、广播和正常关闭功能均需要此项。"
+      },
+      "RESTAPIPort": {
+        "label": "REST API端口",
+        "help": "Palworld REST API使用的本地端口。请勿直接对此端口做端口转发；AutoPalExpress在本地与其通信。"
+      },
+      "CrossplayPlatforms": {
+        "label": "跨平台联机平台",
+        "help": "允许连接的客户端平台。「所有平台」兼容性最广；「仅Steam」是限制最严格的常见选择。",
+        "options": {
+          "(Steam)": {
+            "label": "仅Steam",
+            "description": "仅允许Steam客户端连接。"
+          },
+          "(Xbox)": {
+            "label": "仅Xbox",
+            "description": "仅允许Xbox/Game Pass客户端连接。"
+          },
+          "(PS5)": {
+            "label": "仅PS5",
+            "description": "仅允许PlayStation 5客户端连接。"
+          },
+          "(Mac)": {
+            "label": "仅Mac",
+            "description": "仅允许Mac客户端连接。"
+          },
+          "(Steam,Xbox)": {
+            "label": "Steam + Xbox",
+            "description": "允许Steam和Xbox/Game Pass客户端。"
+          },
+          "(Steam,Xbox,PS5,Mac)": {
+            "label": "所有平台",
+            "description": "允许Steam、Xbox/Game Pass、PS5和Mac客户端。"
+          }
+        }
+      },
+      "LogFormatType": {
+        "label": "日志格式",
+        "help": "文本格式更便于人类阅读。如果外部工具需要解析服务器输出，JSON格式更合适。",
+        "options": {
+          "Text": {
+            "label": "文本",
+            "description": "便于人类阅读的服务器日志。"
+          },
+          "Json": {
+            "label": "JSON",
+            "description": "供外部工具使用的结构化日志。"
+          }
+        }
+      },
+      "RandomizerType": {
+        "label": "帕鲁随机化模式",
+        "help": "「无」保持正常生成。「区域」在每个区域内随机化。「全部」在整个世界范围内完全随机化帕鲁生成。",
+        "options": {
+          "None": {
+            "label": "无",
+            "description": "不进行帕鲁生成随机化。"
+          },
+          "Region": {
+            "label": "区域",
+            "description": "在每个区域内随机化帕鲁生成。"
+          },
+          "All": {
+            "label": "全部",
+            "description": "在整个世界范围内完全随机化帕鲁生成。"
+          }
+        }
+      },
+      "bIsRandomizerPalLevelRandom": {
+        "label": "随机化帕鲁等级",
+        "help": "启用后，随机生成的野生帕鲁可以拥有完全随机的等级。禁用后，等级将更接近每个区域的预定范围。"
+      },
+      "bEnableFastTravel": {
+        "label": "启用快速旅行",
+        "help": "启用后允许正常的快速旅行。"
+      },
+      "bEnableFastTravelOnlyBaseCamp": {
+        "label": "仅限基地间快速旅行",
+        "help": "将快速旅行限制为仅限基地之间，而非所有快速旅行点。"
+      },
+      "bIsStartLocationSelectByMap": {
+        "label": "通过地图选择出生点",
+        "help": "允许新角色从地图上选择出生地点。"
+      },
+      "bShowPlayerList": {
+        "label": "显示玩家列表",
+        "help": "启用后在Palworld的ESC菜单中显示玩家列表。"
+      },
+      "bAllowClientMod": {
+        "label": "允许客户端模组",
+        "help": "允许启用了客户端模组的玩家加入。更为宽松，但如果模组配置不同则更难提供支持。"
+      },
+      "bEnableInvaderEnemy": {
+        "label": "启用入侵者",
+        "help": "启用入侵者事件。关闭后世界会更加平静。"
+      },
+      "bEnableVoiceChat": {
+        "label": "启用语音聊天",
+        "help": "启用游戏内语音聊天。"
+      },
+      "BaseCampMaxNumInGuild": {
+        "label": "每个公会最大基地数",
+        "help": "一个公会可拥有的最大基地数。数值越高允许更大的公会规模，但会增加服务器负载。"
+      },
+      "CollectionDropRate": {
+        "label": "采集掉落率",
+        "help": "采集物品数量倍率。例如：0.5使采集资源减少，1为正常，2使采集掉落翻倍。"
+      },
+      "CollectionObjectHpRate": {
+        "label": "采集物耐久倍率",
+        "help": "可采集物体的耐久值。例如：0.5使采集点更快破碎，1为正常，2使采集点耐久更久。"
+      },
+      "CollectionObjectRespawnSpeedRate": {
+        "label": "采集物重生速度倍率",
+        "help": "可采集物体的重生速度。例如：0.5使资源恢复变慢，1为正常，2使可采集物更快重新出现。"
+      },
+      "EnemyDropItemRate": {
+        "label": "敌人掉落率",
+        "help": "敌人掉落数量倍率。例如：0.5使掉落物减少，1为正常，2使敌人掉落翻倍。"
+      },
+      "PalEggDefaultHatchingTime": {
+        "label": "蛋孵化时间（小时）",
+        "help": "巨蛋孵化所需时间（小时）。例如：0大幅加快孵化，2为较短时间，72为非常长的时间。"
+      },
+      "SupplyDropSpan": {
+        "label": "补给空投间隔（分钟）",
+        "help": "陨石或补给空投事件之间的分钟数。例如：30为频繁，180为适中，360为罕见。"
+      },
+      "BuildObjectDamageRate": {
+        "label": "建筑伤害倍率",
+        "help": "对建筑造成的伤害。例如：0.5使建筑伤害减半，1为正常，2使其翻倍。"
+      },
+      "BuildObjectDeteriorationDamageRate": {
+        "label": "建筑损耗率",
+        "help": "建筑损耗速度。例如：0在许多服务器上禁用或大幅减慢损耗，1为正常，2损耗更快。"
+      },
+      "ItemWeightRate": {
+        "label": "物品重量倍率",
+        "help": "物品重量倍率。例如：0.5使物品更轻，1为正常，2使物品重量翻倍。"
+      },
+      "PlayerStaminaDecreaceRate": {
+        "label": "玩家体力消耗倍率",
+        "help": "玩家体力消耗倍率。例如：0.5使体力消耗变慢，1为正常，2使消耗速度翻倍。"
+      },
+      "PalStaminaDecreaceRate": {
+        "label": "帕鲁体力消耗倍率",
+        "help": "帕鲁体力消耗倍率。例如：0.5使帕鲁体力消耗变慢，1为正常，2使消耗速度翻倍。"
+      },
+      "PlayerStomachDecreaceRate": {
+        "label": "玩家饱食度消耗倍率",
+        "help": "玩家饱食度消耗倍率。例如：0.5使食物维持更久，1为正常，2使饱食度下降速度翻倍。"
+      },
+      "PalStomachDecreaceRate": {
+        "label": "帕鲁饱食度消耗倍率",
+        "help": "帕鲁饱食度消耗倍率。例如：0.5使帕鲁食物维持更久，1为正常，2使饱食度下降速度翻倍。"
+      },
+      "PlayerAutoHPRegeneRate": {
+        "label": "玩家HP自然恢复倍率",
+        "help": "玩家自然HP恢复倍率。例如：0.5使恢复变慢，1为正常，2使恢复速度翻倍。"
+      },
+      "PalAutoHPRegeneRate": {
+        "label": "帕鲁HP自然恢复倍率",
+        "help": "帕鲁自然HP恢复倍率。例如：0.5使恢复变慢，1为正常，2使恢复速度翻倍。"
+      },
+      "ServerReplicatePawnCullDistance": {
+        "label": "帕鲁同步距离",
+        "help": "将帕鲁与玩家同步的距离（厘米）。例如：10000为较短范围，15000为适中，20000以上同步更远但会消耗性能。"
+      },
+      "MaxBuildingLimitNum": {
+        "label": "每名玩家最大建筑数",
+        "help": "每名玩家的建筑上限。例如：0表示无限制，5000较为严格，20000允许更多建造但可能消耗性能。"
+      },
+      "PhysicsActiveDropItemMaxNum": {
+        "label": "最大物理效果物品数",
+        "help": "具有物理效果的最大掉落物品数。例如：50较为轻量，100为适中，300保持更多物理物品处于活动状态但可能消耗性能。"
+      },
+      "RandomizerSeed": {
+        "label": "随机种子",
+        "help": "帕鲁生成随机化的可选种子。留空则每次使用随机种子；设置一个值可重现相同的随机化布局。"
+      },
+      "bEnablePlayerToPlayerDamage": {
+        "label": "玩家间伤害",
+        "help": "允许玩家之间直接互相造成伤害。与「启用PvP」配合使用 - 若想要完全合作的服务器，请同时禁用两者。"
+      },
+      "bCharacterRecreateInHardcore": {
+        "label": "硬核死亡后允许重新创建角色",
+        "help": "在硬核模式下，允许玩家死亡后创建新角色，而不是被永久锁定。"
+      },
+      "bExistPlayerAfterLogout": {
+        "label": "下线后原地睡眠",
+        "help": "启用后，玩家的角色在下线后会在当前位置以睡眠状态留在世界中，而不是消失。"
+      },
+      "bIsShowJoinLeftMessage": {
+        "label": "原生加入/离开消息",
+        "help": "玩家加入或离开时Palworld自带的游戏内系统消息。与自动化中AutoPalExpress自身的加入/离开广播选项相互独立。"
+      },
+      "ChatPostLimitPerMinute": {
+        "label": "每分钟聊天消息数",
+        "help": "一名玩家每分钟可发送的最大聊天消息数。数值越低越能减少聊天刷屏。"
+      },
+      "bEnableNonLoginPenalty": {
+        "label": "启用不活跃惩罚",
+        "help": "对一段时间未登录的玩家施加惩罚。"
+      },
+      "bAllowGlobalPalboxExport": {
+        "label": "允许导出到全局帕鲁盒",
+        "help": "允许玩家将帕鲁保存到共享的全局帕鲁盒，以便在支持导入的其他存档或服务器中使用。"
+      },
+      "bAllowGlobalPalboxImport": {
+        "label": "允许从全局帕鲁盒导入",
+        "help": "允许玩家载入此前保存在共享全局帕鲁盒中的帕鲁。"
+      },
+      "GuildRejoinCooldownMinutes": {
+        "label": "公会重新加入冷却（分钟）",
+        "help": "玩家在重新加入最近退出的公会之前必须等待的分钟数。"
+      },
+      "bAutoResetGuildNoOnlinePlayers": {
+        "label": "自动重置不活跃公会",
+        "help": "当没有成员在线达到下方设定的时长后，自动清除不活跃公会的基地和领地。"
+      },
+      "AutoResetGuildTimeNoOnlinePlayers": {
+        "label": "不活跃公会重置时间（小时）",
+        "help": "若上方已启用，触发自动重置前公会成员均不在线的小时数。"
+      },
+      "VoiceChatMaxVolumeDistance": {
+        "label": "语音聊天最大音量距离",
+        "help": "语音聊天达到最大音量的距离。例如：3000是Palworld的常见默认值。"
+      },
+      "VoiceChatZeroVolumeDistance": {
+        "label": "语音聊天静音距离",
+        "help": "语音聊天淡出至静音的距离。例如：15000是Palworld的常见默认值。"
+      },
+      "bAllowEnhanceStat_Health": {
+        "label": "允许分配生命值点数",
+        "help": "允许玩家将状态点分配到生命值。"
+      },
+      "bAllowEnhanceStat_Attack": {
+        "label": "允许分配攻击力点数",
+        "help": "允许玩家将状态点分配到攻击力。"
+      },
+      "bAllowEnhanceStat_Stamina": {
+        "label": "允许分配体力点数",
+        "help": "允许玩家将状态点分配到体力。"
+      },
+      "bAllowEnhanceStat_Weight": {
+        "label": "允许分配负重点数",
+        "help": "允许玩家将状态点分配到负重。"
+      },
+      "bAllowEnhanceStat_WorkSpeed": {
+        "label": "允许分配工作速度点数",
+        "help": "允许玩家将状态点分配到工作速度。"
+      },
+      "DenyTechnologyList": {
+        "label": "禁用的科技ID",
+        "help": "以逗号分隔的科技ID列表，用于从科技树中隐藏。留空表示允许完整科技树。"
+      },
+      "PalAutoHpRegeneRateInSleep": {
+        "label": "帕鲁HP恢复倍率（休息中）",
+        "help": "帕鲁在帕鲁盒中休息时的HP恢复倍率。例如：0.5使恢复变慢，1为正常，2使恢复速度翻倍。"
+      },
+      "PlayerAutoHpRegeneRateInSleep": {
+        "label": "玩家HP恢复倍率（睡眠中）",
+        "help": "玩家睡眠时的HP恢复倍率。例如：0.5使恢复变慢，1为正常，2使恢复速度翻倍。"
+      },
+      "EquipmentDurabilityDamageRate": {
+        "label": "装备耐久消耗倍率",
+        "help": "装备耐久度损耗倍率。例如：0.5使耐久损耗减半，1为正常，2使装备损耗速度翻倍。"
+      },
+      "BlockRespawnTime": {
+        "label": "重生冷却（秒）",
+        "help": "死亡后的基础重生冷却时间（秒）。"
+      },
+      "RespawnPenaltyDurationThreshold": {
+        "label": "速死判定阈值（秒）",
+        "help": "低于此秒数的近期存活时间将计入重复死亡重生惩罚。"
+      },
+      "RespawnPenaltyTimeScale": {
+        "label": "重生惩罚倍率",
+        "help": "对重复快速死亡应用的重生冷却倍率。"
+      },
+      "bDisplayPvPItemNumOnWorldMap_BaseCamp": {
+        "label": "在地图上显示基地PvP物品数",
+        "help": "在世界地图上显示某基地可在PvP中被掠夺的物品数量。"
+      },
+      "bDisplayPvPItemNumOnWorldMap_Player": {
+        "label": "在地图上显示玩家PvP物品数",
+        "help": "在世界地图上显示某玩家可在PvP中被掠夺的物品数量。"
+      },
+      "bAdditionalDropItemWhenPlayerKillingInPvPMode": {
+        "label": "PvP击杀额外掉落物品",
+        "help": "在PvP击杀后，为击杀者启用一个使用下方物品和数量的额外物品掉落。"
+      },
+      "AdditionalDropItemWhenPlayerKillingInPvPMode": {
+        "label": "PvP击杀掉落物品ID",
+        "help": "若上方已启用，作为PvP击杀额外奖励掉落的物品ID。"
+      },
+      "AdditionalDropItemNumWhenPlayerKillingInPvPMode": {
+        "label": "PvP击杀掉落物品数量",
+        "help": "若上方已启用，额外PvP击杀掉落物品的数量。"
+      },
+      "bInvisibleOtherGuildBaseCampAreaFX": {
+        "label": "隐藏其他公会的基地区域特效",
+        "help": "隐藏其他公会基地的边界视觉特效。"
+      },
+      "bBuildAreaLimit": {
+        "label": "限制在地标附近建造",
+        "help": "限制在某些地标和景点附近进行建造。"
+      },
+      "bEnableDefenseOtherGuildPlayer": {
+        "label": "基地防御可攻击其他公会",
+        "help": "允许基地防御设施攻击其他公会的玩家。"
+      },
+      "bCanPickupOtherGuildDeathPenaltyDrop": {
+        "label": "允许拾取其他公会的死亡掉落",
+        "help": "允许玩家拾取其他公会成员留下的死亡惩罚物品掉落。"
+      },
+      "bEnableBuildingPlayerUIdDisplay": {
+        "label": "显示建造者",
+        "help": "在检查建筑时显示是哪名玩家放置的。"
+      },
+      "MonsterFarmActionSpeedRate": {
+        "label": "牧场动作速度倍率",
+        "help": "帕鲁牧场/农场生产动作的速度倍率。例如：0.5较慢，1为正常，2为两倍速度。"
+      },
+      "ItemCorruptionMultiplier": {
+        "label": "物品腐化速率",
+        "help": "在追踪物品腐化的服务器上，物品随时间腐化或劣化的速度倍率。"
+      },
+      "EnablePredatorBossPal": {
+        "label": "启用掠食者帕鲁",
+        "help": "启用掠食者（Boss变体）帕鲁的生成。"
+      }
+    },
+    "chrome": {
+      "popularSettings": "常用设置",
+      "advancedSettings": "高级设置",
+      "hide": "隐藏",
+      "showAll": "显示全部（{{count}}）",
+      "moreSettingsOne": "还有{{count}}项设置，直接从服务器自身的配置文件读取。",
+      "moreSettingsMany": "还有{{count}}项设置，直接从服务器自身的配置文件读取。",
+      "unrolling": "正在展开古老的卷轴...",
+      "allSaved": "所有更改均已保存。",
+      "unsavedChangeOne": "有{{count}}项未保存的更改，将在下次服务器启动时生效。",
+      "unsavedChangeMany": "有{{count}}项未保存的更改，将在下次服务器启动时生效。",
+      "saveChanges": "保存更改",
+      "saving": "正在保存...",
+      "settingsSavedTitle": "设置已保存",
+      "settingsSavedMessage": "更改将在下次服务器启动时生效。",
+      "couldntSave": "保存失败",
+      "unknownError": "未知错误。",
+      "enable": "启用",
+      "disable": "禁用",
+      "currentValueUnknown": "当前值",
+      "currentValueLabel": "{{value}}（当前）",
+      "currentValueDescription": "当前保存在PalWorldSettings.ini中的值。",
+      "helpBool": "开启表示启用此设置，关闭表示禁用。",
+      "helpInt": "数值设置。例如：10为较低值，30为适中，60以上为较高值。具体含义因设置而异。",
+      "helpFloat": "小数倍率。例如：0.5为一半强度/速度，1.0为正常，2.0为双倍。",
+      "helpRaw": "Palworld的高级原始值。除非你确切知道Palworld期望的值，否则请保留现有格式。",
+      "helpString": "直接写入PalWorldSettings.ini的文本设置。",
+      "fieldHelpAria": "{{label}}的帮助说明"
     }
   }
 }

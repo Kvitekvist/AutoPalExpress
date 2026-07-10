@@ -11,14 +11,38 @@
   },
   "topbar": {
     "pages": {
-      "dashboard": { "title": "Panel", "subtitle": "Las constantes vitales de tu reino y las almas que lo recorren" },
-      "mods": { "title": "Mods", "subtitle": "Encantamientos entretejidos en tu servidor" },
-      "control": { "title": "Control del servidor", "subtitle": "Decide el destino de tu reino" },
-      "worldSettings": { "title": "Configuración del mundo", "subtitle": "Cada regla que el archivo de configuración de tu servidor puede expresar" },
-      "launcherOptions": { "title": "Opciones de inicio", "subtitle": "Argumentos de inicio para el servidor seleccionado" },
-      "logs": { "title": "Registros", "subtitle": "La crónica de los sucesos recientes" },
-      "settings": { "title": "Configuración", "subtitle": "Define las leyes de tu mundo" },
-      "superAdmin": { "title": "Superadministrador", "subtitle": "Exposición de red y acceso, reservado para el anfitrión" }
+      "dashboard": {
+        "title": "Panel",
+        "subtitle": "Las constantes vitales de tu reino y las almas que lo recorren"
+      },
+      "mods": {
+        "title": "Mods",
+        "subtitle": "Encantamientos entretejidos en tu servidor"
+      },
+      "control": {
+        "title": "Control del servidor",
+        "subtitle": "Decide el destino de tu reino"
+      },
+      "worldSettings": {
+        "title": "Configuración del mundo",
+        "subtitle": "Cada regla que el archivo de configuración de tu servidor puede expresar"
+      },
+      "launcherOptions": {
+        "title": "Opciones de inicio",
+        "subtitle": "Argumentos de inicio para el servidor seleccionado"
+      },
+      "logs": {
+        "title": "Registros",
+        "subtitle": "La crónica de los sucesos recientes"
+      },
+      "settings": {
+        "title": "Configuración",
+        "subtitle": "Define las leyes de tu mundo"
+      },
+      "superAdmin": {
+        "title": "Superadministrador",
+        "subtitle": "Exposición de red y acceso, reservado para el anfitrión"
+      }
     },
     "instanceSwitcher": {
       "currentServer": "Servidor actual:",
@@ -33,6 +57,538 @@
     },
     "languageSwitcher": {
       "label": "Idioma"
+    }
+  },
+  "worldSettings": {
+    "groups": {
+      "Identity and Access": "Identidad y acceso",
+      "World Rules": "Reglas del mundo",
+      "Combat": "Combate",
+      "Progression": "Progresión",
+      "Time and Survival": "Tiempo y supervivencia",
+      "World Density": "Densidad del mundo",
+      "Bases and Work": "Bases y trabajo",
+      "Saving and Backups": "Guardado y copias de seguridad",
+      "Performance Limits": "Límites de rendimiento",
+      "Mods and Compatibility": "Mods y compatibilidad",
+      "Local API": "API local",
+      "Other": "Otros"
+    },
+    "fields": {
+      "ServerName": {
+        "label": "Nombre del servidor",
+        "help": "El nombre que ven los jugadores en la conexión directa y en las listas de servidores. Reinicia el servidor después de cambiarlo."
+      },
+      "ServerDescription": {
+        "label": "Descripción del servidor",
+        "help": "Breve descripción pública que Palworld muestra donde aparecen los detalles del servidor."
+      },
+      "ServerPassword": {
+        "label": "Contraseña del servidor",
+        "help": "Los jugadores necesitan esta contraseña para unirse. Vacío significa que cualquiera que pueda alcanzar el servidor puede intentar unirse.",
+        "description": "Déjalo en blanco para no tener contraseña."
+      },
+      "AdminPassword": {
+        "label": "Contraseña de administrador",
+        "help": "AutoPalExpress la usa para acciones de la API REST de Palworld como lista de jugadores, guardado, difusión, expulsión y baneo.",
+        "description": "Necesaria para comandos de administrador en el juego y la API REST local."
+      },
+      "ServerPlayerMaxNum": {
+        "label": "Máx. de jugadores",
+        "help": "Número máximo de jugadores conectados. Valores más altos permiten más jugadores pero pueden aumentar la carga de CPU, RAM y red."
+      },
+      "CoopPlayerMaxNum": {
+        "label": "Máx. jugadores por grupo",
+        "help": "Máximo de jugadores en un grupo de juego/gremio. Valores más altos permiten grupos más grandes."
+      },
+      "Difficulty": {
+        "label": "Dificultad",
+        "help": "Selector de dificultad preestablecida. \"Ninguna\" es el modo personalizado habitual de servidor dedicado; otros valores solo aplican si el servidor Palworld instalado los reconoce.",
+        "options": {
+          "None": {
+            "label": "Ninguna",
+            "description": "Modo de servidor personalizado predeterminado de Palworld."
+          },
+          "Easy": {
+            "label": "Fácil",
+            "description": "Un preajuste más suave si el servidor instalado lo admite."
+          },
+          "Normal": {
+            "label": "Normal",
+            "description": "Preajuste estándar si el servidor instalado lo admite."
+          },
+          "Hard": {
+            "label": "Difícil",
+            "description": "Un preajuste más duro si el servidor instalado lo admite."
+          }
+        }
+      },
+      "DeathPenalty": {
+        "label": "Penalización por muerte",
+        "help": "Controla lo que un jugador pierde al morir. Una penalización más alta es más severa.",
+        "options": {
+          "None": {
+            "label": "Ninguna",
+            "description": "Sin pérdida de objetos ni Pals al morir."
+          },
+          "Item": {
+            "label": "Objetos",
+            "description": "Se sueltan los objetos del inventario, pero se conservan el equipo y los Pals."
+          },
+          "ItemAndEquipment": {
+            "label": "Objetos y equipo",
+            "description": "Se sueltan los objetos del inventario y el equipo puesto."
+          },
+          "All": {
+            "label": "Todo",
+            "description": "Se suelta el inventario, el equipo y los Pals del equipo."
+          }
+        }
+      },
+      "bIsPvP": {
+        "label": "JcJ activado",
+        "help": "Permite a los jugadores dañarse y combatirse entre sí cuando está activado."
+      },
+      "bEnableFriendlyFire": {
+        "label": "Fuego amigo",
+        "help": "Permite daño a aliados u objetivos amistosos. Mantenlo desactivado para un servidor cooperativo más seguro."
+      },
+      "bHardcore": {
+        "label": "Modo hardcore",
+        "help": "Un modo de supervivencia duro con consecuencias de muerte permanentes. No provoca por sí mismo la pérdida de Pals - ver Pérdida permanente de Pals abajo."
+      },
+      "bPalLost": {
+        "label": "Pérdida permanente de Pals",
+        "help": "Interruptor dedicado de muerte permanente de Pals de Palworld. Independiente del Modo hardcore - cualquiera puede activarse sin el otro.",
+        "description": "Los Pals se pierden para siempre al morir."
+      },
+      "ExpRate": {
+        "label": "Tasa de EXP",
+        "help": "Multiplicador de experiencia. Ejemplo: 0,5 reduce a la mitad la velocidad de subida de nivel, 1 es normal, 2 duplica la EXP obtenida."
+      },
+      "PalCaptureRate": {
+        "label": "Tasa de captura",
+        "help": "Multiplicador de probabilidad de captura. Ejemplo: 0,5 hace las capturas aproximadamente la mitad de probables, 1 es normal, 2 hace las capturas mucho más fáciles."
+      },
+      "PalSpawnNumRate": {
+        "label": "Tasa de aparición de Pals",
+        "help": "Multiplicador de aparición de Pals. Ejemplo: 0,5 significa menos Pals salvajes, 1 es normal, 2 duplica aproximadamente la densidad de aparición y la carga del servidor."
+      },
+      "PalDamageRateAttack": {
+        "label": "Tasa de daño de ataque de los Pals",
+        "help": "Daño infligido por los Pals. Ejemplo: 0,5 reduce a la mitad el daño de ataque de los Pals, 1 es normal, 2 lo duplica."
+      },
+      "PalDamageRateDefense": {
+        "label": "Tasa de daño recibido por los Pals",
+        "help": "Daño sufrido por los Pals. Ejemplo: 0,5 hace que los Pals reciban la mitad de daño, 1 es normal, 2 hace que reciban el doble."
+      },
+      "PlayerDamageRateAttack": {
+        "label": "Tasa de daño de ataque de los jugadores",
+        "help": "Daño infligido por los jugadores. Ejemplo: 0,5 reduce a la mitad el daño del jugador, 1 es normal, 2 lo duplica."
+      },
+      "PlayerDamageRateDefense": {
+        "label": "Tasa de daño recibido por los jugadores",
+        "help": "Daño sufrido por los jugadores. Ejemplo: 0,5 hace que los jugadores reciban la mitad de daño, 1 es normal, 2 hace que reciban el doble."
+      },
+      "DayTimeSpeedRate": {
+        "label": "Tasa de duración del día",
+        "help": "Multiplicador de velocidad diurna. Ejemplo: 0,5 hace que el día dure más, 1 es normal, 2 hace que el día pase el doble de rápido."
+      },
+      "NightTimeSpeedRate": {
+        "label": "Tasa de duración de la noche",
+        "help": "Multiplicador de velocidad nocturna. Ejemplo: 0,5 hace que la noche dure más, 1 es normal, 2 hace que la noche pase el doble de rápido."
+      },
+      "WorkSpeedRate": {
+        "label": "Tasa de velocidad de trabajo",
+        "help": "Multiplicador de velocidad de trabajo. Ejemplo: 0,5 reduce el trabajo a la mitad de velocidad, 1 es normal, 2 duplica la velocidad de trabajo."
+      },
+      "DropItemMaxNum": {
+        "label": "Máx. objetos tirados",
+        "help": "Máximo de objetos tirados en el mundo. Ejemplo: 500 mantiene el mundo más limpio, 3000 es el valor habitual de Palworld, 5000 conserva más objetos pero puede perjudicar el rendimiento."
+      },
+      "BaseCampMaxNum": {
+        "label": "Máx. bases",
+        "help": "Total de bases permitidas en el servidor. Ejemplo: 32 es restrictivo, 128 es habitual, 256 permite muchas bases pero aumenta la carga del servidor."
+      },
+      "BaseCampWorkerMaxNum": {
+        "label": "Máx. trabajadores por base",
+        "help": "Máximo de Pals asignados a una base. Ejemplo: 10 es ligero, 15 es habitual, 20+ permite bases más activas pero aumenta la carga de procesamiento."
+      },
+      "GuildPlayerMaxNum": {
+        "label": "Tamaño máx. de gremio",
+        "help": "Máximo de jugadores en un gremio. Ejemplo: 10 mantiene los gremios pequeños, 20 es habitual, 32 permite grupos compartidos más grandes."
+      },
+      "AutoSaveSpan": {
+        "label": "Intervalo de autoguardado (minutos)",
+        "help": "Minutos entre guardados automáticos. Ejemplo: 10 guarda a menudo, 30 es moderado, 60 reduce la actividad del disco pero arriesga más retroceso tras un fallo."
+      },
+      "bIsUseBackupSaveData": {
+        "label": "Conservar copias de seguridad",
+        "help": "Palworld mantiene copias de seguridad rotativas. Útil para recuperación, pero aumenta la actividad del disco y el uso de almacenamiento."
+      },
+      "RESTAPIEnabled": {
+        "label": "API REST activada",
+        "help": "Necesaria para la lista de jugadores, guardados, métricas, expulsión/baneo, difusiones y apagado ordenado de AutoPalExpress."
+      },
+      "RESTAPIPort": {
+        "label": "Puerto de la API REST",
+        "help": "Puerto local usado por la API REST de Palworld. No redirijas este puerto directamente; AutoPalExpress se comunica con él localmente."
+      },
+      "CrossplayPlatforms": {
+        "label": "Plataformas de juego cruzado",
+        "help": "Qué plataformas de cliente pueden conectarse. \"Todas las plataformas\" ofrece la compatibilidad más amplia; \"Solo Steam\" es la opción común más restrictiva.",
+        "options": {
+          "(Steam)": {
+            "label": "Solo Steam",
+            "description": "Solo pueden conectarse clientes de Steam."
+          },
+          "(Xbox)": {
+            "label": "Solo Xbox",
+            "description": "Solo pueden conectarse clientes de Xbox/Game Pass."
+          },
+          "(PS5)": {
+            "label": "Solo PS5",
+            "description": "Solo pueden conectarse clientes de PlayStation 5."
+          },
+          "(Mac)": {
+            "label": "Solo Mac",
+            "description": "Solo pueden conectarse clientes de Mac."
+          },
+          "(Steam,Xbox)": {
+            "label": "Steam + Xbox",
+            "description": "Permitir clientes de Steam y Xbox/Game Pass."
+          },
+          "(Steam,Xbox,PS5,Mac)": {
+            "label": "Todas las plataformas",
+            "description": "Permitir clientes de Steam, Xbox/Game Pass, PS5 y Mac."
+          }
+        }
+      },
+      "LogFormatType": {
+        "label": "Formato de registro",
+        "help": "El texto es más fácil de leer para las personas. JSON es mejor si una herramienta externa analiza la salida del servidor.",
+        "options": {
+          "Text": {
+            "label": "Texto",
+            "description": "Registros del servidor legibles por humanos."
+          },
+          "Json": {
+            "label": "JSON",
+            "description": "Registros estructurados para herramientas externas."
+          }
+        }
+      },
+      "RandomizerType": {
+        "label": "Modo aleatorio de Pals",
+        "help": "\"Ninguno\" mantiene las apariciones normales. \"Región\" aleatoriza dentro de cada región. \"Todo\" aleatoriza completamente las apariciones de Pals en todo el mundo.",
+        "options": {
+          "None": {
+            "label": "Ninguno",
+            "description": "Sin aleatorización de apariciones de Pals."
+          },
+          "Region": {
+            "label": "Región",
+            "description": "Aleatoriza las apariciones de Pals dentro de cada región."
+          },
+          "All": {
+            "label": "Todo",
+            "description": "Aleatoriza completamente las apariciones de Pals en todo el mundo."
+          }
+        }
+      },
+      "bIsRandomizerPalLevelRandom": {
+        "label": "Aleatorizar niveles de Pals",
+        "help": "Si está activado, los Pals salvajes aleatorizados pueden tener niveles totalmente aleatorios. Si está desactivado, los niveles se mantienen más cerca del rango previsto de cada zona."
+      },
+      "bEnableFastTravel": {
+        "label": "Viaje rápido activado",
+        "help": "Permite el viaje rápido normal cuando está activado."
+      },
+      "bEnableFastTravelOnlyBaseCamp": {
+        "label": "Viaje rápido solo entre bases",
+        "help": "Restringe el viaje rápido a los campamentos base en lugar de a cualquier punto de viaje rápido."
+      },
+      "bIsStartLocationSelectByMap": {
+        "label": "Elegir ubicación inicial en el mapa",
+        "help": "Permite a los personajes nuevos elegir una ubicación inicial desde el mapa."
+      },
+      "bShowPlayerList": {
+        "label": "Mostrar lista de jugadores",
+        "help": "Muestra la lista de jugadores en el menú ESC de Palworld cuando está activado."
+      },
+      "bAllowClientMod": {
+        "label": "Permitir mods de cliente",
+        "help": "Permite unirse a jugadores con mods de cliente activados. Más permisivo, pero más difícil de soportar si las configuraciones de mods difieren."
+      },
+      "bEnableInvaderEnemy": {
+        "label": "Activar invasores",
+        "help": "Activa los eventos de invasores. Desactivarlo hace el mundo más tranquilo."
+      },
+      "bEnableVoiceChat": {
+        "label": "Chat de voz activado",
+        "help": "Activa el chat de voz en el juego."
+      },
+      "BaseCampMaxNumInGuild": {
+        "label": "Máx. bases por gremio",
+        "help": "Máximo de bases que puede poseer un gremio. Valores más altos permiten una infraestructura de gremio más grande pero aumentan la carga del servidor."
+      },
+      "CollectionDropRate": {
+        "label": "Tasa de recolección",
+        "help": "Multiplicador de cantidad de objetos recolectados. Ejemplo: 0,5 da menos recursos recolectados, 1 es normal, 2 duplica lo recolectado."
+      },
+      "CollectionObjectHpRate": {
+        "label": "Tasa de PV de objetos recolectables",
+        "help": "Salud de los objetos recolectables. Ejemplo: 0,5 hace que los nodos se rompan más rápido, 1 es normal, 2 hace que los nodos tarden más en romperse."
+      },
+      "CollectionObjectRespawnSpeedRate": {
+        "label": "Tasa de reaparición de recolectables",
+        "help": "Velocidad de reaparición de recolectables. Ejemplo: 0,5 ralentiza el retorno de recursos, 1 es normal, 2 hace que los recolectables vuelvan antes."
+      },
+      "EnemyDropItemRate": {
+        "label": "Tasa de botín de enemigos",
+        "help": "Multiplicador de cantidad de botín de enemigos. Ejemplo: 0,5 da menos botín, 1 es normal, 2 duplica el botín de enemigos."
+      },
+      "PalEggDefaultHatchingTime": {
+        "label": "Tiempo de eclosión de huevos (horas)",
+        "help": "Tiempo de eclosión de Huevos gigantes en horas. Ejemplo: 0 acelera mucho los huevos, 2 es corto, 72 es muy largo."
+      },
+      "SupplyDropSpan": {
+        "label": "Intervalo de lanzamiento de suministros (minutos)",
+        "help": "Minutos entre eventos de meteoritos o lanzamientos de suministros. Ejemplo: 30 es frecuente, 180 es moderado, 360 es raro."
+      },
+      "BuildObjectDamageRate": {
+        "label": "Tasa de daño a estructuras",
+        "help": "Daño infligido a los edificios. Ejemplo: 0,5 reduce a la mitad el daño a estructuras, 1 es normal, 2 lo duplica."
+      },
+      "BuildObjectDeteriorationDamageRate": {
+        "label": "Tasa de deterioro de edificios",
+        "help": "Velocidad de deterioro de los edificios. Ejemplo: 0 desactiva o ralentiza mucho el deterioro en muchos servidores, 1 es normal, 2 se deteriora más rápido."
+      },
+      "ItemWeightRate": {
+        "label": "Tasa de peso de objetos",
+        "help": "Multiplicador de peso de los objetos. Ejemplo: 0,5 aligera los objetos, 1 es normal, 2 duplica su peso."
+      },
+      "PlayerStaminaDecreaceRate": {
+        "label": "Tasa de consumo de resistencia del jugador",
+        "help": "Multiplicador de consumo de resistencia de los jugadores. Ejemplo: 0,5 consume resistencia más lento, 1 es normal, 2 la consume el doble de rápido."
+      },
+      "PalStaminaDecreaceRate": {
+        "label": "Tasa de consumo de resistencia de los Pals",
+        "help": "Multiplicador de consumo de resistencia de los Pals. Ejemplo: 0,5 consume la resistencia de los Pals más lento, 1 es normal, 2 la consume el doble de rápido."
+      },
+      "PlayerStomachDecreaceRate": {
+        "label": "Tasa de hambre del jugador",
+        "help": "Multiplicador de consumo de hambre de los jugadores. Ejemplo: 0,5 hace que la comida dure más, 1 es normal, 2 hace que el hambre suba el doble de rápido."
+      },
+      "PalStomachDecreaceRate": {
+        "label": "Tasa de hambre de los Pals",
+        "help": "Multiplicador de consumo de hambre de los Pals. Ejemplo: 0,5 hace que la comida de los Pals dure más, 1 es normal, 2 hace que el hambre suba el doble de rápido."
+      },
+      "PlayerAutoHPRegeneRate": {
+        "label": "Tasa de regeneración de PV del jugador",
+        "help": "Multiplicador de regeneración natural de PV de los jugadores. Ejemplo: 0,5 cura más lento, 1 es normal, 2 cura el doble de rápido."
+      },
+      "PalAutoHPRegeneRate": {
+        "label": "Tasa de regeneración de PV de los Pals",
+        "help": "Multiplicador de regeneración natural de PV de los Pals. Ejemplo: 0,5 cura más lento, 1 es normal, 2 cura el doble de rápido."
+      },
+      "ServerReplicatePawnCullDistance": {
+        "label": "Distancia de sincronización de Pals",
+        "help": "Distancia en centímetros para sincronizar Pals con jugadores. Ejemplo: 10000 es un alcance más corto, 15000 es moderado, 20000+ sincroniza más lejos pero cuesta rendimiento."
+      },
+      "MaxBuildingLimitNum": {
+        "label": "Máx. edificios por jugador",
+        "help": "Tope de edificios por jugador. Ejemplo: 0 significa ilimitado, 5000 es restrictivo, 20000 permite mucha más construcción pero puede costar rendimiento."
+      },
+      "PhysicsActiveDropItemMaxNum": {
+        "label": "Máx. objetos con física",
+        "help": "Máximo de objetos tirados con comportamiento físico. Ejemplo: 50 es ligero, 100 es moderado, 300 mantiene más objetos físicos activos pero puede costar rendimiento."
+      },
+      "RandomizerSeed": {
+        "label": "Semilla del aleatorizador",
+        "help": "Semilla opcional para la aleatorización de apariciones de Pals. Déjalo vacío para una semilla aleatoria cada vez; establece un valor para reproducir el mismo diseño aleatorizado."
+      },
+      "bEnablePlayerToPlayerDamage": {
+        "label": "Daño entre jugadores",
+        "help": "Permite a los jugadores infligirse daño directamente entre sí. Funciona junto con JcJ activado - desactiva ambos para un servidor totalmente cooperativo."
+      },
+      "bCharacterRecreateInHardcore": {
+        "label": "Permitir nuevo personaje tras muerte hardcore",
+        "help": "En Modo hardcore, permite a un jugador crear un nuevo personaje tras morir en lugar de quedar bloqueado permanentemente."
+      },
+      "bExistPlayerAfterLogout": {
+        "label": "Dormir al desconectarse",
+        "help": "Si está activado, el personaje de un jugador permanece dormido en el mundo en su ubicación actual tras desconectarse, en lugar de desaparecer."
+      },
+      "bIsShowJoinLeftMessage": {
+        "label": "Mensajes nativos de entrada/salida",
+        "help": "Mensaje del sistema propio de Palworld en el juego cuando un jugador se une o se va. Independiente de la opción de difusión de entrada/salida de AutoPalExpress en Automatización."
+      },
+      "ChatPostLimitPerMinute": {
+        "label": "Mensajes de chat por minuto",
+        "help": "Máximo de mensajes de chat que un jugador puede enviar por minuto. Valores más bajos reducen el spam en el chat."
+      },
+      "bEnableNonLoginPenalty": {
+        "label": "Activar penalización por inactividad",
+        "help": "Aplica una penalización a los jugadores que no se han conectado en un tiempo."
+      },
+      "bAllowGlobalPalboxExport": {
+        "label": "Permitir exportar a la Palbox global",
+        "help": "Permite a los jugadores guardar un Pal en la Palbox global compartida, para usarlo en otras partidas o servidores que admitan la importación."
+      },
+      "bAllowGlobalPalboxImport": {
+        "label": "Permitir importar desde la Palbox global",
+        "help": "Permite a los jugadores cargar un Pal guardado previamente en la Palbox global compartida."
+      },
+      "GuildRejoinCooldownMinutes": {
+        "label": "Espera para reunirse al gremio (minutos)",
+        "help": "Minutos que un jugador debe esperar antes de volver a unirse a un gremio que dejó recientemente."
+      },
+      "bAutoResetGuildNoOnlinePlayers": {
+        "label": "Reiniciar automáticamente gremios inactivos",
+        "help": "Elimina automáticamente las bases y reclamaciones de un gremio inactivo tras el tiempo indicado abajo sin ningún miembro conectado."
+      },
+      "AutoResetGuildTimeNoOnlinePlayers": {
+        "label": "Tiempo de reinicio de gremio inactivo (horas)",
+        "help": "Horas sin miembros del gremio conectados antes de que se active el reinicio automático, si está activado arriba."
+      },
+      "VoiceChatMaxVolumeDistance": {
+        "label": "Distancia de volumen máximo del chat de voz",
+        "help": "Distancia a la que el chat de voz alcanza el volumen máximo. Ejemplo: 3000 es el valor habitual de Palworld."
+      },
+      "VoiceChatZeroVolumeDistance": {
+        "label": "Distancia de silencio del chat de voz",
+        "help": "Distancia a la que el chat de voz se desvanece hasta silenciarse. Ejemplo: 15000 es el valor habitual de Palworld."
+      },
+      "bAllowEnhanceStat_Health": {
+        "label": "Permitir puntos de PV",
+        "help": "Permite a los jugadores gastar puntos de estado en Salud."
+      },
+      "bAllowEnhanceStat_Attack": {
+        "label": "Permitir puntos de ataque",
+        "help": "Permite a los jugadores gastar puntos de estado en Ataque."
+      },
+      "bAllowEnhanceStat_Stamina": {
+        "label": "Permitir puntos de resistencia",
+        "help": "Permite a los jugadores gastar puntos de estado en Resistencia."
+      },
+      "bAllowEnhanceStat_Weight": {
+        "label": "Permitir puntos de capacidad de carga",
+        "help": "Permite a los jugadores gastar puntos de estado en Capacidad de carga."
+      },
+      "bAllowEnhanceStat_WorkSpeed": {
+        "label": "Permitir puntos de velocidad de trabajo",
+        "help": "Permite a los jugadores gastar puntos de estado en Velocidad de trabajo."
+      },
+      "DenyTechnologyList": {
+        "label": "IDs de tecnología deshabilitadas",
+        "help": "IDs de tecnología separados por comas para ocultar del árbol tecnológico. Déjalo vacío para permitir el árbol completo."
+      },
+      "PalAutoHpRegeneRateInSleep": {
+        "label": "Tasa de regeneración de PV de Pals (descansando)",
+        "help": "Multiplicador de regeneración de PV de los Pals mientras descansan en la Palbox. Ejemplo: 0,5 cura más lento, 1 es normal, 2 cura el doble de rápido."
+      },
+      "PlayerAutoHpRegeneRateInSleep": {
+        "label": "Tasa de regeneración de PV del jugador (durmiendo)",
+        "help": "Multiplicador de regeneración de PV del jugador mientras duerme. Ejemplo: 0,5 cura más lento, 1 es normal, 2 cura el doble de rápido."
+      },
+      "EquipmentDurabilityDamageRate": {
+        "label": "Tasa de desgaste del equipo",
+        "help": "Multiplicador de pérdida de durabilidad del equipo. Ejemplo: 0,5 reduce a la mitad la pérdida de durabilidad, 1 es normal, 2 desgasta el equipo el doble de rápido."
+      },
+      "BlockRespawnTime": {
+        "label": "Enfriamiento de reaparición (segundos)",
+        "help": "Enfriamiento base de reaparición en segundos tras la muerte."
+      },
+      "RespawnPenaltyDurationThreshold": {
+        "label": "Umbral de muerte rápida (segundos)",
+        "help": "Tiempo de supervivencia en segundos por debajo del cual una vida corta reciente cuenta para la penalización de reaparición por muertes repetidas."
+      },
+      "RespawnPenaltyTimeScale": {
+        "label": "Multiplicador de penalización de reaparición",
+        "help": "Multiplicador aplicado al enfriamiento de reaparición por muertes rápidas repetidas."
+      },
+      "bDisplayPvPItemNumOnWorldMap_BaseCamp": {
+        "label": "Mostrar cantidad de objetos JcJ de la base en el mapa",
+        "help": "Muestra en el mapa del mundo la cantidad de objetos saqueables en JcJ de una base."
+      },
+      "bDisplayPvPItemNumOnWorldMap_Player": {
+        "label": "Mostrar cantidad de objetos JcJ del jugador en el mapa",
+        "help": "Muestra en el mapa del mundo la cantidad de objetos saqueables en JcJ de un jugador."
+      },
+      "bAdditionalDropItemWhenPlayerKillingInPvPMode": {
+        "label": "Objeto extra al eliminar en JcJ",
+        "help": "Activa un objeto adicional para quien elimina tras una muerte en JcJ, usando el objeto y la cantidad de abajo."
+      },
+      "AdditionalDropItemWhenPlayerKillingInPvPMode": {
+        "label": "ID del objeto extra por eliminación JcJ",
+        "help": "ID del objeto otorgado como recompensa extra por una eliminación en JcJ, si está activado arriba."
+      },
+      "AdditionalDropItemNumWhenPlayerKillingInPvPMode": {
+        "label": "Cantidad del objeto extra por eliminación JcJ",
+        "help": "Cantidad del objeto extra por eliminación en JcJ, si está activado arriba."
+      },
+      "bInvisibleOtherGuildBaseCampAreaFX": {
+        "label": "Ocultar efecto de área de base de otros gremios",
+        "help": "Oculta el efecto visual de límite de base para las bases de otros gremios."
+      },
+      "bBuildAreaLimit": {
+        "label": "Restringir construcción cerca de puntos de interés",
+        "help": "Restringe la construcción cerca de ciertos puntos de interés y lugares emblemáticos."
+      },
+      "bEnableDefenseOtherGuildPlayer": {
+        "label": "Las defensas de base atacan a otros gremios",
+        "help": "Permite que las defensas de base ataquen a jugadores de otros gremios."
+      },
+      "bCanPickupOtherGuildDeathPenaltyDrop": {
+        "label": "Permitir saquear objetos de muerte de otros gremios",
+        "help": "Permite a los jugadores recoger objetos de penalización por muerte dejados por miembros de otros gremios."
+      },
+      "bEnableBuildingPlayerUIdDisplay": {
+        "label": "Mostrar constructor de estructura",
+        "help": "Muestra qué jugador colocó una estructura al inspeccionarla."
+      },
+      "MonsterFarmActionSpeedRate": {
+        "label": "Tasa de velocidad de acciones del rancho",
+        "help": "Multiplicador de velocidad para las acciones de producción del rancho/granja de Pals. Ejemplo: 0,5 es más lento, 1 es normal, 2 es el doble de rápido."
+      },
+      "ItemCorruptionMultiplier": {
+        "label": "Tasa de corrosión de objetos",
+        "help": "Multiplicador de la velocidad a la que los objetos se corrompen o degradan con el tiempo, en servidores que rastrean la corrupción de objetos."
+      },
+      "EnablePredatorBossPal": {
+        "label": "Activar Pals depredadores",
+        "help": "Activa las apariciones de Pals depredadores (variantes jefe)."
+      }
+    },
+    "chrome": {
+      "popularSettings": "Ajustes populares",
+      "advancedSettings": "Ajustes avanzados",
+      "hide": "Ocultar",
+      "showAll": "Mostrar todo ({{count}})",
+      "moreSettingsOne": "{{count}} ajuste más, leído directamente del archivo de configuración de tu servidor.",
+      "moreSettingsMany": "{{count}} ajustes más, leídos directamente del archivo de configuración de tu servidor.",
+      "unrolling": "Desenrollando el antiguo pergamino...",
+      "allSaved": "Todos los cambios guardados.",
+      "unsavedChangeOne": "{{count}} cambio sin guardar, se aplicará en el próximo inicio del servidor.",
+      "unsavedChangeMany": "{{count}} cambios sin guardar, se aplicarán en el próximo inicio del servidor.",
+      "saveChanges": "Guardar cambios",
+      "saving": "Guardando...",
+      "settingsSavedTitle": "Ajustes guardados",
+      "settingsSavedMessage": "Los cambios surtirán efecto la próxima vez que se inicie el servidor.",
+      "couldntSave": "No se pudo guardar",
+      "unknownError": "Error desconocido.",
+      "enable": "Activar",
+      "disable": "Desactivar",
+      "currentValueUnknown": "Valor actual",
+      "currentValueLabel": "{{value}} (actual)",
+      "currentValueDescription": "Valor actualmente almacenado en PalWorldSettings.ini.",
+      "helpBool": "Activado enciende este ajuste. Desactivado lo apaga.",
+      "helpInt": "Ajuste numérico. Ejemplo: 10 es un límite bajo, 30 es moderado, 60+ es alto. El significado exacto depende del ajuste.",
+      "helpFloat": "Multiplicador decimal. Ejemplo: 0,5 es media potencia/velocidad, 1,0 es normal, 2,0 es el doble.",
+      "helpRaw": "Valor bruto avanzado de Palworld. Conserva el formato existente a menos que conozcas el valor exacto que espera Palworld.",
+      "helpString": "Ajuste de texto escrito directamente en PalWorldSettings.ini.",
+      "fieldHelpAria": "Ayuda de {{label}}"
     }
   }
 }

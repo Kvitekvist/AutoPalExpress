@@ -11,14 +11,38 @@
   },
   "topbar": {
     "pages": {
-      "dashboard": { "title": "ダッシュボード", "subtitle": "あなたの領地の状態と、そこを彷徨う魂たち" },
-      "mods": { "title": "MOD", "subtitle": "あなたのサーバーに織り込まれたエンチャント" },
-      "control": { "title": "サーバー操作", "subtitle": "あなたの領地の運命を統べる" },
-      "worldSettings": { "title": "ワールド設定", "subtitle": "サーバー設定ファイルが表現できるすべてのルール" },
-      "launcherOptions": { "title": "起動オプション", "subtitle": "選択したサーバーの起動引数" },
-      "logs": { "title": "ログ", "subtitle": "最近の出来事の記録" },
-      "settings": { "title": "設定", "subtitle": "あなたの世界の法を定める" },
-      "superAdmin": { "title": "スーパー管理者", "subtitle": "ネットワーク公開とアクセス権限（ホスト専用）" }
+      "dashboard": {
+        "title": "ダッシュボード",
+        "subtitle": "あなたの領地の状態と、そこを彷徨う魂たち"
+      },
+      "mods": {
+        "title": "MOD",
+        "subtitle": "あなたのサーバーに織り込まれたエンチャント"
+      },
+      "control": {
+        "title": "サーバー操作",
+        "subtitle": "あなたの領地の運命を統べる"
+      },
+      "worldSettings": {
+        "title": "ワールド設定",
+        "subtitle": "サーバー設定ファイルが表現できるすべてのルール"
+      },
+      "launcherOptions": {
+        "title": "起動オプション",
+        "subtitle": "選択したサーバーの起動引数"
+      },
+      "logs": {
+        "title": "ログ",
+        "subtitle": "最近の出来事の記録"
+      },
+      "settings": {
+        "title": "設定",
+        "subtitle": "あなたの世界の法を定める"
+      },
+      "superAdmin": {
+        "title": "スーパー管理者",
+        "subtitle": "ネットワーク公開とアクセス権限（ホスト専用）"
+      }
     },
     "instanceSwitcher": {
       "currentServer": "現在のサーバー：",
@@ -33,6 +57,538 @@
     },
     "languageSwitcher": {
       "label": "言語"
+    }
+  },
+  "worldSettings": {
+    "groups": {
+      "Identity and Access": "サーバー情報とアクセス",
+      "World Rules": "ワールドルール",
+      "Combat": "戦闘",
+      "Progression": "進行度",
+      "Time and Survival": "時間とサバイバル",
+      "World Density": "ワールド密度",
+      "Bases and Work": "拠点と作業",
+      "Saving and Backups": "セーブとバックアップ",
+      "Performance Limits": "パフォーマンス上限",
+      "Mods and Compatibility": "MODと互換性",
+      "Local API": "ローカルAPI",
+      "Other": "その他"
+    },
+    "fields": {
+      "ServerName": {
+        "label": "サーバー名",
+        "help": "直接接続やサーバーリストでプレイヤーに表示される名前。変更後はサーバーを再起動してください。"
+      },
+      "ServerDescription": {
+        "label": "サーバー説明",
+        "help": "サーバー詳細が表示される場所にPalworldが表示する短い公開説明文。"
+      },
+      "ServerPassword": {
+        "label": "サーバーパスワード",
+        "help": "プレイヤーが参加するにはこのパスワードが必要です。空欄の場合、サーバーに到達できる誰でも参加を試みることができます。",
+        "description": "パスワードなしにする場合は空欄のままにしてください。"
+      },
+      "AdminPassword": {
+        "label": "管理者パスワード",
+        "help": "AutoPalExpressはこれをPalworld REST APIの操作(プレイヤー一覧、保存、ブロードキャスト、キック、BAN)に使用します。",
+        "description": "ゲーム内管理者コマンドとローカルREST APIに必要です。"
+      },
+      "ServerPlayerMaxNum": {
+        "label": "最大プレイヤー数",
+        "help": "接続可能な最大プレイヤー数。値を高くするとより多くのプレイヤーが参加できますが、CPU・RAM・ネットワーク負荷が増える可能性があります。"
+      },
+      "CoopPlayerMaxNum": {
+        "label": "パーティ最大人数",
+        "help": "パーティ/ギルドプレイグループの最大人数。値を高くするとより大きなグループが可能になります。"
+      },
+      "Difficulty": {
+        "label": "難易度",
+        "help": "難易度プリセットの選択。「なし」は通常の専用サーバー用カスタムモードです。他の値は、インストール済みのPalworldサーバーが対応している場合のみ適用されます。",
+        "options": {
+          "None": {
+            "label": "なし",
+            "description": "Palworldのデフォルトのカスタムサーバーモード。"
+          },
+          "Easy": {
+            "label": "イージー",
+            "description": "インストール済みサーバーが対応していれば、より穏やかなプリセット。"
+          },
+          "Normal": {
+            "label": "ノーマル",
+            "description": "インストール済みサーバーが対応していれば、標準プリセット。"
+          },
+          "Hard": {
+            "label": "ハード",
+            "description": "インストール済みサーバーが対応していれば、より厳しいプリセット。"
+          }
+        }
+      },
+      "DeathPenalty": {
+        "label": "デスペナルティ",
+        "help": "プレイヤーが死亡時に失うものを制御します。ペナルティが高いほど厳しくなります。",
+        "options": {
+          "None": {
+            "label": "なし",
+            "description": "死亡時にアイテムやパルをドロップしません。"
+          },
+          "Item": {
+            "label": "アイテム",
+            "description": "インベントリアイテムはドロップしますが、装備とパルは保持されます。"
+          },
+          "ItemAndEquipment": {
+            "label": "アイテムと装備",
+            "description": "インベントリアイテムと装備中のギアがドロップします。"
+          },
+          "All": {
+            "label": "すべて",
+            "description": "インベントリ、装備、チームのパルすべてがドロップします。"
+          }
+        }
+      },
+      "bIsPvP": {
+        "label": "PvP有効",
+        "help": "有効にすると、プレイヤー同士がダメージを与え合い戦うことができます。"
+      },
+      "bEnableFriendlyFire": {
+        "label": "フレンドリーファイア",
+        "help": "味方や友好対象へのダメージを許可します。より安全な協力プレイサーバーにするにはオフのままにしてください。"
+      },
+      "bHardcore": {
+        "label": "ハードコアモード",
+        "help": "永続的な死の結果を伴う過酷なサバイバルモード。これ単体ではパルロストは発生しません - 下の「パル永久ロスト」を参照してください。"
+      },
+      "bPalLost": {
+        "label": "パル永久ロスト",
+        "help": "Palworld独自のパル永久死亡切り替え。ハードコアモードとは独立しており、どちらか一方だけを有効にできます。",
+        "description": "死亡するとパルが永久に失われます。"
+      },
+      "ExpRate": {
+        "label": "経験値倍率",
+        "help": "経験値の倍率。例: 0.5でレベルアップ速度が半分、1で通常、2で獲得経験値が2倍になります。"
+      },
+      "PalCaptureRate": {
+        "label": "捕獲率倍率",
+        "help": "捕獲確率の倍率。例: 0.5で捕獲確率がおよそ半分、1で通常、2で捕獲がかなり簡単になります。"
+      },
+      "PalSpawnNumRate": {
+        "label": "パル出現率",
+        "help": "パルの出現倍率。例: 0.5で野生パルが減少、1で通常、2で出現密度とサーバー負荷がおよそ2倍になります。"
+      },
+      "PalDamageRateAttack": {
+        "label": "パル攻撃ダメージ倍率",
+        "help": "パルが与えるダメージ。例: 0.5でパルの攻撃ダメージが半分、1で通常、2で2倍になります。"
+      },
+      "PalDamageRateDefense": {
+        "label": "パル被ダメージ倍率",
+        "help": "パルが受けるダメージ。例: 0.5でパルの被ダメージが半分、1で通常、2で2倍になります。"
+      },
+      "PlayerDamageRateAttack": {
+        "label": "プレイヤー攻撃ダメージ倍率",
+        "help": "プレイヤーが与えるダメージ。例: 0.5でプレイヤーのダメージが半分、1で通常、2で2倍になります。"
+      },
+      "PlayerDamageRateDefense": {
+        "label": "プレイヤー被ダメージ倍率",
+        "help": "プレイヤーが受けるダメージ。例: 0.5でプレイヤーの被ダメージが半分、1で通常、2で2倍になります。"
+      },
+      "DayTimeSpeedRate": {
+        "label": "昼の長さ倍率",
+        "help": "昼間の速度倍率。例: 0.5で昼が長くなり、1で通常、2で昼の経過が2倍速くなります。"
+      },
+      "NightTimeSpeedRate": {
+        "label": "夜の長さ倍率",
+        "help": "夜間の速度倍率。例: 0.5で夜が長くなり、1で通常、2で夜の経過が2倍速くなります。"
+      },
+      "WorkSpeedRate": {
+        "label": "作業速度倍率",
+        "help": "作業速度の倍率。例: 0.5で作業速度が半分、1で通常、2で作業速度が2倍になります。"
+      },
+      "DropItemMaxNum": {
+        "label": "最大ドロップアイテム数",
+        "help": "ワールド内の最大ドロップアイテム数。例: 500でワールドが整理された状態を保ちやすく、3000がPalworldの一般的なデフォルト、5000でより多くのドロップを保持しますがパフォーマンスに影響する可能性があります。"
+      },
+      "BaseCampMaxNum": {
+        "label": "最大拠点数",
+        "help": "サーバーで許可される拠点の総数。例: 32は制限的、128は一般的、256は多くの拠点を許可しますがサーバー負荷が増加します。"
+      },
+      "BaseCampWorkerMaxNum": {
+        "label": "拠点あたり最大作業員数",
+        "help": "1つの拠点に配置できる最大パル数。例: 10は軽量、15は一般的、20以上はより活発な拠点を可能にしますが処理負荷が増加します。"
+      },
+      "GuildPlayerMaxNum": {
+        "label": "最大ギルド人数",
+        "help": "ギルド内の最大プレイヤー数。例: 10でギルドを小さく保ち、20が一般的、32でより大きな共有グループが可能になります。"
+      },
+      "AutoSaveSpan": {
+        "label": "自動保存間隔(分)",
+        "help": "自動保存の間隔(分)。例: 10は頻繁に保存、30は中程度、60はディスク活動を減らしますがクラッシュ後により多くの巻き戻りリスクがあります。"
+      },
+      "bIsUseBackupSaveData": {
+        "label": "セーブバックアップを保持",
+        "help": "Palworldはローテーション式のセーブバックアップを保持します。復旧に便利ですが、ディスク活動とストレージ使用量が増加します。"
+      },
+      "RESTAPIEnabled": {
+        "label": "REST API有効",
+        "help": "AutoPalExpressのプレイヤー一覧、保存、メトリクス、キック/BAN、ブロードキャスト、正常なシャットダウンに必要です。"
+      },
+      "RESTAPIPort": {
+        "label": "REST APIポート",
+        "help": "PalworldのREST APIが使用するローカルポート。これを直接ポート転送しないでください。AutoPalExpressはローカルで通信します。"
+      },
+      "CrossplayPlatforms": {
+        "label": "クロスプレイプラットフォーム",
+        "help": "接続を許可するクライアントプラットフォーム。「全プラットフォーム」が最も広い互換性を持ち、「Steamのみ」が最も制限的な一般的選択です。",
+        "options": {
+          "(Steam)": {
+            "label": "Steamのみ",
+            "description": "Steamクライアントのみ接続可能です。"
+          },
+          "(Xbox)": {
+            "label": "Xboxのみ",
+            "description": "Xbox/Game Passクライアントのみ接続可能です。"
+          },
+          "(PS5)": {
+            "label": "PS5のみ",
+            "description": "PlayStation 5クライアントのみ接続可能です。"
+          },
+          "(Mac)": {
+            "label": "Macのみ",
+            "description": "Macクライアントのみ接続可能です。"
+          },
+          "(Steam,Xbox)": {
+            "label": "Steam + Xbox",
+            "description": "SteamとXbox/Game Passクライアントを許可します。"
+          },
+          "(Steam,Xbox,PS5,Mac)": {
+            "label": "全プラットフォーム",
+            "description": "Steam、Xbox/Game Pass、PS5、Macクライアントを許可します。"
+          }
+        }
+      },
+      "LogFormatType": {
+        "label": "ログ形式",
+        "help": "テキストは人間にとって読みやすい形式です。外部ツールがサーバー出力を解析する場合はJSONの方が適しています。",
+        "options": {
+          "Text": {
+            "label": "テキスト",
+            "description": "人間が読みやすいサーバーログ。"
+          },
+          "Json": {
+            "label": "JSON",
+            "description": "外部ツール向けの構造化ログ。"
+          }
+        }
+      },
+      "RandomizerType": {
+        "label": "パルランダマイザーモード",
+        "help": "「なし」は通常の出現を維持します。「リージョン」は各リージョン内でランダム化します。「すべて」はワールド全体でパルの出現を完全にランダム化します。",
+        "options": {
+          "None": {
+            "label": "なし",
+            "description": "パル出現のランダム化を行いません。"
+          },
+          "Region": {
+            "label": "リージョン",
+            "description": "各リージョン内でパルの出現をランダム化します。"
+          },
+          "All": {
+            "label": "すべて",
+            "description": "ワールド全体でパルの出現を完全にランダム化します。"
+          }
+        }
+      },
+      "bIsRandomizerPalLevelRandom": {
+        "label": "パルレベルをランダム化",
+        "help": "有効にすると、ランダム化された野生パルは完全にランダムなレベルを持つことがあります。無効にすると、レベルは各エリアの想定範囲に近い状態を保ちます。"
+      },
+      "bEnableFastTravel": {
+        "label": "ファストトラベル有効",
+        "help": "有効にすると通常のファストトラベルが可能になります。"
+      },
+      "bEnableFastTravelOnlyBaseCamp": {
+        "label": "拠点間のみファストトラベル可能",
+        "help": "ファストトラベルをすべてのファストトラベルポイントではなく拠点間のみに制限します。"
+      },
+      "bIsStartLocationSelectByMap": {
+        "label": "マップで開始地点を選択",
+        "help": "新規キャラクターがマップから開始地点を選択できるようにします。"
+      },
+      "bShowPlayerList": {
+        "label": "プレイヤーリストを表示",
+        "help": "有効にすると、PalworldのESCメニューにプレイヤーリストが表示されます。"
+      },
+      "bAllowClientMod": {
+        "label": "クライアントMODを許可",
+        "help": "クライアントMODを有効にしたプレイヤーの参加を許可します。より寛容ですが、MOD構成が異なる場合はサポートが難しくなります。"
+      },
+      "bEnableInvaderEnemy": {
+        "label": "侵略者を有効化",
+        "help": "侵略者イベントを有効にします。オフにするとワールドが穏やかになります。"
+      },
+      "bEnableVoiceChat": {
+        "label": "ボイスチャット有効",
+        "help": "ゲーム内ボイスチャットを有効にします。"
+      },
+      "BaseCampMaxNumInGuild": {
+        "label": "ギルドあたり最大拠点数",
+        "help": "1つのギルドが所有できる最大拠点数。値を高くするとより大規模なギルドインフラが可能になりますが、サーバー負荷が増加します。"
+      },
+      "CollectionDropRate": {
+        "label": "採集ドロップ率",
+        "help": "採集アイテム量の倍率。例: 0.5で採集リソースが減少、1で通常、2で採集ドロップが2倍になります。"
+      },
+      "CollectionObjectHpRate": {
+        "label": "採集オブジェクトHP倍率",
+        "help": "採集オブジェクトの耐久値。例: 0.5でノードがより早く壊れ、1で通常、2でノードが壊れるまでの時間が長くなります。"
+      },
+      "CollectionObjectRespawnSpeedRate": {
+        "label": "採集オブジェクト再出現率",
+        "help": "採集オブジェクトの再出現速度。例: 0.5でリソースの復活が遅くなり、1で通常、2で採集オブジェクトがより早く復活します。"
+      },
+      "EnemyDropItemRate": {
+        "label": "敵ドロップ率",
+        "help": "敵のドロップ量の倍率。例: 0.5でドロップが減少、1で通常、2で敵のドロップが2倍になります。"
+      },
+      "PalEggDefaultHatchingTime": {
+        "label": "卵の孵化時間(時間)",
+        "help": "特大の卵の孵化時間(時間単位)。例: 0で卵の孵化が大幅に加速、2で短時間、72で非常に長くなります。"
+      },
+      "SupplyDropSpan": {
+        "label": "補給物資投下間隔(分)",
+        "help": "隕石または補給物資投下イベントの間隔(分)。例: 30は頻繁、180は中程度、360はまれです。"
+      },
+      "BuildObjectDamageRate": {
+        "label": "建造物ダメージ倍率",
+        "help": "建物に与えるダメージ。例: 0.5で建造物へのダメージが半分、1で通常、2で2倍になります。"
+      },
+      "BuildObjectDeteriorationDamageRate": {
+        "label": "建造物劣化率",
+        "help": "建物の劣化速度。例: 0で多くのサーバーで劣化が無効または大幅に遅くなり、1で通常、2でより早く劣化します。"
+      },
+      "ItemWeightRate": {
+        "label": "アイテム重量倍率",
+        "help": "アイテムの重量倍率。例: 0.5でアイテムが軽くなり、1で通常、2でアイテムの重量が2倍になります。"
+      },
+      "PlayerStaminaDecreaceRate": {
+        "label": "プレイヤースタミナ消費率",
+        "help": "プレイヤーのスタミナ消費倍率。例: 0.5でスタミナ消費が遅くなり、1で通常、2で消費速度が2倍になります。"
+      },
+      "PalStaminaDecreaceRate": {
+        "label": "パルスタミナ消費率",
+        "help": "パルのスタミナ消費倍率。例: 0.5でパルのスタミナ消費が遅くなり、1で通常、2で消費速度が2倍になります。"
+      },
+      "PlayerStomachDecreaceRate": {
+        "label": "プレイヤー満腹度減少率",
+        "help": "プレイヤーの満腹度消費倍率。例: 0.5で食料がより長持ちし、1で通常、2で満腹度の減少が2倍速くなります。"
+      },
+      "PalStomachDecreaceRate": {
+        "label": "パル満腹度減少率",
+        "help": "パルの満腹度消費倍率。例: 0.5でパルの食料がより長持ちし、1で通常、2で満腹度の減少が2倍速くなります。"
+      },
+      "PlayerAutoHPRegeneRate": {
+        "label": "プレイヤーHP自然回復率",
+        "help": "プレイヤーの自然HP回復倍率。例: 0.5で回復が遅くなり、1で通常、2で回復速度が2倍になります。"
+      },
+      "PalAutoHPRegeneRate": {
+        "label": "パルHP自然回復率",
+        "help": "パルの自然HP回復倍率。例: 0.5で回復が遅くなり、1で通常、2で回復速度が2倍になります。"
+      },
+      "ServerReplicatePawnCullDistance": {
+        "label": "パル同期距離",
+        "help": "プレイヤーとパルを同期する距離(センチメートル)。例: 10000はより短い範囲、15000は中程度、20000以上はより遠くまで同期しますがパフォーマンスを消費します。"
+      },
+      "MaxBuildingLimitNum": {
+        "label": "プレイヤーあたり最大建造数",
+        "help": "プレイヤーごとの建造上限。例: 0は無制限、5000は制限的、20000ははるかに多くの建築を許可しますがパフォーマンスを消費する可能性があります。"
+      },
+      "PhysicsActiveDropItemMaxNum": {
+        "label": "最大物理演算アイテム数",
+        "help": "物理演算が有効な状態でドロップされる最大アイテム数。例: 50は軽量、100は中程度、300はより多くの物理アイテムをアクティブに保ちますがパフォーマンスを消費する可能性があります。"
+      },
+      "RandomizerSeed": {
+        "label": "ランダマイザーシード",
+        "help": "パル出現ランダム化用の任意のシード。空欄のままにすると毎回ランダムなシードになります。値を設定すると同じランダム化レイアウトを再現できます。"
+      },
+      "bEnablePlayerToPlayerDamage": {
+        "label": "プレイヤー間ダメージ",
+        "help": "プレイヤー同士が直接ダメージを与え合えるようにします。「PvP有効」と併用されます - 完全協力サーバーにするには両方を無効にしてください。"
+      },
+      "bCharacterRecreateInHardcore": {
+        "label": "ハードコア死亡後の新規キャラクター作成を許可",
+        "help": "ハードコアモードで、死亡後に永久ロックアウトされる代わりに新しいキャラクターを作成できるようにします。"
+      },
+      "bExistPlayerAfterLogout": {
+        "label": "ログアウト時にスリープ",
+        "help": "有効にすると、ログアウト後にプレイヤーのキャラクターは消える代わりに現在の場所でワールドに眠った状態で残ります。"
+      },
+      "bIsShowJoinLeftMessage": {
+        "label": "ネイティブ参加/退出メッセージ",
+        "help": "プレイヤーが参加・退出した際のPalworld独自のゲーム内システムメッセージ。オートメーションにあるAutoPalExpress独自の参加/退出ブロードキャスト機能とは別のものです。"
+      },
+      "ChatPostLimitPerMinute": {
+        "label": "1分あたりのチャットメッセージ数",
+        "help": "1人のプレイヤーが1分間に送信できる最大チャットメッセージ数。値を低くするとチャットスパムが減少します。"
+      },
+      "bEnableNonLoginPenalty": {
+        "label": "非ログインペナルティを有効化",
+        "help": "しばらくログインしていないプレイヤーにペナルティを適用します。"
+      },
+      "bAllowGlobalPalboxExport": {
+        "label": "グローバルパルボックスへのエクスポートを許可",
+        "help": "プレイヤーがパルを共有グローバルパルボックスに保存できるようにし、インポートに対応する他のセーブやサーバーで使用できるようにします。"
+      },
+      "bAllowGlobalPalboxImport": {
+        "label": "グローバルパルボックスからのインポートを許可",
+        "help": "プレイヤーが以前に共有グローバルパルボックスに保存したパルを読み込めるようにします。"
+      },
+      "GuildRejoinCooldownMinutes": {
+        "label": "ギルド再加入クールダウン(分)",
+        "help": "プレイヤーが最近脱退したギルドに再加入するまで待つ必要がある分数。"
+      },
+      "bAutoResetGuildNoOnlinePlayers": {
+        "label": "非アクティブギルドを自動リセット",
+        "help": "以下の時間、メンバーが誰もオンラインでない非アクティブなギルドの拠点と所有権を自動的にクリアします。"
+      },
+      "AutoResetGuildTimeNoOnlinePlayers": {
+        "label": "非アクティブギルドリセット時間(時間)",
+        "help": "上で有効にした場合、自動リセットが発動するまでギルドメンバーが誰もオンラインでない時間(時間単位)。"
+      },
+      "VoiceChatMaxVolumeDistance": {
+        "label": "ボイスチャット最大音量距離",
+        "help": "ボイスチャットが最大音量に達する距離。例: 3000がPalworldの一般的なデフォルトです。"
+      },
+      "VoiceChatZeroVolumeDistance": {
+        "label": "ボイスチャット無音距離",
+        "help": "ボイスチャットが無音までフェードする距離。例: 15000がPalworldの一般的なデフォルトです。"
+      },
+      "bAllowEnhanceStat_Health": {
+        "label": "HPステータスポイント振り分けを許可",
+        "help": "プレイヤーがステータスポイントをHPに振り分けられるようにします。"
+      },
+      "bAllowEnhanceStat_Attack": {
+        "label": "攻撃力ステータスポイント振り分けを許可",
+        "help": "プレイヤーがステータスポイントを攻撃力に振り分けられるようにします。"
+      },
+      "bAllowEnhanceStat_Stamina": {
+        "label": "スタミナステータスポイント振り分けを許可",
+        "help": "プレイヤーがステータスポイントをスタミナに振り分けられるようにします。"
+      },
+      "bAllowEnhanceStat_Weight": {
+        "label": "所持重量ステータスポイント振り分けを許可",
+        "help": "プレイヤーがステータスポイントを所持重量に振り分けられるようにします。"
+      },
+      "bAllowEnhanceStat_WorkSpeed": {
+        "label": "作業速度ステータスポイント振り分けを許可",
+        "help": "プレイヤーがステータスポイントを作業速度に振り分けられるようにします。"
+      },
+      "DenyTechnologyList": {
+        "label": "無効化するテクノロジーID",
+        "help": "テクノロジーツリーから非表示にするテクノロジーIDのカンマ区切りリスト。ツリー全体を許可する場合は空欄のままにしてください。"
+      },
+      "PalAutoHpRegeneRateInSleep": {
+        "label": "パルHP回復率(休息中)",
+        "help": "パルボックスで休息中のパルのHP回復倍率。例: 0.5で回復が遅くなり、1で通常、2で回復速度が2倍になります。"
+      },
+      "PlayerAutoHpRegeneRateInSleep": {
+        "label": "プレイヤーHP回復率(睡眠中)",
+        "help": "睡眠中のプレイヤーのHP回復倍率。例: 0.5で回復が遅くなり、1で通常、2で回復速度が2倍になります。"
+      },
+      "EquipmentDurabilityDamageRate": {
+        "label": "装備耐久度消耗率",
+        "help": "装備の耐久度低下倍率。例: 0.5で耐久度低下が半分、1で通常、2で装備の消耗が2倍速くなります。"
+      },
+      "BlockRespawnTime": {
+        "label": "リスポーンクールダウン(秒)",
+        "help": "死亡後の基本リスポーンクールダウン(秒単位)。"
+      },
+      "RespawnPenaltyDurationThreshold": {
+        "label": "早期死亡判定しきい値(秒)",
+        "help": "この秒数未満の直近の生存時間が、繰り返し死亡によるリスポーンペナルティにカウントされるしきい値。"
+      },
+      "RespawnPenaltyTimeScale": {
+        "label": "リスポーンペナルティ倍率",
+        "help": "繰り返し素早く死亡した場合にリスポーンクールダウンに適用される倍率。"
+      },
+      "bDisplayPvPItemNumOnWorldMap_BaseCamp": {
+        "label": "拠点のPvPアイテム数をマップに表示",
+        "help": "拠点のPvPで略奪可能なアイテム数をワールドマップに表示します。"
+      },
+      "bDisplayPvPItemNumOnWorldMap_Player": {
+        "label": "プレイヤーのPvPアイテム数をマップに表示",
+        "help": "プレイヤーのPvPで略奪可能なアイテム数をワールドマップに表示します。"
+      },
+      "bAdditionalDropItemWhenPlayerKillingInPvPMode": {
+        "label": "PvPキル時の追加アイテムドロップ",
+        "help": "PvPキル後、下記のアイテムと数量を使用してキラーに追加のアイテムドロップを有効にします。"
+      },
+      "AdditionalDropItemWhenPlayerKillingInPvPMode": {
+        "label": "PvPキルドロップアイテムID",
+        "help": "上で有効にした場合、PvPキルの追加報酬としてドロップするアイテムID。"
+      },
+      "AdditionalDropItemNumWhenPlayerKillingInPvPMode": {
+        "label": "PvPキルドロップアイテム数量",
+        "help": "上で有効にした場合の、追加PvPキルドロップアイテムの数量。"
+      },
+      "bInvisibleOtherGuildBaseCampAreaFX": {
+        "label": "他ギルドの拠点エリアエフェクトを非表示",
+        "help": "他ギルドの拠点の境界表示エフェクトを非表示にします。"
+      },
+      "bBuildAreaLimit": {
+        "label": "ランドマーク付近の建築を制限",
+        "help": "特定のランドマークや名所付近での建築を制限します。"
+      },
+      "bEnableDefenseOtherGuildPlayer": {
+        "label": "拠点防衛が他ギルドを対象にする",
+        "help": "拠点防衛が他ギルドのプレイヤーを対象にできるようにします。"
+      },
+      "bCanPickupOtherGuildDeathPenaltyDrop": {
+        "label": "他ギルドの死亡ドロップの略奪を許可",
+        "help": "プレイヤーが他ギルドのメンバーが残したデスペナルティのアイテムドロップを拾えるようにします。"
+      },
+      "bEnableBuildingPlayerUIdDisplay": {
+        "label": "建築者を表示",
+        "help": "構造物を調べた際に、どのプレイヤーが設置したかを表示します。"
+      },
+      "MonsterFarmActionSpeedRate": {
+        "label": "牧場アクション速度倍率",
+        "help": "パル牧場/ファームの生産アクションの速度倍率。例: 0.5で遅くなり、1で通常、2で2倍速くなります。"
+      },
+      "ItemCorruptionMultiplier": {
+        "label": "アイテム劣化率",
+        "help": "アイテムの劣化を追跡するサーバーで、アイテムが時間とともに劣化・腐敗する速度の倍率。"
+      },
+      "EnablePredatorBossPal": {
+        "label": "プレデターパルを有効化",
+        "help": "プレデター(ボス系)パルの出現を有効にします。"
+      }
+    },
+    "chrome": {
+      "popularSettings": "人気の設定",
+      "advancedSettings": "詳細設定",
+      "hide": "隠す",
+      "showAll": "すべて表示 ({{count}})",
+      "moreSettingsOne": "他{{count}}件の設定。サーバーの設定ファイルから直接読み込まれます。",
+      "moreSettingsMany": "他{{count}}件の設定。サーバーの設定ファイルから直接読み込まれます。",
+      "unrolling": "古い巻物を広げています...",
+      "allSaved": "すべての変更が保存されました。",
+      "unsavedChangeOne": "未保存の変更が{{count}}件あります。次回のサーバー起動時に適用されます。",
+      "unsavedChangeMany": "未保存の変更が{{count}}件あります。次回のサーバー起動時に適用されます。",
+      "saveChanges": "変更を保存",
+      "saving": "保存中...",
+      "settingsSavedTitle": "設定を保存しました",
+      "settingsSavedMessage": "変更は次回のサーバー起動時に有効になります。",
+      "couldntSave": "保存できませんでした",
+      "unknownError": "不明なエラーです。",
+      "enable": "有効",
+      "disable": "無効",
+      "currentValueUnknown": "現在の値",
+      "currentValueLabel": "{{value}}(現在の値)",
+      "currentValueDescription": "現在PalWorldSettings.iniに保存されている値です。",
+      "helpBool": "オンでこの設定が有効になり、オフで無効になります。",
+      "helpInt": "数値設定です。例: 10は低めの値、30は中程度、60以上は高い値です。正確な意味は設定ごとに異なります。",
+      "helpFloat": "小数倍率です。例: 0.5は半分の強さ/速度、1.0は通常、2.0は2倍です。",
+      "helpRaw": "Palworldの高度な生の値です。Palworldが期待する正確な値がわからない限り、既存の形式を維持してください。",
+      "helpString": "PalWorldSettings.iniに直接書き込まれるテキスト設定です。",
+      "fieldHelpAria": "{{label}}のヘルプ"
     }
   }
 }

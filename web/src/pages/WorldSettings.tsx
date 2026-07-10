@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Info, Save, Sliders, Sparkles } from "lucide-react";
 import { serverSettingsApi } from "@/api";
 import type { SettingField } from "@/types/models";
@@ -12,6 +13,7 @@ import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
 import { useNotifications } from "@/hooks/useNotifications";
 
 type FieldValue = boolean | number | string;
+type Translate = ReturnType<typeof useTranslation>["t"];
 
 const GROUP_ORDER = [
   "Identity and Access",
@@ -27,33 +29,71 @@ const GROUP_ORDER = [
   "Other",
 ];
 
-function settingHelp(field: SettingField) {
-  if (field.help) return field.help;
+// Translation keys are looked up by the field's stable backend `key` (and,
+// for dropdowns, the option's exact English `value`) rather than by the
+// English text itself, so relabeling the English source never breaks a
+// translation. The English text itself is never stored a second time here -
+// t()'s defaultValue is always the backend-provided English string, so
+// English keeps working even for fields/options a locale hasn't translated
+// yet (see TICKET-0067).
+function fieldLabel(t: Translate, field: SettingField): string {
+  return t(`worldSettings.fields.${field.key}.label`, { defaultValue: field.label });
+}
+
+function fieldDescription(t: Translate, field: SettingField): string | null {
+  if (!field.description) return null;
+  return t(`worldSettings.fields.${field.key}.description`, { defaultValue: field.description });
+}
+
+function optionLabel(t: Translate, field: SettingField, value: string, fallback: string): string {
+  return t(`worldSettings.fields.${field.key}.options.${value}.label`, { defaultValue: fallback });
+}
+
+function optionDescription(t: Translate, field: SettingField, value: string, fallback: string | null): string | null {
+  if (!fallback) return null;
+  return t(`worldSettings.fields.${field.key}.options.${value}.description`, { defaultValue: fallback });
+}
+
+function settingHelp(t: Translate, field: SettingField) {
+  if (field.help) return t(`worldSettings.fields.${field.key}.help`, { defaultValue: field.help });
   if (field.options?.length) {
-    return field.options.map((option) => `${option.label}: ${option.description ?? option.value}`).join("\n");
+    return field.options
+      .map((option) => `${optionLabel(t, field, option.value, option.label)}: ${optionDescription(t, field, option.value, option.description) ?? option.value}`)
+      .join("\n");
   }
-  if (field.type === "bool") return "On enables this setting. Off disables it.";
-  if (field.type === "int") return "Numeric setting. Example: 10 is a lower limit, 30 is moderate, 60+ is high. The exact meaning depends on the setting.";
-  if (field.type === "float") return "Decimal multiplier. Example: 0.5 is half strength/speed, 1.0 is normal, 2.0 is double.";
-  if (field.type === "raw") return "Advanced raw Palworld value. Keep the existing format unless you know the exact value Palworld expects.";
-  return "Text setting written directly to PalWorldSettings.ini.";
+  if (field.type === "bool") return t("worldSettings.chrome.helpBool", { defaultValue: "On enables this setting. Off disables it." });
+  if (field.type === "int")
+    return t("worldSettings.chrome.helpInt", {
+      defaultValue: "Numeric setting. Example: 10 is a lower limit, 30 is moderate, 60+ is high. The exact meaning depends on the setting.",
+    });
+  if (field.type === "float")
+    return t("worldSettings.chrome.helpFloat", {
+      defaultValue: "Decimal multiplier. Example: 0.5 is half strength/speed, 1.0 is normal, 2.0 is double.",
+    });
+  if (field.type === "raw")
+    return t("worldSettings.chrome.helpRaw", {
+      defaultValue: "Advanced raw Palworld value. Keep the existing format unless you know the exact value Palworld expects.",
+    });
+  return t("worldSettings.chrome.helpString", { defaultValue: "Text setting written directly to PalWorldSettings.ini." });
 }
 
 function FieldLabel({ field }: { field: SettingField }) {
+  const { t } = useTranslation();
+  const label = fieldLabel(t, field);
   return (
     <span className="inline-flex min-w-0 items-center gap-1.5">
-      <span className="truncate">{field.label}</span>
+      <span className="truncate">{label}</span>
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             type="button"
             className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-gold-400/80 hover:bg-gold-500/10 hover:text-gold-300"
-            aria-label={`${field.label} help`}
+            aria-label={t("worldSettings.chrome.fieldHelpAria", { defaultValue: "{{label}} help", label })}
           >
             <Info className="h-3.5 w-3.5" />
           </button>
         </TooltipTrigger>
-        <TooltipContent className="max-w-sm whitespace-pre-line leading-relaxed">{settingHelp(field)}</TooltipContent>
+        <TooltipContent className="max-w-sm whitespace-pre-line leading-relaxed">{settingHelp(t, field)}</TooltipContent>
       </Tooltip>
     </span>
   );
@@ -81,6 +121,7 @@ function FieldGroups({
   values: Record<string, FieldValue>;
   onChange: (key: string, value: FieldValue) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-7">
       {groupedFields(fields).map(([group, groupFields], index) => (
@@ -93,7 +134,9 @@ function FieldGroups({
               : "border-stone-600/45 bg-stone-800/22",
           ].join(" ")}
         >
-          <h4 className="font-display text-sm font-semibold text-gold-300">{group}</h4>
+          <h4 className="font-display text-sm font-semibold text-gold-300">
+            {t(`worldSettings.groups.${group}`, { defaultValue: group })}
+          </h4>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {groupFields.map((field) => (
               <FieldControl
@@ -119,7 +162,9 @@ function FieldControl({
   value: FieldValue;
   onChange: (value: FieldValue) => void;
 }) {
+  const { t } = useTranslation();
   const label = <FieldLabel field={field} />;
+  const description = fieldDescription(t, field);
 
   if (field.type === "bool") {
     return (
@@ -129,20 +174,41 @@ function FieldControl({
           id={`field-${field.key}`}
           checked={Boolean(value)}
           onCheckedChange={onChange}
-          label={Boolean(value) ? "Disable" : "Enable"}
+          label={
+            Boolean(value)
+              ? t("worldSettings.chrome.disable", { defaultValue: "Disable" })
+              : t("worldSettings.chrome.enable", { defaultValue: "Enable" })
+          }
           compact
         />
-        {field.description && <p className="text-xs text-parchment-300/40">{field.description}</p>}
+        {description && <p className="text-xs text-parchment-300/40">{description}</p>}
       </div>
     );
   }
 
   if (field.options?.length) {
+    // The dropdown's `value` is always Palworld's exact English enum string
+    // (e.g. "Normal", "Item") - only the displayed label/description are
+    // translated. Whatever the user picks, that untouched English value is
+    // what gets sent back and written into PalWorldSettings.ini.
     const stringValue = String(value ?? "");
     const hasCurrentValue = field.options.some((option) => option.value === stringValue);
-    const options = hasCurrentValue || stringValue === ""
-      ? field.options
-      : [{ value: stringValue, label: `${stringValue || "Current value"} (current)`, description: "Value currently stored in PalWorldSettings.ini." }, ...field.options];
+    const options =
+      hasCurrentValue || stringValue === ""
+        ? field.options
+        : [
+            {
+              value: stringValue,
+              label: t("worldSettings.chrome.currentValueLabel", {
+                defaultValue: "{{value}} (current)",
+                value: stringValue || t("worldSettings.chrome.currentValueUnknown", { defaultValue: "Current value" }),
+              }),
+              description: t("worldSettings.chrome.currentValueDescription", {
+                defaultValue: "Value currently stored in PalWorldSettings.ini.",
+              }),
+            },
+            ...field.options,
+          ];
     return (
       <div className="space-y-1.5">
         <Label htmlFor={`field-${field.key}`}>{label}</Label>
@@ -153,12 +219,12 @@ function FieldControl({
           <SelectContent>
             {options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {optionLabel(t, field, option.value, option.label)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        {field.description && <p className="text-xs text-parchment-300/40">{field.description}</p>}
+        {description && <p className="text-xs text-parchment-300/40">{description}</p>}
       </div>
     );
   }
@@ -179,12 +245,13 @@ function FieldControl({
           else onChange(e.target.value);
         }}
       />
-      {field.description && <p className="text-xs text-parchment-300/40">{field.description}</p>}
+      {description && <p className="text-xs text-parchment-300/40">{description}</p>}
     </div>
   );
 }
 
 export default function WorldSettings() {
+  const { t } = useTranslation();
   const [fields, setFields] = React.useState<SettingField[] | null>(null);
   const [values, setValues] = React.useState<Record<string, FieldValue>>({});
   const [dirty, setDirty] = React.useState<Set<string>>(new Set());
@@ -219,11 +286,16 @@ export default function WorldSettings() {
       setValues(Object.fromEntries(data.fields.map((f) => [f.key, f.value])));
       setDirty(new Set());
       notifications.success({
-        title: "Settings saved",
-        message: "Changes take effect the next time the server starts.",
+        title: t("worldSettings.chrome.settingsSavedTitle", { defaultValue: "Settings saved" }),
+        message: t("worldSettings.chrome.settingsSavedMessage", {
+          defaultValue: "Changes take effect the next time the server starts.",
+        }),
       });
     } catch (e) {
-      notifications.error({ title: "Couldn't save", message: e instanceof Error ? e.message : "Unknown error." });
+      notifications.error({
+        title: t("worldSettings.chrome.couldntSave", { defaultValue: "Couldn't save" }),
+        message: e instanceof Error ? e.message : t("worldSettings.chrome.unknownError", { defaultValue: "Unknown error." }),
+      });
     } finally {
       setSaving(false);
     }
@@ -232,7 +304,9 @@ export default function WorldSettings() {
   if (!fields) {
     return (
       <div className="flex h-64 items-center justify-center text-parchment-300/50">
-        <p className="animate-pulse font-display">Unrolling the ancient scroll...</p>
+        <p className="animate-pulse font-display">
+          {t("worldSettings.chrome.unrolling", { defaultValue: "Unrolling the ancient scroll..." })}
+        </p>
       </div>
     );
   }
@@ -243,16 +317,18 @@ export default function WorldSettings() {
 
   return (
     <div className="space-y-6 pb-24">
-      <ScrollPanel icon={<Sparkles />} title="Popular Settings">
+      <ScrollPanel icon={<Sparkles />} title={t("worldSettings.chrome.popularSettings", { defaultValue: "Popular Settings" })}>
         <FieldGroups fields={popular} values={values} onChange={updateValue} />
       </ScrollPanel>
 
       <ScrollPanel
         icon={<Sliders />}
-        title="Advanced Settings"
+        title={t("worldSettings.chrome.advancedSettings", { defaultValue: "Advanced Settings" })}
         actions={
           <RuneButton type="button" variant="ghost" size="sm" onClick={() => setShowAdvanced((v) => !v)}>
-            {showAdvanced ? "Hide" : `Show All (${advanced.length})`}
+            {showAdvanced
+              ? t("worldSettings.chrome.hide", { defaultValue: "Hide" })
+              : t("worldSettings.chrome.showAll", { defaultValue: "Show All ({{count}})", count: advanced.length })}
           </RuneButton>
         }
       >
@@ -260,7 +336,15 @@ export default function WorldSettings() {
           <FieldGroups fields={advanced} values={values} onChange={updateValue} />
         ) : (
           <p className="text-sm text-parchment-300/50">
-            {advanced.length} more settings, read straight from your server's own config file.
+            {advanced.length === 1
+              ? t("worldSettings.chrome.moreSettingsOne", {
+                  defaultValue: "{{count}} more setting, read straight from your server's own config file.",
+                  count: advanced.length,
+                })
+              : t("worldSettings.chrome.moreSettingsMany", {
+                  defaultValue: "{{count}} more settings, read straight from your server's own config file.",
+                  count: advanced.length,
+                })}
           </p>
         )}
       </ScrollPanel>
@@ -269,11 +353,19 @@ export default function WorldSettings() {
         <div className="mx-auto flex max-w-[1600px] items-center justify-between px-5 lg:px-8">
           <p className="text-xs text-parchment-300/50">
             {dirty.size > 0
-              ? `${dirty.size} unsaved change${dirty.size === 1 ? "" : "s"}, applies next server start.`
-              : "All changes saved."}
+              ? dirty.size === 1
+                ? t("worldSettings.chrome.unsavedChangeOne", {
+                    defaultValue: "{{count}} unsaved change, applies next server start.",
+                    count: dirty.size,
+                  })
+                : t("worldSettings.chrome.unsavedChangeMany", {
+                    defaultValue: "{{count}} unsaved changes, applies next server start.",
+                    count: dirty.size,
+                  })
+              : t("worldSettings.chrome.allSaved", { defaultValue: "All changes saved." })}
           </p>
           <RuneButton variant="gold" icon={<Save />} onClick={handleSave} disabled={dirty.size === 0 || saving}>
-            {saving ? "Saving..." : "Save Changes"}
+            {saving ? t("worldSettings.chrome.saving", { defaultValue: "Saving..." }) : t("worldSettings.chrome.saveChanges", { defaultValue: "Save Changes" })}
           </RuneButton>
         </div>
       </div>
