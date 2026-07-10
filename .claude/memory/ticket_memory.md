@@ -67,6 +67,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0055** (2026-07-10, Documentation) - Added a GitHub-ready `GETTING_STARTED.md` walkthrough with predictable `images/getting-started-*` screenshot placeholders and linked it from the README Quick Start section.
 * **TICKET-0056** (2026-07-10, Bug) - Fixed World Settings visual alignment by removing the category heading filler line and rendering boolean settings with the same label-above-control layout as numeric/dropdown fields.
 * **TICKET-0057** (2026-07-10, Documentation) - Rewrote the Getting Started guide for younger/non-technical users with simpler steps, shorter text, and more screenshot placeholders.
+* **TICKET-0058** (2026-07-10, Bug) - Updated World Settings boolean controls so the setting name remains the field header and the toggle box text reads `Enable` or `Disable`.
 
 ---
 

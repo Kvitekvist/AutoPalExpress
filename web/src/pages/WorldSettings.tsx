@@ -129,7 +129,7 @@ function FieldControl({
           id={`field-${field.key}`}
           checked={Boolean(value)}
           onCheckedChange={onChange}
-          label={<span className="sr-only">{field.label}</span>}
+          label={Boolean(value) ? "Disable" : "Enable"}
           compact
         />
         {field.description && <p className="text-xs text-parchment-300/40">{field.description}</p>}
