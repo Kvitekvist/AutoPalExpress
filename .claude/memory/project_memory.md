@@ -76,6 +76,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-10 (TICKET-0054): World Settings numeric tooltips now include concrete low/default/high examples, compact toggles align with normal inputs, category groups have stronger alternating banding, and Local API settings moved to a Super Admin-only panel. Current installer checksum is `64C125B9E8EF729B770137FB72959A86C57F95122BD77CE542A92CF8B4986E5A`.
 * FIXED 2026-07-10 (TICKET-0055): Added `GETTING_STARTED.md`, a GitHub-ready step-by-step setup guide with screenshot placeholders under `images/getting-started-*`, and linked it from the README Quick Start section. Documentation-only change; no executable rebuild required.
 * FIXED 2026-07-10 (TICKET-0056): World Settings category headings no longer render the long horizontal filler line, and boolean fields now use the same label-above-control layout as numeric/dropdown fields so toggle controls align in grouped sections. Frontend build passed; no executable rebuild performed.
+* FIXED 2026-07-10 (TICKET-0057): Rewrote `GETTING_STARTED.md` for younger/non-technical users with shorter steps, simpler language, and more picture placeholders. Documentation-only change; no executable rebuild required.
 
 ---
 

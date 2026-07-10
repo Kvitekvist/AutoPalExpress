@@ -1,203 +1,240 @@
 # Getting Started With AutoPalExpress
 
-This guide is for the person hosting the Palworld server. It walks through the normal first setup, the screenshots to capture, and the places new users most often get stuck.
+This guide shows the basic path:
 
-Use these screenshot filenames when adding images to GitHub. The placeholders already point to `images/`, so you can replace the files later without editing this guide.
+1. Install AutoPalExpress.
+2. Make your admin account.
+3. Create or import a Palworld server.
+4. Start it.
+5. Let friends join.
 
-| Step | Screenshot file |
+You do not need to understand SteamCMD, config files, or Windows Firewall to start.
+
+## Screenshot Files
+
+Add your screenshots to the `images` folder with these names.
+
+| What the picture shows | File name |
 | --- | --- |
-| Installer options | `images/getting-started-01-installer.png` |
-| First launch and super admin setup | `images/getting-started-02-first-launch.png` |
-| Dashboard overview | `images/getting-started-03-dashboard.png` |
-| Server instance setup | `images/getting-started-04-server-instances.png` |
-| Super Admin network settings | `images/getting-started-05-super-admin-network.png` |
-| Launcher Options | `images/getting-started-06-launcher-options.png` |
-| World Settings | `images/getting-started-07-world-settings.png` |
-| Mods and Nexus Browse | `images/getting-started-08-mods.png` |
-| Player roster | `images/getting-started-09-player-roster.png` |
-| Diagnostics report | `images/getting-started-10-diagnostics.png` |
+| Installer start | `images/getting-started-01-installer-start.png` |
+| Installer startup option | `images/getting-started-02-installer-startup.png` |
+| First admin account | `images/getting-started-03-admin-account.png` |
+| Create or import server | `images/getting-started-04-server-choice.png` |
+| Choose install folder | `images/getting-started-05-install-folder.png` |
+| Server Control start button | `images/getting-started-06-start-server.png` |
+| Dashboard online | `images/getting-started-07-dashboard-online.png` |
+| Super Admin game port | `images/getting-started-08-game-port.png` |
+| Router port forward example | `images/getting-started-09-router-port-forward.png` |
+| Launcher Options | `images/getting-started-10-launcher-options.png` |
+| World Settings | `images/getting-started-11-world-settings.png` |
+| Mods page | `images/getting-started-12-mods.png` |
+| Invite users | `images/getting-started-13-invite-users.png` |
+| Diagnose AutoPalExpress | `images/getting-started-14-diagnostics.png` |
 
-## Before You Start
+## What You Need
 
-You need:
-
-- A Windows 10 or Windows 11 PC that will host the server.
-- Enough disk space for the Palworld Dedicated Server, saves, backups, and mods.
-- Access to your router if friends will connect from outside your home.
-- A real public IP from your ISP if you want normal internet hosting. If your ISP uses CGNAT, direct port forwarding may not work.
-- Optional: a Nexus Mods Premium API key if you want direct Nexus installs from inside AutoPalExpress.
+- A Windows 10 or Windows 11 PC.
+- Enough disk space for the server and backups.
+- Your router login if friends will join over the internet.
+- A real public IP from your internet provider.
 
 > [!TIP]
-> You do not need a Steam account just to download the Palworld Dedicated Server. AutoPalExpress uses SteamCMD anonymously for the dedicated server files.
+> You do not need a Steam account to download the Palworld Dedicated Server. AutoPalExpress can download it for you.
 
-## 1. Install AutoPalExpress
+## 1. Install The App
 
-Download `PalworldServerAdmin-Setup.exe` from the GitHub release page and run it.
+Download `PalworldServerAdmin-Setup.exe` from GitHub.
 
-During install, you can enable Windows startup recovery. This lets AutoPalExpress start when Windows starts and can bring the active server back online after a power loss, Windows update, or machine restart.
+Run the installer.
 
-![Installer options](images/getting-started-01-installer.png)
+![Installer start](images/getting-started-01-installer-start.png)
+
+If you want the server to come back after a PC restart, turn on the Windows startup option during install.
+
+![Installer startup option](images/getting-started-02-installer-startup.png)
 
 > [!NOTE]
-> If you run the installer again later, AutoPalExpress treats it as an update or repair when existing app data is found. Your server list, admin account, and saved settings are preserved.
+> Running the installer again later updates the app. It keeps your server list and admin account.
 
-## 2. Create The Super Admin
+## 2. Make Your Admin Account
 
-On a fresh install, the first account becomes the super admin. This account owns machine-level actions like server folders, game ports, Local API settings, firewall tools, verified mod uploads, and Launcher Options.
+The first account is the main admin account.
 
-![First launch and super admin setup](images/getting-started-02-first-launch.png)
+This account can change important things like ports, server folders, mods, and startup options.
 
-Use a password you will not share publicly. You can invite trusted friends as regular admins later.
+![First admin account](images/getting-started-03-admin-account.png)
 
-## 3. Create Or Import A Server
+Use a password you do not share in public.
 
-AutoPalExpress can either deploy a fresh Palworld Dedicated Server or import one you already have.
+## 3. Add A Server
 
-For a fresh server, choose a server name and install location. The default location is inside AutoPalExpress app data, but you can choose another drive or folder if you want more space.
+You have two choices:
 
-For an existing server, choose the folder that contains the Palworld dedicated server files.
+- **Create new server** if you are starting fresh.
+- **Import existing server** if you already have Palworld server files.
 
-![Server instance setup](images/getting-started-04-server-instances.png)
+![Create or import server](images/getting-started-04-server-choice.png)
+
+If you create a new server, choose where it should be installed.
+
+![Choose install folder](images/getting-started-05-install-folder.png)
 
 > [!TIP]
-> If you accidentally import the same server again, AutoPalExpress deduplicates by folder so you do not end up managing the same install twice.
+> You can put the server on another drive if your C drive is small.
 
 ## 4. Start The Server
 
-Open **Server Control** and start the active server. Then return to **Dashboard**.
+Go to **Server Control**.
 
-The Dashboard should show the server online, basic CPU/RAM usage, uptime, installed mods, player count, and the player roster.
+Click **Start Server**.
 
-![Dashboard overview](images/getting-started-03-dashboard.png)
+![Server Control start button](images/getting-started-06-start-server.png)
 
-> [!NOTE]
-> CPU and RAM are read from the real Palworld server processes for the selected server folder.
+Then go to **Dashboard**.
 
-## 5. Set The Game Port
+If everything worked, it should show **Online**.
 
-Open **Super Admin** and check the game port. This is the one place AutoPalExpress lets you edit the active server's game port.
+![Dashboard online](images/getting-started-07-dashboard-online.png)
 
-If you change the port, save it there and restart the server. AutoPalExpress remembers the custom port across updates and enforces it into the live Palworld settings when the server starts.
+## 5. Let Friends Join
 
-![Super Admin network settings](images/getting-started-05-super-admin-network.png)
+Go to **Super Admin**.
 
-For normal Palworld connections, forward the game port as UDP to the host PC. Do not port-forward Palworld's Local REST API port.
+Check the **Game Port**.
+
+![Super Admin game port](images/getting-started-08-game-port.png)
+
+Most Palworld servers use port `8211`, but yours may be different.
+
+In your router, forward that port as **UDP** to the PC running AutoPalExpress.
+
+![Router port forward example](images/getting-started-09-router-port-forward.png)
+
+Then give friends your public IP and port.
+
+Example:
+
+```text
+84.215.14.15:8211
+```
 
 > [!WARNING]
-> Only expose the AutoPalExpress admin panel to trusted people. The panel uses plain HTTP by default so setup stays simple.
+> Do not forward the Palworld Local API / REST API port. AutoPalExpress uses that only on your own PC.
 
-## 6. Use Launcher Options For Community Listing
+## 6. Show The Server In Community Servers
 
-Open **Launcher Options** as the super admin.
+Go to **Launcher Options**.
 
-These options apply the next time the server starts:
+Turn on `-publiclobby`.
 
-- `-publiclobby` shows the server in Palworld's Community Server list.
-- `-publicip` advertises the public IP detected in Super Admin.
-- `-publicport` advertises the game port from Super Admin.
-- `-useperfthreads`, `-NoAsyncLoadingThread`, and `-UseMultithreadForDS` enable Palworld's dedicated-server performance flags.
+![Launcher Options](images/getting-started-10-launcher-options.png)
 
-![Launcher Options](images/getting-started-06-launcher-options.png)
+Restart the server after changing launcher options.
 
-The public IP and public port values are read-only here on purpose. Super Admin remains the single place that owns network values.
+If direct connect works but the Community Server list does not, also try:
 
-> [!TIP]
-> If direct connect works but the server does not appear in Community Servers, enable `-publiclobby` first. If it still does not appear, try the `-publicip` and `-publicport` overrides, then restart the server and give Palworld's list time to refresh.
+- `-publicip`
+- `-publicport`
 
-## 7. Configure World Settings
+Those values come from Super Admin, so you do not type them on this page.
 
-Open **World Settings** to edit the active server's `PalWorldSettings.ini` from the browser.
+## 7. Change World Settings
 
-Settings are grouped by topic. Dropdowns are used for known category fields, toggles are used for on/off values, and numeric tooltips include example low/default/high values where useful.
+Go to **World Settings**.
 
-![World Settings](images/getting-started-07-world-settings.png)
+This is where you change things like:
 
-Most world setting changes should be saved while the server is stopped or followed by a restart so Palworld reloads them cleanly.
+- Server name
+- Passwords
+- Max players
+- XP rate
+- Day and night speed
+- Pal spawn rate
+- Death penalty
 
-## 8. Install Mods
+![World Settings](images/getting-started-11-world-settings.png)
 
-Open **Mods** to manage UE4SS and installed mods.
+Click **Save Changes** when you are done.
 
-AutoPalExpress can browse Nexus Mods metadata without a personal API key. Direct Nexus installs require the super admin to save a Nexus Premium API key. If you do not use direct install, download the mod from Nexus and use **Install From File** in Super Admin.
+Restart the server so Palworld reloads the settings.
 
-![Mods and Nexus Browse](images/getting-started-08-mods.png)
+## 8. Add Mods
 
-AutoPalExpress verifies manual Nexus files against Nexus' catalog when possible, then installs them into the managed mod folder.
+Go to **Mods**.
 
-## 9. Invite Trusted Admins
+Use this page to install UE4SS and manage mods.
 
-Open **Settings** as the super admin to create invites for trusted helpers.
+![Mods page](images/getting-started-12-mods.png)
 
-Regular admins can handle daily tasks like Dashboard, Mods, Server Control, World Settings, and Logs. Super Admin-only pages stay locked away because they can affect the host machine, file system, ports, or startup behavior.
+For Nexus Mods:
 
-## 10. Check Players
+- You can browse mods without an API key.
+- Direct install needs a Nexus Premium API key.
+- You can also download a mod yourself and install it from file in **Super Admin**.
 
-Dashboard shows the player roster when Palworld's Local REST API is ready and the server has an admin password configured.
+Restart the server after changing mods.
 
-![Player roster](images/getting-started-09-player-roster.png)
+## 9. Invite Friends To Help
 
-If players are visible in the Palworld server window but not in AutoPalExpress, restart the server through AutoPalExpress so it can verify REST settings and fill an empty `AdminPassword` when needed.
+Go to **Settings**.
 
-## 11. Run Diagnostics When Something Fails
+Create an invite code.
 
-If a user cannot tell whether the problem is the port, firewall, REST API, or server folder, run **Diagnose AutoPalExpress** from the Start Menu.
+![Invite users](images/getting-started-13-invite-users.png)
 
-The diagnostic command checks the active server, Palworld files, local listeners, game and REST ports, REST authentication, and Windows Firewall. It writes a report under:
+Only invite people you trust.
+
+Regular admins can help with normal server work. The main admin still controls the more dangerous settings.
+
+## 10. If Something Does Not Work
+
+Use **Diagnose AutoPalExpress** from the Windows Start Menu.
+
+![Diagnose AutoPalExpress](images/getting-started-14-diagnostics.png)
+
+It checks:
+
+- Server folder
+- Game port
+- Local API
+- Windows Firewall
+- Whether Palworld is listening
+
+It saves a report here:
 
 ```text
 %LOCALAPPDATA%\PalworldServerAdmin\diagnostics
 ```
 
-![Diagnostics report](images/getting-started-10-diagnostics.png)
+Send that report when asking for help.
 
-Send that report when asking for support. It is much easier to diagnose than screenshots alone.
+## Quick Fixes
 
-## Common Checks
+**Friends cannot join**
 
-If friends cannot connect:
+- Make sure Dashboard says **Online**.
+- Check the game port in Super Admin.
+- Forward the game port as **UDP** in your router.
+- Run Diagnose AutoPalExpress.
+- Ask your internet provider if you are behind CGNAT.
 
-- Confirm the server is online in Dashboard.
-- Confirm the game port in Super Admin.
-- Forward that game port as UDP to the host PC.
-- Confirm Windows Firewall allows the Palworld server on that port.
-- Confirm your ISP gives you a real public IP, not CGNAT.
-- Run Diagnose AutoPalExpress and read the summary.
+**Server is not in Community Servers**
 
-If the server does not show in Community Servers:
+- First test direct connect.
+- Turn on `-publiclobby`.
+- Restart the server.
+- Try `-publicip` and `-publicport`.
+- Wait a bit. Palworld's list can be slow.
 
-- Confirm direct connect works first.
-- Enable `-publiclobby` in Launcher Options.
-- If needed, enable `-publicip` and `-publicport`.
-- Restart the server after changing launcher options.
-- Wait for Palworld's public list to refresh.
+**Players are missing from the roster**
 
-If mods do not load:
-
-- Install or repair UE4SS from the Mods page.
-- Confirm the mod is enabled.
-- Confirm the mod supports your Palworld version.
-- Restart the server after changing mods.
-
-If the roster is empty:
-
-- Make sure the server was started through AutoPalExpress.
+- Start the server from AutoPalExpress.
 - Make sure Local API is enabled in Super Admin.
-- Make sure `AdminPassword` is not blank.
-- Restart the server once so AutoPalExpress can self-heal missing REST credentials.
+- Restart the server once.
 
-## Screenshot Checklist
+**Mods do not load**
 
-When preparing the GitHub version, capture these screens and save them with the exact filenames below:
-
-- `images/getting-started-01-installer.png`
-- `images/getting-started-02-first-launch.png`
-- `images/getting-started-03-dashboard.png`
-- `images/getting-started-04-server-instances.png`
-- `images/getting-started-05-super-admin-network.png`
-- `images/getting-started-06-launcher-options.png`
-- `images/getting-started-07-world-settings.png`
-- `images/getting-started-08-mods.png`
-- `images/getting-started-09-player-roster.png`
-- `images/getting-started-10-diagnostics.png`
-
-After those files exist, GitHub will render the guide with screenshots automatically.
+- Install or repair UE4SS.
+- Make sure the mod is enabled.
+- Make sure the mod works with your Palworld version.
+- Restart the server.
