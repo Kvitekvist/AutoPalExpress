@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -6,7 +7,7 @@ interface EnchantedToggleProps {
   id: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
-  label: string;
+  label: ReactNode;
   description?: string;
   disabled?: boolean;
   className?: string;

@@ -2,6 +2,7 @@
 
 ## Current build vs. origin/main - 2026-07-09
 
+- **TICKET-0053**: Improved World Settings with grouped sections, tooltips, and dropdown controls for known Palworld categorical settings.
 - **TICKET-0052**: Added a bundled diagnostics command that produces a support report for active server setup, local ports, firewall, REST API, and likely router/ISP issues.
 - **TICKET-0050**: Fixed port enforcement so it edits the live `PalWorldSettings.ini` in place and preserves unrelated world settings.
 - **TICKET-0041**: Fixed Launcher Options visibility/naming, restored visible Nexus Direct Install requirements, tightened instance dedupe, and renamed Browse Files.

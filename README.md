@@ -36,7 +36,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Keep the server list unique when the same install is re-imported or restored.
 - Switch servers, open a server folder in Explorer, unregister it, or unregister and delete its files.
 - Choose where new server installs are stored, including another drive.
-- Edit world settings from the browser.
+- Edit grouped World Settings from the browser, with guided dropdowns and tooltips for common Palworld options.
 - Manage Super Admin-only Launcher Options from their own sidebar page, including `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, `-publiclobby`, and read-only Super Admin-derived `-publicip`/`-publicport` overrides.
 - Start AutoPalExpress with Windows and bring the active server back online after a machine restart.
 - Install and update UE4SS.
@@ -141,7 +141,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  C97F70ADD720C577EE694A676E3DA0CCF5DE3B94AA93613FEF276AB611879281
+SHA256  PalworldServerAdmin-Setup.exe  D45988C402A38483B9CE7401A1C09720097B112E9A4F28B61A12A42D10B1FF68
 ```
 
 > [!IMPORTANT]

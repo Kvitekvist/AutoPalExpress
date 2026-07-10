@@ -1,15 +1,109 @@
 import * as React from "react";
-import { Sparkles, Sliders, Save } from "lucide-react";
+import { Info, Save, Sliders, Sparkles } from "lucide-react";
 import { serverSettingsApi } from "@/api";
 import type { SettingField } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
 import { useNotifications } from "@/hooks/useNotifications";
 
 type FieldValue = boolean | number | string;
+
+const GROUP_ORDER = [
+  "Identity and Access",
+  "World Rules",
+  "Combat",
+  "Progression",
+  "Time and Survival",
+  "World Density",
+  "Bases and Work",
+  "Saving and Backups",
+  "Performance Limits",
+  "Mods and Compatibility",
+  "Local API",
+  "Other",
+];
+
+function settingHelp(field: SettingField) {
+  if (field.help) return field.help;
+  if (field.options?.length) {
+    return field.options.map((option) => `${option.label}: ${option.description ?? option.value}`).join("\n");
+  }
+  if (field.type === "bool") return "On enables this setting. Off disables it.";
+  if (field.type === "int" || field.type === "float") return "Numeric setting. Higher and lower values change the server rule directly; Palworld usually treats 1 as normal for multipliers.";
+  if (field.type === "raw") return "Advanced raw Palworld value. Keep the existing format unless you know the exact value Palworld expects.";
+  return "Text setting written directly to PalWorldSettings.ini.";
+}
+
+function FieldLabel({ field }: { field: SettingField }) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-1.5">
+      <span className="truncate">{field.label}</span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-gold-400/80 hover:bg-gold-500/10 hover:text-gold-300"
+            aria-label={`${field.label} help`}
+          >
+            <Info className="h-3.5 w-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-sm whitespace-pre-line leading-relaxed">{settingHelp(field)}</TooltipContent>
+      </Tooltip>
+    </span>
+  );
+}
+
+function groupedFields(fields: SettingField[]) {
+  const byGroup = new Map<string, SettingField[]>();
+  for (const field of fields) {
+    const group = field.group || "Other";
+    byGroup.set(group, [...(byGroup.get(group) ?? []), field]);
+  }
+  return [...byGroup.entries()].sort(([a], [b]) => {
+    const ai = GROUP_ORDER.indexOf(a);
+    const bi = GROUP_ORDER.indexOf(b);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi) || a.localeCompare(b);
+  });
+}
+
+function FieldGroups({
+  fields,
+  values,
+  onChange,
+}: {
+  fields: SettingField[];
+  values: Record<string, FieldValue>;
+  onChange: (key: string, value: FieldValue) => void;
+}) {
+  return (
+    <div className="space-y-7">
+      {groupedFields(fields).map(([group, groupFields]) => (
+        <section key={group} className="space-y-3">
+          <div className="flex items-center gap-3">
+            <h4 className="shrink-0 font-display text-sm font-semibold text-gold-300">{group}</h4>
+            <div className="h-px flex-1 bg-gold-700/20" />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {groupFields.map((field) => (
+              <FieldControl
+                key={field.key}
+                field={field}
+                value={values[field.key]}
+                onChange={(v) => onChange(field.key, v)}
+              />
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
 
 function FieldControl({
   field,
@@ -20,15 +114,43 @@ function FieldControl({
   value: FieldValue;
   onChange: (value: FieldValue) => void;
 }) {
+  const label = <FieldLabel field={field} />;
+
   if (field.type === "bool") {
     return (
       <EnchantedToggle
         id={`field-${field.key}`}
         checked={Boolean(value)}
         onCheckedChange={onChange}
-        label={field.label}
+        label={label}
         description={field.description ?? undefined}
       />
+    );
+  }
+
+  if (field.options?.length) {
+    const stringValue = String(value ?? "");
+    const hasCurrentValue = field.options.some((option) => option.value === stringValue);
+    const options = hasCurrentValue || stringValue === ""
+      ? field.options
+      : [{ value: stringValue, label: `${stringValue || "Current value"} (current)`, description: "Value currently stored in PalWorldSettings.ini." }, ...field.options];
+    return (
+      <div className="space-y-1.5">
+        <Label htmlFor={`field-${field.key}`}>{label}</Label>
+        <Select value={stringValue} onValueChange={(next) => onChange(next)}>
+          <SelectTrigger id={`field-${field.key}`}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {field.description && <p className="text-xs text-parchment-300/40">{field.description}</p>}
+      </div>
     );
   }
 
@@ -36,7 +158,7 @@ function FieldControl({
 
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={`field-${field.key}`}>{field.label}</Label>
+      <Label htmlFor={`field-${field.key}`}>{label}</Label>
       <Input
         id={`field-${field.key}`}
         type={inputType}
@@ -112,16 +234,7 @@ export default function WorldSettings() {
   return (
     <div className="space-y-6 pb-24">
       <ScrollPanel icon={<Sparkles />} title="Popular Settings">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {popular.map((field) => (
-            <FieldControl
-              key={field.key}
-              field={field}
-              value={values[field.key]}
-              onChange={(v) => updateValue(field.key, v)}
-            />
-          ))}
-        </div>
+        <FieldGroups fields={popular} values={values} onChange={updateValue} />
       </ScrollPanel>
 
       <ScrollPanel
@@ -134,16 +247,7 @@ export default function WorldSettings() {
         }
       >
         {showAdvanced ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {advanced.map((field) => (
-              <FieldControl
-                key={field.key}
-                field={field}
-                value={values[field.key]}
-                onChange={(v) => updateValue(field.key, v)}
-              />
-            ))}
-          </div>
+          <FieldGroups fields={advanced} values={values} onChange={updateValue} />
         ) : (
           <p className="text-sm text-parchment-300/50">
             {advanced.length} more settings, read straight from your server's own config file.

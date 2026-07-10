@@ -25,6 +25,9 @@ export interface SettingField {
   value: boolean | number | string;
   label: string;
   description: string | null;
+  help: string | null;
+  group: string;
+  options: { value: string; label: string; description: string | null }[] | null;
   sensitive: boolean;
   popular: boolean;
 }

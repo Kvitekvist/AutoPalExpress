@@ -205,39 +205,390 @@ def initialize_settings(
 # and groups the commonly-changed ones at the top; anything else still
 # shows up with an auto-generated label instead of being silently dropped.
 
+def _option(value: str, label: str, description: str) -> dict[str, str]:
+    return {"value": value, "label": label, "description": description}
+
+
+_DIFFICULTY_OPTIONS = [
+    _option("None", "None", "Palworld's default custom-server mode."),
+    _option("Easy", "Easy", "A softer preset if the installed server supports it."),
+    _option("Normal", "Normal", "Standard preset if the installed server supports it."),
+    _option("Hard", "Hard", "A harsher preset if the installed server supports it."),
+]
+_DEATH_PENALTY_OPTIONS = [
+    _option("None", "None", "No item or Pal drops on death."),
+    _option("Item", "Items", "Drop inventory items, but keep equipment and Pals."),
+    _option("ItemAndEquipment", "Items and equipment", "Drop inventory items and equipped gear."),
+    _option("All", "Everything", "Drop inventory, equipment, and Pals on your team."),
+]
+_RANDOMIZER_OPTIONS = [
+    _option("None", "None", "No Pal spawn randomization."),
+    _option("Region", "Region", "Randomize Pal spawns within each region."),
+    _option("All", "All", "Fully randomize Pal spawns across the world."),
+]
+_LOG_FORMAT_OPTIONS = [
+    _option("Text", "Text", "Human-readable server logs."),
+    _option("Json", "JSON", "Structured logs for external tools."),
+]
+_CROSSPLAY_OPTIONS = [
+    _option("(Steam)", "Steam only", "Only Steam clients may connect."),
+    _option("(Xbox)", "Xbox only", "Only Xbox/Game Pass clients may connect."),
+    _option("(PS5)", "PS5 only", "Only PlayStation 5 clients may connect."),
+    _option("(Mac)", "Mac only", "Only Mac clients may connect."),
+    _option("(Steam,Xbox)", "Steam + Xbox", "Allow Steam and Xbox/Game Pass clients."),
+    _option("(Steam,Xbox,PS5,Mac)", "All platforms", "Allow Steam, Xbox/Game Pass, PS5, and Mac clients."),
+]
+
+
 POPULAR_FIELDS: list[dict[str, Any]] = [
-    {"key": "ServerName", "label": "Server Name"},
-    {"key": "ServerDescription", "label": "Server Description"},
-    {"key": "ServerPassword", "label": "Server Password", "sensitive": True, "description": "Leave blank for no password."},
-    {"key": "AdminPassword", "label": "Admin Password", "sensitive": True, "description": "Needed for in-game admin commands and the local REST API."},
-    {"key": "ServerPlayerMaxNum", "label": "Max Players"},
-    {"key": "CoopPlayerMaxNum", "label": "Max Players Per Party"},
-    {"key": "Difficulty", "label": "Difficulty"},
-    {"key": "DeathPenalty", "label": "Death Penalty"},
-    {"key": "bIsPvP", "label": "PvP Enabled"},
-    {"key": "bEnableFriendlyFire", "label": "Friendly Fire"},
-    {"key": "bHardcore", "label": "Hardcore Mode", "description": "Pals are lost forever on death."},
-    {"key": "ExpRate", "label": "EXP Rate"},
-    {"key": "PalCaptureRate", "label": "Capture Rate"},
-    {"key": "PalSpawnNumRate", "label": "Pal Spawn Rate"},
-    {"key": "PalDamageRateAttack", "label": "Pal Attack Damage Rate"},
-    {"key": "PalDamageRateDefense", "label": "Pal Defense Damage Rate"},
-    {"key": "PlayerDamageRateAttack", "label": "Player Attack Damage Rate"},
-    {"key": "PlayerDamageRateDefense", "label": "Player Defense Damage Rate"},
-    {"key": "DayTimeSpeedRate", "label": "Day Length Rate"},
-    {"key": "NightTimeSpeedRate", "label": "Night Length Rate"},
-    {"key": "WorkSpeedRate", "label": "Work Speed Rate"},
-    {"key": "DropItemMaxNum", "label": "Max Dropped Items"},
-    {"key": "BaseCampMaxNum", "label": "Max Base Camps"},
-    {"key": "BaseCampWorkerMaxNum", "label": "Max Workers Per Base"},
-    {"key": "GuildPlayerMaxNum", "label": "Max Guild Size"},
-    {"key": "AutoSaveSpan", "label": "Auto-Save Interval (minutes)"},
-    {"key": "bIsUseBackupSaveData", "label": "Keep Save Backups"},
-    {"key": "RESTAPIEnabled", "label": "REST API Enabled"},
-    {"key": "RESTAPIPort", "label": "REST API Port"},
+    {
+        "key": "ServerName",
+        "label": "Server Name",
+        "group": "Identity and Access",
+        "help": "The name players see in direct connect and server lists. Restart the server after changing it.",
+    },
+    {
+        "key": "ServerDescription",
+        "label": "Server Description",
+        "group": "Identity and Access",
+        "help": "Short public description shown by Palworld where server details are displayed.",
+    },
+    {
+        "key": "ServerPassword",
+        "label": "Server Password",
+        "sensitive": True,
+        "group": "Identity and Access",
+        "description": "Leave blank for no password.",
+        "help": "Players need this password to join. Blank means anyone who can reach the server can attempt to join.",
+    },
+    {
+        "key": "AdminPassword",
+        "label": "Admin Password",
+        "sensitive": True,
+        "group": "Identity and Access",
+        "description": "Needed for in-game admin commands and the local REST API.",
+        "help": "AutoPalExpress uses this for Palworld REST API actions such as player list, save, broadcast, kick, and ban.",
+    },
+    {
+        "key": "ServerPlayerMaxNum",
+        "label": "Max Players",
+        "group": "Identity and Access",
+        "help": "Maximum connected players. Higher values allow more players but can increase CPU, RAM, and network load.",
+    },
+    {
+        "key": "CoopPlayerMaxNum",
+        "label": "Max Players Per Party",
+        "group": "Identity and Access",
+        "help": "Maximum players in a party/guild play group. Higher values make larger groups possible.",
+    },
+    {
+        "key": "Difficulty",
+        "label": "Difficulty",
+        "group": "World Rules",
+        "options": _DIFFICULTY_OPTIONS,
+        "help": "Preset difficulty selector. None is the usual dedicated-server custom mode; other values only apply if the installed Palworld server recognizes them.",
+    },
+    {
+        "key": "DeathPenalty",
+        "label": "Death Penalty",
+        "group": "World Rules",
+        "options": _DEATH_PENALTY_OPTIONS,
+        "help": "Controls what a player drops on death. Higher penalty is harsher.",
+    },
+    {
+        "key": "bIsPvP",
+        "label": "PvP Enabled",
+        "group": "World Rules",
+        "help": "Allows players to damage and fight each other when enabled.",
+    },
+    {
+        "key": "bEnableFriendlyFire",
+        "label": "Friendly Fire",
+        "group": "World Rules",
+        "help": "Allows damage to allies or friendly targets. Keep off for a safer cooperative server.",
+    },
+    {
+        "key": "bHardcore",
+        "label": "Hardcore Mode",
+        "group": "World Rules",
+        "description": "Pals are lost forever on death.",
+        "help": "A harsh survival mode. Death has permanent consequences and players may not be able to respawn normally.",
+    },
+    {
+        "key": "ExpRate",
+        "label": "EXP Rate",
+        "group": "Progression",
+        "help": "Experience multiplier. Higher levels players faster; lower slows leveling down. 1 is normal.",
+    },
+    {
+        "key": "PalCaptureRate",
+        "label": "Capture Rate",
+        "group": "Progression",
+        "help": "Capture chance multiplier. Higher makes Pals easier to catch; lower makes captures harder. 1 is normal.",
+    },
+    {
+        "key": "PalSpawnNumRate",
+        "label": "Pal Spawn Rate",
+        "group": "World Density",
+        "help": "Pal spawn multiplier. Higher creates more wild Pals and more server load; lower reduces density. 1 is normal.",
+    },
+    {
+        "key": "PalDamageRateAttack",
+        "label": "Pal Attack Damage Rate",
+        "group": "Combat",
+        "help": "Damage dealt by Pals. Higher makes Pals hit harder; lower weakens Pal attacks. 1 is normal.",
+    },
+    {
+        "key": "PalDamageRateDefense",
+        "label": "Pal Defense Damage Rate",
+        "group": "Combat",
+        "help": "Damage taken by Pals. Higher makes Pals more fragile; lower makes them tougher. 1 is normal.",
+    },
+    {
+        "key": "PlayerDamageRateAttack",
+        "label": "Player Attack Damage Rate",
+        "group": "Combat",
+        "help": "Damage dealt by players. Higher makes players hit harder; lower weakens player attacks. 1 is normal.",
+    },
+    {
+        "key": "PlayerDamageRateDefense",
+        "label": "Player Defense Damage Rate",
+        "group": "Combat",
+        "help": "Damage taken by players. Higher makes players more fragile; lower makes them tougher. 1 is normal.",
+    },
+    {
+        "key": "DayTimeSpeedRate",
+        "label": "Day Length Rate",
+        "group": "Time and Survival",
+        "help": "Daytime speed multiplier. Higher makes daytime pass faster; lower makes days last longer. 1 is normal.",
+    },
+    {
+        "key": "NightTimeSpeedRate",
+        "label": "Night Length Rate",
+        "group": "Time and Survival",
+        "help": "Nighttime speed multiplier. Higher makes nights pass faster; lower makes nights last longer. 1 is normal.",
+    },
+    {
+        "key": "WorkSpeedRate",
+        "label": "Work Speed Rate",
+        "group": "Bases and Work",
+        "help": "Work speed multiplier. Higher speeds crafting/base work; lower slows production. 1 is normal.",
+    },
+    {
+        "key": "DropItemMaxNum",
+        "label": "Max Dropped Items",
+        "group": "Performance Limits",
+        "help": "Maximum dropped items in the world. Higher preserves more drops but can hurt performance; lower cleans up sooner.",
+    },
+    {
+        "key": "BaseCampMaxNum",
+        "label": "Max Base Camps",
+        "group": "Bases and Work",
+        "help": "Total bases allowed on the server. Higher supports more building but increases server load.",
+    },
+    {
+        "key": "BaseCampWorkerMaxNum",
+        "label": "Max Workers Per Base",
+        "group": "Bases and Work",
+        "help": "Maximum Pals assigned to one base. Higher allows busier bases but increases processing load.",
+    },
+    {
+        "key": "GuildPlayerMaxNum",
+        "label": "Max Guild Size",
+        "group": "Identity and Access",
+        "help": "Maximum players in a guild. Higher allows larger shared groups.",
+    },
+    {
+        "key": "AutoSaveSpan",
+        "label": "Auto-Save Interval (minutes)",
+        "group": "Saving and Backups",
+        "help": "Minutes between automatic saves. Lower saves more often but can add disk activity; higher reduces disk load but risks more rollback after a crash.",
+    },
+    {
+        "key": "bIsUseBackupSaveData",
+        "label": "Keep Save Backups",
+        "group": "Saving and Backups",
+        "help": "Palworld keeps rotating save backups. Useful for recovery, but it increases disk activity and storage use.",
+    },
+    {
+        "key": "RESTAPIEnabled",
+        "label": "REST API Enabled",
+        "group": "Local API",
+        "help": "Required for AutoPalExpress player list, saves, metrics, kick/ban, broadcasts, and graceful shutdown.",
+    },
+    {
+        "key": "RESTAPIPort",
+        "label": "REST API Port",
+        "group": "Local API",
+        "help": "Local port used by Palworld's REST API. Do not port-forward this directly; AutoPalExpress talks to it locally.",
+    },
 ]
 _POPULAR_META = {f["key"]: f for f in POPULAR_FIELDS}
 _POPULAR_ORDER = {f["key"]: i for i, f in enumerate(POPULAR_FIELDS)}
+
+_ADVANCED_META: dict[str, dict[str, Any]] = {
+    "CrossplayPlatforms": {
+        "label": "Crossplay Platforms",
+        "group": "Identity and Access",
+        "options": _CROSSPLAY_OPTIONS,
+        "help": "Which client platforms may connect. All platforms is the broadest compatibility; Steam only is the most restrictive common choice.",
+    },
+    "LogFormatType": {
+        "label": "Log Format",
+        "group": "Local API",
+        "options": _LOG_FORMAT_OPTIONS,
+        "help": "Text is easier for humans to read. JSON is better if an external log tool parses the server output.",
+    },
+    "RandomizerType": {
+        "label": "Pal Randomizer Mode",
+        "group": "World Rules",
+        "options": _RANDOMIZER_OPTIONS,
+        "help": "None keeps normal spawns. Region randomizes inside regions. All fully randomizes Pal spawns across the world.",
+    },
+    "bIsRandomizerPalLevelRandom": {
+        "label": "Randomize Pal Levels",
+        "group": "World Rules",
+        "help": "When enabled, randomized wild Pals can have fully random levels. When disabled, levels stay closer to each area's intended range.",
+    },
+    "bEnableFastTravel": {
+        "label": "Fast Travel Enabled",
+        "group": "World Rules",
+        "help": "Allows normal fast travel when enabled.",
+    },
+    "bEnableFastTravelOnlyBaseCamp": {
+        "label": "Fast Travel Only Between Bases",
+        "group": "World Rules",
+        "help": "Restricts fast travel to base camps instead of every fast-travel point.",
+    },
+    "bIsStartLocationSelectByMap": {
+        "label": "Choose Start Location On Map",
+        "group": "World Rules",
+        "help": "Lets new characters choose a starting location from the map.",
+    },
+    "bShowPlayerList": {
+        "label": "Show Player List",
+        "group": "Identity and Access",
+        "help": "Shows the player list in Palworld's ESC menu when enabled.",
+    },
+    "bAllowClientMod": {
+        "label": "Allow Client Mods",
+        "group": "Mods and Compatibility",
+        "help": "Allows players with client mods enabled to join. More permissive, but harder to support if mod setups differ.",
+    },
+    "bEnableInvaderEnemy": {
+        "label": "Enable Invaders",
+        "group": "World Density",
+        "help": "Enables invader events. Turning it off makes the world calmer.",
+    },
+    "bEnableVoiceChat": {
+        "label": "Voice Chat Enabled",
+        "group": "Identity and Access",
+        "help": "Enables in-game voice chat.",
+    },
+    "BaseCampMaxNumInGuild": {
+        "label": "Max Bases Per Guild",
+        "group": "Bases and Work",
+        "help": "Maximum bases one guild can own. Higher values allow larger guild infrastructure but increase server load.",
+    },
+    "CollectionDropRate": {
+        "group": "Progression",
+        "help": "Gathered item amount multiplier. Higher gives more resources; lower makes gathering slower. 1 is normal.",
+    },
+    "CollectionObjectHpRate": {
+        "group": "Progression",
+        "help": "Health of gatherable objects. Higher means nodes take longer to break; lower makes harvesting faster. 1 is normal.",
+    },
+    "CollectionObjectRespawnSpeedRate": {
+        "group": "Progression",
+        "help": "Gatherable respawn speed. Higher usually means faster respawns; lower spaces resource returns out more.",
+    },
+    "EnemyDropItemRate": {
+        "group": "Progression",
+        "help": "Enemy drop quantity multiplier. Higher gives more loot; lower gives less. 1 is normal.",
+    },
+    "PalEggDefaultHatchingTime": {
+        "group": "Progression",
+        "help": "Huge Egg hatch time in hours. Higher makes eggs take longer; lower speeds incubation.",
+    },
+    "SupplyDropSpan": {
+        "group": "World Density",
+        "help": "Minutes between meteorite or supply-drop events. Higher means less frequent events; lower means more frequent events.",
+    },
+    "BuildObjectDamageRate": {
+        "group": "Combat",
+        "help": "Damage dealt to buildings. Higher makes structures break faster; lower makes them tougher.",
+    },
+    "BuildObjectDeteriorationDamageRate": {
+        "group": "Bases and Work",
+        "help": "Building decay speed. Higher decays structures faster; lower slows decay.",
+    },
+    "ItemWeightRate": {
+        "group": "Time and Survival",
+        "help": "Item weight multiplier. Higher makes items heavier; lower makes carrying easier.",
+    },
+    "PlayerStaminaDecreaceRate": {
+        "label": "Player Stamina Drain Rate",
+        "group": "Time and Survival",
+        "help": "Player stamina drain multiplier. Higher drains faster; lower drains slower.",
+    },
+    "PalStaminaDecreaceRate": {
+        "label": "Pal Stamina Drain Rate",
+        "group": "Time and Survival",
+        "help": "Pal stamina drain multiplier. Higher drains faster; lower drains slower.",
+    },
+    "PlayerStomachDecreaceRate": {
+        "label": "Player Hunger Drain Rate",
+        "group": "Time and Survival",
+        "help": "Player hunger drain multiplier. Higher makes hunger fall faster; lower makes food last longer.",
+    },
+    "PalStomachDecreaceRate": {
+        "label": "Pal Hunger Drain Rate",
+        "group": "Time and Survival",
+        "help": "Pal hunger drain multiplier. Higher makes hunger fall faster; lower makes food last longer.",
+    },
+    "PlayerAutoHPRegeneRate": {
+        "label": "Player HP Regen Rate",
+        "group": "Time and Survival",
+        "help": "Player natural HP regeneration multiplier. Higher heals faster; lower heals slower.",
+    },
+    "PalAutoHPRegeneRate": {
+        "label": "Pal HP Regen Rate",
+        "group": "Time and Survival",
+        "help": "Pal natural HP regeneration multiplier. Higher heals faster; lower heals slower.",
+    },
+    "ServerReplicatePawnCullDistance": {
+        "group": "Performance Limits",
+        "help": "Distance in centimeters for syncing Pals to players. Higher can improve visibility at range but costs performance.",
+    },
+    "MaxBuildingLimitNum": {
+        "group": "Performance Limits",
+        "help": "Per-player building cap. 0 means unlimited. Higher allows more structures but can cost performance.",
+    },
+    "PhysicsActiveDropItemMaxNum": {
+        "group": "Performance Limits",
+        "help": "Maximum dropped items using physics behavior. Higher looks more physical but can cost performance.",
+    },
+}
+
+
+def _group_for_key(key: str) -> str:
+    if "Damage" in key or "PvP" in key:
+        return "Combat"
+    if "BaseCamp" in key or "Build" in key or "Work" in key:
+        return "Bases and Work"
+    if "Drop" in key or "Spawn" in key or "Invader" in key:
+        return "World Density"
+    if "Rate" in key or "Exp" in key or "Egg" in key or "Technology" in key:
+        return "Progression"
+    if "Time" in key or "Stamina" in key or "Stomach" in key or "HPRegene" in key:
+        return "Time and Survival"
+    if "Password" in key or "Player" in key or "Guild" in key or "Server" in key or "VoiceChat" in key:
+        return "Identity and Access"
+    if "Save" in key or "Backup" in key:
+        return "Saving and Backups"
+    if "REST" in key or "RCON" in key or "Log" in key:
+        return "Local API"
+    return "Other"
 
 # Fields with their own dedicated control elsewhere (Super Admin's port
 # management) rather than the generic World Settings editor, so editing a
@@ -361,15 +712,18 @@ def read_all_settings(server_path: Path) -> list[dict[str, Any]]:
         if key in _MANAGED_ELSEWHERE:
             continue
         field_type = infer_field_type(raw_value)
-        meta = _POPULAR_META.get(key)
+        meta = _POPULAR_META.get(key) or _ADVANCED_META.get(key) or {}
         fields.append(
             {
                 "key": key,
                 "type": field_type,
                 "value": _decode_value(raw_value, field_type),
-                "label": meta["label"] if meta else _humanize_key(key),
-                "description": meta.get("description") if meta else None,
-                "sensitive": meta.get("sensitive", False) if meta else False,
+                "label": meta.get("label") or _humanize_key(key),
+                "description": meta.get("description"),
+                "help": meta.get("help"),
+                "group": meta.get("group") or _group_for_key(key),
+                "options": meta.get("options"),
+                "sensitive": meta.get("sensitive", False),
                 "popular": key in _POPULAR_META,
             }
         )
