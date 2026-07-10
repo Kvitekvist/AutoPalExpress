@@ -311,8 +311,14 @@ POPULAR_FIELDS: list[dict[str, Any]] = [
         "key": "bHardcore",
         "label": "Hardcore Mode",
         "group": "World Rules",
+        "help": "A harsh survival mode with permanent death consequences. Does not by itself cause Pal loss - see Permanent Pal Loss below.",
+    },
+    {
+        "key": "bPalLost",
+        "label": "Permanent Pal Loss",
+        "group": "World Rules",
         "description": "Pals are lost forever on death.",
-        "help": "A harsh survival mode. Death has permanent consequences and players may not be able to respawn normally.",
+        "help": "Palworld's dedicated Pal-permadeath toggle. Independent of Hardcore Mode - either can be enabled without the other.",
     },
     {
         "key": "ExpRate",
@@ -568,6 +574,191 @@ _ADVANCED_META: dict[str, dict[str, Any]] = {
         "group": "Performance Limits",
         "help": "Maximum dropped items using physics behavior. Example: 50 is light, 100 is moderate, 300 keeps more physics items active but can cost performance.",
     },
+    "RandomizerSeed": {
+        "group": "World Rules",
+        "help": "Optional seed for Pal spawn randomization. Leave blank for a random seed each time; set a value to reproduce the same randomized layout.",
+    },
+    "bEnablePlayerToPlayerDamage": {
+        "label": "Player vs Player Damage",
+        "group": "World Rules",
+        "help": "Allows players to deal damage directly to each other. Works alongside PvP Enabled - disable both for a fully cooperative server.",
+    },
+    "bCharacterRecreateInHardcore": {
+        "label": "Allow New Character After Hardcore Death",
+        "group": "World Rules",
+        "help": "In Hardcore Mode, lets a player create a new character after death instead of being permanently locked out.",
+    },
+    "bExistPlayerAfterLogout": {
+        "label": "Sleep On Logout",
+        "group": "Identity and Access",
+        "help": "When enabled, a player's character stays in the world asleep at their current location after logging out, instead of disappearing.",
+    },
+    "bIsShowJoinLeftMessage": {
+        "label": "Native Join/Leave Messages",
+        "group": "Identity and Access",
+        "help": "Palworld's own in-game system message when a player joins or leaves. Separate from AutoPalExpress's own join/leave broadcast option in Automation.",
+    },
+    "ChatPostLimitPerMinute": {
+        "group": "Identity and Access",
+        "help": "Maximum chat messages one player can send per minute. Lower values reduce chat spam.",
+    },
+    "bEnableNonLoginPenalty": {
+        "label": "Enable Inactivity Penalty",
+        "group": "Identity and Access",
+        "help": "Applies a penalty to players who have not logged in for a while.",
+    },
+    "bAllowGlobalPalboxExport": {
+        "label": "Allow Global Palbox Export",
+        "group": "Bases and Work",
+        "help": "Lets players save a Pal to the shared Global Palbox for use across saves or servers that support importing it.",
+    },
+    "bAllowGlobalPalboxImport": {
+        "label": "Allow Global Palbox Import",
+        "group": "Bases and Work",
+        "help": "Lets players load a Pal previously saved to the shared Global Palbox.",
+    },
+    "GuildRejoinCooldownMinutes": {
+        "group": "Identity and Access",
+        "help": "Minutes a player must wait before rejoining a guild they recently left.",
+    },
+    "bAutoResetGuildNoOnlinePlayers": {
+        "label": "Auto-Reset Inactive Guilds",
+        "group": "Identity and Access",
+        "help": "Automatically clears an inactive guild's bases and claims after no member has been online for the time below.",
+    },
+    "AutoResetGuildTimeNoOnlinePlayers": {
+        "label": "Inactive Guild Reset Time (hours)",
+        "group": "Identity and Access",
+        "help": "Hours with no guild members online before auto-reset triggers, if enabled above.",
+    },
+    "VoiceChatMaxVolumeDistance": {
+        "group": "Identity and Access",
+        "help": "Distance at which voice chat reaches full volume. Example: 3000 is Palworld's common default.",
+    },
+    "VoiceChatZeroVolumeDistance": {
+        "group": "Identity and Access",
+        "help": "Distance at which voice chat fades to silent. Example: 15000 is Palworld's common default.",
+    },
+    "bAllowEnhanceStat_Health": {
+        "label": "Allow HP Point Allocation",
+        "group": "Progression",
+        "help": "Lets players spend status points on Health.",
+    },
+    "bAllowEnhanceStat_Attack": {
+        "label": "Allow Attack Point Allocation",
+        "group": "Progression",
+        "help": "Lets players spend status points on Attack.",
+    },
+    "bAllowEnhanceStat_Stamina": {
+        "label": "Allow Stamina Point Allocation",
+        "group": "Progression",
+        "help": "Lets players spend status points on Stamina.",
+    },
+    "bAllowEnhanceStat_Weight": {
+        "label": "Allow Carry Weight Point Allocation",
+        "group": "Progression",
+        "help": "Lets players spend status points on Carry Weight.",
+    },
+    "bAllowEnhanceStat_WorkSpeed": {
+        "label": "Allow Work Speed Point Allocation",
+        "group": "Progression",
+        "help": "Lets players spend status points on Work Speed.",
+    },
+    "DenyTechnologyList": {
+        "label": "Disabled Technology IDs",
+        "group": "Progression",
+        "help": "Comma-separated technology IDs to hide from the tech tree. Leave blank to allow the full tree.",
+    },
+    "PalAutoHpRegeneRateInSleep": {
+        "label": "Pal HP Regen Rate (Resting)",
+        "group": "Time and Survival",
+        "help": "Pal HP regen multiplier while resting in the Palbox. Example: 0.5 heals slower, 1 is normal, 2 heals twice as fast.",
+    },
+    "PlayerAutoHpRegeneRateInSleep": {
+        "label": "Player HP Regen Rate (Sleeping)",
+        "group": "Time and Survival",
+        "help": "Player HP regen multiplier while sleeping. Example: 0.5 heals slower, 1 is normal, 2 heals twice as fast.",
+    },
+    "EquipmentDurabilityDamageRate": {
+        "group": "Time and Survival",
+        "help": "Equipment durability loss multiplier. Example: 0.5 halves durability loss, 1 is normal, 2 wears gear out twice as fast.",
+    },
+    "BlockRespawnTime": {
+        "label": "Respawn Cooldown (seconds)",
+        "group": "Time and Survival",
+        "help": "Base respawn cooldown in seconds after death.",
+    },
+    "RespawnPenaltyDurationThreshold": {
+        "group": "Time and Survival",
+        "help": "Survival time in seconds below which a short recent life counts toward the repeated-death respawn penalty.",
+    },
+    "RespawnPenaltyTimeScale": {
+        "group": "Time and Survival",
+        "help": "Multiplier applied to respawn cooldown for repeated quick deaths.",
+    },
+    "bDisplayPvPItemNumOnWorldMap_BaseCamp": {
+        "label": "Show Base PvP Item Count On Map",
+        "group": "Combat",
+        "help": "Shows a base's PvP-lootable item count on the world map.",
+    },
+    "bDisplayPvPItemNumOnWorldMap_Player": {
+        "label": "Show Player PvP Item Count On Map",
+        "group": "Combat",
+        "help": "Shows a player's PvP-lootable item count on the world map.",
+    },
+    "bAdditionalDropItemWhenPlayerKillingInPvPMode": {
+        "label": "Extra Item Drop On PvP Kill",
+        "group": "Combat",
+        "help": "Enables an extra item drop for the killer after a PvP kill, using the item and quantity below.",
+    },
+    "AdditionalDropItemWhenPlayerKillingInPvPMode": {
+        "label": "PvP Kill Drop Item ID",
+        "group": "Combat",
+        "help": "Item ID dropped as an extra reward for a PvP kill, when enabled above.",
+    },
+    "AdditionalDropItemNumWhenPlayerKillingInPvPMode": {
+        "label": "PvP Kill Drop Item Quantity",
+        "group": "Combat",
+        "help": "Quantity of the extra PvP-kill drop item, when enabled above.",
+    },
+    "bInvisibleOtherGuildBaseCampAreaFX": {
+        "label": "Hide Other Guilds' Base Area Effect",
+        "group": "Bases and Work",
+        "help": "Hides the base-boundary visual effect for other guilds' bases.",
+    },
+    "bBuildAreaLimit": {
+        "label": "Restrict Building Near Landmarks",
+        "group": "Bases and Work",
+        "help": "Restricts building near certain landmarks and points of interest.",
+    },
+    "bEnableDefenseOtherGuildPlayer": {
+        "label": "Base Defenses Target Other Guilds",
+        "group": "Bases and Work",
+        "help": "Allows base defenses to target players from other guilds.",
+    },
+    "bCanPickupOtherGuildDeathPenaltyDrop": {
+        "label": "Allow Looting Other Guilds' Death Drops",
+        "group": "Bases and Work",
+        "help": "Allows players to pick up death-penalty item drops left by members of other guilds.",
+    },
+    "bEnableBuildingPlayerUIdDisplay": {
+        "label": "Show Structure Builder",
+        "group": "Bases and Work",
+        "help": "Shows which player placed a structure when inspecting it.",
+    },
+    "MonsterFarmActionSpeedRate": {
+        "group": "Bases and Work",
+        "help": "Speed multiplier for Pal ranch/farm production actions. Example: 0.5 is slower, 1 is normal, 2 is twice as fast.",
+    },
+    "ItemCorruptionMultiplier": {
+        "group": "Time and Survival",
+        "help": "Multiplier for how quickly items corrupt or degrade over time, on servers that track item corruption.",
+    },
+    "EnablePredatorBossPal": {
+        "label": "Enable Predator Pals",
+        "group": "World Density",
+        "help": "Enables Predator (boss-variant) Pal spawns.",
+    },
 }
 
 LOCAL_API_SETTING_KEYS = {"RESTAPIEnabled", "RESTAPIPort", "LogFormatType"}
@@ -593,11 +784,14 @@ def _group_for_key(key: str) -> str:
     return "Other"
 
 # Fields with their own dedicated control elsewhere (Super Admin's port
-# management) rather than the generic World Settings editor, so editing a
-# server's port only ever has the one place - hidden from read_all_settings,
-# but write_settings still accepts it, since that dedicated control uses the
-# same write path under the hood.
-_MANAGED_ELSEWHERE = {"PublicPort", "RCONEnabled", "RCONPort"}
+# management, Launcher Options' public IP override) rather than the generic
+# World Settings editor, so editing a server's port/IP only ever has the one
+# place - hidden from read_all_settings, but write_settings still accepts
+# PublicPort, since that dedicated control uses the same write path under the
+# hood. PublicIP has no such write path today (Launcher Options passes
+# -publicip as a launch argument instead of editing this ini field) - it's
+# hidden here purely to avoid a second, inert place to "set the public IP".
+_MANAGED_ELSEWHERE = {"PublicPort", "PublicIP", "RCONEnabled", "RCONPort"}
 
 
 def _tokenize_option_body(body: str) -> list[str]:
