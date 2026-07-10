@@ -52,7 +52,11 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 ; server folders and downloaded mods the user wants to keep.
 
 [Code]
+procedure ExitProcess(uExitCode: UINT);
+  external 'ExitProcess@kernel32.dll stdcall';
+
 var
+  InstallModePage: TInputOptionWizardPage;
   ServerNamePage: TInputQueryWizardPage;
   ServerInstallDirPage: TInputDirWizardPage;
   SuperAdminPage: TInputQueryWizardPage;
@@ -69,9 +73,62 @@ begin
             FileExists(DataDir + '\system_settings.json');
 end;
 
+// Whether AutoPalExpress is actually currently installed (a real Inno
+// uninstall entry exists), as opposed to HasExistingSetup above, which only
+// checks for leftover app data - app data is deliberately kept after an
+// uninstall (see the [Registry] section comment), so it would otherwise
+// falsely say "installed" right after a full uninstall.
+function GetUninstallString(): String;
+var
+  UninstallKey: String;
+  UninstallCommand: String;
+begin
+  UninstallKey := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{C9B75D37-C6F7-4487-A49C-FBE76815AF7F}_is1';
+  UninstallCommand := '';
+  if not RegQueryStringValue(HKA, UninstallKey, 'UninstallString', UninstallCommand) then
+    RegQueryStringValue(HKA, UninstallKey, 'QuietUninstallString', UninstallCommand);
+  Result := UninstallCommand;
+end;
+
+function IsAppInstalled(): Boolean;
+begin
+  Result := GetUninstallString() <> '';
+end;
+
+procedure RunUninstallAndExit();
+var
+  UninstallCommand: String;
+  ResultCode: Integer;
+begin
+  UninstallCommand := GetUninstallString();
+  if UninstallCommand = '' then
+    Exit;
+
+  SetupProgressPage.SetText('Uninstalling AutoPalExpress...', '');
+  SetupProgressPage.Show;
+  try
+    Exec(RemoveQuotes(UninstallCommand), '/SILENT', '', SW_SHOW, ewWaitUntilTerminated, ResultCode);
+  finally
+    SetupProgressPage.Hide;
+  end;
+  MsgBox('AutoPalExpress has been uninstalled. Your server data and configuration were kept.', mbInformation, MB_OK);
+  ExitProcess(0);
+end;
+
 procedure InitializeWizard;
 begin
   ExistingSetup := HasExistingSetup;
+
+  InstallModePage := CreateInputOptionPage(wpWelcome,
+    'Setup Mode', 'What would you like to do?',
+    'Choose an option, then click Next.', True, False);
+  InstallModePage.Add('Install AutoPalExpress');
+  InstallModePage.Add('Update AutoPalExpress');
+  InstallModePage.Add('Uninstall AutoPalExpress');
+  if IsAppInstalled then
+    InstallModePage.SelectedValueIndex := 1
+  else
+    InstallModePage.SelectedValueIndex := 0;
 
   ServerNamePage := CreateInputQueryPage(wpSelectTasks,
     'New Server', 'Deploy a Palworld Dedicated Server now',
@@ -115,6 +172,23 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
+  if CurPageID = InstallModePage.ID then
+  begin
+    if InstallModePage.SelectedValueIndex = 2 then
+    begin
+      if not IsAppInstalled then
+      begin
+        MsgBox('AutoPalExpress is not currently installed, so there is nothing to uninstall.', mbError, MB_OK);
+        Result := False;
+      end
+      else if MsgBox('This will uninstall AutoPalExpress. Your server data and configuration will be kept. Continue?',
+                      mbConfirmation, MB_YESNO) = IDYES then
+        RunUninstallAndExit
+      else
+        Result := False;
+    end;
+    Exit;
+  end;
   if CurPageID = SuperAdminPage.ID then
   begin
     if Trim(SuperAdminPage.Values[0]) = '' then
