@@ -36,7 +36,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Keep the server list unique when the same install is re-imported or restored.
 - Switch servers, open a server folder in Explorer, unregister it, or unregister and delete its files.
 - Choose where new server installs are stored, including another drive.
-- Edit grouped World Settings from the browser, with guided dropdowns and tooltips for common Palworld options.
+- Edit grouped World Settings from the browser, with guided dropdowns and concrete low/high examples for common Palworld options.
 - Manage Super Admin-only Launcher Options from their own sidebar page, including `-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`, `-publiclobby`, and read-only Super Admin-derived `-publicip`/`-publicport` overrides.
 - Start AutoPalExpress with Windows and bring the active server back online after a machine restart.
 - Install and update UE4SS.
@@ -47,7 +47,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Monitor Dashboard CPU, RAM, players, uptime, and REST-backed server metrics.
 - Schedule backups and restarts.
 - Create invite codes so friends can help administer the server.
-- Manage ports, Windows Firewall rules, public IP, and verified mod uploads from Super Admin.
+- Manage ports, Local API settings, Windows Firewall rules, public IP, and verified mod uploads from Super Admin.
 - Run a bundled diagnostics command that checks the active server, local ports, firewall, REST API, and produces a support report.
 
 > [!TIP]
@@ -141,7 +141,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  D45988C402A38483B9CE7401A1C09720097B112E9A4F28B61A12A42D10B1FF68
+SHA256  PalworldServerAdmin-Setup.exe  64C125B9E8EF729B770137FB72959A86C57F95122BD77CE542A92CF8B4986E5A
 ```
 
 > [!IMPORTANT]

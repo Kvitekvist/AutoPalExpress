@@ -173,7 +173,7 @@ export function AutomationPanel() {
               to="/world-settings"
               className="ml-auto shrink-0 font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200"
             >
-              Enable REST API in World Settings
+              Enable REST API in Super Admin
             </Link>
           </div>
         )}

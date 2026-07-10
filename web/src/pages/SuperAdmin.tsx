@@ -7,6 +7,7 @@ import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RemoteAccessPanel } from "@/components/settings/RemoteAccessPanel";
 import { PortForwardPanel } from "@/components/settings/PortForwardPanel";
 import { NexusIntegrationPanel } from "@/components/settings/NexusIntegrationPanel";
+import { LocalApiSettingsPanel } from "@/components/settings/LocalApiSettingsPanel";
 import { InstallFromFileDialog } from "@/components/mods/InstallFromFileDialog";
 
 export default function SuperAdmin() {
@@ -32,6 +33,7 @@ export default function SuperAdmin() {
         </ScrollPanel>
       )}
 
+      <LocalApiSettingsPanel />
       <ScrollPanel icon={<UploadCloud />} title="Mod File Uploads">
         <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
           Install a mod from a file you already downloaded from Nexus. Uploaded files are

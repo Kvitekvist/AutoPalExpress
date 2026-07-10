@@ -24,7 +24,6 @@ const GROUP_ORDER = [
   "Saving and Backups",
   "Performance Limits",
   "Mods and Compatibility",
-  "Local API",
   "Other",
 ];
 
@@ -34,7 +33,8 @@ function settingHelp(field: SettingField) {
     return field.options.map((option) => `${option.label}: ${option.description ?? option.value}`).join("\n");
   }
   if (field.type === "bool") return "On enables this setting. Off disables it.";
-  if (field.type === "int" || field.type === "float") return "Numeric setting. Higher and lower values change the server rule directly; Palworld usually treats 1 as normal for multipliers.";
+  if (field.type === "int") return "Numeric setting. Example: 10 is a lower limit, 30 is moderate, 60+ is high. The exact meaning depends on the setting.";
+  if (field.type === "float") return "Decimal multiplier. Example: 0.5 is half strength/speed, 1.0 is normal, 2.0 is double.";
   if (field.type === "raw") return "Advanced raw Palworld value. Keep the existing format unless you know the exact value Palworld expects.";
   return "Text setting written directly to PalWorldSettings.ini.";
 }
@@ -83,8 +83,16 @@ function FieldGroups({
 }) {
   return (
     <div className="space-y-7">
-      {groupedFields(fields).map(([group, groupFields]) => (
-        <section key={group} className="space-y-3">
+      {groupedFields(fields).map(([group, groupFields], index) => (
+        <section
+          key={group}
+          className={[
+            "space-y-3 rounded-md border-y px-3 py-4",
+            index % 2 === 0
+              ? "border-gold-700/25 bg-abyss-900/22"
+              : "border-stone-600/45 bg-stone-800/22",
+          ].join(" ")}
+        >
           <div className="flex items-center gap-3">
             <h4 className="shrink-0 font-display text-sm font-semibold text-gold-300">{group}</h4>
             <div className="h-px flex-1 bg-gold-700/20" />
@@ -124,6 +132,7 @@ function FieldControl({
         onCheckedChange={onChange}
         label={label}
         description={field.description ?? undefined}
+        compact
       />
     );
   }
@@ -228,8 +237,9 @@ export default function WorldSettings() {
     );
   }
 
-  const popular = fields.filter((f) => f.popular);
-  const advanced = fields.filter((f) => !f.popular);
+  const visibleFields = fields.filter((f) => f.group !== "Local API");
+  const popular = visibleFields.filter((f) => f.popular);
+  const advanced = visibleFields.filter((f) => !f.popular);
 
   return (
     <div className="space-y-6 pb-24">

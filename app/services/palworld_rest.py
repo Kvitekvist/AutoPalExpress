@@ -66,7 +66,7 @@ async def _request(
     if not creds:
         raise PalworldRestNotConfiguredError(
             "Palworld REST API is not ready for this server. Turn on REST API Enabled and set a REST API Port "
-            "in World Settings first. Admin Password must also be set, or restart the server through AutoPalExpress "
+            "in Super Admin first. Admin Password must also be set, or restart the server through AutoPalExpress "
             "so it can create one."
         )
 

@@ -29,7 +29,11 @@ def _require_active_instance() -> dict[str, Any]:
 def _redact_credentials(fields: list[dict[str, Any]], user: dict[str, Any]) -> list[dict[str, Any]]:
     if user["role"] == "super_admin":
         return fields
-    return [{**f, "value": _REDACTED} if f["key"] in _CREDENTIAL_FIELDS else f for f in fields]
+    return [
+        {**f, "value": _REDACTED} if f["key"] in _CREDENTIAL_FIELDS else f
+        for f in fields
+        if f["key"] not in palworld_settings.LOCAL_API_SETTING_KEYS
+    ]
 
 
 def _settings_view(instance: dict[str, Any], user: dict[str, Any]) -> dict[str, Any]:
@@ -54,6 +58,8 @@ async def update_settings(
     instance = _require_active_instance()
     if user["role"] != "super_admin" and _CREDENTIAL_FIELDS & body.values.keys():
         raise HTTPException(status_code=403, detail="Only the super admin can change the REST API/server password.")
+    if user["role"] != "super_admin" and palworld_settings.LOCAL_API_SETTING_KEYS & body.values.keys():
+        raise HTTPException(status_code=403, detail="Only the super admin can change Local API settings.")
     try:
         palworld_settings.write_settings(Path(instance["serverPath"]), body.values)
     except (ValueError, OSError) as e:

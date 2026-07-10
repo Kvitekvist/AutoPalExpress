@@ -10,6 +10,7 @@ interface EnchantedToggleProps {
   label: ReactNode;
   description?: string;
   disabled?: boolean;
+  compact?: boolean;
   className?: string;
 }
 
@@ -20,12 +21,14 @@ export function EnchantedToggle({
   label,
   description,
   disabled,
+  compact,
   className,
 }: EnchantedToggleProps) {
   return (
     <div
       className={cn(
         "flex items-center justify-between gap-4 rounded-md border border-stone-700 bg-abyss-900/40 px-4 py-3 transition-colors",
+        compact && "h-10 px-3 py-2",
         checked && "border-gold-600/30",
         className
       )}
@@ -34,7 +37,7 @@ export function EnchantedToggle({
         <Label htmlFor={id} className="normal-case text-sm font-medium text-parchment-100 tracking-normal">
           {label}
         </Label>
-        {description && <p className="mt-0.5 text-xs text-parchment-300/60">{description}</p>}
+        {description && !compact && <p className="mt-0.5 text-xs text-parchment-300/60">{description}</p>}
       </div>
       <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} disabled={disabled} />
     </div>
