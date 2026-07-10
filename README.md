@@ -11,6 +11,8 @@
 
 It opens in your browser, but it runs on your own PC. You stay in control of the server, while trusted friends can get their own admin accounts to help with day-to-day server tasks.
 
+![Dashboard](images/home.png)
+
 > [!IMPORTANT]
 > AutoPalExpress is built for private servers and trusted friend groups. It is not meant to be exposed publicly to random users.
 
