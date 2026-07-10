@@ -46,10 +46,14 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: no
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AutoPalExpress"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: startuprecovery
 
-; App data (server configs, mod lists, downloaded archives) lives in
-; %LOCALAPPDATA%\PalworldServerAdmin and is deliberately left in place on
-; uninstall, since it may reference real, separately-installed Palworld
-; server folders and downloaded mods the user wants to keep.
+; App data lives in %LOCALAPPDATA%\PalworldServerAdmin. Most of it is
+; deliberately left in place on uninstall (instances.json - references to
+; real, separately-installed Palworld server folders - plus mods and
+; backups), so a reinstall doesn't lose track of anything real. The admin
+; account (users.json) and app-level settings (system_settings.json) are the
+; exception: CurUninstallStepChanged in [Code] clears those specifically, so
+; reinstalling after a real uninstall asks to set up a fresh admin account
+; instead of silently reusing the old one (TICKET-0063).
 
 [Code]
 procedure ExitProcess(uExitCode: UINT);
@@ -61,23 +65,31 @@ var
   ServerInstallDirPage: TInputDirWizardPage;
   SuperAdminPage: TInputQueryWizardPage;
   SetupProgressPage: TOutputProgressWizardPage;
-  ExistingSetup: Boolean;
+  AdminAccountExists: Boolean;
+  ServerDataExists: Boolean;
 
-function HasExistingSetup(): Boolean;
-var
-  DataDir: String;
+// Deliberately two independent checks, not one combined "existing setup"
+// flag - a real uninstall (see CurUninstallStepChanged below) clears the
+// admin account but keeps instances.json, so right after an uninstall then
+// reinstall, AdminAccountExists is False while ServerDataExists is still
+// True. Collapsing these back into one flag is what originally caused the
+// Super Admin page to wrongly stay hidden after a real uninstall (TICKET-0063).
+function HasAdminAccount(): Boolean;
 begin
-  DataDir := ExpandConstant('{localappdata}\PalworldServerAdmin\data');
-  Result := FileExists(DataDir + '\users.json') or
-            FileExists(DataDir + '\instances.json') or
-            FileExists(DataDir + '\system_settings.json');
+  Result := FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\users.json'));
+end;
+
+function HasServerData(): Boolean;
+begin
+  Result := FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\instances.json'));
 end;
 
 // Whether AutoPalExpress is actually currently installed (a real Inno
-// uninstall entry exists), as opposed to HasExistingSetup above, which only
-// checks for leftover app data - app data is deliberately kept after an
-// uninstall (see the [Registry] section comment), so it would otherwise
-// falsely say "installed" right after a full uninstall.
+// uninstall entry exists), as opposed to HasAdminAccount/HasServerData
+// above, which only check for leftover app data - most app data is
+// deliberately kept after an uninstall (see the [Registry] section
+// comment), so those would otherwise falsely say "installed" right after a
+// full uninstall.
 function GetUninstallString(): String;
 var
   UninstallKey: String;
@@ -111,13 +123,16 @@ begin
   finally
     SetupProgressPage.Hide;
   end;
-  MsgBox('AutoPalExpress has been uninstalled. Your server data and configuration were kept.', mbInformation, MB_OK);
+  MsgBox('AutoPalExpress has been uninstalled. Your Palworld server files, mods, and backups were kept - your ' +
+         'admin account and app settings were reset, so installing again will ask you to set those up fresh.',
+         mbInformation, MB_OK);
   ExitProcess(0);
 end;
 
 procedure InitializeWizard;
 begin
-  ExistingSetup := HasExistingSetup;
+  AdminAccountExists := HasAdminAccount;
+  ServerDataExists := HasServerData;
 
   InstallModePage := CreateInputOptionPage(wpWelcome,
     'Setup Mode', 'What would you like to do?',
@@ -158,14 +173,16 @@ end;
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := False;
-  if ExistingSetup then
-  begin
-    if (PageID = ServerNamePage.ID) or (PageID = ServerInstallDirPage.ID) or (PageID = SuperAdminPage.ID) then
-      Result := True;
-    Exit;
-  end;
 
-  if PageID = ServerInstallDirPage.ID then
+  if AdminAccountExists and (PageID = SuperAdminPage.ID) then
+    Result := True;
+
+  if ServerDataExists then
+  begin
+    if (PageID = ServerNamePage.ID) or (PageID = ServerInstallDirPage.ID) then
+      Result := True;
+  end
+  else if PageID = ServerInstallDirPage.ID then
     Result := Trim(ServerNamePage.Values[0]) = '';
 end;
 
@@ -181,7 +198,8 @@ begin
         MsgBox('AutoPalExpress is not currently installed, so there is nothing to uninstall.', mbError, MB_OK);
         Result := False;
       end
-      else if MsgBox('This will uninstall AutoPalExpress. Your server data and configuration will be kept. Continue?',
+      else if MsgBox('This will uninstall AutoPalExpress. Your Palworld server files, mods, and backups will be kept, ' +
+                      'but your admin account and app settings will be reset. Continue?',
                       mbConfirmation, MB_YESNO) = IDYES then
         RunUninstallAndExit
       else
@@ -339,7 +357,15 @@ begin
   begin
     SaveStartupRecoverySettings;
     SeedPath := ExpandConstant('{app}\first_run_seed.json');
-    if ExistingSetup then
+    // Nothing left to provision only when both an admin account and server
+    // data already exist - a post-uninstall reinstall has AdminAccountExists
+    // = False (see CurUninstallStepChanged) even though ServerDataExists is
+    // still True, so this still runs to recreate just the admin account.
+    // BuildSeedJson only fills in serverName if ServerNamePage was actually
+    // shown and filled in, and first_run_setup.py safely no-ops
+    // create_first_super_admin if an account is somehow already there - so
+    // this is safe to run whenever either half is missing.
+    if AdminAccountExists and ServerDataExists then
     begin
       DeleteFile(SeedPath);
       Exit;
@@ -350,5 +376,24 @@ begin
       SaveStringToFile(SeedPath, BuildSeedJson(), False);
       RunFirstTimeSetup;
     end;
+  end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  DataDir: String;
+begin
+  // Runs inside the compiled unins000.exe itself, so this applies no matter
+  // how the user uninstalls - the installer's own Uninstall option
+  // (RunUninstallAndExit above), Control Panel, or the Start Menu shortcut
+  // all end up running this same uninstaller. Only the admin account and
+  // app-level settings are cleared; instances.json (references to real,
+  // separately-installed Palworld server folders), mods, and backups are
+  // deliberately left alone - see the [Registry] section comment.
+  if CurUninstallStep = usPostUninstall then
+  begin
+    DataDir := ExpandConstant('{localappdata}\PalworldServerAdmin\data');
+    DeleteFile(DataDir + '\users.json');
+    DeleteFile(DataDir + '\system_settings.json');
   end;
 end;
