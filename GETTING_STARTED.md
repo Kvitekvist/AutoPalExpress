@@ -10,27 +10,6 @@ This guide shows the basic path:
 
 You do not need to understand SteamCMD, config files, or Windows Firewall to start.
 
-## Screenshot Files
-
-Add your screenshots to the `images` folder with these names.
-
-| What the picture shows | File name |
-| --- | --- |
-| Installer start | `images/getting-started-01-installer-start.png` |
-| Installer startup option | `images/getting-started-02-installer-startup.png` |
-| First admin account | `images/getting-started-03-admin-account.png` |
-| Create or import server | `images/getting-started-04-server-choice.png` |
-| Choose install folder | `images/getting-started-05-install-folder.png` |
-| Server Control start button | `images/getting-started-06-start-server.png` |
-| Dashboard online | `images/getting-started-07-dashboard-online.png` |
-| Super Admin game port | `images/getting-started-08-game-port.png` |
-| Router port forward example | `images/getting-started-09-router-port-forward.png` |
-| Launcher Options | `images/getting-started-10-launcher-options.png` |
-| World Settings | `images/getting-started-11-world-settings.png` |
-| Mods page | `images/getting-started-12-mods.png` |
-| Invite users | `images/getting-started-13-invite-users.png` |
-| Diagnose AutoPalExpress | `images/getting-started-14-diagnostics.png` |
-
 ## What You Need
 
 - A Windows 10 or Windows 11 PC.
