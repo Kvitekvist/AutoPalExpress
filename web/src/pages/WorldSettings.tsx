@@ -93,10 +93,7 @@ function FieldGroups({
               : "border-stone-600/45 bg-stone-800/22",
           ].join(" ")}
         >
-          <div className="flex items-center gap-3">
-            <h4 className="shrink-0 font-display text-sm font-semibold text-gold-300">{group}</h4>
-            <div className="h-px flex-1 bg-gold-700/20" />
-          </div>
+          <h4 className="font-display text-sm font-semibold text-gold-300">{group}</h4>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {groupFields.map((field) => (
               <FieldControl
@@ -126,14 +123,17 @@ function FieldControl({
 
   if (field.type === "bool") {
     return (
-      <EnchantedToggle
-        id={`field-${field.key}`}
-        checked={Boolean(value)}
-        onCheckedChange={onChange}
-        label={label}
-        description={field.description ?? undefined}
-        compact
-      />
+      <div className="space-y-1.5">
+        <Label htmlFor={`field-${field.key}`}>{label}</Label>
+        <EnchantedToggle
+          id={`field-${field.key}`}
+          checked={Boolean(value)}
+          onCheckedChange={onChange}
+          label={<span className="sr-only">{field.label}</span>}
+          compact
+        />
+        {field.description && <p className="text-xs text-parchment-300/40">{field.description}</p>}
+      </div>
     );
   }
 

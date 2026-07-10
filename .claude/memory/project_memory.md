@@ -75,6 +75,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-10 (TICKET-0053): World Settings now returns curated group/help/options metadata for known Palworld settings and the frontend renders grouped sections, help tooltips, and dropdowns for categorical values like Death Penalty, Difficulty, Randomizer Type, Crossplay Platforms, and Log Format. Current installer checksum is `D45988C402A38483B9CE7401A1C09720097B112E9A4F28B61A12A42D10B1FF68`.
 * FIXED 2026-07-10 (TICKET-0054): World Settings numeric tooltips now include concrete low/default/high examples, compact toggles align with normal inputs, category groups have stronger alternating banding, and Local API settings moved to a Super Admin-only panel. Current installer checksum is `64C125B9E8EF729B770137FB72959A86C57F95122BD77CE542A92CF8B4986E5A`.
 * FIXED 2026-07-10 (TICKET-0055): Added `GETTING_STARTED.md`, a GitHub-ready step-by-step setup guide with screenshot placeholders under `images/getting-started-*`, and linked it from the README Quick Start section. Documentation-only change; no executable rebuild required.
+* FIXED 2026-07-10 (TICKET-0056): World Settings category headings no longer render the long horizontal filler line, and boolean fields now use the same label-above-control layout as numeric/dropdown fields so toggle controls align in grouped sections. Frontend build passed; no executable rebuild performed.
 
 ---
 

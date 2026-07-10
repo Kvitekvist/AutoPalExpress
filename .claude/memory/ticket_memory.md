@@ -65,6 +65,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0053** (2026-07-10, Enhancement) - Improved World Settings discoverability by grouping settings under readable section headings, adding tooltips to every field, and rendering dropdowns for known categorical values while leaving unknown future Palworld fields editable as generic inputs.
 * **TICKET-0054** (2026-07-10, Enhancement) - Refined the World Settings grouping pass with concrete low/default/high numeric examples, compact aligned toggles, stronger alternating category separation, and a Super Admin-only Local API panel for REST/log settings.
 * **TICKET-0055** (2026-07-10, Documentation) - Added a GitHub-ready `GETTING_STARTED.md` walkthrough with predictable `images/getting-started-*` screenshot placeholders and linked it from the README Quick Start section.
+* **TICKET-0056** (2026-07-10, Bug) - Fixed World Settings visual alignment by removing the category heading filler line and rendering boolean settings with the same label-above-control layout as numeric/dropdown fields.
 
 ---
 
