@@ -35,6 +35,9 @@ If you want the server to come back after a PC restart, turn on the Windows star
 > [!NOTE]
 > Running the installer again later updates the app. It keeps your server list and admin account.
 
+Select Install Location
+![Installer startup option](images/getting-started-01-installer-location.png)
+
 ## 2. Make Your Admin Account
 
 The first account is the main admin account.
@@ -53,10 +56,6 @@ You have two choices:
 - **Import existing server** if you already have Palworld server files.
 
 ![Create or import server](images/getting-started-04-server-choice.png)
-
-If you create a new server, choose where it should be installed.
-
-![Choose install folder](images/getting-started-05-install-folder.png)
 
 > [!TIP]
 > You can put the server on another drive if your C drive is small.
