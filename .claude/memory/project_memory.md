@@ -78,6 +78,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-10 (TICKET-0056): World Settings category headings no longer render the long horizontal filler line, and boolean fields now use the same label-above-control layout as numeric/dropdown fields so toggle controls align in grouped sections. Frontend build passed; no executable rebuild performed.
 * FIXED 2026-07-10 (TICKET-0057): Rewrote `GETTING_STARTED.md` for younger/non-technical users with shorter steps, simpler language, and more picture placeholders. Documentation-only change; no executable rebuild required.
 * FIXED 2026-07-10 (TICKET-0058): World Settings boolean fields now keep the real setting name in the header position and show `Enable`/`Disable` inside the toggle box. Frontend build passed; no executable rebuild performed.
+* FIXED 2026-07-10 (TICKET-0059): Added the available local Getting Started screenshots under `images/` to git so GitHub can render them. Remaining missing placeholders: `getting-started-02-installer-startup.png`, `getting-started-03-admin-account.png`, `getting-started-04-server-choice.png`, `getting-started-05-install-folder.png`, `getting-started-09-router-port-forward.png`, and `getting-started-14-diagnostics.png`.
 
 ---
 
