@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "mods": "Mods",
+    "control": "Server Control",
+    "worldSettings": "World Settings",
+    "launcherOptions": "Launcher Options",
+    "logs": "Logs",
+    "settings": "Settings",
+    "superAdmin": "Super Admin"
+  },
+  "topbar": {
+    "pages": {
+      "dashboard": { "title": "Dashboard", "subtitle": "Your realm's vitals and the souls wandering it" },
+      "mods": { "title": "Mods", "subtitle": "Enchantments woven into your server" },
+      "control": { "title": "Server Control", "subtitle": "Command the fate of your realm" },
+      "worldSettings": { "title": "World Settings", "subtitle": "Every rule your server's config file can express" },
+      "launcherOptions": { "title": "Launcher Options", "subtitle": "Startup arguments for the selected server" },
+      "logs": { "title": "Logs", "subtitle": "The chronicle of recent events" },
+      "settings": { "title": "Settings", "subtitle": "Configure the laws of your world" },
+      "superAdmin": { "title": "Super Admin", "subtitle": "Network exposure and access, reserved for the host" }
+    },
+    "instanceSwitcher": {
+      "currentServer": "Current Server:",
+      "noServerSelected": "No server selected",
+      "noServersYet": "No servers yet",
+      "newServer": "New Server..."
+    },
+    "userMenu": {
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "logOut": "Log Out"
+    },
+    "languageSwitcher": {
+      "label": "Language"
+    }
+  }
+}

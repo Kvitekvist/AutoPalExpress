@@ -1,22 +1,24 @@
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { LayoutDashboard, BookOpen, Swords, ScrollText, Settings2, Flame, SlidersHorizontal, Crown, Rocket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/mods", label: "Mods", icon: BookOpen },
-  { to: "/control", label: "Server Control", icon: Swords },
-  { to: "/world-settings", label: "World Settings", icon: SlidersHorizontal },
-  { to: "/launcher-options", label: "Launcher Options", icon: Rocket, superAdminOnly: true },
-  { to: "/logs", label: "Logs", icon: ScrollText },
-  { to: "/settings", label: "Settings", icon: Settings2, superAdminOnly: true },
-  { to: "/super-admin", label: "Super Admin", icon: Crown, superAdminOnly: true },
+  { to: "/", labelKey: "dashboard", icon: LayoutDashboard, end: true },
+  { to: "/mods", labelKey: "mods", icon: BookOpen },
+  { to: "/control", labelKey: "control", icon: Swords },
+  { to: "/world-settings", labelKey: "worldSettings", icon: SlidersHorizontal },
+  { to: "/launcher-options", labelKey: "launcherOptions", icon: Rocket, superAdminOnly: true },
+  { to: "/logs", labelKey: "logs", icon: ScrollText },
+  { to: "/settings", labelKey: "settings", icon: Settings2, superAdminOnly: true },
+  { to: "/super-admin", labelKey: "superAdmin", icon: Crown, superAdminOnly: true },
 ];
 
 export function Sidebar() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const items = NAV_ITEMS.filter((item) => !item.superAdminOnly || user.role === "super_admin");
 
   return (
@@ -60,7 +62,7 @@ export function Sidebar() {
                   <item.icon className="h-4 w-4" />
                 </span>
                 <span className="relative hidden truncate font-display text-sm font-medium tracking-wide lg:block">
-                  {item.label}
+                  {t(`nav.${item.labelKey}`)}
                 </span>
               </div>
             )}

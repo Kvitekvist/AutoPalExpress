@@ -82,7 +82,7 @@ Backend (`requirements.txt`):
 
 Notable direct implementations (deliberately, to avoid unnecessary dependencies): UPnP IGD client (`app/services/upnp.py`), Windows Firewall UAC elevation (`app/services/firewall.py`), password hashing via `hashlib.pbkdf2_hmac` (`app/services/auth.py`), and the Palworld REST API wrapper (`app/services/palworld_rest.py`, using existing `httpx`).
 
-Frontend (`web/package.json`, key ones): react, react-router-dom, framer-motion, @radix-ui/* (dialog/select/tabs/switch primitives, restyled), tailwindcss v4 (CSS-based theme config, no `tailwind.config.js`), lucide-react (icons).
+Frontend (`web/package.json`, key ones): react, react-router-dom, framer-motion, @radix-ui/* (dialog/select/tabs/switch primitives, restyled), tailwindcss v4 (CSS-based theme config, no `tailwind.config.js`), lucide-react (icons), i18next + react-i18next (multi-language UI, see `web/src/i18n/`; flags are inline emoji, no icon dependency added for them).
 
 ---
 

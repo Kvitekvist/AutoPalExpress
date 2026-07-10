@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "dashboard": "仪表盘",
+    "mods": "模组",
+    "control": "服务器控制",
+    "worldSettings": "世界设置",
+    "launcherOptions": "启动选项",
+    "logs": "日志",
+    "settings": "设置",
+    "superAdmin": "超级管理员"
+  },
+  "topbar": {
+    "pages": {
+      "dashboard": { "title": "仪表盘", "subtitle": "你的领地生机与游荡其中的灵魂" },
+      "mods": { "title": "模组", "subtitle": "编织入你服务器的魔法附魔" },
+      "control": { "title": "服务器控制", "subtitle": "掌控你领地的命运" },
+      "worldSettings": { "title": "世界设置", "subtitle": "你服务器配置文件所能表达的每一条规则" },
+      "launcherOptions": { "title": "启动选项", "subtitle": "所选服务器的启动参数" },
+      "logs": { "title": "日志", "subtitle": "近期事件的编年史" },
+      "settings": { "title": "设置", "subtitle": "制定你世界的律法" },
+      "superAdmin": { "title": "超级管理员", "subtitle": "网络暴露与访问权限，仅限主机持有者" }
+    },
+    "instanceSwitcher": {
+      "currentServer": "当前服务器：",
+      "noServerSelected": "未选择服务器",
+      "noServersYet": "尚无服务器",
+      "newServer": "新建服务器..."
+    },
+    "userMenu": {
+      "superAdmin": "超级管理员",
+      "admin": "管理员",
+      "logOut": "登出"
+    },
+    "languageSwitcher": {
+      "label": "语言"
+    }
+  }
+}

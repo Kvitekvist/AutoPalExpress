@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "dashboard": "Panel",
+    "mods": "Mods",
+    "control": "Control del servidor",
+    "worldSettings": "Configuración del mundo",
+    "launcherOptions": "Opciones de inicio",
+    "logs": "Registros",
+    "settings": "Configuración",
+    "superAdmin": "Superadministrador"
+  },
+  "topbar": {
+    "pages": {
+      "dashboard": { "title": "Panel", "subtitle": "Las constantes vitales de tu reino y las almas que lo recorren" },
+      "mods": { "title": "Mods", "subtitle": "Encantamientos entretejidos en tu servidor" },
+      "control": { "title": "Control del servidor", "subtitle": "Decide el destino de tu reino" },
+      "worldSettings": { "title": "Configuración del mundo", "subtitle": "Cada regla que el archivo de configuración de tu servidor puede expresar" },
+      "launcherOptions": { "title": "Opciones de inicio", "subtitle": "Argumentos de inicio para el servidor seleccionado" },
+      "logs": { "title": "Registros", "subtitle": "La crónica de los sucesos recientes" },
+      "settings": { "title": "Configuración", "subtitle": "Define las leyes de tu mundo" },
+      "superAdmin": { "title": "Superadministrador", "subtitle": "Exposición de red y acceso, reservado para el anfitrión" }
+    },
+    "instanceSwitcher": {
+      "currentServer": "Servidor actual:",
+      "noServerSelected": "Ningún servidor seleccionado",
+      "noServersYet": "Aún no hay servidores",
+      "newServer": "Nuevo servidor..."
+    },
+    "userMenu": {
+      "superAdmin": "Superadministrador",
+      "admin": "Administrador",
+      "logOut": "Cerrar sesión"
+    },
+    "languageSwitcher": {
+      "label": "Idioma"
+    }
+  }
+}

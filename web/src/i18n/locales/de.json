@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "dashboard": "Übersicht",
+    "mods": "Mods",
+    "control": "Serversteuerung",
+    "worldSettings": "Welteinstellungen",
+    "launcherOptions": "Startoptionen",
+    "logs": "Protokolle",
+    "settings": "Einstellungen",
+    "superAdmin": "Hauptadministrator"
+  },
+  "topbar": {
+    "pages": {
+      "dashboard": { "title": "Übersicht", "subtitle": "Die Vitalwerte deines Reiches und die Seelen, die darin wandeln" },
+      "mods": { "title": "Mods", "subtitle": "Verzauberungen, eingewoben in deinen Server" },
+      "control": { "title": "Serversteuerung", "subtitle": "Bestimme das Schicksal deines Reiches" },
+      "worldSettings": { "title": "Welteinstellungen", "subtitle": "Jede Regel, die die Konfigurationsdatei deines Servers ausdrücken kann" },
+      "launcherOptions": { "title": "Startoptionen", "subtitle": "Startargumente für den ausgewählten Server" },
+      "logs": { "title": "Protokolle", "subtitle": "Die Chronik der letzten Ereignisse" },
+      "settings": { "title": "Einstellungen", "subtitle": "Lege die Gesetze deiner Welt fest" },
+      "superAdmin": { "title": "Hauptadministrator", "subtitle": "Netzwerkzugriff und Freigabe, dem Gastgeber vorbehalten" }
+    },
+    "instanceSwitcher": {
+      "currentServer": "Aktueller Server:",
+      "noServerSelected": "Kein Server ausgewählt",
+      "noServersYet": "Noch keine Server",
+      "newServer": "Neuer Server..."
+    },
+    "userMenu": {
+      "superAdmin": "Hauptadministrator",
+      "admin": "Administrator",
+      "logOut": "Abmelden"
+    },
+    "languageSwitcher": {
+      "label": "Sprache"
+    }
+  }
+}

@@ -4,10 +4,12 @@ import { UNAUTHORIZED_EVENT } from "@/api/httpClient";
 import type { AuthUser } from "@/types/models";
 import { SetupScreen } from "@/components/auth/SetupScreen";
 import { LoginScreen } from "@/components/auth/LoginScreen";
+import { setLanguage as setI18nLanguage } from "@/i18n";
 
 interface AuthContextValue {
   user: AuthUser;
   logout: () => Promise<void>;
+  setLanguage: (language: string) => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextValue | null>(null);
@@ -33,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const me = await authApi.me();
       setUser(me);
+      setI18nLanguage(me.language);
       setPhase("authed");
     } catch {
       setPhase("needs-login");
@@ -60,8 +63,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   function handleAuthed(nextUser: AuthUser) {
     setUser(nextUser);
+    setI18nLanguage(nextUser.language);
     setPhase("authed");
   }
+
+  const updateLanguage = React.useCallback(async (language: string) => {
+    const updated = await authApi.setLanguage(language);
+    setUser(updated);
+    setI18nLanguage(updated.language);
+  }, []);
 
   if (phase === "loading") {
     return (
@@ -79,5 +89,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return <LoginScreen onDone={handleAuthed} />;
   }
 
-  return <AuthContext.Provider value={{ user: user!, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user: user!, logout, setLanguage: updateLanguage }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }

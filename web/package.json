@@ -25,9 +25,11 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.42.2",
+    "i18next": "^26.3.6",
     "lucide-react": "^1.23.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-i18next": "^17.0.9",
     "react-router-dom": "^7.18.1",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.2"

@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "mods": "Mods",
+    "control": "Contrôle du serveur",
+    "worldSettings": "Paramètres du monde",
+    "launcherOptions": "Options de lancement",
+    "logs": "Journaux",
+    "settings": "Paramètres",
+    "superAdmin": "Super administrateur"
+  },
+  "topbar": {
+    "pages": {
+      "dashboard": { "title": "Tableau de bord", "subtitle": "Les signes vitaux de votre royaume et les âmes qui y errent" },
+      "mods": { "title": "Mods", "subtitle": "Enchantements tissés dans votre serveur" },
+      "control": { "title": "Contrôle du serveur", "subtitle": "Décidez du destin de votre royaume" },
+      "worldSettings": { "title": "Paramètres du monde", "subtitle": "Chaque règle que le fichier de configuration de votre serveur peut exprimer" },
+      "launcherOptions": { "title": "Options de lancement", "subtitle": "Arguments de démarrage pour le serveur sélectionné" },
+      "logs": { "title": "Journaux", "subtitle": "La chronique des événements récents" },
+      "settings": { "title": "Paramètres", "subtitle": "Définissez les lois de votre monde" },
+      "superAdmin": { "title": "Super administrateur", "subtitle": "Exposition réseau et accès, réservé à l'hôte" }
+    },
+    "instanceSwitcher": {
+      "currentServer": "Serveur actuel :",
+      "noServerSelected": "Aucun serveur sélectionné",
+      "noServersYet": "Aucun serveur pour l'instant",
+      "newServer": "Nouveau serveur..."
+    },
+    "userMenu": {
+      "superAdmin": "Super administrateur",
+      "admin": "Administrateur",
+      "logOut": "Déconnexion"
+    },
+    "languageSwitcher": {
+      "label": "Langue"
+    }
+  }
+}

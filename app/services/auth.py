@@ -22,6 +22,9 @@ _INVITES_STORE = "invites"
 
 PBKDF2_ITERATIONS = 200_000
 
+DEFAULT_LANGUAGE = "en"
+SUPPORTED_LANGUAGES = ("en", "zh-Hans", "ja", "de", "fr", "es")
+
 
 def _hash_password(password: str, salt: str | None = None) -> tuple[str, str]:
     salt = salt or secrets.token_hex(16)
@@ -56,7 +59,13 @@ def get_by_id(user_id: str) -> dict[str, Any] | None:
 
 
 def public_view(user: dict[str, Any]) -> dict[str, Any]:
-    return {"id": user["id"], "username": user["username"], "role": user["role"], "createdAt": user["createdAt"]}
+    return {
+        "id": user["id"],
+        "username": user["username"],
+        "role": user["role"],
+        "createdAt": user["createdAt"],
+        "language": user.get("language", DEFAULT_LANGUAGE),
+    }
 
 
 def list_users() -> list[dict[str, Any]]:
@@ -101,6 +110,7 @@ def _create_user(username: str, password: str, *, role: str) -> dict[str, Any]:
         "passwordHash": password_hash,
         "role": role,
         "createdAt": time.time(),
+        "language": DEFAULT_LANGUAGE,
     }
     users = _load_users()
     users.append(user)
@@ -122,6 +132,18 @@ def verify_login(username: str, password: str) -> dict[str, Any] | None:
         return None
     if not _verify_password(password, user["passwordSalt"], user["passwordHash"]):
         return None
+    return user
+
+
+def set_language(user_id: str, language: str) -> dict[str, Any]:
+    if language not in SUPPORTED_LANGUAGES:
+        raise AuthError(f"'{language}' is not a supported language.")
+    users = _load_users()
+    user = next((u for u in users if u["id"] == user_id), None)
+    if not user:
+        raise AuthError("No such user.")
+    user["language"] = language
+    _save_users(users)
     return user
 
 

@@ -5,6 +5,7 @@ export interface AuthUser {
   username: string;
   role: UserRole;
   createdAt: number;
+  language: string;
 }
 
 export interface AuthStatus {

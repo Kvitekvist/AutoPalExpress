@@ -30,3 +30,8 @@ export async function login(username: string, password: string): Promise<AuthUse
 export async function logout(): Promise<void> {
   await api.post("/api/auth/logout");
 }
+
+// PATCH /api/auth/me/language
+export async function setLanguage(language: string): Promise<AuthUser> {
+  return api.patch<AuthUser>("/api/auth/me/language", { language });
+}

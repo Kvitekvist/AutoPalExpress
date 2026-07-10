@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "dashboard": "ダッシュボード",
+    "mods": "MOD",
+    "control": "サーバー操作",
+    "worldSettings": "ワールド設定",
+    "launcherOptions": "起動オプション",
+    "logs": "ログ",
+    "settings": "設定",
+    "superAdmin": "スーパー管理者"
+  },
+  "topbar": {
+    "pages": {
+      "dashboard": { "title": "ダッシュボード", "subtitle": "あなたの領地の状態と、そこを彷徨う魂たち" },
+      "mods": { "title": "MOD", "subtitle": "あなたのサーバーに織り込まれたエンチャント" },
+      "control": { "title": "サーバー操作", "subtitle": "あなたの領地の運命を統べる" },
+      "worldSettings": { "title": "ワールド設定", "subtitle": "サーバー設定ファイルが表現できるすべてのルール" },
+      "launcherOptions": { "title": "起動オプション", "subtitle": "選択したサーバーの起動引数" },
+      "logs": { "title": "ログ", "subtitle": "最近の出来事の記録" },
+      "settings": { "title": "設定", "subtitle": "あなたの世界の法を定める" },
+      "superAdmin": { "title": "スーパー管理者", "subtitle": "ネットワーク公開とアクセス権限（ホスト専用）" }
+    },
+    "instanceSwitcher": {
+      "currentServer": "現在のサーバー：",
+      "noServerSelected": "サーバーが選択されていません",
+      "noServersYet": "サーバーがまだありません",
+      "newServer": "新しいサーバー..."
+    },
+    "userMenu": {
+      "superAdmin": "スーパー管理者",
+      "admin": "管理者",
+      "logOut": "ログアウト"
+    },
+    "languageSwitcher": {
+      "label": "言語"
+    }
+  }
+}

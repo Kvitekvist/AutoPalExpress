@@ -84,6 +84,21 @@ async def me(user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]
     return auth.public_view(user)
 
 
+class SetLanguageRequest(BaseModel):
+    language: str
+
+
+@router.patch("/me/language")
+async def set_language(
+    body: SetLanguageRequest, user: dict[str, Any] = Depends(get_current_user)
+) -> dict[str, Any]:
+    try:
+        updated = auth.set_language(user["id"], body.language)
+    except AuthError as e:
+        raise HTTPException(status_code=400, detail=e.message)
+    return auth.public_view(updated)
+
+
 def _set_session_cookie(response: Response, user_id: str) -> None:
     token = session_store.create_session(user_id)
     response.set_cookie(
