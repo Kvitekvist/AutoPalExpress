@@ -1171,7 +1171,16 @@
       "forwarding": "Wird weitergeleitet...",
       "forwardPort": "Port weiterleiten",
       "removing": "Wird entfernt...",
-      "removeThisForward": "Diese Weiterleitung entfernen"
+      "removeThisForward": "Diese Weiterleitung entfernen",
+      "queryPort": "Steam-Abfrageport",
+      "queryPortHint": "Wird nur für Steams Serverlisten-/Abfrageprotokoll verwendet, getrennt vom obigen Spielport. Wenn du mehr als einen Palworld-Server auf diesem Rechner betreibst, gib jedem hier einen eigenen Wert, um Kollisionen zu vermeiden. Wird beim nächsten Serverstart wirksam.",
+      "saveQueryPort": "Abfrageport speichern",
+      "queryPortUpdatedTitle": "Steam-Abfrageport aktualisiert",
+      "queryPortUpdatedMessage": "Wird beim nächsten Serverstart wirksam.",
+      "firewallAddedMessageBoth": "Windows erlaubt nun eingehende Verbindungen auf den UDP-Ports {{port}} und {{queryPort}}.",
+      "forwardedMessageBoth": "Freunde können sich über Port {{port}} verbinden, und dieser Server wird über Port {{queryPort}} korrekt in Steams Serverliste angezeigt.",
+      "queryPortManualHint": "Dein Steam-Abfrageport unterscheidet sich von deinem Spielport, daher braucht er eine eigene Regel:",
+      "steamQueryPortName": "Palworld-Server (Steam-Abfrage)"
     },
     "manualForward": {
       "intro": "Füge auf der Admin-Seite deines Routers eine neue Portweiterleitungsregel mit genau diesen Werten hinzu:",

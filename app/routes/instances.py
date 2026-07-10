@@ -41,6 +41,7 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
         "useMultithreadForDs": bool(instance.get("useMultithreadForDs", instance.get("performanceFlags", True))),
         "usePublicIpOverride": bool(instance.get("usePublicIpOverride")),
         "usePublicPortOverride": bool(instance.get("usePublicPortOverride")),
+        "queryPort": instance.get("queryPort") or effective_game_port,
         "performanceFlags": bool(instance.get("performanceFlags", True)),
         "workerThreads": instance.get("workerThreads") if instance.get("workerThreads") is not None else None,
         "jsonLogFormat": bool(instance.get("jsonLogFormat")),
@@ -97,6 +98,19 @@ async def set_community_server(instance_id: str, body: CommunityServerRequest) -
     if not instance_store.get(instance_id):
         raise HTTPException(status_code=404, detail="No such server instance.")
     instance_store.update_community_server(instance_id, body.enabled)
+    data = instance_store.list_view()
+    return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
+
+
+class QueryPortRequest(BaseModel):
+    port: int
+
+
+@router.post("/{instance_id}/query-port", dependencies=[Depends(require_super_admin)])
+async def set_query_port(instance_id: str, body: QueryPortRequest) -> dict[str, Any]:
+    if not instance_store.get(instance_id):
+        raise HTTPException(status_code=404, detail="No such server instance.")
+    instance_store.update_query_port(instance_id, body.port)
     data = instance_store.list_view()
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}
 

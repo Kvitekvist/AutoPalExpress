@@ -32,6 +32,11 @@ export async function setCommunityServer(id: string, enabled: boolean): Promise<
   return api.post<InstanceListView>(`/api/instances/${id}/community-server`, { enabled });
 }
 
+// POST /api/instances/{id}/query-port
+export async function setQueryPort(id: string, port: number): Promise<InstanceListView> {
+  return api.post<InstanceListView>(`/api/instances/${id}/query-port`, { port });
+}
+
 export interface LaunchOptionsParams {
   usePerfThreads: boolean;
   noAsyncLoadingThread: boolean;

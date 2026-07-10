@@ -75,6 +75,14 @@ def _dedupe_data(data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         if "usePublicPortOverride" not in instance:
             instance["usePublicPortOverride"] = False
             changed = True
+        if "queryPort" not in instance:
+            # Steam's server-query protocol port (-queryport=), separate from
+            # the game port (-port=). Defaulting to the instance's own game
+            # port - already guaranteed unique across this tool's instances -
+            # avoids the query-port collisions that happen across multiple
+            # Palworld servers on one machine/IP when it's left unset.
+            instance["queryPort"] = instance.get("gamePort", 8211)
+            changed = True
         existing = by_path.get(key)
         if not existing:
             by_path[key] = instance
@@ -157,6 +165,7 @@ def create_instance(
         "useMultithreadForDs": True,
         "usePublicIpOverride": False,
         "usePublicPortOverride": False,
+        "queryPort": game_port,
         "workerThreads": None,
         "jsonLogFormat": False,
         "createdAt": time.time(),
@@ -206,6 +215,17 @@ def update_game_port(instance_id: str, game_port: int) -> None:
     for i in data["instances"]:
         if i["id"] == instance_id:
             i["gamePort"] = game_port
+    _save(data)
+
+
+def update_query_port(instance_id: str, query_port: int) -> None:
+    """Stores the Steam query-port override (-queryport= launch arg) - unlike
+    the game port, this has no PalWorldSettings.ini representation to
+    reconcile against, so it's just remembered as-is."""
+    data = _load_clean()
+    for i in data["instances"]:
+        if i["id"] == instance_id:
+            i["queryPort"] = query_port
     _save(data)
 
 

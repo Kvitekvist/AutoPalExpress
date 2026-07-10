@@ -1171,7 +1171,16 @@
       "forwarding": "Redirigiendo...",
       "forwardPort": "Redirigir puerto",
       "removing": "Eliminando...",
-      "removeThisForward": "Eliminar esta redirección"
+      "removeThisForward": "Eliminar esta redirección",
+      "queryPort": "Puerto de consulta de Steam",
+      "queryPortHint": "Solo se usa para el protocolo de lista/consulta de servidores de Steam, independiente del puerto del juego anterior. Si ejecutas más de un servidor de Palworld en esta máquina, asigna a cada uno su propio valor aquí para evitar conflictos. Surte efecto en el próximo inicio del servidor.",
+      "saveQueryPort": "Guardar puerto de consulta",
+      "queryPortUpdatedTitle": "Puerto de consulta de Steam actualizado",
+      "queryPortUpdatedMessage": "Surte efecto en el próximo inicio del servidor.",
+      "firewallAddedMessageBoth": "Windows ahora permitirá conexiones entrantes en los puertos UDP {{port}} y {{queryPort}}.",
+      "forwardedMessageBoth": "Los amigos pueden conectarse en el puerto {{port}}, y este servidor se mostrará correctamente en la lista de servidores de Steam a través del puerto {{queryPort}}.",
+      "queryPortManualHint": "Tu puerto de consulta de Steam es diferente de tu puerto de juego, por lo que necesita su propia regla:",
+      "steamQueryPortName": "Servidor Palworld (consulta de Steam)"
     },
     "manualForward": {
       "intro": "Añade una nueva regla de redirección de puertos en la página de administración de tu router con estos valores exactos:",

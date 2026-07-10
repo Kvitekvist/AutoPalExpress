@@ -13,10 +13,14 @@ import { useNotifications } from "@/hooks/useNotifications";
 export function PortForwardPanel() {
   const { t } = useTranslation();
   const [hasInstance, setHasInstance] = React.useState<boolean | null>(null);
+  const [instanceId, setInstanceId] = React.useState<string | null>(null);
   const [status, setStatus] = React.useState<UpnpStatus | null>(null);
   const [port, setPort] = React.useState<number | null>(null);
   const [savedPort, setSavedPort] = React.useState<number | null>(null);
   const [savingPort, setSavingPort] = React.useState(false);
+  const [queryPort, setQueryPort] = React.useState<number | null>(null);
+  const [savedQueryPort, setSavedQueryPort] = React.useState<number | null>(null);
+  const [savingQueryPort, setSavingQueryPort] = React.useState(false);
   const [checking, setChecking] = React.useState(false);
   const [firewallOk, setFirewallOk] = React.useState<boolean | null>(null);
   const [checkingFirewall, setCheckingFirewall] = React.useState(false);
@@ -32,12 +36,19 @@ export function PortForwardPanel() {
   // nothing is forwarded.
   const mapping = status?.gameMapping ?? null;
   const portDirty = port !== null && port !== savedPort;
+  const queryPortDirty = queryPort !== null && queryPort !== savedQueryPort;
+  // The query port only needs its own firewall/forward step when it differs
+  // from the game port - by default (see instance_store.py) it's the same
+  // value, so opening the game port already covers it.
+  const queryPortDiffers = !!(port && queryPort && queryPort !== port);
 
-  const checkFirewall = React.useCallback(async (checkPort: number) => {
+  const checkFirewall = React.useCallback(async (checkPort: number, checkQueryPort: number | null) => {
     setCheckingFirewall(true);
     try {
-      const data = await networkApi.getGameFirewallStatus(checkPort);
-      setFirewallOk(data.ruleExists);
+      const gameOk = (await networkApi.getGameFirewallStatus(checkPort)).ruleExists;
+      const queryOk =
+        !checkQueryPort || checkQueryPort === checkPort ? true : (await networkApi.getGameFirewallStatus(checkQueryPort)).ruleExists;
+      setFirewallOk(gameOk && queryOk);
     } finally {
       setCheckingFirewall(false);
     }
@@ -51,7 +62,13 @@ export function PortForwardPanel() {
       if (data.port) {
         setPort(data.port);
         setSavedPort(data.port);
-        checkFirewall(data.port);
+      }
+      if (data.queryPort) {
+        setQueryPort(data.queryPort);
+        setSavedQueryPort(data.queryPort);
+      }
+      if (data.port) {
+        checkFirewall(data.port, data.queryPort);
       }
     } finally {
       setChecking(false);
@@ -61,6 +78,7 @@ export function PortForwardPanel() {
   React.useEffect(() => {
     instancesApi.getActive().then((instance) => {
       setHasInstance(!!instance);
+      setInstanceId(instance?.id ?? null);
       if (instance) check();
     });
   }, [check]);
@@ -68,6 +86,11 @@ export function PortForwardPanel() {
   function handlePortChange(value: string) {
     const parsed = parseInt(value, 10);
     setPort(Number.isNaN(parsed) ? null : parsed);
+  }
+
+  function handleQueryPortChange(value: string) {
+    const parsed = parseInt(value, 10);
+    setQueryPort(Number.isNaN(parsed) ? null : parsed);
   }
 
   async function handleSavePort() {
@@ -90,18 +113,47 @@ export function PortForwardPanel() {
     }
   }
 
+  async function handleSaveQueryPort() {
+    if (!queryPort || !instanceId) return;
+    setSavingQueryPort(true);
+    try {
+      await instancesApi.setQueryPort(instanceId, queryPort);
+      await check();
+      notifications.success({
+        title: t("superAdmin.portForward.queryPortUpdatedTitle", { defaultValue: "Steam query port updated" }),
+        message: t("superAdmin.portForward.queryPortUpdatedMessage", { defaultValue: "Takes effect the next time the server starts." }),
+      });
+    } catch (e) {
+      notifications.error({
+        title: t("superAdmin.portForward.saveFailedTitle", { defaultValue: "Couldn't save" }),
+        message: e instanceof Error ? e.message : t("superAdmin.portForward.unknownError", { defaultValue: "Unknown error." }),
+      });
+    } finally {
+      setSavingQueryPort(false);
+    }
+  }
+
   async function handleAllowFirewall() {
     if (!port) return;
     setAddingRule(true);
     try {
       await networkApi.allowGamePortFirewall(port);
+      if (queryPortDiffers && queryPort) {
+        await networkApi.allowGamePortFirewall(queryPort);
+      }
       setFirewallOk(true);
       notifications.success({
         title: t("superAdmin.portForward.firewallAddedTitle", { defaultValue: "Firewall rule added" }),
-        message: t("superAdmin.portForward.firewallAddedMessage", {
-          defaultValue: "Windows will now allow incoming connections on UDP port {{port}}.",
-          port,
-        }),
+        message: queryPortDiffers
+          ? t("superAdmin.portForward.firewallAddedMessageBoth", {
+              defaultValue: "Windows will now allow incoming connections on UDP ports {{port}} and {{queryPort}}.",
+              port,
+              queryPort,
+            })
+          : t("superAdmin.portForward.firewallAddedMessage", {
+              defaultValue: "Windows will now allow incoming connections on UDP port {{port}}.",
+              port,
+            }),
       });
     } catch (e) {
       notifications.error({
@@ -118,11 +170,20 @@ export function PortForwardPanel() {
     setForwarding(true);
     try {
       const data = await networkApi.forwardPort(port);
+      if (queryPortDiffers && queryPort) {
+        await networkApi.forwardPort(queryPort);
+      }
       setStatus((prev) => (prev ? { ...prev, externalIp: data.externalIp ?? prev.externalIp, port: data.port } : prev));
       await check();
       notifications.success({
         title: t("superAdmin.portForward.forwardedTitle", { defaultValue: "Port forwarded" }),
-        message: t("superAdmin.portForward.forwardedMessage", { defaultValue: "Friends can connect on port {{port}}.", port: data.port }),
+        message: queryPortDiffers
+          ? t("superAdmin.portForward.forwardedMessageBoth", {
+              defaultValue: "Friends can connect on port {{port}}, and this server will show correctly in Steam's server list via port {{queryPort}}.",
+              port: data.port,
+              queryPort,
+            })
+          : t("superAdmin.portForward.forwardedMessage", { defaultValue: "Friends can connect on port {{port}}.", port: data.port }),
       });
     } catch (e) {
       const message = e instanceof Error ? e.message : t("superAdmin.portForward.forwardFailedFallback", { defaultValue: "Couldn't forward the port." });
@@ -137,6 +198,9 @@ export function PortForwardPanel() {
     setUnforwarding(true);
     try {
       await networkApi.unforwardPort(port);
+      if (queryPortDiffers && queryPort) {
+        await networkApi.unforwardPort(queryPort);
+      }
       await check();
       notifications.info({
         title: t("superAdmin.portForward.removedTitle", { defaultValue: "Port forward removed" }),
@@ -191,6 +255,37 @@ export function PortForwardPanel() {
                 disabled={!portDirty || savingPort || !port}
               >
                 {savingPort ? t("superAdmin.portForward.saving", { defaultValue: "Saving..." }) : t("superAdmin.portForward.savePort", { defaultValue: "Save Port" })}
+              </RuneButton>
+            </div>
+          </div>
+
+          <div className="border-t border-stone-700/60 pt-4">
+            <Label htmlFor="query-port">{t("superAdmin.portForward.queryPort", { defaultValue: "Steam Query Port" })}</Label>
+            <p className="mb-1.5 text-[11px] text-parchment-300/40">
+              {t("superAdmin.portForward.queryPortHint", {
+                defaultValue:
+                  "Only used for Steam's server-list/query protocol, separate from the game port above. If you run more than one Palworld server on this machine, give each one its own value here to avoid collisions. Takes effect the next time the server starts.",
+              })}
+            </p>
+            <div className="flex items-center gap-2">
+              <Input
+                id="query-port"
+                type="number"
+                value={queryPort ?? ""}
+                onChange={(e) => handleQueryPortChange(e.target.value)}
+                className="max-w-[10rem]"
+              />
+              <RuneButton
+                type="button"
+                variant="gold"
+                size="sm"
+                icon={<Save />}
+                onClick={handleSaveQueryPort}
+                disabled={!queryPortDirty || savingQueryPort || !queryPort}
+              >
+                {savingQueryPort
+                  ? t("superAdmin.portForward.saving", { defaultValue: "Saving..." })
+                  : t("superAdmin.portForward.saveQueryPort", { defaultValue: "Save Query Port" })}
               </RuneButton>
             </div>
           </div>
@@ -251,7 +346,7 @@ export function PortForwardPanel() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => port && checkFirewall(port)}
+                    onClick={() => port && checkFirewall(port, queryPort)}
                     disabled={checkingFirewall || !port}
                   >
                     {t("superAdmin.portForward.checkAgain", { defaultValue: "Check Again" })}
@@ -285,6 +380,21 @@ export function PortForwardPanel() {
                     port={port}
                     localIp={status.localIp}
                   />
+                )}
+                {queryPortDiffers && queryPort && (
+                  <>
+                    <p className="text-xs leading-relaxed text-parchment-300/40">
+                      {t("superAdmin.portForward.queryPortManualHint", {
+                        defaultValue: "Your Steam query port is different from your game port, so it needs its own rule too:",
+                      })}
+                    </p>
+                    <ManualForwardInstructions
+                      name={t("superAdmin.portForward.steamQueryPortName", { defaultValue: "Palworld Server (Steam Query)" })}
+                      protocol="UDP"
+                      port={queryPort}
+                      localIp={status.localIp}
+                    />
+                  </>
                 )}
                 <RuneButton type="button" variant="ghost" size="sm" onClick={check} disabled={checking}>
                   {checking ? t("superAdmin.portForward.checking", { defaultValue: "Checking..." }) : t("superAdmin.portForward.checkAgain", { defaultValue: "Check Again" })}

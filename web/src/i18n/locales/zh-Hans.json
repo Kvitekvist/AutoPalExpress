@@ -1171,7 +1171,16 @@
       "forwarding": "正在转发...",
       "forwardPort": "转发端口",
       "removing": "正在移除...",
-      "removeThisForward": "移除此转发"
+      "removeThisForward": "移除此转发",
+      "queryPort": "Steam查询端口",
+      "queryPortHint": "仅用于Steam的服务器列表/查询协议，与上方的游戏端口是分开的。如果你在这台机器上运行多个Palworld服务器，请为每个服务器分别设置该值以避免冲突。将在下次服务器启动时生效。",
+      "saveQueryPort": "保存查询端口",
+      "queryPortUpdatedTitle": "Steam查询端口已更新",
+      "queryPortUpdatedMessage": "将在下次服务器启动时生效。",
+      "firewallAddedMessageBoth": "Windows现在将允许UDP端口{{port}}和{{queryPort}}的传入连接。",
+      "forwardedMessageBoth": "朋友可以通过端口{{port}}连接，并且此服务器将通过端口{{queryPort}}正确显示在Steam服务器列表中。",
+      "queryPortManualHint": "你的Steam查询端口与游戏端口不同，因此需要单独设置一条规则：",
+      "steamQueryPortName": "Palworld服务器（Steam查询）"
     },
     "manualForward": {
       "intro": "在你的路由器管理页面中添加一条新的端口转发规则，使用以下确切数值：",

@@ -80,13 +80,20 @@ function LocalApiField({
 
   if (field.type === "bool") {
     return (
-      <EnchantedToggle
-        id={`local-api-${field.key}`}
-        checked={Boolean(value)}
-        onCheckedChange={onChange}
-        label={label}
-        compact
-      />
+      <div className="space-y-1.5">
+        <Label htmlFor={`local-api-${field.key}`}>{label}</Label>
+        <EnchantedToggle
+          id={`local-api-${field.key}`}
+          checked={Boolean(value)}
+          onCheckedChange={onChange}
+          label={
+            Boolean(value)
+              ? t("worldSettings.chrome.disable", { defaultValue: "Disable" })
+              : t("worldSettings.chrome.enable", { defaultValue: "Enable" })
+          }
+          compact
+        />
+      </div>
     );
   }
 

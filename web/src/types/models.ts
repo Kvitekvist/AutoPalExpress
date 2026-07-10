@@ -210,6 +210,7 @@ export interface ServerInstance {
   source: InstanceSource;
   gamePort: number;
   effectiveGamePort: number;
+  queryPort: number;
   rconPort: number;
   communityServer: boolean;
   usePerfThreads: boolean;
@@ -274,8 +275,10 @@ export interface UpnpStatus {
   externalIp: string | null;
   localIp: string | null;
   port: number | null;
+  queryPort: number | null;
   adminPort: number;
   gameMapping: PortMappingInfo | null;
+  queryMapping: PortMappingInfo | null;
   adminMapping: PortMappingInfo | null;
 }
 

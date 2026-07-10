@@ -1171,7 +1171,16 @@
       "forwarding": "転送中...",
       "forwardPort": "ポートを転送",
       "removing": "削除中...",
-      "removeThisForward": "この転送を削除"
+      "removeThisForward": "この転送を削除",
+      "queryPort": "Steamクエリポート",
+      "queryPortHint": "上記のゲームポートとは別に、Steamのサーバーリスト/クエリプロトコルにのみ使用されます。このマシンで複数のPalworldサーバーを実行する場合、衝突を避けるためそれぞれに独自の値を設定してください。次回のサーバー起動時に反映されます。",
+      "saveQueryPort": "クエリポートを保存",
+      "queryPortUpdatedTitle": "Steamクエリポートを更新しました",
+      "queryPortUpdatedMessage": "次回のサーバー起動時に反映されます。",
+      "firewallAddedMessageBoth": "WindowsはUDPポート{{port}}と{{queryPort}}への着信接続を許可するようになりました。",
+      "forwardedMessageBoth": "友達はポート{{port}}で接続でき、このサーバーはポート{{queryPort}}経由でSteamのサーバーリストに正しく表示されます。",
+      "queryPortManualHint": "Steamクエリポートがゲームポートと異なるため、専用のルールが必要です:",
+      "steamQueryPortName": "Palworldサーバー(Steamクエリ)"
     },
     "manualForward": {
       "intro": "ルーターの管理ページで、次の正確な値を使って新しいポート転送ルールを追加してください:",

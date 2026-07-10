@@ -102,6 +102,7 @@ async def upnp_status() -> dict[str, Any]:
 
     instance = instance_store.get_active()
     port = _resolve_port(instance) if instance else None
+    query_port = (instance.get("queryPort") or port) if instance else None
 
     try:
         local_ip = await asyncio.to_thread(upnp.local_ip)
@@ -117,8 +118,10 @@ async def upnp_status() -> dict[str, Any]:
         "externalIp": external_ip,
         "localIp": local_ip,
         "port": port,
+        "queryPort": query_port,
         "adminPort": ADMIN_PORT,
         "gameMapping": await _mapping_info(gateway, port, "UDP") if gateway and port else None,
+        "queryMapping": await _mapping_info(gateway, query_port, "UDP") if gateway and query_port else None,
         "adminMapping": await _mapping_info(gateway, ADMIN_PORT, "TCP") if gateway else None,
     }
 
