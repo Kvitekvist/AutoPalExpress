@@ -1,12 +1,13 @@
 # Changelog
 
-## Current build vs. origin/main - 2026-07-09
+## 1.0.2 - 2026-07-10
 
+- Installer checksum (SHA256): `50f9f4615efc6fa34239169fbde1f08cb8e02041df7354e4e8b0abbb34c5794b`.
 - **TICKET-0064**: Rewrote `NEXUS_DESCRIPTION.md`'s setup instructions to match `GETTING_STARTED.md`'s full numbered walkthrough (screenshots, tips, warnings, quick fixes), converted to Nexus BBCode with placeholder image URLs ready to swap in after uploading screenshots to Nexus's gallery.
 - **TICKET-0063**: Fixed a bug found right after shipping TICKET-0062: uninstalling then reinstalling AutoPalExpress never asked to create a new admin account, because the admin account file lived in the same app-data folder deliberately kept for real Palworld server references. Uninstalling now clears the saved admin account and app settings (via the compiled uninstaller itself, so this covers every uninstall path) while still keeping server registrations, mods, and backups untouched.
 - **TICKET-0062**: The installer now opens with an Install / Update / Uninstall choice right after the Welcome page, so `PalworldServerAdmin-Setup.exe` can drive uninstall directly instead of requiring the separate uninstaller shortcut. Choosing Uninstall confirms, runs the real uninstaller, and exits without continuing into the install wizard.
 - **TICKET-0061**: Updated World Settings for a Palworld config update that added dozens of new server settings (guild management, voice chat range, PvP damage/kill-drop config, stat-point-allocation locks, respawn penalty tuning, and more), verified against the live installed server's config file. Fixed `bHardcore`'s description, which had gone stale now that Pal permadeath is its own separate setting (`bPalLost`). `PublicIP` is now hidden from the generic editor, matching `PublicPort`, since Launcher Options already owns the public IP override.
-- **TICKET-0060**: Rebuilt the executable and installer so the installed app includes the corrected World Settings toggle header/text layout. New installer checksum is `6636805A7374892F3A9EE146CCF08C7461C3FE129BC396FB0C8F83933600B9DF`.
+- **TICKET-0060**: Rebuilt the executable and installer so the installed app includes the corrected World Settings toggle header/text layout.
 - **TICKET-0059**: Added the available Getting Started screenshot files to git so GitHub can render them, and recorded the remaining missing image placeholders.
 - **TICKET-0058**: Updated World Settings toggle boxes so the setting name stays as the field header and the box text reads `Enable` or `Disable`.
 - **TICKET-0057**: Rewrote the Getting Started guide in simpler beginner-friendly language with more screenshot placeholders.
@@ -16,14 +17,7 @@
 - **TICKET-0053**: Improved World Settings with grouped sections, tooltips, and dropdown controls for known Palworld categorical settings.
 - **TICKET-0052**: Added a bundled diagnostics command that produces a support report for active server setup, local ports, firewall, REST API, and likely router/ISP issues.
 - **TICKET-0050**: Fixed port enforcement so it edits the live `PalWorldSettings.ini` in place and preserves unrelated world settings.
-- **TICKET-0041**: Fixed Launcher Options visibility/naming, restored visible Nexus Direct Install requirements, tightened instance dedupe, and renamed Browse Files.
-- **TICKET-0042**: Rebuilt the installer so the packaged app actually includes Launcher Options.
-- **TICKET-0043**: Added Server Control update checks and confirmed SteamCMD update jobs.
-- **TICKET-0044**: Added Super Admin-only `-publicip` and `-publicport` launcher overrides sourced from existing network/game-port settings.
-- **TICKET-0045**: Fixed Launcher Options showing stale default `8211` for `-publicport`.
-- **TICKET-0046**: Preserved custom Super Admin game ports across reinstall/update and enforced them into the live ini on launch.
-- **TICKET-0047**: Fixed Dashboard roster detection after the REST migration by falling back to the stored REST port and normalizing Palworld player fields.
-- **TICKET-0048**: Fixed REST Unauthorized failures caused by blank `AdminPassword`; AutoPalExpress now generates one only when missing or empty.
+- Also includes GETTING_STARTED.md screenshot/content updates made directly on GitHub between releases.
 
 ## 1.0.0 - 2026-07-07
 
