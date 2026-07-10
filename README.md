@@ -63,6 +63,9 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 6. Open the Mods page to install UE4SS and manage mods.
 7. Invite trusted friends if you want help running the server.
 
+> [!TIP]
+> New to the app? Follow the screenshot walkthrough in [Getting Started With AutoPalExpress](GETTING_STARTED.md).
+
 > [!NOTE]
 > The Palworld Dedicated Server downloads anonymously through SteamCMD. A Steam account is not required just to deploy the server.
 
