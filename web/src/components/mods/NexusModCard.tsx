@@ -1,5 +1,6 @@
 import { Download, Check, ThumbsUp, ExternalLink, BookOpen, ShieldCheck, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { SpellCard } from "@/components/fantasy/SpellCard";
 import type { NexusModResult } from "@/types/models";
 
@@ -22,6 +23,7 @@ export function NexusModCard({
   installing,
   onInstall,
 }: NexusModCardProps) {
+  const { t } = useTranslation();
   return (
     <SpellCard status="neutral" className="flex h-full flex-col">
       <div className="flex items-start gap-3">
@@ -39,7 +41,9 @@ export function NexusModCard({
               {mod.categoryName}
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-parchment-300/50">by {mod.author}</p>
+          <p className="mt-0.5 text-xs text-parchment-300/50">
+            {t("mods.nexusCard.byAuthor", { defaultValue: "by {{author}}", author: mod.author })}
+          </p>
         </div>
       </div>
 
@@ -61,12 +65,12 @@ export function NexusModCard({
           rel="noreferrer"
           className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600 px-3 py-2 text-xs font-medium text-parchment-300/70 transition-colors hover:border-gold-600/40 hover:text-gold-300"
         >
-          <ExternalLink className="h-3.5 w-3.5" /> View on Nexus
+          <ExternalLink className="h-3.5 w-3.5" /> {t("mods.nexusCard.viewOnNexus", { defaultValue: "View on Nexus" })}
         </a>
         {installed ? (
           <span className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80">
             <Check className="h-3.5 w-3.5" />
-            Installed
+            {t("mods.nexusCard.installed", { defaultValue: "Installed" })}
           </span>
         ) : canInstallFromFile ? (
           <>
@@ -77,41 +81,43 @@ export function NexusModCard({
               className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-life-600/30 bg-life-500/5 px-3 py-2 text-xs font-medium text-life-300/80 transition-colors hover:border-life-400/50 hover:text-life-200 disabled:pointer-events-none disabled:opacity-50"
               title={
                 canDirectInstall
-                  ? "Download directly from Nexus and install into the active server's Mods folder."
-                  : directInstallUnavailableReason ?? "Direct install needs a saved Nexus Premium API key."
+                  ? t("mods.nexusCard.directInstallTooltip", {
+                      defaultValue: "Download directly from Nexus and install into the active server's Mods folder.",
+                    })
+                  : directInstallUnavailableReason ?? t("mods.nexusCard.needsPremiumKey", { defaultValue: "Direct install needs a saved Nexus Premium API key." })
               }
             >
               <Download className="h-3.5 w-3.5" />
-              {installing ? "Installing..." : "Direct Install"}
+              {installing ? t("mods.nexusCard.installing", { defaultValue: "Installing..." }) : t("mods.nexusCard.directInstall", { defaultValue: "Direct Install" })}
             </button>
             <Link
               to="/super-admin"
               className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600 px-3 py-2 text-xs font-medium text-parchment-300/70 transition-colors hover:border-gold-600/40 hover:text-gold-300"
-              title="Download this file on Nexus first, then upload it in Super Admin."
+              title={t("mods.nexusCard.installFileTooltip", { defaultValue: "Download this file on Nexus first, then upload it in Super Admin." })}
             >
               <Upload className="h-3.5 w-3.5" />
-              Install File
+              {t("mods.nexusCard.installFile", { defaultValue: "Install File" })}
             </Link>
           </>
         ) : (
           <span
             className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600/60 bg-stone-800/20 px-3 py-2 text-xs font-medium text-parchment-300/55"
-            title="Only the super admin can install downloaded mod files."
+            title={t("mods.nexusCard.superAdminOnlyTooltip", { defaultValue: "Only the super admin can install downloaded mod files." })}
           >
             <ShieldCheck className="h-3.5 w-3.5" />
-            Super Admin Only
+            {t("mods.nexusCard.superAdminOnly", { defaultValue: "Super Admin Only" })}
           </span>
         )}
       </div>
       {!installed && (
         <p className="mt-2 text-[11px] leading-relaxed text-parchment-300/40">
           {canDirectInstall
-            ? "Direct install uses your saved Nexus key and Premium download access."
+            ? t("mods.nexusCard.hintDirect", { defaultValue: "Direct install uses your saved Nexus key and Premium download access." })
             : canInstallFromFile
-              ? directInstallUnavailableReason ?? "Direct install needs a saved Nexus Premium API key."
-              : '"View on Nexus" opens the download page. After downloading, '}
-          {!canDirectInstall &&
-            (canInstallFromFile ? " You can still use Install File after downloading." : "ask the super admin to use Install From File.")}
+              ? `${directInstallUnavailableReason ?? t("mods.nexusCard.needsPremiumKey", { defaultValue: "Direct install needs a saved Nexus Premium API key." })} ${t("mods.nexusCard.hintFileAvailable", { defaultValue: "You can still use Install File after downloading." })}`
+              : t("mods.nexusCard.hintViewThenAsk", {
+                  defaultValue: '"View on Nexus" opens the download page. After downloading, ask the super admin to use Install From File.',
+                })}
         </p>
       )}
     </SpellCard>

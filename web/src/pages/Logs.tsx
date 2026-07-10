@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollText, Search, Download, Info, TriangleAlert, Bug, Ban } from "lucide-react";
 import { logsApi } from "@/api";
 import type { LogEntry, LogLevel } from "@/types/models";
@@ -22,6 +23,7 @@ const LEVEL_CONFIG: Record<LogLevel, { icon: typeof Info; text: string; border: 
 };
 
 export default function Logs() {
+  const { t } = useTranslation();
   const [activityLogs, setActivityLogs] = React.useState<LogEntry[]>([]);
   const [appLines, setAppLines] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -70,17 +72,20 @@ export default function Logs() {
     a.download = `palworld-server-logs-${new Date().toISOString().slice(0, 10)}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    notifications.success({ title: "Logs exported", message: "The chronicle has been copied to a scroll." });
+    notifications.success({
+      title: t("logs.exportedTitle", { defaultValue: "Logs exported" }),
+      message: t("logs.exportedMessage", { defaultValue: "The chronicle has been copied to a scroll." }),
+    });
   }
 
   return (
     <div className="space-y-6">
       <ScrollPanel
         icon={<ScrollText />}
-        title="The Chronicle"
+        title={t("logs.title", { defaultValue: "The Chronicle" })}
         actions={
           <RuneButton variant="gold" size="sm" icon={<Download />} onClick={handleExport}>
-            Export
+            {t("logs.export", { defaultValue: "Export" })}
           </RuneButton>
         }
       >
@@ -91,21 +96,23 @@ export default function Logs() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search logs..."
+                placeholder={t("logs.searchPlaceholder", { defaultValue: "Search logs..." })}
                 className="pl-9"
               />
             </div>
             <AncientTabs value={level} onValueChange={(v) => setLevel(v as LevelFilter)}>
               <AncientTabsList>
-                <AncientTabsTrigger value="all">All</AncientTabsTrigger>
-                <AncientTabsTrigger value="info">Info</AncientTabsTrigger>
+                <AncientTabsTrigger value="all">{t("logs.levels.all", { defaultValue: "All" })}</AncientTabsTrigger>
+                <AncientTabsTrigger value="info">{t("logs.levels.info", { defaultValue: "Info" })}</AncientTabsTrigger>
                 <AncientTabsTrigger value="warning">
-                  Warnings{warningCount > 0 && <span className="ml-1 text-gold-500">({warningCount})</span>}
+                  {t("logs.levels.warning", { defaultValue: "Warnings" })}
+                  {warningCount > 0 && <span className="ml-1 text-gold-500">({warningCount})</span>}
                 </AncientTabsTrigger>
                 <AncientTabsTrigger value="error">
-                  Errors{errorCount > 0 && <span className="ml-1 text-blood-400">({errorCount})</span>}
+                  {t("logs.levels.error", { defaultValue: "Errors" })}
+                  {errorCount > 0 && <span className="ml-1 text-blood-400">({errorCount})</span>}
                 </AncientTabsTrigger>
-                <AncientTabsTrigger value="debug">Debug</AncientTabsTrigger>
+                <AncientTabsTrigger value="debug">{t("logs.levels.debug", { defaultValue: "Debug" })}</AncientTabsTrigger>
               </AncientTabsList>
             </AncientTabs>
           </div>
@@ -113,7 +120,7 @@ export default function Logs() {
             id="auto-refresh"
             checked={autoRefresh}
             onCheckedChange={setAutoRefresh}
-            label="Auto-refresh"
+            label={t("logs.autoRefresh", { defaultValue: "Auto-refresh" })}
             className="w-fit"
           />
         </div>
@@ -122,16 +129,18 @@ export default function Logs() {
           <div className="min-w-0">
             <div className="mb-2 flex items-center justify-between gap-3">
               <h2 className="font-display text-sm font-semibold text-gold-300">AutoPalExpress</h2>
-              <span className="font-mono text-xs text-parchment-300/40">{filteredAppLines.length} lines</span>
+              <span className="font-mono text-xs text-parchment-300/40">
+                {t("logs.linesCount", { defaultValue: "{{count}} lines", count: filteredAppLines.length })}
+              </span>
             </div>
             <ScrollArea className="h-[520px] rounded-md border border-stone-700 bg-abyss-950/60">
               {loading ? (
                 <div className="flex h-full items-center justify-center text-parchment-300/50">
-                  <p className="animate-pulse font-display">Unfurling the scroll...</p>
+                  <p className="animate-pulse font-display">{t("logs.loading", { defaultValue: "Unfurling the scroll..." })}</p>
                 </div>
               ) : filteredAppLines.length === 0 ? (
                 <div className="flex h-40 items-center justify-center px-4 text-center text-parchment-300/40">
-                  <p>No AutoPalExpress output yet.</p>
+                  <p>{t("logs.noAppOutput", { defaultValue: "No AutoPalExpress output yet." })}</p>
                 </div>
               ) : (
                 <div className="space-y-1 p-3 font-mono text-[12px] leading-relaxed text-parchment-200/80">
@@ -147,17 +156,19 @@ export default function Logs() {
 
           <div className="min-w-0">
             <div className="mb-2 flex items-center justify-between gap-3">
-              <h2 className="font-display text-sm font-semibold text-gold-300">Server Activity</h2>
-              <span className="font-mono text-xs text-parchment-300/40">{filteredActivity.length} entries</span>
+              <h2 className="font-display text-sm font-semibold text-gold-300">{t("logs.serverActivity", { defaultValue: "Server Activity" })}</h2>
+              <span className="font-mono text-xs text-parchment-300/40">
+                {t("logs.entriesCount", { defaultValue: "{{count}} entries", count: filteredActivity.length })}
+              </span>
             </div>
             <ScrollArea className="h-[520px] rounded-md border border-stone-700 bg-abyss-950/60">
               {loading ? (
                 <div className="flex h-full items-center justify-center text-parchment-300/50">
-                  <p className="animate-pulse font-display">Unfurling the scroll...</p>
+                  <p className="animate-pulse font-display">{t("logs.loading", { defaultValue: "Unfurling the scroll..." })}</p>
                 </div>
               ) : filteredActivity.length === 0 ? (
                 <div className="flex h-40 items-center justify-center px-4 text-center text-parchment-300/40">
-                  <p>No server activity matches your search.</p>
+                  <p>{t("logs.noActivityMatch", { defaultValue: "No server activity matches your search." })}</p>
                 </div>
               ) : (
                 <div className="divide-y divide-stone-800/80 font-mono text-[13px]">

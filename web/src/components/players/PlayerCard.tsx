@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   Signal,
   Clock,
@@ -27,10 +28,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const STATUS_CONFIG: Record<Player["connectionStatus"], { dot: string; label: string; text: string }> = {
-  online: { dot: "bg-life-400 shadow-[0_0_8px_2px_rgba(79,206,124,0.7)] animate-glow-pulse", label: "Online", text: "text-life-400" },
-  idle: { dot: "bg-gold-400 shadow-[0_0_8px_2px_rgba(223,177,90,0.6)]", label: "Idle", text: "text-gold-400" },
-  offline: { dot: "bg-stone-500", label: "Offline", text: "text-parchment-300/40" },
+const STATUS_CONFIG: Record<Player["connectionStatus"], { dot: string; labelKey: string; labelDefault: string; text: string }> = {
+  online: { dot: "bg-life-400 shadow-[0_0_8px_2px_rgba(79,206,124,0.7)] animate-glow-pulse", labelKey: "online", labelDefault: "Online", text: "text-life-400" },
+  idle: { dot: "bg-gold-400 shadow-[0_0_8px_2px_rgba(223,177,90,0.6)]", labelKey: "idle", labelDefault: "Idle", text: "text-gold-400" },
+  offline: { dot: "bg-stone-500", labelKey: "offline", labelDefault: "Offline", text: "text-parchment-300/40" },
 };
 
 function pingColor(ping: number) {
@@ -48,7 +49,9 @@ interface PlayerCardProps {
 }
 
 export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: PlayerCardProps) {
+  const { t } = useTranslation();
   const status = STATUS_CONFIG[player.connectionStatus];
+  const statusLabel = t(`dashboard.roster.status.${status.labelKey}`, { defaultValue: status.labelDefault });
 
   return (
     <motion.div
@@ -63,7 +66,7 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
     >
       {player.isBanned && (
         <div className="absolute right-3 top-3 rounded-full border border-blood-500/50 bg-blood-500/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blood-400">
-          Banned
+          {t("dashboard.roster.card.banned", { defaultValue: "Banned" })}
         </div>
       )}
 
@@ -85,7 +88,7 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onMessage(player)}>
-                  <MessageSquare className="h-3.5 w-3.5" /> Send Message
+                  <MessageSquare className="h-3.5 w-3.5" /> {t("dashboard.roster.card.sendMessage", { defaultValue: "Send Message" })}
                 </DropdownMenuItem>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -93,10 +96,10 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
                       onSelect={(e) => e.preventDefault()}
                       className="opacity-40 cursor-not-allowed"
                     >
-                      <MapPin className="h-3.5 w-3.5" /> Teleport
+                      <MapPin className="h-3.5 w-3.5" /> {t("dashboard.roster.card.teleport", { defaultValue: "Teleport" })}
                     </DropdownMenuItem>
                   </TooltipTrigger>
-                  <TooltipContent>Coming soon</TooltipContent>
+                  <TooltipContent>{t("dashboard.roster.card.comingSoon", { defaultValue: "Coming soon" })}</TooltipContent>
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -104,22 +107,22 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
                       onSelect={(e) => e.preventDefault()}
                       className="opacity-40 cursor-not-allowed"
                     >
-                      <Backpack className="h-3.5 w-3.5" /> View Inventory
+                      <Backpack className="h-3.5 w-3.5" /> {t("dashboard.roster.card.viewInventory", { defaultValue: "View Inventory" })}
                     </DropdownMenuItem>
                   </TooltipTrigger>
-                  <TooltipContent>Coming soon</TooltipContent>
+                  <TooltipContent>{t("dashboard.roster.card.comingSoon", { defaultValue: "Coming soon" })}</TooltipContent>
                 </Tooltip>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem destructive onClick={() => onKick(player)}>
-                  <DoorOpen className="h-3.5 w-3.5" /> Kick
+                  <DoorOpen className="h-3.5 w-3.5" /> {t("dashboard.roster.card.kick", { defaultValue: "Kick" })}
                 </DropdownMenuItem>
                 {player.isBanned ? (
                   <DropdownMenuItem onClick={() => onUnban(player)}>
-                    <ShieldCheck className="h-3.5 w-3.5" /> Unban
+                    <ShieldCheck className="h-3.5 w-3.5" /> {t("dashboard.roster.card.unban", { defaultValue: "Unban" })}
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem destructive onClick={() => onBan(player)}>
-                    <Ban className="h-3.5 w-3.5" /> Ban
+                    <Ban className="h-3.5 w-3.5" /> {t("dashboard.roster.card.ban", { defaultValue: "Ban" })}
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -133,7 +136,7 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
         <div className="flex items-center gap-1.5 text-parchment-300/60">
           <Shield className="h-3.5 w-3.5 text-gold-500/70" />
           <span>
-            Lvl <span className="font-mono text-parchment-100">{player.level}</span>
+            {t("dashboard.roster.card.level", { defaultValue: "Lvl" })} <span className="font-mono text-parchment-100">{player.level}</span>
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-parchment-300/60">
@@ -142,18 +145,23 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
         </div>
         <div className="col-span-2 flex items-center gap-1.5 text-parchment-300/60">
           <span className="truncate">
-            Guild: <span className="text-parchment-100">{player.guild ?? "Unaffiliated"}</span>
+            {t("dashboard.roster.card.guild", { defaultValue: "Guild:" })}{" "}
+            <span className="text-parchment-100">
+              {player.guild ?? t("dashboard.roster.unaffiliated", { defaultValue: "Unaffiliated" })}
+            </span>
           </span>
         </div>
         <div className="col-span-2 flex items-center gap-1.5 text-parchment-300/60">
           <Clock className="h-3.5 w-3.5 text-gold-500/70" />
           {player.connectionStatus === "online" ? (
             <span>
-              Online for <span className="text-parchment-100">{formatOnlineDuration(player.onlineSeconds)}</span>
+              {t("dashboard.roster.card.onlineFor", { defaultValue: "Online for" })}{" "}
+              <span className="text-parchment-100">{formatOnlineDuration(player.onlineSeconds)}</span>
             </span>
           ) : (
             <span>
-              Last seen <span className="text-parchment-100">{new Date(player.joinedAt).toLocaleString()}</span>
+              {t("dashboard.roster.card.lastSeen", { defaultValue: "Last seen" })}{" "}
+              <span className="text-parchment-100">{new Date(player.joinedAt).toLocaleString()}</span>
             </span>
           )}
         </div>
@@ -161,7 +169,7 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
 
       <div className={cn("mt-3 flex items-center gap-1.5 border-t border-stone-700/60 pt-3 text-[11px] font-medium", status.text)}>
         <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
-        {status.label}
+        {statusLabel}
       </div>
     </motion.div>
   );

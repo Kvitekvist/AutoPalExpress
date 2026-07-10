@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Server, Plus, FolderPlus, Trash2, CircleCheck, CircleAlert, FolderOpen } from "lucide-react";
 import { instancesApi } from "@/api";
 import type { InstanceListView, ServerInstance } from "@/types/models";
@@ -10,13 +11,14 @@ import { DeployServerWizard } from "./DeployServerWizard";
 import { ImportServerDialog } from "./ImportServerDialog";
 import { cn } from "@/lib/utils";
 
-const SOURCE_LABEL: Record<ServerInstance["source"], string> = {
-  deployed: "Deployed",
-  steam: "Steam Library",
-  manual: "Imported",
+const SOURCE_LABEL_KEYS: Record<ServerInstance["source"], { key: string; fallback: string }> = {
+  deployed: { key: "deployed", fallback: "Deployed" },
+  steam: { key: "steam", fallback: "Steam Library" },
+  manual: { key: "manual", fallback: "Imported" },
 };
 
 export function InstanceManagerPanel() {
+  const { t } = useTranslation();
   const [data, setData] = React.useState<InstanceListView | null>(null);
   const [deployOpen, setDeployOpen] = React.useState(false);
   const [importOpen, setImportOpen] = React.useState(false);
@@ -41,7 +43,7 @@ export function InstanceManagerPanel() {
       const next = await instancesApi.setActive(id);
       setData(next);
       const instance = next.instances.find((i) => i.id === id);
-      notifications.success({ title: "Switched server", message: instance?.name });
+      notifications.success({ title: t("settings.instances.switchedTitle", { defaultValue: "Switched server" }), message: instance?.name });
       // Every page reads the active instance independently - reload so they all pick it up.
       window.location.reload();
     } finally {
@@ -53,9 +55,12 @@ export function InstanceManagerPanel() {
     setOpening(instance.id);
     try {
       await instancesApi.openInstanceFolder(instance.id);
-      notifications.info({ title: "Browsing server files", message: instance.serverPath });
+      notifications.info({ title: t("settings.instances.browsingTitle", { defaultValue: "Browsing server files" }), message: instance.serverPath });
     } catch (e) {
-      notifications.error({ title: "Could not open folder", message: e instanceof Error ? e.message : "Unknown error." });
+      notifications.error({
+        title: t("settings.instances.openFolderFailedTitle", { defaultValue: "Could not open folder" }),
+        message: e instanceof Error ? e.message : t("settings.instances.unknownError", { defaultValue: "Unknown error." }),
+      });
     } finally {
       setOpening(null);
     }
@@ -69,17 +74,26 @@ export function InstanceManagerPanel() {
       setData(next);
       if (deleteFiles) {
         notifications.warning({
-          title: "Server deleted",
-          message: `${removeTarget.name} was removed from this tool and its server folder was deleted.`,
+          title: t("settings.instances.deletedTitle", { defaultValue: "Server deleted" }),
+          message: t("settings.instances.deletedMessage", {
+            defaultValue: "{{name}} was removed from this tool and its server folder was deleted.",
+            name: removeTarget.name,
+          }),
         });
       } else {
         notifications.warning({
-          title: "Server unregistered",
-          message: `${removeTarget.name} was removed from this tool. Its files were not touched.`,
+          title: t("settings.instances.unregisteredTitle", { defaultValue: "Server unregistered" }),
+          message: t("settings.instances.unregisteredMessage", {
+            defaultValue: "{{name}} was removed from this tool. Its files were not touched.",
+            name: removeTarget.name,
+          }),
         });
       }
     } catch (e) {
-      notifications.error({ title: "Could not remove server", message: e instanceof Error ? e.message : "Unknown error." });
+      notifications.error({
+        title: t("settings.instances.removeFailedTitle", { defaultValue: "Could not remove server" }),
+        message: e instanceof Error ? e.message : t("settings.instances.unknownError", { defaultValue: "Unknown error." }),
+      });
     } finally {
       setRemoving(false);
       setRemoveTarget(null);
@@ -97,7 +111,7 @@ export function InstanceManagerPanel() {
   return (
     <ScrollPanel
       icon={<Server />}
-      title="Server Instances"
+      title={t("settings.instances.title", { defaultValue: "Server Instances" })}
       actions={
         <>
           <RuneButton
@@ -107,17 +121,17 @@ export function InstanceManagerPanel() {
             icon={<FolderPlus />}
             onClick={() => setImportOpen(true)}
           >
-            Import Existing
+            {t("settings.instances.importExisting", { defaultValue: "Import Existing" })}
           </RuneButton>
           <RuneButton type="button" variant="gold" size="sm" icon={<Plus />} onClick={() => setDeployOpen(true)}>
-            Deploy New Server
+            {t("settings.instances.deployNew", { defaultValue: "Deploy New Server" })}
           </RuneButton>
         </>
       }
     >
       {data.instances.length === 0 ? (
         <p className="text-sm text-parchment-300/50">
-          No servers yet. Deploy a fresh, isolated Palworld server or import one you already have installed.
+          {t("settings.instances.empty", { defaultValue: "No servers yet. Deploy a fresh, isolated Palworld server or import one you already have installed." })}
         </p>
       ) : (
         <div className="space-y-3">
@@ -135,11 +149,11 @@ export function InstanceManagerPanel() {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate font-display text-sm font-semibold text-parchment-100">{instance.name}</p>
                     <span className="rounded-full border border-stone-600 bg-stone-800/60 px-2 py-0.5 text-[10px] uppercase tracking-wide text-parchment-300/60">
-                      {SOURCE_LABEL[instance.source]}
+                      {t(`settings.instances.source.${SOURCE_LABEL_KEYS[instance.source].key}`, { defaultValue: SOURCE_LABEL_KEYS[instance.source].fallback })}
                     </span>
                     {active && (
                       <span className="rounded-full border border-gold-500/50 bg-gold-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-gold-300">
-                        Active
+                        {t("settings.instances.active", { defaultValue: "Active" })}
                       </span>
                     )}
                   </div>
@@ -147,15 +161,19 @@ export function InstanceManagerPanel() {
                   <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-parchment-300/50">
                     {instance.executableFound ? (
                       <span className="flex items-center gap-1 text-life-400">
-                        <CircleCheck className="h-3 w-3" /> Found on disk
+                        <CircleCheck className="h-3 w-3" /> {t("settings.instances.foundOnDisk", { defaultValue: "Found on disk" })}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-blood-400">
-                        <CircleAlert className="h-3 w-3" /> Not found on disk
+                        <CircleAlert className="h-3 w-3" /> {t("settings.instances.notFoundOnDisk", { defaultValue: "Not found on disk" })}
                       </span>
                     )}
-                    <span>Port {instance.gamePort}</span>
-                    <span>{instance.ue4ssInstalled ? `UE4SS ${instance.ue4ssVersion}` : "UE4SS not installed"}</span>
+                    <span>{t("settings.instances.port", { defaultValue: "Port {{port}}", port: instance.gamePort })}</span>
+                    <span>
+                      {instance.ue4ssInstalled
+                        ? t("settings.instances.ue4ssVersion", { defaultValue: "UE4SS {{version}}", version: instance.ue4ssVersion })
+                        : t("settings.instances.ue4ssNotInstalled", { defaultValue: "UE4SS not installed" })}
+                    </span>
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
@@ -167,7 +185,9 @@ export function InstanceManagerPanel() {
                     onClick={() => handleOpen(instance)}
                     disabled={opening === instance.id || !instance.exists}
                   >
-                    {opening === instance.id ? "Opening..." : "Browse Files"}
+                    {opening === instance.id
+                      ? t("settings.instances.opening", { defaultValue: "Opening..." })
+                      : t("settings.instances.browseFiles", { defaultValue: "Browse Files" })}
                   </RuneButton>
                   {!active && (
                     <RuneButton
@@ -177,7 +197,9 @@ export function InstanceManagerPanel() {
                       onClick={() => handleSwitch(instance.id)}
                       disabled={switching === instance.id}
                     >
-                      {switching === instance.id ? "Switching..." : "Switch To"}
+                      {switching === instance.id
+                        ? t("settings.instances.switching", { defaultValue: "Switching..." })
+                        : t("settings.instances.switchTo", { defaultValue: "Switch To" })}
                     </RuneButton>
                   )}
                   <RuneButton
@@ -190,7 +212,7 @@ export function InstanceManagerPanel() {
                       setRemoveTarget(instance);
                     }}
                   >
-                    Remove
+                    {t("settings.instances.remove", { defaultValue: "Remove" })}
                   </RuneButton>
                   <RuneButton
                     type="button"
@@ -202,7 +224,7 @@ export function InstanceManagerPanel() {
                       setRemoveTarget(instance);
                     }}
                   >
-                    Remove and Delete
+                    {t("settings.instances.removeAndDelete", { defaultValue: "Remove and Delete" })}
                   </RuneButton>
                 </div>
               </div>
@@ -223,13 +245,28 @@ export function InstanceManagerPanel() {
           }
         }}
         tone="danger"
-        title={deleteFiles ? "Remove and delete this server?" : "Remove this server?"}
+        title={
+          deleteFiles
+            ? t("settings.instances.removeDeleteDialog.title", { defaultValue: "Remove and delete this server?" })
+            : t("settings.instances.removeDialog.title", { defaultValue: "Remove this server?" })
+        }
         description={
           deleteFiles
-            ? `${removeTarget?.name} will be unregistered from this tool and its server folder will be deleted from disk, including mods and world saves. Stop the server first.`
-            : `${removeTarget?.name} will be unregistered from this tool. Its actual files, mods, and world saves are left untouched on disk.`
+            ? t("settings.instances.removeDeleteDialog.description", {
+                defaultValue:
+                  "{{name}} will be unregistered from this tool and its server folder will be deleted from disk, including mods and world saves. Stop the server first.",
+                name: removeTarget?.name,
+              })
+            : t("settings.instances.removeDialog.description", {
+                defaultValue: "{{name}} will be unregistered from this tool. Its actual files, mods, and world saves are left untouched on disk.",
+                name: removeTarget?.name,
+              })
         }
-        confirmLabel={deleteFiles ? "Remove and Delete" : "Remove"}
+        confirmLabel={
+          deleteFiles
+            ? t("settings.instances.removeAndDelete", { defaultValue: "Remove and Delete" })
+            : t("settings.instances.remove", { defaultValue: "Remove" })
+        }
         onConfirm={handleRemove}
         confirming={removing}
       />

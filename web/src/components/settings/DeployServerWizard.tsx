@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { FolderOpen, RotateCcw } from "lucide-react";
 import { instancesApi } from "@/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -16,6 +17,7 @@ interface DeployServerWizardProps {
 type WizardStatus = "idle" | "running" | "done" | "error";
 
 export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeployServerWizardProps) {
+  const { t } = useTranslation();
   const [name, setName] = React.useState("");
   const [gamePort, setGamePort] = React.useState(8211);
   const [rconPort, setRconPort] = React.useState(8212);
@@ -45,7 +47,10 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       setLog(job.log);
       if (job.status === "done") {
         setStatus("done");
-        notifications.success({ title: "Server deployed", message: `${name} is ready.` });
+        notifications.success({
+          title: t("settings.deploy.deployedTitle", { defaultValue: "Server deployed" }),
+          message: t("settings.deploy.deployedMessage", { defaultValue: "{{name}} is ready.", name }),
+        });
         onDeployed();
       } else if (job.status === "error") {
         setStatus("error");
@@ -53,7 +58,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       }
     }, 1500);
     return () => clearInterval(interval);
-  }, [jobId, status, name, notifications, onDeployed]);
+  }, [jobId, status, name, notifications, onDeployed, t]);
 
   React.useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -74,7 +79,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       setJobId(id);
     } catch (e) {
       setStatus("error");
-      setError(e instanceof Error ? e.message : "Couldn't start the deploy.");
+      setError(e instanceof Error ? e.message : t("settings.deploy.startFailedFallback", { defaultValue: "Couldn't start the deploy." }));
     }
   }
 
@@ -89,7 +94,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       const { path } = await instancesApi.browseDeployParentDir();
       if (path) setInstallParentDir(path);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Couldn't open the folder picker.");
+      setError(e instanceof Error ? e.message : t("settings.deploy.folderPickerFailedFallback", { defaultValue: "Couldn't open the folder picker." }));
     }
   }
 
@@ -99,28 +104,30 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Deploy a New Server</DialogTitle>
+          <DialogTitle>{t("settings.deploy.title", { defaultValue: "Deploy a New Server" })}</DialogTitle>
           <DialogDescription>
-            Installs a fresh, fully isolated Palworld Dedicated Server via SteamCMD - its own folder, mods, and
-            ports, so it can't conflict with any other server this tool manages.
+            {t("settings.deploy.description", {
+              defaultValue:
+                "Installs a fresh, fully isolated Palworld Dedicated Server via SteamCMD - its own folder, mods, and ports, so it can't conflict with any other server this tool manages.",
+            })}
           </DialogDescription>
         </DialogHeader>
 
         {status === "idle" && (
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="deploy-name">Server Name</Label>
+              <Label htmlFor="deploy-name">{t("settings.deploy.serverName", { defaultValue: "Server Name" })}</Label>
               <Input
                 id="deploy-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="My Cozy Palworld"
+                placeholder={t("settings.deploy.serverNamePlaceholder", { defaultValue: "My Cozy Palworld" })}
                 autoFocus
               />
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="deploy-port">Game Port</Label>
+                <Label htmlFor="deploy-port">{t("settings.deploy.gamePort", { defaultValue: "Game Port" })}</Label>
                 <Input
                   id="deploy-port"
                   type="number"
@@ -129,7 +136,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="deploy-rcon">REST API Port</Label>
+                <Label htmlFor="deploy-rcon">{t("settings.deploy.restApiPort", { defaultValue: "REST API Port" })}</Label>
                 <Input
                   id="deploy-rcon"
                   type="number"
@@ -138,7 +145,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="deploy-max">Max Players</Label>
+                <Label htmlFor="deploy-max">{t("settings.deploy.maxPlayers", { defaultValue: "Max Players" })}</Label>
                 <Input
                   id="deploy-max"
                   type="number"
@@ -148,11 +155,11 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="deploy-location">Install Location</Label>
+              <Label htmlFor="deploy-location">{t("settings.deploy.installLocation", { defaultValue: "Install Location" })}</Label>
               <div className="flex gap-2">
                 <Input
                   id="deploy-location"
-                  value={installParentDir || "Default AutoPalExpress servers folder"}
+                  value={installParentDir || t("settings.deploy.defaultFolder", { defaultValue: "Default AutoPalExpress servers folder" })}
                   readOnly
                   className="flex-1"
                 />
@@ -164,18 +171,19 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                     icon={<RotateCcw />}
                     onClick={() => setInstallParentDir("")}
                   >
-                    Default
+                    {t("settings.deploy.default", { defaultValue: "Default" })}
                   </RuneButton>
                 )}
                 <RuneButton type="button" variant="ghost" size="sm" icon={<FolderOpen />} onClick={handleBrowseInstallLocation}>
-                  Browse
+                  {t("settings.deploy.browse", { defaultValue: "Browse" })}
                 </RuneButton>
               </div>
             </div>
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
-              AutoPalExpress creates a server folder named after this server inside the selected location. Each server
-              needs its own Game/REST API ports if you plan to run more than one at the same time. This downloads the
-              server fresh from Steam, so it can take a while.
+              {t("settings.deploy.hint", {
+                defaultValue:
+                  "AutoPalExpress creates a server folder named after this server inside the selected location. Each server needs its own Game/REST API ports if you plan to run more than one at the same time. This downloads the server fresh from Steam, so it can take a while.",
+              })}
             </p>
           </div>
         )}
@@ -188,8 +196,8 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
               ))}
               <div ref={logEndRef} />
             </div>
-            {status === "running" && <p className="animate-pulse text-xs text-gold-400">Deploying...</p>}
-            {status === "done" && <p className="text-xs text-life-400">Done - the new server is now active.</p>}
+            {status === "running" && <p className="animate-pulse text-xs text-gold-400">{t("settings.deploy.deploying", { defaultValue: "Deploying..." })}</p>}
+            {status === "done" && <p className="text-xs text-life-400">{t("settings.deploy.done", { defaultValue: "Done - the new server is now active." })}</p>}
             {status === "error" && <p className="text-xs text-blood-400">{error}</p>}
           </div>
         )}
@@ -198,21 +206,21 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
           {status === "idle" && (
             <>
               <RuneButton variant="ghost" onClick={() => onOpenChange(false)}>
-                Cancel
+                {t("settings.deploy.cancel", { defaultValue: "Cancel" })}
               </RuneButton>
               <RuneButton variant="gold" onClick={handleDeploy} disabled={!canSubmit}>
-                Deploy
+                {t("settings.deploy.deploy", { defaultValue: "Deploy" })}
               </RuneButton>
             </>
           )}
           {status === "running" && (
             <RuneButton variant="ghost" disabled>
-              Deploying...
+              {t("settings.deploy.deploying", { defaultValue: "Deploying..." })}
             </RuneButton>
           )}
           {(status === "done" || status === "error") && (
             <RuneButton variant="gold" onClick={() => onOpenChange(false)}>
-              Close
+              {t("settings.deploy.close", { defaultValue: "Close" })}
             </RuneButton>
           )}
         </DialogFooter>

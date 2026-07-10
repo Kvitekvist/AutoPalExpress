@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { Reorder } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { BookOpen, ScrollText, TriangleAlert } from "lucide-react";
 import { modsApi } from "@/api";
 import type { Mod, ModsPathInfo } from "@/types/models";
@@ -14,6 +15,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Mods() {
+  const { t } = useTranslation();
   const [mods, setMods] = React.useState<Mod[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [busyId, setBusyId] = React.useState<string | null>(null);
@@ -43,8 +45,12 @@ export default function Mods() {
       const updated = next ? await modsApi.enableMod(mod.id) : await modsApi.disableMod(mod.id);
       setMods(updated);
       notifications.success({
-        title: next ? "Mod enabled" : "Mod disabled",
-        message: `${mod.name} runes are now ${next ? "glowing" : "dormant"}.`,
+        title: next
+          ? t("mods.notifications.enabledTitle", { defaultValue: "Mod enabled" })
+          : t("mods.notifications.disabledTitle", { defaultValue: "Mod disabled" }),
+        message: next
+          ? t("mods.notifications.enabledMessage", { defaultValue: "{{name}} runes are now glowing.", name: mod.name })
+          : t("mods.notifications.disabledMessage", { defaultValue: "{{name}} runes are now dormant.", name: mod.name }),
       });
     } finally {
       setBusyId(null);
@@ -56,7 +62,14 @@ export default function Mods() {
     try {
       const updated = await modsApi.updateMod(mod.id);
       setMods(updated);
-      notifications.info({ title: "Mod updated", message: `${mod.name} has been reforged to v${mod.latestVersion}.` });
+      notifications.info({
+        title: t("mods.notifications.updatedTitle", { defaultValue: "Mod updated" }),
+        message: t("mods.notifications.updatedMessage", {
+          defaultValue: "{{name}} has been reforged to v{{version}}.",
+          name: mod.name,
+          version: mod.latestVersion,
+        }),
+      });
     } finally {
       setBusyId(null);
     }
@@ -68,7 +81,13 @@ export default function Mods() {
     try {
       const updated = await modsApi.removeMod(removeTarget.id);
       setMods(updated);
-      notifications.warning({ title: "Mod removed", message: `${removeTarget.name} has been struck from the archive.` });
+      notifications.warning({
+        title: t("mods.notifications.removedTitle", { defaultValue: "Mod removed" }),
+        message: t("mods.notifications.removedMessage", {
+          defaultValue: "{{name}} has been struck from the archive.",
+          name: removeTarget.name,
+        }),
+      });
     } finally {
       setBusyId(null);
       setRemoveTarget(null);
@@ -82,11 +101,11 @@ export default function Mods() {
     <div className="space-y-6">
       <ScrollPanel
         icon={<BookOpen />}
-        title="The Grimoire"
+        title={t("mods.title", { defaultValue: "The Grimoire" })}
         actions={
           <>
             <RuneButton variant="mana" size="sm" icon={<ScrollText />} onClick={() => setBrowseOpen(true)}>
-              Browse Nexus Mods
+              {t("mods.browseNexus", { defaultValue: "Browse Nexus Mods" })}
             </RuneButton>
           </>
         }
@@ -94,35 +113,36 @@ export default function Mods() {
         {modsPathInfo && !modsPathInfo.modsPath && (
           <div className="mb-5 flex flex-wrap items-center gap-2 rounded-md border border-gold-600/30 bg-gold-500/5 px-4 py-3 text-xs text-gold-300">
             <TriangleAlert className="h-4 w-4 shrink-0" />
-            <span>No Mods folder is configured yet, so verified file installs need Super Admin setup first.</span>
+            <span>{t("mods.noModsPathBanner", { defaultValue: "No Mods folder is configured yet, so verified file installs need Super Admin setup first." })}</span>
             {user.role === "super_admin" ? (
               <Link to="/super-admin" className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200">
-                Set it up in Super Admin
+                {t("mods.noModsPathCta", { defaultValue: "Set it up in Super Admin" })}
               </Link>
             ) : (
-              <span className="ml-auto text-gold-300/70">Ask the super admin to set it up.</span>
+              <span className="ml-auto text-gold-300/70">{t("mods.noModsPathAskAdmin", { defaultValue: "Ask the super admin to set it up." })}</span>
             )}
           </div>
         )}
 
         <div className="mb-5 flex flex-wrap items-center gap-4 text-xs text-parchment-300/60">
           <span>
-            <span className="font-mono text-life-400">{enabledCount}</span> enabled
+            <span className="font-mono text-life-400">{enabledCount}</span> {t("mods.status.enabled", { defaultValue: "enabled" })}
           </span>
           <span>
-            <span className="font-mono text-parchment-300/50">{mods.length - enabledCount - brokenCount}</span> disabled
+            <span className="font-mono text-parchment-300/50">{mods.length - enabledCount - brokenCount}</span>{" "}
+            {t("mods.status.disabled", { defaultValue: "disabled" })}
           </span>
           {brokenCount > 0 && (
             <span>
-              <span className="font-mono text-blood-400">{brokenCount}</span> broken
+              <span className="font-mono text-blood-400">{brokenCount}</span> {t("mods.status.broken", { defaultValue: "broken" })}
             </span>
           )}
-          <span className="ml-auto text-parchment-300/40">Drag the handle to change load priority</span>
+          <span className="ml-auto text-parchment-300/40">{t("mods.dragHint", { defaultValue: "Drag the handle to change load priority" })}</span>
         </div>
 
         {loading ? (
           <div className="flex h-40 items-center justify-center text-parchment-300/50">
-            <p className="animate-pulse font-display">Unsealing the grimoire...</p>
+            <p className="animate-pulse font-display">{t("mods.loading", { defaultValue: "Unsealing the grimoire..." })}</p>
           </div>
         ) : (
           <Reorder.Group axis="y" values={mods} onReorder={handleReorder} className="space-y-4">
@@ -146,9 +166,12 @@ export default function Mods() {
         open={!!removeTarget}
         onOpenChange={(o) => !o && setRemoveTarget(null)}
         tone="danger"
-        title="Remove this mod?"
-        description={`${removeTarget?.name} will be permanently removed from your server's load order.`}
-        confirmLabel="Remove"
+        title={t("mods.removeDialog.title", { defaultValue: "Remove this mod?" })}
+        description={t("mods.removeDialog.description", {
+          defaultValue: "{{name}} will be permanently removed from your server's load order.",
+          name: removeTarget?.name,
+        })}
+        confirmLabel={t("mods.removeDialog.confirm", { defaultValue: "Remove" })}
         onConfirm={handleRemove}
         confirming={busyId === removeTarget?.id}
       />

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Users as UsersIcon, Copy, Check, Trash2, UserPlus } from "lucide-react";
 import { usersApi } from "@/api";
 import type { AuthUser, InviteCode } from "@/types/models";
@@ -8,6 +9,7 @@ import { RuneDialog } from "@/components/fantasy/RuneDialog";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export function UsersPanel() {
+  const { t } = useTranslation();
   const [users, setUsers] = React.useState<AuthUser[]>([]);
   const [invites, setInvites] = React.useState<InviteCode[]>([]);
   const [removeTarget, setRemoveTarget] = React.useState<AuthUser | null>(null);
@@ -30,7 +32,10 @@ export function UsersPanel() {
     try {
       const invite = await usersApi.createInvite();
       setInvites((prev) => [...prev, invite]);
-      notifications.success({ title: "Invite created", message: "Share the code with your friend." });
+      notifications.success({
+        title: t("settings.users.inviteCreatedTitle", { defaultValue: "Invite created" }),
+        message: t("settings.users.inviteCreatedMessage", { defaultValue: "Share the code with your friend." }),
+      });
     } finally {
       setCreatingInvite(false);
     }
@@ -53,7 +58,10 @@ export function UsersPanel() {
     try {
       const next = await usersApi.removeUser(removeTarget.id);
       setUsers(next);
-      notifications.warning({ title: "Access revoked", message: `${removeTarget.username} can no longer log in.` });
+      notifications.warning({
+        title: t("settings.users.accessRevokedTitle", { defaultValue: "Access revoked" }),
+        message: t("settings.users.accessRevokedMessage", { defaultValue: "{{name}} can no longer log in.", name: removeTarget.username }),
+      });
     } finally {
       setRemoving(false);
       setRemoveTarget(null);
@@ -63,10 +71,11 @@ export function UsersPanel() {
   const unusedInvites = invites.filter((i) => !i.usedBy);
 
   return (
-    <ScrollPanel icon={<UsersIcon />} title="Users & Access">
+    <ScrollPanel icon={<UsersIcon />} title={t("settings.users.title", { defaultValue: "Users & Access" })}>
       <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
-        You're the super admin: the only one who can grant or revoke access. Friends redeem an invite code once to
-        create their own admin account.
+        {t("settings.users.description", {
+          defaultValue: "You're the super admin: the only one who can grant or revoke access. Friends redeem an invite code once to create their own admin account.",
+        })}
       </p>
 
       <div className="space-y-2">
@@ -78,7 +87,9 @@ export function UsersPanel() {
             <p className="font-display text-sm font-semibold text-parchment-100">
               {u.username}
               {u.role === "super_admin" && (
-                <span className="ml-2 text-[10px] font-normal uppercase tracking-wide text-gold-400">Super Admin</span>
+                <span className="ml-2 text-[10px] font-normal uppercase tracking-wide text-gold-400">
+                  {t("topbar.userMenu.superAdmin", { defaultValue: "Super Admin" })}
+                </span>
               )}
             </p>
             {u.role !== "super_admin" && (
@@ -89,7 +100,7 @@ export function UsersPanel() {
                 icon={<Trash2 />}
                 onClick={() => setRemoveTarget(u)}
               >
-                Revoke
+                {t("settings.users.revoke", { defaultValue: "Revoke" })}
               </RuneButton>
             )}
           </div>
@@ -98,7 +109,7 @@ export function UsersPanel() {
 
       <div className="mt-5 border-t border-stone-700/60 pt-4">
         <div className="mb-3 flex items-center justify-between">
-          <p className="text-xs uppercase tracking-wide text-parchment-300/40">Invite Codes</p>
+          <p className="text-xs uppercase tracking-wide text-parchment-300/40">{t("settings.users.inviteCodes", { defaultValue: "Invite Codes" })}</p>
           <RuneButton
             type="button"
             variant="gold"
@@ -107,11 +118,11 @@ export function UsersPanel() {
             onClick={handleCreateInvite}
             disabled={creatingInvite}
           >
-            {creatingInvite ? "Creating..." : "New Invite"}
+            {creatingInvite ? t("settings.users.creating", { defaultValue: "Creating..." }) : t("settings.users.newInvite", { defaultValue: "New Invite" })}
           </RuneButton>
         </div>
         {unusedInvites.length === 0 ? (
-          <p className="text-sm text-parchment-300/40">No unused invite codes.</p>
+          <p className="text-sm text-parchment-300/40">{t("settings.users.noInvites", { defaultValue: "No unused invite codes." })}</p>
         ) : (
           <div className="space-y-2">
             {unusedInvites.map((invite) => (
@@ -127,10 +138,10 @@ export function UsersPanel() {
                   icon={copiedCode === invite.code ? <Check /> : <Copy />}
                   onClick={() => handleCopy(invite.code)}
                 >
-                  {copiedCode === invite.code ? "Copied" : "Copy"}
+                  {copiedCode === invite.code ? t("settings.users.copied", { defaultValue: "Copied" }) : t("settings.users.copy", { defaultValue: "Copy" })}
                 </RuneButton>
                 <RuneButton type="button" variant="danger" size="sm" onClick={() => handleRevokeInvite(invite.code)}>
-                  Revoke
+                  {t("settings.users.revoke", { defaultValue: "Revoke" })}
                 </RuneButton>
               </div>
             ))}
@@ -142,9 +153,12 @@ export function UsersPanel() {
         open={!!removeTarget}
         onOpenChange={(o) => !o && setRemoveTarget(null)}
         tone="danger"
-        title="Revoke this admin's access?"
-        description={`${removeTarget?.username} will be logged out immediately and won't be able to sign back in.`}
-        confirmLabel="Revoke Access"
+        title={t("settings.users.revokeDialog.title", { defaultValue: "Revoke this admin's access?" })}
+        description={t("settings.users.revokeDialog.description", {
+          defaultValue: "{{name}} will be logged out immediately and won't be able to sign back in.",
+          name: removeTarget?.username,
+        })}
+        confirmLabel={t("settings.users.revokeDialog.confirm", { defaultValue: "Revoke Access" })}
         onConfirm={handleRemoveUser}
         confirming={removing}
       />

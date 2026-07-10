@@ -1,4 +1,5 @@
 import { Reorder, useDragControls } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { GripVertical, User, Layers, TriangleAlert, Trash2, ArrowUpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Mod } from "@/types/models";
@@ -21,6 +22,7 @@ const STATUS_BADGE: Record<Mod["status"], string> = {
 };
 
 export function ModCard({ mod, onToggle, onRemove, onUpdate, busy }: ModCardProps) {
+  const { t } = useTranslation();
   const dragControls = useDragControls();
 
   return (
@@ -35,7 +37,7 @@ export function ModCard({ mod, onToggle, onRemove, onUpdate, busy }: ModCardProp
           <button
             onPointerDown={(e) => dragControls.start(e)}
             className="mt-1 shrink-0 cursor-grab touch-none text-parchment-300/30 transition-colors hover:text-gold-400 active:cursor-grabbing"
-            aria-label="Drag to reorder"
+            aria-label={t("mods.card.dragToReorder", { defaultValue: "Drag to reorder" })}
           >
             <GripVertical className="h-5 w-5" />
           </button>
@@ -51,7 +53,7 @@ export function ModCard({ mod, onToggle, onRemove, onUpdate, busy }: ModCardProp
                 <span className="font-mono text-xs text-parchment-300/45">v{mod.version}</span>
               </div>
               <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider", STATUS_BADGE[mod.status])}>
-                {mod.status}
+                {t(`mods.status.${mod.status}`, { defaultValue: mod.status })}
               </span>
             </div>
 
@@ -75,7 +77,7 @@ export function ModCard({ mod, onToggle, onRemove, onUpdate, busy }: ModCardProp
             {mod.status === "broken" && (
               <div className="mt-3 flex items-center gap-1.5 rounded-md border border-blood-600/30 bg-blood-500/5 px-3 py-2 text-xs text-blood-400">
                 <TriangleAlert className="h-3.5 w-3.5 shrink-0" />
-                Failed to initialize &mdash; remove or replace this mod.
+                {t("mods.card.brokenNotice", { defaultValue: "Failed to initialize — remove or replace this mod." })}
               </div>
             )}
 
@@ -84,18 +86,22 @@ export function ModCard({ mod, onToggle, onRemove, onUpdate, busy }: ModCardProp
                 id={`mod-toggle-${mod.id}`}
                 checked={mod.status === "enabled"}
                 onCheckedChange={(v) => onToggle(mod, v)}
-                label={mod.status === "enabled" ? "Enabled" : "Disabled"}
+                label={
+                  mod.status === "enabled"
+                    ? t("mods.card.enabledLabel", { defaultValue: "Enabled" })
+                    : t("mods.card.disabledLabel", { defaultValue: "Disabled" })
+                }
                 disabled={mod.status === "broken" || busy}
                 className="flex-1 border-none bg-transparent px-0 py-0"
               />
               <div className="flex items-center gap-2">
                 {mod.updateAvailable && (
                   <RuneButton variant="mana" size="sm" icon={<ArrowUpCircle />} onClick={() => onUpdate(mod)} disabled={busy}>
-                    Update to {mod.latestVersion}
+                    {t("mods.card.updateTo", { defaultValue: "Update to {{version}}", version: mod.latestVersion })}
                   </RuneButton>
                 )}
                 <RuneButton variant="danger" size="sm" icon={<Trash2 />} onClick={() => onRemove(mod)} disabled={busy}>
-                  Remove
+                  {t("mods.card.remove", { defaultValue: "Remove" })}
                 </RuneButton>
               </div>
             </div>

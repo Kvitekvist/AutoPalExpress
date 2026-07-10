@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Rocket } from "lucide-react";
 import { instancesApi, networkApi } from "@/api";
 import type { ServerInstance, UpnpStatus } from "@/types/models";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export default function LauncherFlags() {
+  const { t } = useTranslation();
   const [instance, setInstance] = React.useState<ServerInstance | null>(null);
   const [networkStatus, setNetworkStatus] = React.useState<UpnpStatus | null>(null);
   const [loaded, setLoaded] = React.useState(false);
@@ -67,8 +69,8 @@ export default function LauncherFlags() {
       });
       setInstance(next.instances.find((item) => item.id === instance.id) ?? null);
       notifications.success({
-        title: "Launcher options saved",
-        message: "Restart the server for these launcher options to take effect.",
+        title: t("launcherOptions.savedTitle", { defaultValue: "Launcher options saved" }),
+        message: t("launcherOptions.savedMessage", { defaultValue: "Restart the server for these launcher options to take effect." }),
       });
     } finally {
       setSaving(false);
@@ -77,11 +79,12 @@ export default function LauncherFlags() {
 
   const publicIp = networkStatus?.externalIp ?? "";
   const publicPort = networkStatus?.port ?? instance?.effectiveGamePort ?? instance?.gamePort ?? "";
+  const unavailable = t("launcherOptions.unavailable", { defaultValue: "Unavailable" });
 
   if (!loaded) {
     return (
       <div className="flex h-64 items-center justify-center text-parchment-300/50">
-        <p className="animate-pulse font-display">Loading launcher options...</p>
+        <p className="animate-pulse font-display">{t("launcherOptions.loading", { defaultValue: "Loading launcher options..." })}</p>
       </div>
     );
   }
@@ -89,14 +92,14 @@ export default function LauncherFlags() {
   if (!instance) {
     return (
       <div className="flex h-64 items-center justify-center text-parchment-300/50">
-        <p className="font-display">Select a server to edit launcher options.</p>
+        <p className="font-display">{t("launcherOptions.selectServer", { defaultValue: "Select a server to edit launcher options." })}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6 pb-10">
-      <ScrollPanel icon={<Rocket />} title="Launcher Options">
+      <ScrollPanel icon={<Rocket />} title={t("launcherOptions.title", { defaultValue: "Launcher Options" })}>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
           <EnchantedToggle
             id="flag-community-server"
@@ -104,7 +107,7 @@ export default function LauncherFlags() {
             disabled={saving}
             onCheckedChange={(checked) => saveLaunchOptions({ communityServer: checked })}
             label="-publiclobby"
-            description="Shows the server in Palworld's Community Server list."
+            description={t("launcherOptions.publicLobby", { defaultValue: "Shows the server in Palworld's Community Server list." })}
           />
           <EnchantedToggle
             id="flag-useperfthreads"
@@ -112,7 +115,7 @@ export default function LauncherFlags() {
             disabled={saving}
             onCheckedChange={(checked) => saveLaunchOptions({ usePerfThreads: checked })}
             label="-useperfthreads"
-            description="Enables Palworld's performance-thread launcher path."
+            description={t("launcherOptions.perfThreads", { defaultValue: "Enables Palworld's performance-thread launcher path." })}
           />
           <EnchantedToggle
             id="flag-no-async-loading-thread"
@@ -120,7 +123,7 @@ export default function LauncherFlags() {
             disabled={saving}
             onCheckedChange={(checked) => saveLaunchOptions({ noAsyncLoadingThread: checked })}
             label="-NoAsyncLoadingThread"
-            description="Disables Palworld's separate async loading thread."
+            description={t("launcherOptions.noAsyncLoadingThread", { defaultValue: "Disables Palworld's separate async loading thread." })}
           />
           <EnchantedToggle
             id="flag-use-multithread-for-ds"
@@ -128,7 +131,7 @@ export default function LauncherFlags() {
             disabled={saving}
             onCheckedChange={(checked) => saveLaunchOptions({ useMultithreadForDs: checked })}
             label="-UseMultithreadForDS"
-            description="Uses Palworld's dedicated-server multithreading flag."
+            description={t("launcherOptions.multithreadForDs", { defaultValue: "Uses Palworld's dedicated-server multithreading flag." })}
           />
           <div className="space-y-3 rounded-md border border-stone-700 bg-abyss-950/40 p-4">
             <EnchantedToggle
@@ -137,16 +140,16 @@ export default function LauncherFlags() {
               disabled={saving}
               onCheckedChange={(checked) => saveLaunchOptions({ usePublicIpOverride: checked })}
               label="-publicip"
-              description="Advertises the public IP detected by Super Admin."
+              description={t("launcherOptions.publicIpDescription", { defaultValue: "Advertises the public IP detected by Super Admin." })}
               className="border-0 bg-transparent p-0"
             />
             <div className={instance.usePublicIpOverride ? "opacity-60" : "opacity-35"}>
               <Label htmlFor="flag-public-ip-value" className="text-[11px]">
-                Super Admin public IP
+                {t("launcherOptions.superAdminPublicIp", { defaultValue: "Super Admin public IP" })}
               </Label>
               <Input
                 id="flag-public-ip-value"
-                value={publicIp || "Unavailable"}
+                value={publicIp || unavailable}
                 disabled
                 className="mt-1 font-mono"
               />
@@ -159,16 +162,16 @@ export default function LauncherFlags() {
               disabled={saving}
               onCheckedChange={(checked) => saveLaunchOptions({ usePublicPortOverride: checked })}
               label="-publicport"
-              description="Advertises the game port from Super Admin."
+              description={t("launcherOptions.publicPortDescription", { defaultValue: "Advertises the game port from Super Admin." })}
               className="border-0 bg-transparent p-0"
             />
             <div className={instance.usePublicPortOverride ? "opacity-60" : "opacity-35"}>
               <Label htmlFor="flag-public-port-value" className="text-[11px]">
-                Super Admin game port
+                {t("launcherOptions.superAdminGamePort", { defaultValue: "Super Admin game port" })}
               </Label>
               <Input
                 id="flag-public-port-value"
-                value={publicPort ? String(publicPort) : "Unavailable"}
+                value={publicPort ? String(publicPort) : unavailable}
                 disabled
                 className="mt-1 font-mono"
               />
@@ -176,8 +179,10 @@ export default function LauncherFlags() {
           </div>
         </div>
         <p className="mt-4 text-xs text-parchment-300/45">
-          These options apply to {instance.name} the next time it starts. Public IP and port values are read from Super
-          Admin and cannot be edited here.
+          {t("launcherOptions.applyNote", {
+            defaultValue: "These options apply to {{name}} the next time it starts. Public IP and port values are read from Super Admin and cannot be edited here.",
+            name: instance.name,
+          })}
         </p>
       </ScrollPanel>
     </div>

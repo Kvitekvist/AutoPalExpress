@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface ManualForwardInstructionsProps {
   name: string;
   protocol: "TCP" | "UDP";
@@ -15,17 +17,21 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export function ManualForwardInstructions({ name, protocol, port, localIp }: ManualForwardInstructionsProps) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-md border border-stone-700 bg-abyss-900/40 px-4 py-3 text-xs">
       <p className="mb-2 text-parchment-300/60">
-        Add a new port forwarding rule in your router's admin page with these exact values:
+        {t("superAdmin.manualForward.intro", { defaultValue: "Add a new port forwarding rule in your router's admin page with these exact values:" })}
       </p>
-      <Row label="Name" value={name} />
-      <Row label="Protocol" value={protocol} />
-      <Row label="External IP" value="*" />
-      <Row label="Internal IP" value={localIp ?? "this PC's local IP - check your network settings"} />
-      <Row label="External Port" value={String(port)} />
-      <Row label="Internal Port" value={String(port)} />
+      <Row label={t("superAdmin.manualForward.name", { defaultValue: "Name" })} value={name} />
+      <Row label={t("superAdmin.manualForward.protocol", { defaultValue: "Protocol" })} value={protocol} />
+      <Row label={t("superAdmin.manualForward.externalIp", { defaultValue: "External IP" })} value="*" />
+      <Row
+        label={t("superAdmin.manualForward.internalIp", { defaultValue: "Internal IP" })}
+        value={localIp ?? t("superAdmin.manualForward.internalIpFallback", { defaultValue: "this PC's local IP - check your network settings" })}
+      />
+      <Row label={t("superAdmin.manualForward.externalPort", { defaultValue: "External Port" })} value={String(port)} />
+      <Row label={t("superAdmin.manualForward.internalPort", { defaultValue: "Internal Port" })} value={String(port)} />
     </div>
   );
 }

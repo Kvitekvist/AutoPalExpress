@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Play, Square, RotateCw, Save, Megaphone, TimerOff, Ban, ChevronDown, DownloadCloud } from "lucide-react";
 import { serverApi, instancesApi } from "@/api";
 import type { InstanceListView, ServerUpdateCheck, ServerUpdateJob } from "@/types/models";
@@ -31,6 +32,7 @@ function StartServerControl({
   busy: boolean;
   onStart: () => void;
 }) {
+  const { t } = useTranslation();
   const [data, setData] = React.useState<InstanceListView | null>(null);
   const [switching, setSwitching] = React.useState(false);
 
@@ -69,14 +71,14 @@ function StartServerControl({
                 type="button"
                 className="flex items-center gap-0.5 rounded border border-stone-600 bg-abyss-950/60 px-1.5 py-0.5 text-[10px] text-parchment-300/60 transition-colors hover:border-gold-600/50 hover:text-gold-300"
               >
-                Change <ChevronDown className="h-3 w-3" />
+                {t("serverControl.change", { defaultValue: "Change" })} <ChevronDown className="h-3 w-3" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {data.instances.map((instance) => (
                 <DropdownMenuItem key={instance.id} onSelect={() => handleSwitch(instance.id)}>
                   {instance.id === data.activeId ? "✓ " : ""}
-                  {instance.name} &middot; port {instance.gamePort}
+                  {t("serverControl.nameAndPort", { defaultValue: "{{name}} · port {{port}}", name: instance.name, port: instance.gamePort })}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -86,9 +88,11 @@ function StartServerControl({
 
       <button type="button" onClick={onStart} disabled={disabled || busy || switching} className="flex flex-col items-center gap-1">
         <Play className="h-7 w-7" />
-        <span className="text-sm">{busy ? "Working..." : "Start Server"}</span>
+        <span className="text-sm">{busy ? t("serverControl.working", { defaultValue: "Working..." }) : t("serverControl.startServer", { defaultValue: "Start Server" })}</span>
         <span className="max-w-[10rem] truncate text-[10px] font-sans normal-case tracking-normal text-parchment-300/50">
-          {active ? `${active.name} · port ${active.gamePort}` : "No server selected"}
+          {active
+            ? t("serverControl.nameAndPort", { defaultValue: "{{name}} · port {{port}}", name: active.name, port: active.gamePort })
+            : t("serverControl.noServerSelected", { defaultValue: "No server selected" })}
         </span>
       </button>
     </div>
@@ -96,6 +100,7 @@ function StartServerControl({
 }
 
 export default function ServerControl() {
+  const { t } = useTranslation();
   const { status, refresh, setStatus } = useServerStatus(4000);
   const notifications = useNotifications();
 
@@ -120,13 +125,16 @@ export default function ServerControl() {
       setCountdown(null);
       serverApi.stopServer().then((s) => {
         setStatus(s);
-        notifications.error({ title: "Server has gone dark", message: "The shutdown countdown reached zero." });
+        notifications.error({
+          title: t("serverControl.notifications.wentDarkTitle", { defaultValue: "Server has gone dark" }),
+          message: t("serverControl.notifications.wentDarkMessage", { defaultValue: "The shutdown countdown reached zero." }),
+        });
       });
       return;
     }
-    const t = window.setTimeout(() => setCountdown((c) => (c === null ? null : c - 1)), 1000);
-    return () => window.clearTimeout(t);
-  }, [countdown, notifications, setStatus]);
+    const timeoutId = window.setTimeout(() => setCountdown((c) => (c === null ? null : c - 1)), 1000);
+    return () => window.clearTimeout(timeoutId);
+  }, [countdown, notifications, setStatus, t]);
 
   const isOnline = status?.state === "online";
   const isTransitioning = status?.state === "starting" || status?.state === "stopping" || status?.state === "restarting";
@@ -144,20 +152,28 @@ export default function ServerControl() {
           setBusyAction(null);
           setUpdateJobId(null);
           notifications.success({
-            title: "Server updated",
-            message: job.installedBuildId ? `Installed build ${job.installedBuildId}.` : "SteamCMD finished the update.",
+            title: t("serverControl.notifications.serverUpdatedTitle", { defaultValue: "Server updated" }),
+            message: job.installedBuildId
+              ? t("serverControl.notifications.installedBuild", { defaultValue: "Installed build {{id}}.", id: job.installedBuildId })
+              : t("serverControl.notifications.updateFinished", { defaultValue: "SteamCMD finished the update." }),
           });
           await refresh();
         } else if (job.status === "error") {
           setBusyAction(null);
           setUpdateJobId(null);
-          notifications.error({ title: "Update failed", message: job.error ?? "SteamCMD could not update the server." });
+          notifications.error({
+            title: t("serverControl.notifications.updateFailedTitle", { defaultValue: "Update failed" }),
+            message: job.error ?? t("serverControl.notifications.updateFailedFallback", { defaultValue: "SteamCMD could not update the server." }),
+          });
         }
       } catch (e) {
         if (!cancelled) {
           setBusyAction(null);
           setUpdateJobId(null);
-          notifications.error({ title: "Update status failed", message: e instanceof Error ? e.message : "Unknown error." });
+          notifications.error({
+            title: t("serverControl.notifications.updateStatusFailedTitle", { defaultValue: "Update status failed" }),
+            message: e instanceof Error ? e.message : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
+          });
         }
       }
     };
@@ -167,14 +183,17 @@ export default function ServerControl() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [updateJobId, notifications, refresh]);
+  }, [updateJobId, notifications, refresh, t]);
 
   async function handleStart() {
     setBusyAction("start");
     try {
       const s = await serverApi.startServer();
       setStatus(s);
-      notifications.success({ title: "Server ignited", message: "The realm awakens once more." });
+      notifications.success({
+        title: t("serverControl.notifications.ignitedTitle", { defaultValue: "Server ignited" }),
+        message: t("serverControl.notifications.ignitedMessage", { defaultValue: "The realm awakens once more." }),
+      });
     } finally {
       setBusyAction(null);
     }
@@ -185,7 +204,10 @@ export default function ServerControl() {
     try {
       const s = await serverApi.stopServer();
       setStatus(s);
-      notifications.warning({ title: "Server extinguished", message: "The realm has gone quiet." });
+      notifications.warning({
+        title: t("serverControl.notifications.extinguishedTitle", { defaultValue: "Server extinguished" }),
+        message: t("serverControl.notifications.extinguishedMessage", { defaultValue: "The realm has gone quiet." }),
+      });
     } finally {
       setBusyAction(null);
       setConfirmAction(null);
@@ -197,7 +219,10 @@ export default function ServerControl() {
     try {
       const s = await serverApi.restartServer();
       setStatus(s);
-      notifications.success({ title: "Server restarted", message: "The realm has been reforged anew." });
+      notifications.success({
+        title: t("serverControl.notifications.restartedTitle", { defaultValue: "Server restarted" }),
+        message: t("serverControl.notifications.restartedMessage", { defaultValue: "The realm has been reforged anew." }),
+      });
     } finally {
       setBusyAction(null);
       setConfirmAction(null);
@@ -209,7 +234,10 @@ export default function ServerControl() {
     try {
       await serverApi.saveWorld();
       await refresh();
-      notifications.success({ title: "World saved", message: "Your realm's fate has been etched into stone." });
+      notifications.success({
+        title: t("serverControl.notifications.savedTitle", { defaultValue: "World saved" }),
+        message: t("serverControl.notifications.savedMessage", { defaultValue: "Your realm's fate has been etched into stone." }),
+      });
     } finally {
       setBusyAction(null);
     }
@@ -224,13 +252,17 @@ export default function ServerControl() {
         setUpdateConfirmOpen(true);
       } else if (check.canCompare) {
         notifications.success({
-          title: "Server is up to date",
-          message: check.installedBuildId ? `Installed build ${check.installedBuildId}.` : undefined,
+          title: t("serverControl.notifications.upToDateTitle", { defaultValue: "Server is up to date" }),
+          message: check.installedBuildId
+            ? t("serverControl.notifications.installedBuild", { defaultValue: "Installed build {{id}}.", id: check.installedBuildId })
+            : undefined,
         });
       } else {
         notifications.warning({
-          title: "Could not compare builds",
-          message: "SteamCMD responded, but the installed or latest build id was not available.",
+          title: t("serverControl.notifications.couldNotCompareTitle", { defaultValue: "Could not compare builds" }),
+          message: t("serverControl.notifications.couldNotCompareMessage", {
+            defaultValue: "SteamCMD responded, but the installed or latest build id was not available.",
+          }),
         });
       }
     } finally {
@@ -240,19 +272,34 @@ export default function ServerControl() {
 
   async function handleUpdateServer() {
     if (isOnline) {
-      notifications.warning({ title: "Stop the server first", message: "Updates can only run while the server is offline." });
+      notifications.warning({
+        title: t("serverControl.notifications.stopFirstTitle", { defaultValue: "Stop the server first" }),
+        message: t("serverControl.notifications.stopFirstMessage", { defaultValue: "Updates can only run while the server is offline." }),
+      });
       return;
     }
     setBusyAction("update");
     try {
       const job = await serverApi.startServerUpdate();
       setUpdateJobId(job.jobId);
-      setUpdateJob({ status: "running", log: ["Starting SteamCMD update..."], error: null, installedBuildId: null, latestBuildId: null });
+      setUpdateJob({
+        status: "running",
+        log: [t("serverControl.notifications.startingUpdateLog", { defaultValue: "Starting SteamCMD update..." })],
+        error: null,
+        installedBuildId: null,
+        latestBuildId: null,
+      });
       setUpdateConfirmOpen(false);
-      notifications.info({ title: "Update started", message: "SteamCMD is updating the stopped server." });
+      notifications.info({
+        title: t("serverControl.notifications.updateStartedTitle", { defaultValue: "Update started" }),
+        message: t("serverControl.notifications.updateStartedMessage", { defaultValue: "SteamCMD is updating the stopped server." }),
+      });
     } catch (e) {
       setBusyAction(null);
-      notifications.error({ title: "Could not start update", message: e instanceof Error ? e.message : "Unknown error." });
+      notifications.error({
+        title: t("serverControl.notifications.couldNotStartUpdateTitle", { defaultValue: "Could not start update" }),
+        message: e instanceof Error ? e.message : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
+      });
     }
   }
 
@@ -261,7 +308,10 @@ export default function ServerControl() {
     setBroadcasting(true);
     try {
       await serverApi.broadcastMessage(broadcastText.trim());
-      notifications.info({ title: "Message broadcast", message: "Your words echo across the realm." });
+      notifications.info({
+        title: t("serverControl.notifications.broadcastTitle", { defaultValue: "Message broadcast" }),
+        message: t("serverControl.notifications.broadcastMessage", { defaultValue: "Your words echo across the realm." }),
+      });
       setBroadcastOpen(false);
       setBroadcastText("");
     } finally {
@@ -273,13 +323,22 @@ export default function ServerControl() {
     await serverApi.startShutdownCountdown(shutdownSeconds);
     setCountdown(shutdownSeconds);
     setShutdownOpen(false);
-    notifications.warning({ title: "Shutdown countdown started", message: `The server will fall silent in ${shutdownSeconds}s.` });
+    notifications.warning({
+      title: t("serverControl.notifications.countdownStartedTitle", { defaultValue: "Shutdown countdown started" }),
+      message: t("serverControl.notifications.countdownStartedMessage", {
+        defaultValue: "The server will fall silent in {{seconds}}s.",
+        seconds: shutdownSeconds,
+      }),
+    });
   }
 
   async function handleCancelCountdown() {
     await serverApi.cancelShutdownCountdown();
     setCountdown(null);
-    notifications.info({ title: "Countdown cancelled", message: "The realm's fate has been spared, for now." });
+    notifications.info({
+      title: t("serverControl.notifications.countdownCancelledTitle", { defaultValue: "Countdown cancelled" }),
+      message: t("serverControl.notifications.countdownCancelledMessage", { defaultValue: "The realm's fate has been spared, for now." }),
+    });
   }
 
   return (
@@ -289,32 +348,36 @@ export default function ServerControl() {
           <CrystalStatus state={status?.state ?? "offline"} size="lg" />
           <div>
             <p className="font-display text-lg font-semibold capitalize text-parchment-100">
-              {status?.state ?? "unknown"}
+              {t(`serverControl.states.${status?.state ?? "unknown"}`, { defaultValue: status?.state ?? "unknown" })}
             </p>
             <p className="text-xs text-parchment-300/50">
-              {isOnline ? "The realm is alive and well." : isTransitioning ? "The realm is shifting states..." : "The realm slumbers."}
+              {isOnline
+                ? t("serverControl.realmAlive", { defaultValue: "The realm is alive and well." })
+                : isTransitioning
+                  ? t("serverControl.realmShifting", { defaultValue: "The realm is shifting states..." })
+                  : t("serverControl.realmSlumbers", { defaultValue: "The realm slumbers." })}
             </p>
           </div>
           {countdown !== null && (
             <div className="flex items-center gap-3 rounded-lg border border-blood-500/50 bg-blood-500/10 px-5 py-3 shadow-rune-blood">
               <TimerOff className="h-5 w-5 text-blood-400 animate-glow-pulse" />
               <p className="font-display text-lg font-bold text-blood-400">
-                Shutting down in {countdown}s
+                {t("serverControl.shuttingDownIn", { defaultValue: "Shutting down in {{seconds}}s", seconds: countdown })}
               </p>
               <RuneButton variant="ghost" size="sm" icon={<Ban />} onClick={handleCancelCountdown}>
-                Cancel
+                {t("serverControl.cancel", { defaultValue: "Cancel" })}
               </RuneButton>
             </div>
           )}
         </div>
       </ScrollPanel>
 
-      <ScrollPanel title="Rites of Command">
+      <ScrollPanel title={t("serverControl.ritesTitle", { defaultValue: "Rites of Command" })}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StartServerControl disabled={isOnline || isTransitioning} busy={busyAction === "start"} onStart={handleStart} />
           <ActionButton
             icon={<Square />}
-            label="Stop Server"
+            label={t("serverControl.stopServer", { defaultValue: "Stop Server" })}
             variant="danger"
             disabled={!isOnline}
             loading={busyAction === "stop"}
@@ -322,7 +385,7 @@ export default function ServerControl() {
           />
           <ActionButton
             icon={<RotateCw />}
-            label="Restart Server"
+            label={t("serverControl.restartServer", { defaultValue: "Restart Server" })}
             variant="gold"
             disabled={!isOnline}
             loading={busyAction === "restart"}
@@ -330,7 +393,7 @@ export default function ServerControl() {
           />
           <ActionButton
             icon={<Save />}
-            label="Save World"
+            label={t("serverControl.saveWorld", { defaultValue: "Save World" })}
             variant="mana"
             disabled={!isOnline}
             loading={busyAction === "save"}
@@ -338,7 +401,7 @@ export default function ServerControl() {
           />
           <ActionButton
             icon={<DownloadCloud />}
-            label="Check Updates"
+            label={t("serverControl.checkUpdates", { defaultValue: "Check Updates" })}
             variant="life"
             disabled={isTransitioning || updateRunning}
             loading={busyAction === "check-update" || updateRunning}
@@ -346,14 +409,14 @@ export default function ServerControl() {
           />
           <ActionButton
             icon={<Megaphone />}
-            label="Broadcast Message"
+            label={t("serverControl.broadcastMessage", { defaultValue: "Broadcast Message" })}
             variant="arcane"
             disabled={!isOnline}
             onClick={() => setBroadcastOpen(true)}
           />
           <ActionButton
             icon={<TimerOff />}
-            label="Shutdown Countdown"
+            label={t("serverControl.shutdownCountdown", { defaultValue: "Shutdown Countdown" })}
             variant="danger"
             disabled={!isOnline || countdown !== null}
             onClick={() => setShutdownOpen(true)}
@@ -362,12 +425,21 @@ export default function ServerControl() {
       </ScrollPanel>
 
       {updateJob && (
-        <ScrollPanel title="Server Update">
+        <ScrollPanel title={t("serverControl.serverUpdateTitle", { defaultValue: "Server Update" })}>
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3 text-sm text-parchment-300/70">
-              <span className="capitalize">Status: {updateJob.status}</span>
-              {updateJob.installedBuildId && <span>Installed build {updateJob.installedBuildId}</span>}
-              {updateJob.latestBuildId && <span>Latest build {updateJob.latestBuildId}</span>}
+              <span className="capitalize">
+                {t("serverControl.statusLabel", {
+                  defaultValue: "Status: {{status}}",
+                  status: t(`serverControl.jobStatus.${updateJob.status}`, { defaultValue: updateJob.status }),
+                })}
+              </span>
+              {updateJob.installedBuildId && (
+                <span>{t("serverControl.installedBuildShort", { defaultValue: "Installed build {{id}}", id: updateJob.installedBuildId })}</span>
+              )}
+              {updateJob.latestBuildId && (
+                <span>{t("serverControl.latestBuildShort", { defaultValue: "Latest build {{id}}", id: updateJob.latestBuildId })}</span>
+              )}
             </div>
             {updateJob.log.length > 0 && (
               <div className="max-h-48 overflow-auto rounded-md border border-stone-700 bg-abyss-950/60 p-3 font-mono text-[11px] leading-relaxed text-parchment-300/55">
@@ -384,9 +456,11 @@ export default function ServerControl() {
         open={confirmAction === "stop"}
         onOpenChange={(o) => !o && setConfirmAction(null)}
         tone="danger"
-        title="Stop the server?"
-        description="All connected players will be disconnected immediately. This cannot be undone remotely once offline."
-        confirmLabel="Stop Server"
+        title={t("serverControl.stopDialog.title", { defaultValue: "Stop the server?" })}
+        description={t("serverControl.stopDialog.description", {
+          defaultValue: "All connected players will be disconnected immediately. This cannot be undone remotely once offline.",
+        })}
+        confirmLabel={t("serverControl.stopServer", { defaultValue: "Stop Server" })}
         onConfirm={handleStop}
         confirming={busyAction === "stop"}
       />
@@ -395,9 +469,11 @@ export default function ServerControl() {
         open={confirmAction === "restart"}
         onOpenChange={(o) => !o && setConfirmAction(null)}
         tone="warning"
-        title="Restart the server?"
-        description="The server will briefly go offline while it restarts. Connected players will be disconnected."
-        confirmLabel="Restart Server"
+        title={t("serverControl.restartDialog.title", { defaultValue: "Restart the server?" })}
+        description={t("serverControl.restartDialog.description", {
+          defaultValue: "The server will briefly go offline while it restarts. Connected players will be disconnected.",
+        })}
+        confirmLabel={t("serverControl.restartServer", { defaultValue: "Restart Server" })}
         onConfirm={handleRestart}
         confirming={busyAction === "restart"}
       />
@@ -406,15 +482,22 @@ export default function ServerControl() {
         open={updateConfirmOpen}
         onOpenChange={(o) => setUpdateConfirmOpen(o)}
         tone="warning"
-        title="Update server files?"
+        title={t("serverControl.updateDialog.title", { defaultValue: "Update server files?" })}
         description={
           isOnline
-            ? "An update is available, but the server must be stopped before AutoPalExpress can update its files."
-            : `Steam reports a newer Palworld Dedicated Server build${
-                updateCheck?.latestBuildId ? ` (${updateCheck.latestBuildId})` : ""
-              }. Update the active server now?`
+            ? t("serverControl.updateDialog.stoppedRequired", {
+                defaultValue: "An update is available, but the server must be stopped before AutoPalExpress can update its files.",
+              })
+            : updateCheck?.latestBuildId
+              ? t("serverControl.updateDialog.availableWithBuild", {
+                  defaultValue: "Steam reports a newer Palworld Dedicated Server build ({{buildId}}). Update the active server now?",
+                  buildId: updateCheck.latestBuildId,
+                })
+              : t("serverControl.updateDialog.available", {
+                  defaultValue: "Steam reports a newer Palworld Dedicated Server build. Update the active server now?",
+                })
         }
-        confirmLabel="Update Server"
+        confirmLabel={t("serverControl.updateServer", { defaultValue: "Update Server" })}
         onConfirm={handleUpdateServer}
         confirming={busyAction === "update"}
       />
@@ -422,21 +505,25 @@ export default function ServerControl() {
       <Dialog open={broadcastOpen} onOpenChange={setBroadcastOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Broadcast a Message</DialogTitle>
-            <DialogDescription>Sent instantly to every player currently in the realm.</DialogDescription>
+            <DialogTitle>{t("serverControl.broadcastDialog.title", { defaultValue: "Broadcast a Message" })}</DialogTitle>
+            <DialogDescription>
+              {t("serverControl.broadcastDialog.description", { defaultValue: "Sent instantly to every player currently in the realm." })}
+            </DialogDescription>
           </DialogHeader>
           <Input
             value={broadcastText}
             onChange={(e) => setBroadcastText(e.target.value)}
-            placeholder="Type your announcement..."
+            placeholder={t("serverControl.broadcastDialog.placeholder", { defaultValue: "Type your announcement..." })}
             autoFocus
           />
           <DialogFooter>
             <RuneButton variant="ghost" onClick={() => setBroadcastOpen(false)} disabled={broadcasting}>
-              Cancel
+              {t("serverControl.cancel", { defaultValue: "Cancel" })}
             </RuneButton>
             <RuneButton variant="arcane" onClick={handleBroadcast} disabled={broadcasting || !broadcastText.trim()}>
-              {broadcasting ? "Sending..." : "Broadcast"}
+              {broadcasting
+                ? t("serverControl.broadcastDialog.sending", { defaultValue: "Sending..." })
+                : t("serverControl.broadcastDialog.send", { defaultValue: "Broadcast" })}
             </RuneButton>
           </DialogFooter>
         </DialogContent>
@@ -445,9 +532,11 @@ export default function ServerControl() {
       <Dialog open={shutdownOpen} onOpenChange={setShutdownOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Begin Shutdown Countdown</DialogTitle>
+            <DialogTitle>{t("serverControl.shutdownDialog.title", { defaultValue: "Begin Shutdown Countdown" })}</DialogTitle>
             <DialogDescription>
-              Choose how long until the server shuts down. Players will remain connected until the countdown ends.
+              {t("serverControl.shutdownDialog.description", {
+                defaultValue: "Choose how long until the server shuts down. Players will remain connected until the countdown ends.",
+              })}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-wrap gap-2">
@@ -468,10 +557,10 @@ export default function ServerControl() {
           </div>
           <DialogFooter>
             <RuneButton variant="ghost" onClick={() => setShutdownOpen(false)}>
-              Cancel
+              {t("serverControl.cancel", { defaultValue: "Cancel" })}
             </RuneButton>
             <RuneButton variant="danger" onClick={handleStartCountdown}>
-              Begin Countdown
+              {t("serverControl.shutdownDialog.begin", { defaultValue: "Begin Countdown" })}
             </RuneButton>
           </DialogFooter>
         </DialogContent>
@@ -490,6 +579,7 @@ interface ActionButtonProps {
 }
 
 function ActionButton({ icon, label, variant, disabled, loading, onClick }: ActionButtonProps) {
+  const { t } = useTranslation();
   return (
     <RuneButton
       variant={variant}
@@ -499,7 +589,7 @@ function ActionButton({ icon, label, variant, disabled, loading, onClick }: Acti
       className="h-24 w-full flex-col gap-2 text-sm"
     >
       <span className="[&_svg]:h-7 [&_svg]:w-7">{icon}</span>
-      {loading ? "Working..." : label}
+      {loading ? t("serverControl.working", { defaultValue: "Working..." }) : label}
     </RuneButton>
   );
 }

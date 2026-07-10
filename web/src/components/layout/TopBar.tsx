@@ -135,7 +135,7 @@ export function TopBar() {
                 {status.playersOnline}/{status.maxPlayers}
               </span>
             </div>
-            <CrystalStatus state={status.state} size="sm" label={status.state} />
+            <CrystalStatus state={status.state} size="sm" label={t(`serverControl.states.${status.state}`, { defaultValue: status.state })} />
           </>
         )}
         <LanguageSwitcher />
