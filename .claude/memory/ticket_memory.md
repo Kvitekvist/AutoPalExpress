@@ -69,6 +69,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 * **TICKET-0057** (2026-07-10, Documentation) - Rewrote the Getting Started guide for younger/non-technical users with simpler steps, shorter text, and more screenshot placeholders.
 * **TICKET-0058** (2026-07-10, Bug) - Updated World Settings boolean controls so the setting name remains the field header and the toggle box text reads `Enable` or `Disable`.
 * **TICKET-0059** (2026-07-10, Documentation) - Added the available local Getting Started screenshot files to git so GitHub can render them and recorded which guide placeholders are still missing images.
+* **TICKET-0060** (2026-07-10, Release) - Rebuilt the packaged executable and installer so the installed app includes the corrected World Settings toggle layout from TICKET-0058; installer checksum is `6636805A7374892F3A9EE146CCF08C7461C3FE129BC396FB0C8F83933600B9DF`.
 
 ---
 

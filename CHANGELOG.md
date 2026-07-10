@@ -2,6 +2,7 @@
 
 ## Current build vs. origin/main - 2026-07-09
 
+- **TICKET-0060**: Rebuilt the executable and installer so the installed app includes the corrected World Settings toggle header/text layout. New installer checksum is `6636805A7374892F3A9EE146CCF08C7461C3FE129BC396FB0C8F83933600B9DF`.
 - **TICKET-0059**: Added the available Getting Started screenshot files to git so GitHub can render them, and recorded the remaining missing image placeholders.
 - **TICKET-0058**: Updated World Settings toggle boxes so the setting name stays as the field header and the box text reads `Enable` or `Disable`.
 - **TICKET-0057**: Rewrote the Getting Started guide in simpler beginner-friendly language with more screenshot placeholders.
