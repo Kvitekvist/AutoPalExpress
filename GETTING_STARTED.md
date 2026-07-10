@@ -115,7 +115,7 @@ Then give friends your public IP and port.
 Example:
 
 ```text
-84.215.14.15:8211
+123.123.123.123:8213
 ```
 
 > [!WARNING]
