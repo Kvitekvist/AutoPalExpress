@@ -1,9 +1,11 @@
+import asyncio
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services import system_settings
+from app.services import diagnostics, system_settings
+from app.services.diagnostics import DiagnosticsError
 
 router = APIRouter()
 
@@ -29,3 +31,11 @@ async def update_system_settings(body: SystemSettingsRequest) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(e))
     except OSError as e:
         raise HTTPException(status_code=500, detail=f"Couldn't update Windows startup: {e}")
+
+
+@router.post("/diagnostics")
+async def run_diagnostics() -> dict[str, Any]:
+    try:
+        return await asyncio.to_thread(diagnostics.run)
+    except DiagnosticsError as e:
+        raise HTTPException(status_code=500, detail=e.message)

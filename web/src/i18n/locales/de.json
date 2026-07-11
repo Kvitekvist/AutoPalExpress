@@ -920,7 +920,12 @@
     "superAdminPublicIp": "Öffentliche IP von Super Admin",
     "publicPortDescription": "Meldet den Spielport aus Super Admin.",
     "superAdminGamePort": "Spielport von Super Admin",
-    "applyNote": "Diese Optionen gelten für {{name}} beim nächsten Start. Öffentliche IP- und Port-Werte werden aus Super Admin gelesen und können hier nicht bearbeitet werden."
+    "applyNote": "Diese Optionen gelten für {{name}} beim nächsten Start. Öffentliche IP- und Port-Werte werden aus Super Admin gelesen und können hier nicht bearbeitet werden.",
+    "queryPortDescription": "Steams Server-Listen-/Abfrageprotokoll-Port, getrennt vom Spielport. Nur relevant, wenn du mehr als einen Palworld-Server auf diesem Rechner betreibst - gib jedem einen eigenen Wert, um Kollisionen zu vermeiden.",
+    "queryPortSavedTitle": "Steam-Abfrageport gespeichert",
+    "queryPortSavedMessage": "Starte den Server neu, damit dies wirksam wird.",
+    "queryPortSaving": "Wird gespeichert...",
+    "queryPortSave": "Abfrageport speichern"
   },
   "logs": {
     "exportedTitle": "Protokolle exportiert",
@@ -1180,7 +1185,8 @@
       "firewallAddedMessageBoth": "Windows erlaubt nun eingehende Verbindungen auf den UDP-Ports {{port}} und {{queryPort}}.",
       "forwardedMessageBoth": "Freunde können sich über Port {{port}} verbinden, und dieser Server wird über Port {{queryPort}} korrekt in Steams Serverliste angezeigt.",
       "queryPortManualHint": "Dein Steam-Abfrageport unterscheidet sich von deinem Spielport, daher braucht er eine eigene Regel:",
-      "steamQueryPortName": "Palworld-Server (Steam-Abfrage)"
+      "steamQueryPortName": "Palworld-Server (Steam-Abfrage)",
+      "queryPortReadOnlyHint": "Wird in den Startoptionen festgelegt - hier angezeigt, damit du weißt, was du unten zusätzlich öffnen musst, wenn es sich vom Spielport unterscheidet."
     },
     "manualForward": {
       "intro": "Füge auf der Admin-Seite deines Routers eine neue Portweiterleitungsregel mit genau diesen Werten hinzu:",
@@ -1233,6 +1239,18 @@
       "apiKeyPlaceholder": "Nexus-Mods-API-Schlüssel für Direktinstallationen",
       "checking": "Wird geprüft...",
       "saveKey": "Schlüssel speichern"
+    },
+    "diagnostics": {
+      "title": "Diagnose",
+      "run": "Diagnose ausführen",
+      "running": "Wird ausgeführt...",
+      "description": "Prüft die aktive Serverkonfiguration, Palworld-Dateien, den lokalen Spielport, Windows-Firewall-Regeln und den REST-API-Zugriff und schreibt anschließend einen Support-Bericht auf die Festplatte. Windows fragt nach einer Berechtigung (UAC-Eingabeaufforderung), da das Prüfen von Firewall-Regeln Administratorrechte erfordert - klicke auf \"Ja\", um fortzufahren.",
+      "waitingForPermission": "Warten auf die Windows-Berechtigungsabfrage...",
+      "completeTitle": "Diagnose abgeschlossen",
+      "completeMessage": "Siehe den Bericht unten.",
+      "failedTitle": "Diagnose konnte nicht ausgeführt werden",
+      "unknownError": "Unbekannter Fehler.",
+      "savedTo": "Gespeichert unter {{path}}"
     }
   }
 }

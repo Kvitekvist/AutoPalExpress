@@ -920,7 +920,12 @@
     "superAdminPublicIp": "IP publique de Super Admin",
     "publicPortDescription": "Annonce le port de jeu depuis Super Admin.",
     "superAdminGamePort": "Port de jeu de Super Admin",
-    "applyNote": "Ces options s'appliquent à {{name}} au prochain démarrage. Les valeurs d'IP publique et de port sont lues depuis Super Admin et ne peuvent pas être modifiées ici."
+    "applyNote": "Ces options s'appliquent à {{name}} au prochain démarrage. Les valeurs d'IP publique et de port sont lues depuis Super Admin et ne peuvent pas être modifiées ici.",
+    "queryPortDescription": "Port du protocole de liste/requête de serveurs Steam, distinct du port de jeu. Ne compte que si vous exécutez plusieurs serveurs Palworld sur cette machine - donnez à chacun sa propre valeur pour éviter les conflits.",
+    "queryPortSavedTitle": "Port de requête Steam enregistré",
+    "queryPortSavedMessage": "Redémarrez le serveur pour que cela prenne effet.",
+    "queryPortSaving": "Enregistrement...",
+    "queryPortSave": "Enregistrer le port de requête"
   },
   "logs": {
     "exportedTitle": "Journaux exportés",
@@ -1180,7 +1185,8 @@
       "firewallAddedMessageBoth": "Windows autorisera désormais les connexions entrantes sur les ports UDP {{port}} et {{queryPort}}.",
       "forwardedMessageBoth": "Les amis peuvent se connecter sur le port {{port}}, et ce serveur s'affichera correctement dans la liste des serveurs Steam via le port {{queryPort}}.",
       "queryPortManualHint": "Votre port de requête Steam est différent de votre port de jeu, il a donc besoin de sa propre règle :",
-      "steamQueryPortName": "Serveur Palworld (requête Steam)"
+      "steamQueryPortName": "Serveur Palworld (requête Steam)",
+      "queryPortReadOnlyHint": "Défini dans Options de lancement - affiché ici pour que vous sachiez quoi ouvrir aussi ci-dessous lorsqu'il diffère du port de jeu."
     },
     "manualForward": {
       "intro": "Ajoutez une nouvelle règle de redirection de port dans la page d'administration de votre routeur avec ces valeurs exactes :",
@@ -1233,6 +1239,18 @@
       "apiKeyPlaceholder": "Clé API Nexus Mods pour les installations directes",
       "checking": "Vérification...",
       "saveKey": "Enregistrer la clé"
+    },
+    "diagnostics": {
+      "title": "Diagnostic",
+      "run": "Lancer le diagnostic",
+      "running": "Exécution...",
+      "description": "Vérifie la configuration du serveur actif, les fichiers Palworld, le port de jeu local, les règles du pare-feu Windows et l'accès à l'API REST, puis écrit un rapport de support sur le disque. Windows demandera une autorisation (invite UAC) car la vérification des règles de pare-feu nécessite des droits administrateur - cliquez sur « Oui » pour continuer.",
+      "waitingForPermission": "En attente de l'invite d'autorisation Windows...",
+      "completeTitle": "Diagnostic terminé",
+      "completeMessage": "Voir le rapport ci-dessous.",
+      "failedTitle": "Impossible d'exécuter le diagnostic",
+      "unknownError": "Erreur inconnue.",
+      "savedTo": "Enregistré dans {{path}}"
     }
   }
 }

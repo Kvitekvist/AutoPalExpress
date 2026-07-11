@@ -1,12 +1,13 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Rocket } from "lucide-react";
+import { Rocket, Save } from "lucide-react";
 import { instancesApi, networkApi } from "@/api";
 import type { ServerInstance, UpnpStatus } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RuneButton } from "@/components/fantasy/RuneButton";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export default function LauncherFlags() {
@@ -15,6 +16,8 @@ export default function LauncherFlags() {
   const [networkStatus, setNetworkStatus] = React.useState<UpnpStatus | null>(null);
   const [loaded, setLoaded] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
+  const [queryPort, setQueryPort] = React.useState<number | null>(null);
+  const [savingQueryPort, setSavingQueryPort] = React.useState(false);
   const notifications = useNotifications();
 
   const load = React.useCallback(() => {
@@ -23,6 +26,7 @@ export default function LauncherFlags() {
       .then(([active, status]) => {
         setInstance(active);
         setNetworkStatus(status);
+        setQueryPort(active?.queryPort ?? null);
       })
       .finally(() => setLoaded(true));
   }, []);
@@ -77,6 +81,27 @@ export default function LauncherFlags() {
     }
   }
 
+  async function handleSaveQueryPort() {
+    if (!instance || !queryPort) return;
+    setSavingQueryPort(true);
+    try {
+      const next = await instancesApi.setQueryPort(instance.id, queryPort);
+      setInstance(next.instances.find((item) => item.id === instance.id) ?? null);
+      notifications.success({
+        title: t("launcherOptions.queryPortSavedTitle", { defaultValue: "Steam query port saved" }),
+        message: t("launcherOptions.queryPortSavedMessage", { defaultValue: "Restart the server for this to take effect." }),
+      });
+    } finally {
+      setSavingQueryPort(false);
+    }
+  }
+
+  function handleQueryPortChange(value: string) {
+    const parsed = parseInt(value, 10);
+    setQueryPort(Number.isNaN(parsed) ? null : parsed);
+  }
+
+  const queryPortDirty = !!instance && queryPort !== null && queryPort !== instance.queryPort;
   const publicIp = networkStatus?.externalIp ?? "";
   const publicPort = networkStatus?.port ?? instance?.effectiveGamePort ?? instance?.gamePort ?? "";
   const unavailable = t("launcherOptions.unavailable", { defaultValue: "Unavailable" });
@@ -175,6 +200,37 @@ export default function LauncherFlags() {
                 disabled
                 className="mt-1 font-mono"
               />
+            </div>
+          </div>
+          <div className="space-y-1.5 rounded-md border border-stone-700 bg-abyss-950/40 p-4">
+            <Label htmlFor="flag-query-port">-queryport</Label>
+            <p className="text-[11px] leading-relaxed text-parchment-300/40">
+              {t("launcherOptions.queryPortDescription", {
+                defaultValue:
+                  "Steam's server-list/query-protocol port, separate from the game port. Only matters if you run more than one Palworld server on this machine - give each one its own value to avoid collisions.",
+              })}
+            </p>
+            <div className="flex items-center gap-2 pt-1">
+              <Input
+                id="flag-query-port"
+                type="number"
+                value={queryPort ?? ""}
+                onChange={(e) => handleQueryPortChange(e.target.value)}
+                className="max-w-[10rem] font-mono"
+                disabled={savingQueryPort}
+              />
+              <RuneButton
+                type="button"
+                variant="gold"
+                size="sm"
+                icon={<Save />}
+                onClick={handleSaveQueryPort}
+                disabled={!queryPortDirty || savingQueryPort || !queryPort}
+              >
+                {savingQueryPort
+                  ? t("launcherOptions.queryPortSaving", { defaultValue: "Saving..." })
+                  : t("launcherOptions.queryPortSave", { defaultValue: "Save Query Port" })}
+              </RuneButton>
             </div>
           </div>
         </div>

@@ -10,3 +10,13 @@ export async function getSystemSettings(): Promise<SystemStartupSettings> {
 export async function updateSystemSettings(settings: SystemStartupSettings): Promise<SystemStartupSettings> {
   return api.post<SystemStartupSettings>("/api/system-settings", settings);
 }
+
+export interface DiagnosticsResult {
+  reportPath: string;
+  report: string;
+}
+
+// POST /api/system-settings/diagnostics
+export async function runDiagnostics(): Promise<DiagnosticsResult> {
+  return api.post<DiagnosticsResult>("/api/system-settings/diagnostics");
+}

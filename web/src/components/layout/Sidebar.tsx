@@ -96,12 +96,11 @@ export function Sidebar() {
 
         {isSuperAdmin && (
           <>
-            <div className="my-3 flex items-center gap-2 px-2.5 lg:px-3.5">
-              <Crown className="h-3 w-3 shrink-0 text-gold-500/70" />
-              <span className="hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.2em] text-gold-500/60 lg:inline">
+            <div className="my-3 flex items-center gap-2 rounded-md border border-gold-600/30 bg-gold-500/[0.06] px-2.5 py-1.5 lg:px-3.5">
+              <Crown className="h-3.5 w-3.5 shrink-0 text-gold-400" />
+              <span className="hidden whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.15em] text-gold-400 lg:inline">
                 {t("nav.hostControls", { defaultValue: "Host Controls" })}
               </span>
-              <span className="h-px flex-1 bg-gradient-to-r from-gold-600/30 to-transparent" />
             </div>
             {HOST_ITEMS.map((item) => (
               <NavItem key={item.to} {...item} host />

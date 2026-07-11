@@ -1,4 +1,5 @@
 data/
+diagnostics/
 __pycache__/
 *.pyc
 .venv/

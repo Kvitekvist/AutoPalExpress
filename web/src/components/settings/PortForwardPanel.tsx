@@ -13,14 +13,11 @@ import { useNotifications } from "@/hooks/useNotifications";
 export function PortForwardPanel() {
   const { t } = useTranslation();
   const [hasInstance, setHasInstance] = React.useState<boolean | null>(null);
-  const [instanceId, setInstanceId] = React.useState<string | null>(null);
   const [status, setStatus] = React.useState<UpnpStatus | null>(null);
   const [port, setPort] = React.useState<number | null>(null);
   const [savedPort, setSavedPort] = React.useState<number | null>(null);
   const [savingPort, setSavingPort] = React.useState(false);
   const [queryPort, setQueryPort] = React.useState<number | null>(null);
-  const [savedQueryPort, setSavedQueryPort] = React.useState<number | null>(null);
-  const [savingQueryPort, setSavingQueryPort] = React.useState(false);
   const [checking, setChecking] = React.useState(false);
   const [firewallOk, setFirewallOk] = React.useState<boolean | null>(null);
   const [checkingFirewall, setCheckingFirewall] = React.useState(false);
@@ -36,7 +33,6 @@ export function PortForwardPanel() {
   // nothing is forwarded.
   const mapping = status?.gameMapping ?? null;
   const portDirty = port !== null && port !== savedPort;
-  const queryPortDirty = queryPort !== null && queryPort !== savedQueryPort;
   // The query port only needs its own firewall/forward step when it differs
   // from the game port - by default (see instance_store.py) it's the same
   // value, so opening the game port already covers it.
@@ -65,7 +61,6 @@ export function PortForwardPanel() {
       }
       if (data.queryPort) {
         setQueryPort(data.queryPort);
-        setSavedQueryPort(data.queryPort);
       }
       if (data.port) {
         checkFirewall(data.port, data.queryPort);
@@ -78,7 +73,6 @@ export function PortForwardPanel() {
   React.useEffect(() => {
     instancesApi.getActive().then((instance) => {
       setHasInstance(!!instance);
-      setInstanceId(instance?.id ?? null);
       if (instance) check();
     });
   }, [check]);
@@ -86,11 +80,6 @@ export function PortForwardPanel() {
   function handlePortChange(value: string) {
     const parsed = parseInt(value, 10);
     setPort(Number.isNaN(parsed) ? null : parsed);
-  }
-
-  function handleQueryPortChange(value: string) {
-    const parsed = parseInt(value, 10);
-    setQueryPort(Number.isNaN(parsed) ? null : parsed);
   }
 
   async function handleSavePort() {
@@ -110,26 +99,6 @@ export function PortForwardPanel() {
       });
     } finally {
       setSavingPort(false);
-    }
-  }
-
-  async function handleSaveQueryPort() {
-    if (!queryPort || !instanceId) return;
-    setSavingQueryPort(true);
-    try {
-      await instancesApi.setQueryPort(instanceId, queryPort);
-      await check();
-      notifications.success({
-        title: t("superAdmin.portForward.queryPortUpdatedTitle", { defaultValue: "Steam query port updated" }),
-        message: t("superAdmin.portForward.queryPortUpdatedMessage", { defaultValue: "Takes effect the next time the server starts." }),
-      });
-    } catch (e) {
-      notifications.error({
-        title: t("superAdmin.portForward.saveFailedTitle", { defaultValue: "Couldn't save" }),
-        message: e instanceof Error ? e.message : t("superAdmin.portForward.unknownError", { defaultValue: "Unknown error." }),
-      });
-    } finally {
-      setSavingQueryPort(false);
     }
   }
 
@@ -260,34 +229,18 @@ export function PortForwardPanel() {
           </div>
 
           <div className="border-t border-stone-700/60 pt-4">
-            <Label htmlFor="query-port">{t("superAdmin.portForward.queryPort", { defaultValue: "Steam Query Port" })}</Label>
+            <Label htmlFor="query-port-value">{t("superAdmin.portForward.queryPort", { defaultValue: "Steam Query Port" })}</Label>
             <p className="mb-1.5 text-[11px] text-parchment-300/40">
-              {t("superAdmin.portForward.queryPortHint", {
-                defaultValue:
-                  "Only used for Steam's server-list/query protocol, separate from the game port above. If you run more than one Palworld server on this machine, give each one its own value here to avoid collisions. Takes effect the next time the server starts.",
+              {t("superAdmin.portForward.queryPortReadOnlyHint", {
+                defaultValue: "Set in Launcher Options - shown here so you know what to also open below when it differs from the game port.",
               })}
             </p>
-            <div className="flex items-center gap-2">
-              <Input
-                id="query-port"
-                type="number"
-                value={queryPort ?? ""}
-                onChange={(e) => handleQueryPortChange(e.target.value)}
-                className="max-w-[10rem]"
-              />
-              <RuneButton
-                type="button"
-                variant="gold"
-                size="sm"
-                icon={<Save />}
-                onClick={handleSaveQueryPort}
-                disabled={!queryPortDirty || savingQueryPort || !queryPort}
-              >
-                {savingQueryPort
-                  ? t("superAdmin.portForward.saving", { defaultValue: "Saving..." })
-                  : t("superAdmin.portForward.saveQueryPort", { defaultValue: "Save Query Port" })}
-              </RuneButton>
-            </div>
+            <Input
+              id="query-port-value"
+              value={queryPort ? String(queryPort) : t("superAdmin.portForward.noPublicAddress", { defaultValue: "Unavailable" })}
+              disabled
+              className="max-w-[10rem] font-mono"
+            />
           </div>
 
           <div className="border-t border-stone-700/60 pt-4">

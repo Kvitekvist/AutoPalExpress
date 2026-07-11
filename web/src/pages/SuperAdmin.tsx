@@ -9,6 +9,7 @@ import { RemoteAccessPanel } from "@/components/settings/RemoteAccessPanel";
 import { PortForwardPanel } from "@/components/settings/PortForwardPanel";
 import { NexusIntegrationPanel } from "@/components/settings/NexusIntegrationPanel";
 import { LocalApiSettingsPanel } from "@/components/settings/LocalApiSettingsPanel";
+import { DiagnosticsPanel } from "@/components/settings/DiagnosticsPanel";
 import { InstallFromFileDialog } from "@/components/mods/InstallFromFileDialog";
 
 export default function SuperAdmin() {
@@ -52,6 +53,7 @@ export default function SuperAdmin() {
 
       <PortForwardPanel />
       <RemoteAccessPanel />
+      <DiagnosticsPanel />
       <NexusIntegrationPanel />
 
       <InstallFromFileDialog

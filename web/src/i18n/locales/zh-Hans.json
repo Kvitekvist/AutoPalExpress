@@ -920,7 +920,12 @@
     "superAdminPublicIp": "超级管理员的公网IP",
     "publicPortDescription": "公布来自超级管理员的游戏端口。",
     "superAdminGamePort": "超级管理员的游戏端口",
-    "applyNote": "这些选项将在{{name}}下次启动时生效。公网IP和端口的值来自超级管理员，无法在此处编辑。"
+    "applyNote": "这些选项将在{{name}}下次启动时生效。公网IP和端口的值来自超级管理员，无法在此处编辑。",
+    "queryPortDescription": "Steam服务器列表/查询协议使用的端口，与游戏端口是分开的。仅当你在这台机器上运行多个Palworld服务器时才需要关注——请为每个服务器设置各自的值以避免冲突。",
+    "queryPortSavedTitle": "Steam查询端口已保存",
+    "queryPortSavedMessage": "重启服务器后生效。",
+    "queryPortSaving": "正在保存...",
+    "queryPortSave": "保存查询端口"
   },
   "logs": {
     "exportedTitle": "日志已导出",
@@ -1180,7 +1185,8 @@
       "firewallAddedMessageBoth": "Windows现在将允许UDP端口{{port}}和{{queryPort}}的传入连接。",
       "forwardedMessageBoth": "朋友可以通过端口{{port}}连接，并且此服务器将通过端口{{queryPort}}正确显示在Steam服务器列表中。",
       "queryPortManualHint": "你的Steam查询端口与游戏端口不同，因此需要单独设置一条规则：",
-      "steamQueryPortName": "Palworld服务器（Steam查询）"
+      "steamQueryPortName": "Palworld服务器（Steam查询）",
+      "queryPortReadOnlyHint": "在启动选项中设置——此处显示是为了让你知道当它与游戏端口不同时，下面还需要开放哪个端口。"
     },
     "manualForward": {
       "intro": "在你的路由器管理页面中添加一条新的端口转发规则，使用以下确切数值：",
@@ -1233,6 +1239,18 @@
       "apiKeyPlaceholder": "用于直接安装的Nexus Mods API密钥",
       "checking": "正在检查...",
       "saveKey": "保存密钥"
+    },
+    "diagnostics": {
+      "title": "诊断",
+      "run": "运行诊断",
+      "running": "正在运行...",
+      "description": "检查当前服务器设置、Palworld文件、本地游戏端口、Windows防火墙规则和REST API访问权限，然后将支持报告写入磁盘。由于检查防火墙规则需要管理员权限，Windows会请求授权（UAC提示）——点击“是”以继续。",
+      "waitingForPermission": "正在等待Windows权限提示...",
+      "completeTitle": "诊断已完成",
+      "completeMessage": "请查看下方的报告。",
+      "failedTitle": "无法运行诊断",
+      "unknownError": "未知错误。",
+      "savedTo": "已保存到{{path}}"
     }
   }
 }

@@ -920,7 +920,12 @@
     "superAdminPublicIp": "スーパー管理者のパブリックIP",
     "publicPortDescription": "スーパー管理者からのゲームポートを通知します。",
     "superAdminGamePort": "スーパー管理者のゲームポート",
-    "applyNote": "これらのオプションは次回起動時に{{name}}に適用されます。パブリックIPとポートの値はスーパー管理者から読み込まれ、ここでは編集できません。"
+    "applyNote": "これらのオプションは次回起動時に{{name}}に適用されます。パブリックIPとポートの値はスーパー管理者から読み込まれ、ここでは編集できません。",
+    "queryPortDescription": "Steamのサーバーリスト/クエリプロトコルのポートで、ゲームポートとは別のものです。このマシンで複数のPalworldサーバーを実行する場合のみ重要です - 衝突を避けるためそれぞれに独自の値を設定してください。",
+    "queryPortSavedTitle": "Steamクエリポートを保存しました",
+    "queryPortSavedMessage": "反映するにはサーバーを再起動してください。",
+    "queryPortSaving": "保存中...",
+    "queryPortSave": "クエリポートを保存"
   },
   "logs": {
     "exportedTitle": "ログをエクスポートしました",
@@ -1180,7 +1185,8 @@
       "firewallAddedMessageBoth": "WindowsはUDPポート{{port}}と{{queryPort}}への着信接続を許可するようになりました。",
       "forwardedMessageBoth": "友達はポート{{port}}で接続でき、このサーバーはポート{{queryPort}}経由でSteamのサーバーリストに正しく表示されます。",
       "queryPortManualHint": "Steamクエリポートがゲームポートと異なるため、専用のルールが必要です:",
-      "steamQueryPortName": "Palworldサーバー(Steamクエリ)"
+      "steamQueryPortName": "Palworldサーバー(Steamクエリ)",
+      "queryPortReadOnlyHint": "起動オプションで設定されます - ゲームポートと異なる場合に下で何を開く必要があるか分かるようここに表示しています。"
     },
     "manualForward": {
       "intro": "ルーターの管理ページで、次の正確な値を使って新しいポート転送ルールを追加してください:",
@@ -1233,6 +1239,18 @@
       "apiKeyPlaceholder": "直接インストール用のNexus Mods APIキー",
       "checking": "確認中...",
       "saveKey": "キーを保存"
+    },
+    "diagnostics": {
+      "title": "診断",
+      "run": "診断を実行",
+      "running": "実行中...",
+      "description": "アクティブなサーバー設定、Palworldのファイル、ローカルのゲームポート、Windowsファイアウォールのルール、REST APIアクセスを確認し、サポートレポートをディスクに書き込みます。ファイアウォールルールの確認には管理者権限が必要なため、Windowsが許可を求めます(UACプロンプト)。続行するには「はい」をクリックしてください。",
+      "waitingForPermission": "Windowsの許可プロンプトを待っています...",
+      "completeTitle": "診断が完了しました",
+      "completeMessage": "下のレポートをご覧ください。",
+      "failedTitle": "診断を実行できませんでした",
+      "unknownError": "不明なエラーです。",
+      "savedTo": "{{path}}に保存しました"
     }
   }
 }
