@@ -1,4 +1,4 @@
-# Architecture Decisions
+﻿# Architecture Decisions
 
 Record important technical decisions.
 
@@ -684,3 +684,24 @@ The backend stores only booleans for these overrides. On start, `process_manager
 ### Date
 
 2026-07-09
+---
+
+### Decision
+
+Steam Query Port (`-queryport`) must be stored, validated, displayed, firewalled, and launched as a separate UDP port from Palworld's game port (`-port`).
+
+### Reason
+
+Live user testing showed that when `-queryport` equals `-port`, Steam query can bind that UDP port first and Palworld starts the actual game listener on the next open port. This made AutoPalExpress log a launch on `8213` while the Palworld server console reported `8214`.
+
+### Alternatives
+
+Remove `-queryport` entirely (rejected because it is still useful for Steam/community server discovery, especially multi-instance hosts), or keep allowing same-port values and document the risk (rejected because it silently changes the effective game port).
+
+### Consequences
+
+AutoPalExpress now migrates old same-port query values, rejects new same-port saves, shows the query port in Launcher Options and Super Admin, and includes the query port in firewall/UPnP checks whenever it differs from the game port.
+
+### Date
+
+2026-07-11

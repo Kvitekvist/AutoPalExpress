@@ -8,6 +8,7 @@ which the user still has to approve themselves; this only saves them from
 finding and double-clicking the shortcut (or typing the command) by hand.
 """
 
+import logging
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ from typing import Any
 from app import paths
 
 _REPORT_PREFIX = "AutoPalExpress-Diagnostics-"
+logger = logging.getLogger("palworld_admin.diagnostics")
 
 
 class DiagnosticsError(Exception):
@@ -49,27 +51,15 @@ def run() -> dict[str, Any]:
 
     before = {p.name for p in report_dir.glob(f"{_REPORT_PREFIX}*.txt")}
 
-    # Elevates powershell.exe itself (not this backend process) via
-    # Start-Process -Verb RunAs, same pattern as firewall.add_inbound_rule -
-    # -Wait blocks until the elevated script (and its own report-writing)
-    # finishes; -NoPause stops the script's own "Press Enter to close" from
-    # hanging this call forever.
-    ps_command = (
-        f'$p = Start-Process -FilePath "powershell.exe" -ArgumentList '
-        f'\'-NoProfile -ExecutionPolicy Bypass -File ""{script}"" -DataDir ""{data_dir}"" '
-        f'-ReportDir ""{report_dir}"" -NoPause\' -Verb RunAs -Wait -PassThru -WindowStyle Hidden; '
-        "exit $p.ExitCode"
-    )
-    result = subprocess.run(
-        ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_command],
-        capture_output=True,
-        text=True,
-        timeout=120,
-    )
-    if result.returncode != 0:
-        raise DiagnosticsError(
-            "Diagnostics didn't run - you may have declined the permission prompt. Try again and click 'Yes'."
+    fallback_note = ""
+    elevated = _run_elevated(script=script, data_dir=data_dir, report_dir=report_dir)
+    if not elevated:
+        fallback_note = (
+            "NOTE: Windows did not allow the elevated diagnostics helper to run, "
+            "so AutoPalExpress ran diagnostics without admin rights. Firewall "
+            "inspection may be incomplete, but the rest of the report is still useful.\r\n\r\n"
         )
+        _run_limited(script=script, data_dir=data_dir, report_dir=report_dir)
 
     after = {p.name for p in report_dir.glob(f"{_REPORT_PREFIX}*.txt")}
     new_files = after - before
@@ -87,5 +77,63 @@ def run() -> dict[str, Any]:
     # Write-Report pipes through Tee-Object, which (like PowerShell 5.1's
     # Out-File/Set-Content) writes UTF-16 LE with a BOM by default - not
     # UTF-8, even though the file extension is .txt.
-    text = report_path.read_text(encoding="utf-16")
+    text = fallback_note + report_path.read_text(encoding="utf-16")
     return {"reportPath": str(report_path), "report": text}
+
+
+def _run_elevated(*, script: Path, data_dir: Path, report_dir: Path) -> bool:
+    # Elevates powershell.exe itself (not this backend process) via
+    # Start-Process -Verb RunAs, same pattern as firewall.add_inbound_rule -
+    # -Wait blocks until the elevated script (and its own report-writing)
+    # finishes; -NoPause stops the script's own "Press Enter to close" from
+    # hanging this call forever.
+    ps_command = (
+        f'$p = Start-Process -FilePath "powershell.exe" -ArgumentList '
+        f'\'-NoProfile -ExecutionPolicy Bypass -File ""{script}"" -DataDir ""{data_dir}"" '
+        f'-ReportDir ""{report_dir}"" -NoPause\' -Verb RunAs -Wait -PassThru; '
+        "exit $p.ExitCode"
+    )
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_command],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+    except subprocess.TimeoutExpired:
+        logger.warning("diagnostics: elevated run timed out waiting for the permission prompt")
+        return False
+
+    if result.returncode == 0:
+        return True
+
+    logger.warning(
+        "diagnostics: elevated run failed, falling back to limited mode; exit=%s stderr=%s",
+        result.returncode,
+        result.stderr.strip(),
+    )
+    return False
+
+
+def _run_limited(*, script: Path, data_dir: Path, report_dir: Path) -> None:
+    result = subprocess.run(
+        [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            str(script),
+            "-DataDir",
+            str(data_dir),
+            "-ReportDir",
+            str(report_dir),
+            "-NoPause",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    if result.returncode != 0:
+        logger.warning("diagnostics: limited run failed, exit=%s stderr=%s", result.returncode, result.stderr.strip())
+        raise DiagnosticsError("Diagnostics could not run, even without admin rights. Try the Start Menu diagnostics shortcut.")
