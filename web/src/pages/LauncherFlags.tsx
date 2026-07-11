@@ -82,7 +82,7 @@ export default function LauncherFlags() {
   }
 
   async function handleSaveQueryPort() {
-    if (!instance || !queryPort) return;
+    if (!instance || !queryPort || queryPort === publicPortNumber) return;
     setSavingQueryPort(true);
     try {
       const next = await instancesApi.setQueryPort(instance.id, queryPort);
@@ -90,6 +90,11 @@ export default function LauncherFlags() {
       notifications.success({
         title: t("launcherOptions.queryPortSavedTitle", { defaultValue: "Steam query port saved" }),
         message: t("launcherOptions.queryPortSavedMessage", { defaultValue: "Restart the server for this to take effect." }),
+      });
+    } catch (e) {
+      notifications.error({
+        title: t("launcherOptions.queryPortFailedTitle", { defaultValue: "Couldn't save query port" }),
+        message: e instanceof Error ? e.message : t("launcherOptions.queryPortFailedMessage", { defaultValue: "The Steam query port could not be saved." }),
       });
     } finally {
       setSavingQueryPort(false);
@@ -101,9 +106,12 @@ export default function LauncherFlags() {
     setQueryPort(Number.isNaN(parsed) ? null : parsed);
   }
 
-  const queryPortDirty = !!instance && queryPort !== null && queryPort !== instance.queryPort;
   const publicIp = networkStatus?.externalIp ?? "";
   const publicPort = networkStatus?.port ?? instance?.effectiveGamePort ?? instance?.gamePort ?? "";
+  const publicPortNumber = typeof publicPort === "number" ? publicPort : parseInt(String(publicPort), 10);
+  const queryPortMatchesGame = queryPort !== null && queryPort === publicPortNumber;
+  const queryPortInvalid = queryPort !== null && (queryPort < 1 || queryPort > 65535);
+  const queryPortDirty = !!instance && queryPort !== null && queryPort !== instance.queryPort;
   const unavailable = t("launcherOptions.unavailable", { defaultValue: "Unavailable" });
 
   if (!loaded) {
@@ -207,13 +215,15 @@ export default function LauncherFlags() {
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
               {t("launcherOptions.queryPortDescription", {
                 defaultValue:
-                  "Steam's server-list/query-protocol port, separate from the game port. Only matters if you run more than one Palworld server on this machine - give each one its own value to avoid collisions.",
+                  "Steam's server-list/query port. It must be different from the game port, or Palworld can move the game server to the next open port.",
               })}
             </p>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex flex-wrap items-center gap-2 pt-1">
               <Input
                 id="flag-query-port"
                 type="number"
+                min={1}
+                max={65535}
                 value={queryPort ?? ""}
                 onChange={(e) => handleQueryPortChange(e.target.value)}
                 className="max-w-[10rem] font-mono"
@@ -225,13 +235,26 @@ export default function LauncherFlags() {
                 size="sm"
                 icon={<Save />}
                 onClick={handleSaveQueryPort}
-                disabled={!queryPortDirty || savingQueryPort || !queryPort}
+                disabled={!queryPortDirty || savingQueryPort || !queryPort || queryPortMatchesGame || queryPortInvalid}
               >
                 {savingQueryPort
                   ? t("launcherOptions.queryPortSaving", { defaultValue: "Saving..." })
                   : t("launcherOptions.queryPortSave", { defaultValue: "Save Query Port" })}
               </RuneButton>
             </div>
+            {queryPortMatchesGame && (
+              <p className="text-[11px] text-blood-300">
+                {t("launcherOptions.queryPortConflict", {
+                  defaultValue: "Use a different port than {{port}}. If they match, Steam query can take the game port first.",
+                  port: publicPortNumber,
+                })}
+              </p>
+            )}
+            {queryPortInvalid && (
+              <p className="text-[11px] text-blood-300">
+                {t("launcherOptions.queryPortInvalid", { defaultValue: "Choose a port between 1 and 65535." })}
+              </p>
+            )}
           </div>
         </div>
         <p className="mt-4 text-xs text-parchment-300/45">

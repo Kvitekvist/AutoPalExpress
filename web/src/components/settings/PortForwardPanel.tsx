@@ -33,9 +33,6 @@ export function PortForwardPanel() {
   // nothing is forwarded.
   const mapping = status?.gameMapping ?? null;
   const portDirty = port !== null && port !== savedPort;
-  // The query port only needs its own firewall/forward step when it differs
-  // from the game port - by default (see instance_store.py) it's the same
-  // value, so opening the game port already covers it.
   const queryPortDiffers = !!(port && queryPort && queryPort !== port);
 
   const checkFirewall = React.useCallback(async (checkPort: number, checkQueryPort: number | null) => {
@@ -148,7 +145,7 @@ export function PortForwardPanel() {
         title: t("superAdmin.portForward.forwardedTitle", { defaultValue: "Port forwarded" }),
         message: queryPortDiffers
           ? t("superAdmin.portForward.forwardedMessageBoth", {
-              defaultValue: "Friends can connect on port {{port}}, and this server will show correctly in Steam's server list via port {{queryPort}}.",
+              defaultValue: "Friends can connect on port {{port}}, and Steam can query this server on port {{queryPort}}.",
               port: data.port,
               queryPort,
             })
@@ -232,7 +229,7 @@ export function PortForwardPanel() {
             <Label htmlFor="query-port-value">{t("superAdmin.portForward.queryPort", { defaultValue: "Steam Query Port" })}</Label>
             <p className="mb-1.5 text-[11px] text-parchment-300/40">
               {t("superAdmin.portForward.queryPortReadOnlyHint", {
-                defaultValue: "Set in Launcher Options - shown here so you know what to also open below when it differs from the game port.",
+                defaultValue: "Set in Launcher Options. It must be different from the game port, and may also need firewall/router access for server-list discovery.",
               })}
             </p>
             <Input
@@ -338,7 +335,7 @@ export function PortForwardPanel() {
                   <>
                     <p className="text-xs leading-relaxed text-parchment-300/40">
                       {t("superAdmin.portForward.queryPortManualHint", {
-                        defaultValue: "Your Steam query port is different from your game port, so it needs its own rule too:",
+                        defaultValue: "Your Steam query port is separate from your game port, so add this rule too:",
                       })}
                     </p>
                     <ManualForwardInstructions

@@ -102,7 +102,7 @@ async def upnp_status() -> dict[str, Any]:
 
     instance = instance_store.get_active()
     port = _resolve_port(instance) if instance else None
-    query_port = (instance.get("queryPort") or port) if instance else None
+    query_port = instance_store.resolve_query_port(instance, port) if instance and port else None
 
     try:
         local_ip = await asyncio.to_thread(upnp.local_ip)

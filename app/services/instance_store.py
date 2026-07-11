@@ -25,6 +25,31 @@ INSTANCES_DIR = DATA_DIR / "instances"
 INSTANCES_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _as_port(value: Any) -> int | None:
+    try:
+        port = int(value)
+    except (TypeError, ValueError):
+        return None
+    return port if 1 <= port <= 65535 else None
+
+
+def default_query_port(game_port: int, reserved_ports: set[int] | None = None) -> int:
+    """Pick a Steam query port that cannot steal the game port.
+
+    Palworld may move the game listener to the next open UDP port when
+    -queryport collides with -port, so the two launch args must stay distinct.
+    """
+    reserved = set(reserved_ports or set())
+    reserved.add(game_port)
+    for candidate in range(game_port + 1, 65536):
+        if candidate not in reserved:
+            return candidate
+    for candidate in range(1024, game_port):
+        if candidate not in reserved:
+            return candidate
+    raise ValueError("No available Steam query port found.")
+
+
 def _load() -> dict[str, Any]:
     return storage.load(_STORE_NAME, {"activeId": None, "instances": []})
 
@@ -53,6 +78,8 @@ def _dedupe_data(data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
     by_path: dict[str, dict[str, Any]] = {}
     order: list[str] = []
     changed = False
+    reserved_game_ports = {_as_port(instance.get("gamePort")) or 8211 for instance in instances}
+    reserved_query_ports: set[int] = set()
 
     for instance in instances:
         key = _server_path_key(instance.get("serverPath", ""))
@@ -75,14 +102,13 @@ def _dedupe_data(data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         if "usePublicPortOverride" not in instance:
             instance["usePublicPortOverride"] = False
             changed = True
-        if "queryPort" not in instance:
-            # Steam's server-query protocol port (-queryport=), separate from
-            # the game port (-port=). Defaulting to the instance's own game
-            # port - already guaranteed unique across this tool's instances -
-            # avoids the query-port collisions that happen across multiple
-            # Palworld servers on one machine/IP when it's left unset.
-            instance["queryPort"] = instance.get("gamePort", 8211)
+        game_port = _as_port(instance.get("gamePort")) or 8211
+        query_port = _as_port(instance.get("queryPort"))
+        if not query_port or query_port == game_port or query_port in reserved_game_ports or query_port in reserved_query_ports:
+            query_port = default_query_port(game_port, reserved_game_ports | reserved_query_ports)
+            instance["queryPort"] = query_port
             changed = True
+        reserved_query_ports.add(query_port)
         existing = by_path.get(key)
         if not existing:
             by_path[key] = instance
@@ -151,6 +177,8 @@ def create_instance(
             _save(data)
             return existing
 
+    reserved_ports = {_as_port(existing.get("gamePort")) or 8211 for existing in data["instances"]}
+    reserved_ports.add(game_port)
     instance = {
         "id": f"srv-{uuid.uuid4().hex[:10]}",
         "name": name,
@@ -165,7 +193,7 @@ def create_instance(
         "useMultithreadForDs": True,
         "usePublicIpOverride": False,
         "usePublicPortOverride": False,
-        "queryPort": game_port,
+        "queryPort": default_query_port(game_port, reserved_ports),
         "workerThreads": None,
         "jsonLogFormat": False,
         "createdAt": time.time(),
@@ -219,13 +247,26 @@ def update_game_port(instance_id: str, game_port: int) -> None:
 
 
 def update_query_port(instance_id: str, query_port: int) -> None:
-    """Stores the Steam query-port override (-queryport= launch arg) - unlike
-    the game port, this has no PalWorldSettings.ini representation to
-    reconcile against, so it's just remembered as-is."""
+    """Stores the Steam query port (-queryport= launch arg).
+
+    It must be different from the game port; otherwise Palworld can bind the
+    query socket first and move the game server onto the next open port.
+    """
+    query_port = _as_port(query_port) or 0
+    if not query_port:
+        raise ValueError("Steam query port must be between 1 and 65535.")
     data = _load_clean()
+    reserved_game_ports = {_as_port(i.get("gamePort")) or 8211 for i in data["instances"]}
+    if query_port in reserved_game_ports:
+        raise ValueError("Steam query port must be different from every server game port.")
     for i in data["instances"]:
         if i["id"] == instance_id:
+            game_port = resolve_game_port(i)
+            if query_port == game_port:
+                raise ValueError("Steam query port must be different from the game port.")
             i["queryPort"] = query_port
+        elif _as_port(i.get("queryPort")) == query_port:
+            raise ValueError("Steam query port is already used by another server.")
     _save(data)
 
 
@@ -243,6 +284,17 @@ def resolve_game_port(instance: dict[str, Any]) -> int:
         update_game_port(instance["id"], ini_port)
         return ini_port
     return stored_port or ini_port or 8211
+
+
+def resolve_query_port(instance: dict[str, Any], game_port: int | None = None) -> int:
+    game_port = game_port or resolve_game_port(instance)
+    query_port = _as_port(instance.get("queryPort"))
+    if query_port and query_port != game_port:
+        return query_port
+    reserved_game_ports = {_as_port(i.get("gamePort")) or 8211 for i in list_instances()}
+    query_port = default_query_port(game_port, reserved_game_ports)
+    update_query_port(instance["id"], query_port)
+    return query_port
 
 
 def update_community_server(instance_id: str, enabled: bool) -> dict[str, Any] | None:

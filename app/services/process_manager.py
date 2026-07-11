@@ -151,7 +151,7 @@ def start(instance: dict[str, Any]) -> None:
             logger.info("process_manager: generated AdminPassword for %r so Palworld REST API can authenticate", instance["name"])
         if game_port != instance["gamePort"]:
             instance_store.update_game_port(instance_id, game_port)
-        query_port = instance.get("queryPort") or game_port
+        query_port = instance_store.resolve_query_port(instance, game_port)
         launch_args = [str(exe), f"-port={game_port}", f"-queryport={query_port}"]
         if instance.get("usePerfThreads", instance.get("performanceFlags", True)):
             launch_args.append("-useperfthreads")
@@ -187,8 +187,14 @@ def start(instance: dict[str, Any]) -> None:
         _processes[instance_id] = proc
         _started_at[instance_id] = time.time()
         _stopping.discard(instance_id)
-        logger.info("process_manager: started %r (pid=%s, port=%s)", instance["name"], proc.pid, game_port)
-        activity_log.log("info", instance["name"], f"Server started (port {game_port}).")
+        logger.info(
+            "process_manager: started %r (pid=%s, port=%s, query_port=%s)",
+            instance["name"],
+            proc.pid,
+            game_port,
+            query_port,
+        )
+        activity_log.log("info", instance["name"], f"Server started (port {game_port}, query port {query_port}).")
 
 
 def stop(instance_id: str, timeout: float = 30) -> None:
