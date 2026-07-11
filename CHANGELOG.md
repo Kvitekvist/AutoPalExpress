@@ -2,7 +2,7 @@
 
 ## 1.0.3 - 2026-07-10
 
-- Installer checksum (SHA256): `e5e8d751bce61c54f5f5bbbebca6357f5a987a6dde5e27a53ad9735e3124408d`.
+- Installer checksum (SHA256): `D07A9649E10605DFB8CDD301AB07778B88EEAE7AB2D7E9039373C1F4F620C91C`.
 - **TICKET-0076**: Fixed the in-app Super Admin diagnostics button so a blocked/declined Windows permission prompt no longer leaves users with no report. AutoPalExpress now falls back to a limited non-admin diagnostics run, shows the report inline, and marks it clearly when firewall inspection may be incomplete.
 - **TICKET-0075**: Fixed Steam query port collisions making Palworld start on the next open game port. AutoPalExpress now keeps `-queryport` separate from `-port`, migrates old same-port values to a safe nearby port, blocks saving a query port that matches any registered server game port, and shows the query port clearly in the Super Admin firewall/port-forward checklist.
 - **TICKET-0074**: Added a "Run Diagnostics" button to Super Admin that runs the existing diagnostics tool (firewall, port forwarding, REST API, server files, etc.) from inside the app and shows the report right there, instead of needing to find the separate Start Menu shortcut. A real Windows permission prompt still appears and needs to be approved, same as other admin-level actions in the app.
