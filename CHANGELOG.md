@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **TICKET-0081**: Fixed the Logs page exposing real host/client IP addresses to any logged-in user in the AutoPalExpress output panel - IPs are now masked there unless you're the super admin. Also removed the recurring low-value polling noise that was cluttering that panel, and both Logs panels now show the newest entry at the top instead of the bottom.
+
 ## 1.0.4 - 2026-07-11
 
 - Installer checksum (SHA256): `5B726B97261CBB18DBA81A4E4AE5261AFDCF4E9A6386F341B9B043833E429CE6`.

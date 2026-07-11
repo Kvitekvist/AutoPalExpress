@@ -945,6 +945,7 @@
     "entriesCount": "{{count}} entradas",
     "loading": "Desenrollando el pergamino...",
     "noAppOutput": "Aún no hay salida de AutoPalExpress.",
+    "ipsHiddenHint": "Las direcciones IP de esta salida están ocultas - solo el superadministrador puede verlas.",
     "serverActivity": "Actividad del servidor",
     "noActivityMatch": "Ninguna actividad del servidor coincide con tu búsqueda."
   },

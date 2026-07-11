@@ -945,6 +945,7 @@
     "entriesCount": "{{count}}件",
     "loading": "巻物を広げています...",
     "noAppOutput": "まだAutoPalExpressの出力はありません。",
+    "ipsHiddenHint": "この出力内のIPアドレスは非表示になっています。スーパー管理者のみが確認できます。",
     "serverActivity": "サーバーアクティビティ",
     "noActivityMatch": "検索条件に一致するサーバーアクティビティはありません。"
   },

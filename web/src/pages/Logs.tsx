@@ -12,6 +12,7 @@ import { AncientTabs, AncientTabsList, AncientTabsTrigger } from "@/components/f
 import { formatTimestamp } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useAuth } from "@/hooks/useAuth";
 
 type LevelFilter = "all" | LogLevel;
 
@@ -24,6 +25,8 @@ const LEVEL_CONFIG: Record<LogLevel, { icon: typeof Info; text: string; border: 
 
 export default function Logs() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const isSuperAdmin = user.role === "super_admin";
   const [activityLogs, setActivityLogs] = React.useState<LogEntry[]>([]);
   const [appLines, setAppLines] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -133,6 +136,13 @@ export default function Logs() {
                 {t("logs.linesCount", { defaultValue: "{{count}} lines", count: filteredAppLines.length })}
               </span>
             </div>
+            {!isSuperAdmin && (
+              <p className="mb-2 text-[11px] text-parchment-300/40">
+                {t("logs.ipsHiddenHint", {
+                  defaultValue: "IP addresses in this output are hidden - only the super admin can see them.",
+                })}
+              </p>
+            )}
             <ScrollArea className="h-[520px] rounded-md border border-stone-700 bg-abyss-950/60">
               {loading ? (
                 <div className="flex h-full items-center justify-center text-parchment-300/50">

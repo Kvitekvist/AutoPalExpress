@@ -945,6 +945,7 @@
     "entriesCount": "{{count}}条",
     "loading": "正在展开卷轴...",
     "noAppOutput": "尚无AutoPalExpress输出。",
+    "ipsHiddenHint": "此输出中的IP地址已隐藏 - 只有超级管理员可以查看。",
     "serverActivity": "服务器活动",
     "noActivityMatch": "没有符合搜索条件的服务器活动。"
   },

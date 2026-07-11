@@ -22,7 +22,9 @@ export async function pollLogStreams(): Promise<LogStreams> {
 }
 
 export function exportLogs(logs: LogEntry[], appLines: string[] = []): Blob {
-  const appText = ["== AutoPalExpress output ==", ...appLines].join("\n");
+  // Both `logs` and `appLines` arrive newest-first for on-screen display; flip
+  // to chronological order for the exported text file.
+  const appText = ["== AutoPalExpress output ==", ...appLines.slice().reverse()].join("\n");
   const text = logs
     .slice()
     .reverse()

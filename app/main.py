@@ -28,6 +28,22 @@ from app.services import system_settings as system_settings_service
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
+# Frontend polls these routes every few seconds just to keep status/logs live
+# (useServerStatus, the Logs page's own auto-refresh) - every hit landing in
+# uvicorn's access log drowns out real activity in the AutoPalExpress console
+# panel, so they're filtered out of that log specifically. Actual requests
+# still succeed as normal; this only silences the access-log line for them.
+_QUIET_POLL_PATHS = ("/api/server/status", "/api/logs/streams")
+
+
+class _PollingNoiseFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        return not any(f" {path} HTTP/" in message for path in _QUIET_POLL_PATHS)
+
+
+logging.getLogger("uvicorn.access").addFilter(_PollingNoiseFilter())
+
 instance_store.migrate_legacy_single_instance()
 
 app = FastAPI(title="Palworld Admin Backend")

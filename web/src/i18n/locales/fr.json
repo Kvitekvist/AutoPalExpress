@@ -945,6 +945,7 @@
     "entriesCount": "{{count}} entrées",
     "loading": "Déroulement du parchemin...",
     "noAppOutput": "Aucune sortie AutoPalExpress pour l'instant.",
+    "ipsHiddenHint": "Les adresses IP de cette sortie sont masquées - seul le super administrateur peut les voir.",
     "serverActivity": "Activité du serveur",
     "noActivityMatch": "Aucune activité de serveur ne correspond à votre recherche."
   },

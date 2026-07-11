@@ -945,6 +945,7 @@
     "entriesCount": "{{count}} Einträge",
     "loading": "Die Schriftrolle wird entrollt...",
     "noAppOutput": "Noch keine AutoPalExpress-Ausgabe.",
+    "ipsHiddenHint": "IP-Adressen in dieser Ausgabe sind ausgeblendet - nur der Super-Admin kann sie sehen.",
     "serverActivity": "Serveraktivität",
     "noActivityMatch": "Keine Serveraktivität entspricht deiner Suche."
   },
