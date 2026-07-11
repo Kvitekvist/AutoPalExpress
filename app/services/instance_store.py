@@ -102,6 +102,9 @@ def _dedupe_data(data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
         if "usePublicPortOverride" not in instance:
             instance["usePublicPortOverride"] = False
             changed = True
+        if "useQueryPort" not in instance:
+            instance["useQueryPort"] = False
+            changed = True
         game_port = _as_port(instance.get("gamePort")) or 8211
         query_port = _as_port(instance.get("queryPort"))
         if not query_port or query_port == game_port or query_port in reserved_game_ports or query_port in reserved_query_ports:
@@ -193,6 +196,7 @@ def create_instance(
         "useMultithreadForDs": True,
         "usePublicIpOverride": False,
         "usePublicPortOverride": False,
+        "useQueryPort": False,
         "queryPort": default_query_port(game_port, reserved_ports),
         "workerThreads": None,
         "jsonLogFormat": False,
@@ -319,6 +323,7 @@ def update_launch_options(
     public_lobby: bool,
     use_public_ip_override: bool,
     use_public_port_override: bool,
+    use_query_port: bool,
 ) -> dict[str, Any] | None:
     data = _load_clean()
     updated = None
@@ -331,6 +336,7 @@ def update_launch_options(
             instance["communityServer"] = public_lobby
             instance["usePublicIpOverride"] = use_public_ip_override
             instance["usePublicPortOverride"] = use_public_port_override
+            instance["useQueryPort"] = use_query_port
             updated = instance
             break
     if updated:

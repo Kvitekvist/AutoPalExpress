@@ -45,6 +45,7 @@ export default function LauncherFlags() {
         | "communityServer"
         | "usePublicIpOverride"
         | "usePublicPortOverride"
+        | "useQueryPort"
       >
     >
   ) {
@@ -70,6 +71,7 @@ export default function LauncherFlags() {
           "usePublicPortOverride" in nextOptions
             ? Boolean(nextOptions.usePublicPortOverride)
             : instance.usePublicPortOverride,
+        useQueryPort: "useQueryPort" in nextOptions ? Boolean(nextOptions.useQueryPort) : instance.useQueryPort,
       });
       setInstance(next.instances.find((item) => item.id === instance.id) ?? null);
       notifications.success({
@@ -82,7 +84,7 @@ export default function LauncherFlags() {
   }
 
   async function handleSaveQueryPort() {
-    if (!instance || !queryPort || queryPort === publicPortNumber) return;
+    if (!instance || !instance.useQueryPort || !queryPort || queryPort === publicPortNumber) return;
     setSavingQueryPort(true);
     try {
       const next = await instancesApi.setQueryPort(instance.id, queryPort);
@@ -211,14 +213,27 @@ export default function LauncherFlags() {
             </div>
           </div>
           <div className="space-y-1.5 rounded-md border border-stone-700 bg-abyss-950/40 p-4">
-            <Label htmlFor="flag-query-port">-queryport</Label>
+            <EnchantedToggle
+              id="flag-use-query-port"
+              checked={instance.useQueryPort}
+              disabled={saving}
+              onCheckedChange={(checked) => saveLaunchOptions({ useQueryPort: checked })}
+              label="-queryport"
+              description={t("launcherOptions.queryPortToggleDescription", {
+                defaultValue: "Optional Steam server-list/query port. Leave disabled unless you need Steam/community discovery troubleshooting.",
+              })}
+              className="border-0 bg-transparent p-0"
+            />
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
               {t("launcherOptions.queryPortDescription", {
                 defaultValue:
-                  "Steam's server-list/query port. It must be different from the game port, or Palworld can move the game server to the next open port.",
+                  "When enabled, this must be different from the game port or Palworld can move the game server to the next open port.",
               })}
             </p>
-            <div className="flex flex-wrap items-center gap-2 pt-1">
+            <div className={instance.useQueryPort ? "flex flex-wrap items-center gap-2 pt-1" : "flex flex-wrap items-center gap-2 pt-1 opacity-45"}>
+              <Label htmlFor="flag-query-port" className="w-full text-[11px]">
+                {t("launcherOptions.queryPortValue", { defaultValue: "Steam query port value" })}
+              </Label>
               <Input
                 id="flag-query-port"
                 type="number"
@@ -227,7 +242,7 @@ export default function LauncherFlags() {
                 value={queryPort ?? ""}
                 onChange={(e) => handleQueryPortChange(e.target.value)}
                 className="max-w-[10rem] font-mono"
-                disabled={savingQueryPort}
+                disabled={savingQueryPort || !instance.useQueryPort}
               />
               <RuneButton
                 type="button"
@@ -235,7 +250,7 @@ export default function LauncherFlags() {
                 size="sm"
                 icon={<Save />}
                 onClick={handleSaveQueryPort}
-                disabled={!queryPortDirty || savingQueryPort || !queryPort || queryPortMatchesGame || queryPortInvalid}
+                disabled={!instance.useQueryPort || !queryPortDirty || savingQueryPort || !queryPort || queryPortMatchesGame || queryPortInvalid}
               >
                 {savingQueryPort
                   ? t("launcherOptions.queryPortSaving", { defaultValue: "Saving..." })

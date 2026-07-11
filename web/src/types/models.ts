@@ -218,6 +218,7 @@ export interface ServerInstance {
   useMultithreadForDs: boolean;
   usePublicIpOverride: boolean;
   usePublicPortOverride: boolean;
+  useQueryPort: boolean;
   performanceFlags: boolean;
   workerThreads: number | null;
   jsonLogFormat: boolean;

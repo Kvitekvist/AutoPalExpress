@@ -151,8 +151,10 @@ def start(instance: dict[str, Any]) -> None:
             logger.info("process_manager: generated AdminPassword for %r so Palworld REST API can authenticate", instance["name"])
         if game_port != instance["gamePort"]:
             instance_store.update_game_port(instance_id, game_port)
-        query_port = instance_store.resolve_query_port(instance, game_port)
-        launch_args = [str(exe), f"-port={game_port}", f"-queryport={query_port}"]
+        query_port = instance_store.resolve_query_port(instance, game_port) if instance.get("useQueryPort") else None
+        launch_args = [str(exe), f"-port={game_port}"]
+        if query_port:
+            launch_args.append(f"-queryport={query_port}")
         if instance.get("usePerfThreads", instance.get("performanceFlags", True)):
             launch_args.append("-useperfthreads")
         if instance.get("noAsyncLoadingThread", instance.get("performanceFlags", True)):
@@ -194,7 +196,10 @@ def start(instance: dict[str, Any]) -> None:
             game_port,
             query_port,
         )
-        activity_log.log("info", instance["name"], f"Server started (port {game_port}, query port {query_port}).")
+        if query_port:
+            activity_log.log("info", instance["name"], f"Server started (port {game_port}, query port {query_port}).")
+        else:
+            activity_log.log("info", instance["name"], f"Server started (port {game_port}).")
 
 
 def stop(instance_id: str, timeout: float = 30) -> None:

@@ -56,9 +56,7 @@ export function PortForwardPanel() {
         setPort(data.port);
         setSavedPort(data.port);
       }
-      if (data.queryPort) {
-        setQueryPort(data.queryPort);
-      }
+      setQueryPort(data.queryPort ?? null);
       if (data.port) {
         checkFirewall(data.port, data.queryPort);
       }
@@ -225,20 +223,22 @@ export function PortForwardPanel() {
             </div>
           </div>
 
-          <div className="border-t border-stone-700/60 pt-4">
-            <Label htmlFor="query-port-value">{t("superAdmin.portForward.queryPort", { defaultValue: "Steam Query Port" })}</Label>
-            <p className="mb-1.5 text-[11px] text-parchment-300/40">
-              {t("superAdmin.portForward.queryPortReadOnlyHint", {
-                defaultValue: "Set in Launcher Options. It must be different from the game port, and may also need firewall/router access for server-list discovery.",
-              })}
-            </p>
-            <Input
-              id="query-port-value"
-              value={queryPort ? String(queryPort) : t("superAdmin.portForward.noPublicAddress", { defaultValue: "Unavailable" })}
-              disabled
-              className="max-w-[10rem] font-mono"
-            />
-          </div>
+          {queryPort && (
+            <div className="border-t border-stone-700/60 pt-4">
+              <Label htmlFor="query-port-value">{t("superAdmin.portForward.queryPort", { defaultValue: "Steam Query Port" })}</Label>
+              <p className="mb-1.5 text-[11px] text-parchment-300/40">
+                {t("superAdmin.portForward.queryPortReadOnlyHint", {
+                  defaultValue: "Enabled in Launcher Options. It may also need firewall/router access for server-list discovery.",
+                })}
+              </p>
+              <Input
+                id="query-port-value"
+                value={String(queryPort)}
+                disabled
+                className="max-w-[10rem] font-mono"
+              />
+            </div>
+          )}
 
           <div className="border-t border-stone-700/60 pt-4">
             <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.yourAddress", { defaultValue: "Your Address" })}</p>

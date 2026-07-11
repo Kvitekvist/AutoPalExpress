@@ -41,6 +41,7 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
         "useMultithreadForDs": bool(instance.get("useMultithreadForDs", instance.get("performanceFlags", True))),
         "usePublicIpOverride": bool(instance.get("usePublicIpOverride")),
         "usePublicPortOverride": bool(instance.get("usePublicPortOverride")),
+        "useQueryPort": bool(instance.get("useQueryPort")),
         "queryPort": instance_store.resolve_query_port(instance, effective_game_port),
         "performanceFlags": bool(instance.get("performanceFlags", True)),
         "workerThreads": instance.get("workerThreads") if instance.get("workerThreads") is not None else None,
@@ -91,6 +92,7 @@ class LaunchOptionsRequest(BaseModel):
     publicLobby: bool
     usePublicIpOverride: bool
     usePublicPortOverride: bool
+    useQueryPort: bool
 
 
 class QueryPortRequest(BaseModel):
@@ -130,6 +132,7 @@ async def set_launch_options(instance_id: str, body: LaunchOptionsRequest) -> di
         public_lobby=body.publicLobby,
         use_public_ip_override=body.usePublicIpOverride,
         use_public_port_override=body.usePublicPortOverride,
+        use_query_port=body.useQueryPort,
     )
     data = instance_store.list_view()
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}

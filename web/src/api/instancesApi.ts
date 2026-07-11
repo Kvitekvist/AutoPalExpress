@@ -44,6 +44,7 @@ export interface LaunchOptionsParams {
   publicLobby: boolean;
   usePublicIpOverride: boolean;
   usePublicPortOverride: boolean;
+  useQueryPort: boolean;
 }
 
 // POST /api/instances/{id}/launch-options
