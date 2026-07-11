@@ -55,23 +55,36 @@ def _safe_download_name(name: str, fallback: str) -> str:
     return cleaned or fallback
 
 
-def _select_installable_nexus_file(files_payload: dict[str, Any]) -> dict[str, Any]:
+def _is_main_file(file_info: dict[str, Any]) -> bool:
+    category_id = file_info.get("category_id")
+    category_name = str(file_info.get("category_name") or "").lower()
+    return category_id == 1 or "main" in category_name
+
+
+def _installable_nexus_files(files_payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Current (non-old-version) files, Main file(s) first then newest-first -
+    same candidate set/ordering `_select_installable_nexus_file` used to pick
+    a single winner from, now exposed so a mod with more than one current
+    file (e.g. Main + Optional Files) can be shown as real choices instead of
+    only ever installing whichever one sorts first."""
     files = files_payload.get("files") or []
     if not files:
         raise HTTPException(status_code=404, detail="Nexus returned no downloadable files for this mod.")
 
-    def is_main_file(file_info: dict[str, Any]) -> bool:
-        category_id = file_info.get("category_id")
-        category_name = str(file_info.get("category_name") or "").lower()
-        return category_id == 1 or "main" in category_name
-
-    candidates = [f for f in files if not f.get("is_old_version") and is_main_file(f)]
-    if not candidates:
-        candidates = [f for f in files if not f.get("is_old_version")]
+    candidates = [f for f in files if not f.get("is_old_version")]
     if not candidates:
         candidates = files
+    return sorted(candidates, key=lambda f: (not _is_main_file(f), -(f.get("uploaded_timestamp") or 0)))
 
-    return max(candidates, key=lambda f: f.get("uploaded_timestamp") or 0)
+
+def _select_installable_nexus_file(files_payload: dict[str, Any], file_id: int | None = None) -> dict[str, Any]:
+    candidates = _installable_nexus_files(files_payload)
+    if file_id is None:
+        return candidates[0]
+    for f in files_payload.get("files") or []:
+        if int(f.get("file_id", -1)) == file_id:
+            return f
+    raise HTTPException(status_code=404, detail="That file is no longer available for this mod on Nexus.")
 
 
 def _download_link_url(links: list[dict[str, Any]]) -> str:
@@ -82,7 +95,9 @@ def _download_link_url(links: list[dict[str, Any]]) -> str:
     raise HTTPException(status_code=502, detail="Nexus did not return a usable download mirror.")
 
 
-async def _install_nexus_mod(instance: dict[str, Any], nexus_mod_id: int) -> list[dict[str, Any]]:
+async def _install_nexus_mod(
+    instance: dict[str, Any], nexus_mod_id: int, file_id: int | None = None
+) -> list[dict[str, Any]]:
     api_key = nexus_session.require_premium_api_key()
     mods_path = local_config.get_mods_path(instance)
     if not mods_path:
@@ -91,7 +106,7 @@ async def _install_nexus_mod(instance: dict[str, Any], nexus_mod_id: int) -> lis
     try:
         details = await nexus_client.get_mod_details(api_key, nexus_mod_id)
         files_payload = await nexus_client.get_mod_files(api_key, nexus_mod_id)
-        file_info = _select_installable_nexus_file(files_payload)
+        file_info = _select_installable_nexus_file(files_payload, file_id)
         file_id = int(file_info["file_id"])
         links = await nexus_client.get_download_link(api_key, nexus_mod_id, file_id)
     except NexusApiError as e:
@@ -270,20 +285,45 @@ async def reorder(body: ReorderRequest) -> list[dict[str, Any]]:
     return mods_store.sorted_mods(mods)
 
 
+@router.get("/from-nexus/{nexus_mod_id}/files", dependencies=[Depends(require_super_admin)])
+async def get_nexus_mod_files(nexus_mod_id: int) -> list[dict[str, Any]]:
+    """Current (non-old-version) files for a Nexus mod, Main file(s) first,
+    so the UI can offer a real choice when a mod has more than one - e.g. a
+    Main File plus one or more Optional Files."""
+    api_key = nexus_session.require_premium_api_key()
+    try:
+        files_payload = await nexus_client.get_mod_files(api_key, nexus_mod_id)
+    except NexusApiError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    files = _installable_nexus_files(files_payload)
+    return [
+        {
+            "fileId": int(f["file_id"]),
+            "name": f.get("name") or f.get("file_name") or "File",
+            "version": f.get("version") or "",
+            "category": f.get("category_name") or ("Main" if _is_main_file(f) else "Other"),
+            "isMain": _is_main_file(f),
+            "sizeKb": f.get("size_kb"),
+            "description": f.get("description") or "",
+        }
+        for f in files
+    ]
+
+
 @router.post("/from-nexus/{nexus_mod_id}/install", dependencies=[Depends(require_super_admin)])
-async def install_from_nexus(nexus_mod_id: int) -> list[dict[str, Any]]:
+async def install_from_nexus(nexus_mod_id: int, file_id: int | None = None) -> list[dict[str, Any]]:
     instance = _require_active_instance()
-    return await _install_nexus_mod(instance, nexus_mod_id)
+    return await _install_nexus_mod(instance, nexus_mod_id, file_id)
 
 
 @router.post("/{mod_id}/update")
-async def update_mod(mod_id: str) -> list[dict[str, Any]]:
+async def update_mod(mod_id: str, file_id: int | None = None) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     mods = mods_store.load_mods(instance["id"])
     target = next((m for m in mods if m["id"] == mod_id), None)
     if not target or not target.get("sourceModId"):
         raise HTTPException(status_code=400, detail="This mod has no Nexus Mods source to update from.")
-    return await _install_nexus_mod(instance, int(target["sourceModId"]))
+    return await _install_nexus_mod(instance, int(target["sourceModId"]), file_id)
 
 
 @router.post("/install-from-file/prepare", dependencies=[Depends(require_super_admin)])

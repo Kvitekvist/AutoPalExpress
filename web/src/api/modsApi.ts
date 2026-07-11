@@ -1,5 +1,5 @@
 import { api } from "./httpClient";
-import type { Mod, ModsPathInfo, VerifiedFileInstall } from "@/types/models";
+import type { Mod, ModsPathInfo, NexusModFile, VerifiedFileInstall } from "@/types/models";
 
 // GET /api/mods/mods-path
 export async function getModsPath(): Promise<ModsPathInfo> {
@@ -42,13 +42,20 @@ export async function removeMod(id: string): Promise<Mod[]> {
 }
 
 // POST /api/mods/{id}/update
-export async function updateMod(id: string): Promise<Mod[]> {
-  return api.post<Mod[]>(`/api/mods/${id}/update`);
+export async function updateMod(id: string, fileId?: number): Promise<Mod[]> {
+  const query = fileId != null ? `?file_id=${fileId}` : "";
+  return api.post<Mod[]>(`/api/mods/${id}/update${query}`);
+}
+
+// GET /api/mods/from-nexus/{nexusModId}/files
+export async function getNexusModFiles(nexusModId: number): Promise<NexusModFile[]> {
+  return api.get<NexusModFile[]>(`/api/mods/from-nexus/${nexusModId}/files`);
 }
 
 // POST /api/mods/from-nexus/{nexusModId}/install
-export async function installFromNexus(nexusModId: number): Promise<Mod[]> {
-  return api.post<Mod[]>(`/api/mods/from-nexus/${nexusModId}/install`);
+export async function installFromNexus(nexusModId: number, fileId?: number): Promise<Mod[]> {
+  const query = fileId != null ? `?file_id=${fileId}` : "";
+  return api.post<Mod[]>(`/api/mods/from-nexus/${nexusModId}/install${query}`);
 }
 
 // POST /api/mods/reorder

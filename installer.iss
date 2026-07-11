@@ -1,5 +1,5 @@
 #define MyAppName "Palworld Server Admin"
-#define MyAppVersion "1.0.4"
+#define MyAppVersion "1.0.5"
 #define MyAppPublisher "Palworld Server Admin"
 #define MyAppExeName "PalworldServerAdmin.exe"
 
@@ -31,12 +31,11 @@ Name: "startuprecovery"; Description: "Start AutoPalExpress with Windows (helps 
 
 [Files]
 Source: "dist\PalworldServerAdmin.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "support\Diagnose-AutoPalExpress.cmd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "support\diagnose-autopalexpress.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\Diagnose AutoPalExpress"; Filename: "{app}\Diagnose-AutoPalExpress.cmd"
+Name: "{group}\Diagnose AutoPalExpress"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\diagnose-autopalexpress.ps1"" -DataDir ""{localappdata}\PalworldServerAdmin\data"" -ReportDir ""{localappdata}\PalworldServerAdmin\diagnostics"""; WorkingDir: "{app}"
 Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 

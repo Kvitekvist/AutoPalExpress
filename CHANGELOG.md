@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## 1.0.5 - 2026-07-11
 
+- Installer checksum (SHA256): `11AB0B83B8230B00A3F4C8B51451CB4DA68C0756867BDC99170F540685236FD9`.
+- **Mod install fix (TICKET-0082/TICKET-0084):** fixed installing mods whose archive bundles the full relative game path instead of just the mod's own folder (`Pal/Binaries/Win64/Mods/<ModName>/...` or `Pal/Binaries/Win64/ue4ss/Mods/<ModName>/...`, seen with "Infinite Weight In Camp") - these were unpacking into a broken, doubled folder path and not working in-game. They now unpack and install correctly. If you already installed an affected mod and it isn't working, remove it and reinstall the same file to get the corrected layout.
+- **Multi-file mod picker (TICKET-0083):** Direct Install now shows a list of files to choose from when a Nexus mod has more than one current file (e.g. a Main File plus Optional Files), instead of the app silently picking one for you with no way to choose otherwise. Mods with only one file still install in a single click, unchanged.
 - **TICKET-0081**: Fixed the Logs page exposing real host/client IP addresses to any logged-in user in the AutoPalExpress output panel - IPs are now masked there unless you're the super admin. Also removed the recurring low-value polling noise that was cluttering that panel, and both Logs panels now show the newest entry at the top instead of the bottom.
+- **TICKET-0087**: Removed the bundled `Diagnose-AutoPalExpress.cmd` batch file, which some file scanners flag by default regardless of what it actually does. The Start Menu "Diagnose AutoPalExpress" shortcut now launches the same diagnostics script directly through PowerShell instead, with no `.cmd`/`.bat` file shipped at all.
 
 ## 1.0.4 - 2026-07-11
 

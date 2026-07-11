@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AncientTabs, AncientTabsList, AncientTabsTrigger } from "@/components/fantasy/AncientTabs";
 import { NexusModCard } from "@/components/mods/NexusModCard";
+import { NexusFilePickerDialog } from "@/components/mods/NexusFilePickerDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   const [loading, setLoading] = React.useState(false);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [installingId, setInstallingId] = React.useState<number | null>(null);
+  const [filePicker, setFilePicker] = React.useState<{ modId: number; modName: string } | null>(null);
   const [query, setQuery] = React.useState("");
   const allCategory = t("mods.nexusBrowser.allCategory", { defaultValue: "All" });
   const [category, setCategory] = React.useState(allCategory);
@@ -74,7 +76,12 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   async function handleInstall(mod: NexusModResult) {
     setInstallingId(mod.modId);
     try {
-      const updated = await modsApi.installFromNexus(mod.modId);
+      const files = await modsApi.getNexusModFiles(mod.modId);
+      if (files.length > 1) {
+        setFilePicker({ modId: mod.modId, modName: mod.name });
+        return;
+      }
+      const updated = await modsApi.installFromNexus(mod.modId, files[0]?.fileId);
       onModsChanged(updated);
       notifications.success({
         title: t("mods.nexusBrowser.installedTitle", { defaultValue: "Mod installed" }),
@@ -169,6 +176,16 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
           </div>
         )}
       </ScrollArea>
+
+      <NexusFilePickerDialog
+        open={filePicker != null}
+        onOpenChange={(open) => {
+          if (!open) setFilePicker(null);
+        }}
+        nexusModId={filePicker?.modId ?? null}
+        modName={filePicker?.modName ?? ""}
+        onInstalled={onModsChanged}
+      />
     </div>
   );
 }

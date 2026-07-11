@@ -806,6 +806,15 @@
       "cancel": "取消",
       "installing": "正在安装...",
       "installNamed": "安装“{{name}}”"
+    },
+    "filePicker": {
+      "title": "选择文件",
+      "description": "“{{name}}”在Nexus Mods上有多个文件,请选择要安装的文件。",
+      "loading": "正在从Nexus Mods加载文件列表...",
+      "loadErrorFallback": "无法从Nexus加载此模组的文件。",
+      "cancel": "取消",
+      "install": "安装所选文件",
+      "installing": "正在安装..."
     }
   },
   "serverControl": {

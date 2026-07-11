@@ -198,7 +198,7 @@ Write-Report "Running as admin: $isAdmin"
 Write-Report "Data folder: $DataDir"
 Write-Report ""
 if (-not $isAdmin) {
-    Write-Check "WARN" "Diagnostics is not running as administrator" "Firewall inspection may be incomplete. Use Diagnose-AutoPalExpress.cmd so Windows can ask for permission."
+    Write-Check "WARN" "Diagnostics is not running as administrator" "Firewall inspection may be incomplete. Right-click this shortcut (or PowerShell) and choose 'Run as administrator' for a full check, or use the Run Diagnostics button in Super Admin."
 }
 
 $localIp = Get-LocalIPv4

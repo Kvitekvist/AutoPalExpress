@@ -21,6 +21,19 @@ STAGING_DIR.mkdir(parents=True, exist_ok=True)
 
 MAX_UNCOMPRESSED_BYTES = 1024**3  # 1 GB - generous for a mod, guards against zip bombs
 
+# Some mod archives package the mod's full relative install path from the
+# Palworld server folder (Pal/Binaries/Win64/Mods/<ModName>/..., or
+# Pal/Binaries/Win64/ue4ss/Mods/<ModName>/... - mod authors are inconsistent
+# about whether they include the extra "ue4ss" segment UE4SS itself uses
+# internally) instead of just the mod's own folder - a valid "drop this into
+# your game folder" zip layout for a manual install, but wrong when the whole
+# thing gets copied into a Mods folder that IS already .../Win64/Mods: it used
+# to create Mods/Pal/Binaries/Win64/Mods/<ModName>/... (or the ue4ss variant)
+# instead of Mods/<ModName>/...
+_FIXED_PREFIX_SEGMENTS = ("pal", "binaries", "win64")
+_OPTIONAL_MODLOADER_SEGMENT = "ue4ss"
+_MODS_SEGMENT = "mods"
+
 
 class ModInstallError(Exception):
     def __init__(self, message: str):
@@ -53,16 +66,49 @@ def _safe_extract(z: zipfile.ZipFile, dest_dir: Path) -> None:
     z.extractall(dest_dir)
 
 
+def _sole_top_level_name(names: list[str], prefix: str) -> str | None:
+    top_levels = {
+        n[len(prefix) :].split("/", 1)[0] for n in names if n.startswith(prefix) and n[len(prefix) :].strip("/")
+    }
+    return next(iter(top_levels)) if len(top_levels) == 1 else None
+
+
+def _detect_game_path_prefix(names: list[str]) -> str:
+    """Returns the "Pal/Binaries/Win64/Mods/" (or ".../ue4ss/Mods/") prefix if
+    the archive's entry names all share it, so callers can look past it, or ""
+    if the archive doesn't match either known shape. Bails out untouched the
+    moment any level doesn't match, so this never mis-fires on an archive with
+    a genuinely different structure."""
+    prefix = ""
+    for expected in _FIXED_PREFIX_SEGMENTS:
+        candidate = _sole_top_level_name(names, prefix)
+        if candidate is None or candidate.lower() != expected:
+            return ""
+        prefix += candidate + "/"
+
+    candidate = _sole_top_level_name(names, prefix)
+    if candidate is None:
+        return ""
+    if candidate.lower() == _OPTIONAL_MODLOADER_SEGMENT:
+        prefix += candidate + "/"
+        candidate = _sole_top_level_name(names, prefix)
+        if candidate is None:
+            return ""
+    if candidate.lower() != _MODS_SEGMENT:
+        return ""
+    return prefix + candidate + "/"
+
+
 def peek_archive_name(zip_path: Path, fallback_name: str) -> str:
     """Looks at a zip's own entry names to guess the mod's name without
     extracting anything yet - same "single common top-level folder" rule
     extract_and_install uses, so the name shown in a pre-install confirmation
     matches the folder name actually created a moment later."""
     with zipfile.ZipFile(zip_path) as z:
-        top_levels = {n.split("/", 1)[0] for n in z.namelist() if n.strip("/")}
-    if len(top_levels) == 1:
-        return _sanitize_name(next(iter(top_levels)))
-    return _sanitize_name(fallback_name)
+        names = [n for n in z.namelist() if n.strip("/")]
+    prefix = _detect_game_path_prefix(names)
+    candidate = _sole_top_level_name(names, prefix)
+    return _sanitize_name(candidate) if candidate is not None else _sanitize_name(fallback_name)
 
 
 def extract_and_install(zip_path: Path, mods_path: Path, fallback_name: str) -> str:
@@ -77,14 +123,19 @@ def extract_and_install(zip_path: Path, mods_path: Path, fallback_name: str) -> 
         tmp_path = Path(tmp)
         with zipfile.ZipFile(zip_path) as z:
             _safe_extract(z, tmp_path)
+            prefix = _detect_game_path_prefix([n for n in z.namelist() if n.strip("/")])
 
-        entries = list(tmp_path.iterdir())
+        effective_root = tmp_path
+        for segment in prefix.strip("/").split("/") if prefix else []:
+            effective_root = effective_root / segment
+
+        entries = list(effective_root.iterdir())
         if len(entries) == 1 and entries[0].is_dir():
             source_dir = entries[0]
             folder_name = _sanitize_name(source_dir.name)
         else:
             folder_name = _sanitize_name(fallback_name)
-            source_dir = tmp_path
+            source_dir = effective_root
 
         dest = mods_path / folder_name
         if dest.exists():

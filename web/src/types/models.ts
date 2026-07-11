@@ -199,6 +199,16 @@ export interface NexusModResult {
   nexusUrl: string;
 }
 
+export interface NexusModFile {
+  fileId: number;
+  name: string;
+  version: string;
+  category: string;
+  isMain: boolean;
+  sizeKb?: number | null;
+  description: string;
+}
+
 
 export type ModsPathSource = "override" | "derived" | null;
 export type InstanceSource = "steam" | "manual" | "deployed";

@@ -806,6 +806,15 @@
       "cancel": "Cancelar",
       "installing": "Instalando...",
       "installNamed": "Instalar \"{{name}}\""
+    },
+    "filePicker": {
+      "title": "Elige un archivo",
+      "description": "\"{{name}}\" tiene más de un archivo en Nexus Mods. Elige cuál instalar.",
+      "loading": "Cargando la lista de archivos de Nexus Mods...",
+      "loadErrorFallback": "No se pudieron cargar los archivos de este mod desde Nexus.",
+      "cancel": "Cancelar",
+      "install": "Instalar archivo seleccionado",
+      "installing": "Instalando..."
     }
   },
   "serverControl": {

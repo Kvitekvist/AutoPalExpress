@@ -806,6 +806,15 @@
       "cancel": "キャンセル",
       "installing": "インストール中...",
       "installNamed": "「{{name}}」をインストール"
+    },
+    "filePicker": {
+      "title": "ファイルを選択",
+      "description": "「{{name}}」にはNexus Modsに複数のファイルがあります。インストールするファイルを選んでください。",
+      "loading": "Nexus Modsからファイル一覧を取得しています...",
+      "loadErrorFallback": "このMODのファイルをNexusから読み込めませんでした。",
+      "cancel": "キャンセル",
+      "install": "選択したファイルをインストール",
+      "installing": "インストール中..."
     }
   },
   "serverControl": {
