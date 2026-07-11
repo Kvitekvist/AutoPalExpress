@@ -41,6 +41,7 @@ Core feature set is complete and has been exercised live: multi-instance server 
 * FIXED 2026-07-11 (TICKET-0076): The in-app diagnostics button no longer fails outright when the Windows UAC/elevation prompt is blocked or declined. `diagnostics.run()` now tries the elevated PowerShell helper first, then falls back to running the same diagnostics script without admin rights and prepends a warning that firewall inspection may be incomplete. Verified the fallback path by monkeypatching `_run_elevated` to return false and confirming a report is returned inline.
 * FIXED 2026-07-11 (TICKET-0077): Rebuilt the packaged executable and Inno installer after TICKET-0075/TICKET-0076. Current installer checksum is `D07A9649E10605DFB8CDD301AB07778B88EEAE7AB2D7E9039373C1F4F620C91C`.
 * FIXED 2026-07-11 (TICKET-0078): Steam Query Port is now opt-in instead of always launched. Added per-instance `useQueryPort` (default `false` for existing and new servers); `process_manager` only appends `-queryport=<port>` when enabled, while keeping the distinct-port safety checks for enabled use. Launcher Options shows an Enable/Disable toggle and grays out the port value when disabled; Super Admin only shows/adds firewall/UPnP query-port steps when the option is enabled.
+* FIXED 2026-07-11 (TICKET-0079): Rebuilt the packaged executable and Inno installer after TICKET-0078. Current installer checksum is `57404DC5DAE6FA3BEDF9E5B5D8584AC1AAA94B01DFDF1A8506A44F0E1DAE7322`.
 
 ---
 
