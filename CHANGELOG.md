@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **GitHub Wiki (TICKET-0099):** published one page per sidebar item to the actual GitHub Wiki tab, matching the pre-existing Home/Getting Started pages' conventions. Also fixed `git push` failing with a stale-credential 403 by pointing git at the already-working `gh` CLI login.
 - **Wiki (TICKET-0098):** added a `wiki/` folder with one article per sidebar page, each with a screenshot placeholder under `images/wiki/` for the user to fill in.
 
 ## 1.0.6 - 2026-07-12
