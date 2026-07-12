@@ -1,9 +1,12 @@
+import * as React from "react";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, BookOpen, Swords, ScrollText, Settings2, Flame, SlidersHorizontal, Crown, Rocket, Heart } from "lucide-react";
+import { LayoutDashboard, BookOpen, Swords, ScrollText, Settings2, Flame, SlidersHorizontal, Crown, Rocket, Heart, ArrowUpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { appUpdateApi } from "@/api";
+import type { AppUpdateStatus } from "@/types/models";
 
 const COMMON_ITEMS = [
   { to: "/", labelKey: "dashboard", icon: LayoutDashboard, end: true },
@@ -75,6 +78,11 @@ export function Sidebar() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const isSuperAdmin = user.role === "super_admin";
+  const [updateStatus, setUpdateStatus] = React.useState<AppUpdateStatus | null>(null);
+
+  React.useEffect(() => {
+    appUpdateApi.getStatus().then(setUpdateStatus).catch(() => {});
+  }, []);
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 flex w-[76px] flex-col border-r border-stone-700/80 bg-gradient-to-b from-stone-900 via-abyss-900 to-abyss-950 bg-noise lg:w-64">
@@ -110,6 +118,26 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-stone-700/80 p-2 lg:p-4">
+        {updateStatus?.updateAvailable && updateStatus.releaseUrl && (
+          <a
+            href={updateStatus.releaseUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mb-2 flex w-full items-center justify-center gap-2 rounded-md border border-gold-700/35 bg-gold-950/20 px-2 py-2 text-gold-300/70 transition-colors hover:border-gold-500/50 hover:text-gold-200 lg:justify-start lg:px-3"
+            title={t("nav.updateAvailableTitle", {
+              defaultValue: "AutoPalExpress {{version}} is available on GitHub",
+              version: updateStatus.latestVersion,
+            })}
+          >
+            <span className="relative">
+              <ArrowUpCircle className="h-3.5 w-3.5" />
+              <span className="absolute -right-1 -top-1 h-1.5 w-1.5 rounded-full bg-gold-400 shadow-[0_0_5px_rgba(223,177,90,0.8)]" />
+            </span>
+            <span className="hidden text-[11px] font-medium tracking-wide lg:inline">
+              {t("nav.updateAvailable", { defaultValue: "Update available" })}
+            </span>
+          </a>
+        )}
         <form action="https://www.paypal.com/donate" method="post" target="_blank">
           <input type="hidden" name="business" value="U6FYTKUFFE82W" />
           <input type="hidden" name="no_recurring" value="0" />
@@ -128,7 +156,7 @@ export function Sidebar() {
           </button>
         </form>
         <p className="mt-2 hidden text-[10px] leading-relaxed text-parchment-300/25 lg:block">
-          AutoPalExpress &middot; v1.0.6
+          AutoPalExpress &middot; v{updateStatus?.currentVersion ?? "..."}
         </p>
       </div>
     </aside>

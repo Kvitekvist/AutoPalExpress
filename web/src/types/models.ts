@@ -173,6 +173,16 @@ export interface AppNotification {
   createdAt: number;
 }
 
+export interface AppUpdateStatus {
+  currentVersion: string;
+  latestVersion: string | null;
+  updateAvailable: boolean;
+  releaseUrl: string | null;
+  releaseName: string | null;
+  publishedAt: string | null;
+  available: boolean;
+}
+
 export interface NexusAccount {
   connected: boolean;
   username?: string;

@@ -45,6 +45,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Browse Nexus Mods without entering a personal API key.
 - Install directly from Nexus when the super admin connects a Premium API key.
 - Let regular admins add browsed mods to a per-server wishlist for the super admin to approve or deny.
+- See a quiet in-app notice when a newer stable AutoPalExpress release is available on GitHub.
 - Enable, disable, reorder, and remove mods.
 - View players, kick players, and ban players through Palworld's REST API.
 - Monitor Dashboard CPU, RAM, players, uptime, and REST-backed server metrics.
@@ -92,6 +93,8 @@ AutoPalExpress uses regular HTTP by default so setup can stay simple: no domain,
 ## Nexus Mods
 
 AutoPalExpress browses Palworld mod metadata through Nexus Mods' public GraphQL API, so browsing does **not** require anyone to paste a personal Nexus API key.
+
+AutoPalExpress also checks the repository's public GitHub Releases feed for newer stable versions. The check is cached for six hours, requires no GitHub account or token, and only shows a link to the official release page; it never downloads or runs an installer automatically.
 
 > [!NOTE]
 > Direct Nexus installs require the super admin to save a Nexus API key with Premium download access. Regular admins never use that saved key directly: they can add mods to the server wishlist, and only the super admin's approval starts a download. Browsing still works without a key.

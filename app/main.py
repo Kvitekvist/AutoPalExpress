@@ -10,6 +10,7 @@ from app.auth_deps import get_current_user, require_super_admin
 from app.paths import resource_dir
 from app.routes import (
     automation,
+    app_update,
     auth,
     instances,
     logs,
@@ -71,6 +72,7 @@ _authed = [Depends(get_current_user)]
 _super_admin_only = [Depends(require_super_admin)]
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(app_update.router, prefix="/api/app-update", tags=["app-update"], dependencies=_authed)
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(nexus.router, prefix="/api/integrations/nexus", tags=["nexus"], dependencies=_authed)
 app.include_router(mods.router, prefix="/api/mods", tags=["mods"], dependencies=_authed)

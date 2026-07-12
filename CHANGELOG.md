@@ -2,6 +2,7 @@
 
 ## Unreleased (1.0.6)
 
+- **GitHub release notifications (TICKET-0091):** AutoPalExpress now checks the public GitHub Releases feed through a cached, non-blocking backend service and shows a restrained sidebar update indicator when a newer stable version exists. No GitHub credential is required and installers are never downloaded or executed automatically. Runtime, Nexus, sidebar, and packaging version checks now share one authoritative application version.
 - **Subtle donation link (TICKET-0090):** added a small project-styled PayPal donation control at the bottom of the sidebar, using the provided AutoPalExpress merchant details and NOK currency without PayPal's stock image button or tracking pixel.
 - **Nexus compliance fix (TICKET-0088):** Nexus API requests and the installer now both declare version 1.0.6. Every endpoint that can use the saved Nexus Premium key or initiate a Nexus download, including updates to installed mods, now requires the super admin.
 - **Server mod wishlist (TICKET-0089):** regular admins can add publicly browsed Nexus mods to a per-server wishlist without using the saved key. Super Admin now has a Mod Wishlist tab where the host can approve and install a request or deny it.

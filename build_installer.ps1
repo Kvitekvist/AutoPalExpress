@@ -29,6 +29,11 @@ foreach ($candidate in $pythonCandidates) {
 if (-not $python) {
     throw "No working project Python environment found. Run scripts\setup.bat or recreate .venv first."
 }
+Write-Host "==> Verifying application version sources..." -ForegroundColor Cyan
+& $python "$root\scripts\check_app_version.py"
+if ($LASTEXITCODE -ne 0) {
+    throw "Application version verification failed."
+}
 & $python -m PyInstaller PalworldServerAdmin.spec --noconfirm
 Pop-Location
 
