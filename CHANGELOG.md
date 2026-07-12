@@ -2,6 +2,8 @@
 
 ## Unreleased (1.0.6)
 
+- **README refresh (TICKET-0096):** documented the sidebar donation link and `scripts\build.bat` as the recommended way to build the installer; verified the local README already matched what's live on GitHub before editing.
+- **Installer build script (TICKET-0095):** added `scripts\build.bat`, a one-command wrapper around `build_installer.ps1` for rebuilding the packaged executable and installer.
 - **First-run "no servers" fix (TICKET-0093):** the top bar's server switcher now keeps checking for the installer's seeded first server instead of permanently showing "no servers" if the browser opened before that background deploy finished. Fixes a real install where the switcher stayed empty even after the server was ready, leading to a confusing duplicate-name error until the page was manually refreshed.
 - **Windows 10 packaged login fix (TICKET-0092 / GitHub #154):** explicitly serve bundled `.js` and `.mjs` files as `application/javascript`. This fixes systems where Windows' MIME registry caused the packaged frontend bundle to be sent as `text/plain`, leaving only the background visible while browsers refused to load the login page.
 - **GitHub release notifications (TICKET-0091):** AutoPalExpress now checks the public GitHub Releases feed through a cached, non-blocking backend service and shows a restrained sidebar update indicator when a newer stable version exists. No GitHub credential is required and installers are never downloaded or executed automatically. Runtime, Nexus, sidebar, and packaging version checks now share one authoritative application version.

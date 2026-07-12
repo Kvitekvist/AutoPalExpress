@@ -46,6 +46,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Install directly from Nexus when the super admin connects a Premium API key.
 - Let regular admins add browsed mods to a per-server wishlist for the super admin to approve or deny.
 - See a quiet in-app notice when a newer stable AutoPalExpress release is available on GitHub.
+- Optionally show a small, understated donation link in the sidebar - never required, never intrusive.
 - Enable, disable, reorder, and remove mods.
 - View players, kick players, and ban players through Palworld's REST API.
 - Monitor Dashboard CPU, RAM, players, uptime, and REST-backed server metrics.
@@ -185,9 +186,17 @@ The Vite dev server proxies `/api/*` to the backend.
 <details>
 <summary>Build the Windows installer</summary>
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\build_installer.ps1
+```text
+scripts\build.bat
 ```
+
+Or run the underlying PowerShell script directly:
+
+```powershell
+.\build_installer.ps1
+```
+
+Both build the frontend, package the backend with PyInstaller, and compile the installer with Inno Setup 6.
 
 Outputs:
 
