@@ -26,6 +26,13 @@ It opens in your browser, but it runs on your own PC. You stay in control of the
 | --- | --- |
 | ![Super Admin](images/SuperAdmin.png) | ![Logs](images/Logs.png) |
 
+| Server Control | World Settings |
+| --- | --- |
+| ![Server Control](images/wiki/server-control-01-overview.png) | ![World Settings](images/wiki/world-settings-01-overview.png) |
+
+> [!TIP]
+> For a page-by-page walkthrough with screenshots of every sidebar page, see the [AutoPalExpress Wiki](https://github.com/Kvitekvist/AutoPalExpress/wiki).
+
 ## What It Helps With
 
 If you just want to host a Palworld server for friends, AutoPalExpress handles the annoying parts:

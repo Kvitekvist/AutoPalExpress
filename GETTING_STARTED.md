@@ -10,6 +10,9 @@ This guide shows the basic path:
 
 You do not need to understand SteamCMD, config files, or Windows Firewall to start.
 
+> [!TIP]
+> This guide covers first-time setup only. For a page-by-page walkthrough of everything else in the app, see the [AutoPalExpress Wiki](https://github.com/Kvitekvist/AutoPalExpress/wiki).
+
 ## What You Need
 
 - A Windows 10 or Windows 11 PC.
@@ -151,6 +154,8 @@ For Nexus Mods:
 - Direct install and wishlist approval need the super admin's saved Nexus Premium API key.
 - You can also download a mod yourself and install it from file in **Super Admin**.
 
+![Add to Wishlist button on a mod in the Nexus browser](images/wiki/mods-03-install-or-wishlist.png)
+
 Restart the server after changing mods.
 
 ## 9. Invite Friends To Help
@@ -167,9 +172,9 @@ Regular admins can help with normal server work. The main admin still controls t
 
 ## 10. If Something Does Not Work
 
-Use **Diagnose AutoPalExpress** from the Windows Start Menu.
+Use **Diagnose AutoPalExpress** from the Windows Start Menu, or click **Run Diagnostics** on the **Super Admin** page to run the same check without leaving the browser.
 
-![Diagnose AutoPalExpress](images/getting-started-14-diagnostics.png)
+![Run Diagnostics button on Super Admin](images/wiki/super-admin-06-diagnostics.png)
 
 It checks:
 

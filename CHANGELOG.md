@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Docs cross-links (TICKET-0103):** README and Getting Started now reference the new wiki screenshots and link to the full Wiki; fixed Getting Started's long-missing diagnostics screenshot.
 - **Wiki cleanup (TICKET-0102):** removed the leftover placeholder captions under each screenshot now that real images are in place.
 - **Wiki screenshots (TICKET-0101):** added all 55 real screenshots to `images/wiki/` and the live GitHub Wiki, replacing the placeholders.
 - **Wiki rewrite (TICKET-0100):** rewrote all 9 wiki pages as step-by-step "how do I...?" guides with a specific screenshot placeholder per step, instead of generic feature lists.
