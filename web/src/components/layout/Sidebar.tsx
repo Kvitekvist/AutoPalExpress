@@ -17,6 +17,7 @@ const COMMON_ITEMS = [
 ];
 
 const HOST_ITEMS = [
+  { to: "/mod-wishlist", labelKey: "modWishlist", icon: Heart },
   { to: "/launcher-options", labelKey: "launcherOptions", icon: Rocket },
   { to: "/settings", labelKey: "settings", icon: Settings2 },
   { to: "/super-admin", labelKey: "superAdmin", icon: Crown },

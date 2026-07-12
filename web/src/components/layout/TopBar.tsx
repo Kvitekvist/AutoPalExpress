@@ -26,6 +26,7 @@ const PAGE_KEYS: Record<string, string> = {
   "/logs": "logs",
   "/settings": "settings",
   "/super-admin": "superAdmin",
+  "/mod-wishlist": "modWishlist",
 };
 
 function InstanceSwitcher() {

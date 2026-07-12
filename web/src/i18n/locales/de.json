@@ -9,7 +9,8 @@
     "settings": "Einstellungen",
     "superAdmin": "Hauptadministrator",
     "hostControls": "Verwaltung",
-    "hostOnlyBadge": "Nur für den Hauptadministrator sichtbar"
+    "hostOnlyBadge": "Nur für den Hauptadministrator sichtbar",
+    "modWishlist": "Mod-Wunschliste"
   },
   "topbar": {
     "pages": {
@@ -44,6 +45,10 @@
       "superAdmin": {
         "title": "Hauptadministrator",
         "subtitle": "Netzwerkzugriff und Freigabe, dem Gastgeber vorbehalten"
+      },
+      "modWishlist": {
+        "title": "Mod-Wunschliste",
+        "subtitle": "Mod-Anfragen anderer Administratoren genehmigen oder ablehnen"
       }
     },
     "instanceSwitcher": {

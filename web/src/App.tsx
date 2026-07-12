@@ -8,6 +8,7 @@ import LauncherFlags from "@/pages/LauncherFlags";
 import Logs from "@/pages/Logs";
 import Settings from "@/pages/Settings";
 import SuperAdmin from "@/pages/SuperAdmin";
+import ModWishlist from "@/pages/ModWishlist";
 import { useAuth } from "@/hooks/useAuth";
 
 function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
@@ -47,6 +48,14 @@ function App() {
           element={
             <RequireSuperAdmin>
               <SuperAdmin />
+            </RequireSuperAdmin>
+          }
+        />
+        <Route
+          path="mod-wishlist"
+          element={
+            <RequireSuperAdmin>
+              <ModWishlist />
             </RequireSuperAdmin>
           }
         />

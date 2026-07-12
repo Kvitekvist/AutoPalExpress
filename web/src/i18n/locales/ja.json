@@ -9,7 +9,8 @@
     "settings": "設定",
     "superAdmin": "スーパー管理者",
     "hostControls": "ホスト管理",
-    "hostOnlyBadge": "スーパー管理者のみに表示されます"
+    "hostOnlyBadge": "スーパー管理者のみに表示されます",
+    "modWishlist": "MODウィッシュリスト"
   },
   "topbar": {
     "pages": {
@@ -44,6 +45,10 @@
       "superAdmin": {
         "title": "スーパー管理者",
         "subtitle": "ネットワーク公開とアクセス権限（ホスト専用）"
+      },
+      "modWishlist": {
+        "title": "MODウィッシュリスト",
+        "subtitle": "他の管理者からのMODリクエストを承認または拒否する"
       }
     },
     "instanceSwitcher": {

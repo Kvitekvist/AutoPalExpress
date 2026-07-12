@@ -7,7 +7,8 @@
     "launcherOptions": "Launcher Options",
     "logs": "Logs",
     "settings": "Settings",
-    "superAdmin": "Super Admin"
+    "superAdmin": "Super Admin",
+    "modWishlist": "Mod Wishlist"
   },
   "topbar": {
     "pages": {
@@ -18,7 +19,8 @@
       "launcherOptions": { "title": "Launcher Options", "subtitle": "Startup arguments for the selected server" },
       "logs": { "title": "Logs", "subtitle": "The chronicle of recent events" },
       "settings": { "title": "Settings", "subtitle": "Configure the laws of your world" },
-      "superAdmin": { "title": "Super Admin", "subtitle": "Network exposure and access, reserved for the host" }
+      "superAdmin": { "title": "Super Admin", "subtitle": "Network exposure and access, reserved for the host" },
+      "modWishlist": { "title": "Mod Wishlist", "subtitle": "Approve or deny mod requests from other admins" }
     },
     "instanceSwitcher": {
       "currentServer": "Current Server:",

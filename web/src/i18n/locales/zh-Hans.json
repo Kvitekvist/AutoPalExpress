@@ -9,7 +9,8 @@
     "settings": "设置",
     "superAdmin": "超级管理员",
     "hostControls": "主机管理",
-    "hostOnlyBadge": "仅超级管理员可见"
+    "hostOnlyBadge": "仅超级管理员可见",
+    "modWishlist": "模组心愿单"
   },
   "topbar": {
     "pages": {
@@ -44,6 +45,10 @@
       "superAdmin": {
         "title": "超级管理员",
         "subtitle": "网络暴露与访问权限，仅限主机持有者"
+      },
+      "modWishlist": {
+        "title": "模组心愿单",
+        "subtitle": "批准或拒绝其他管理员的模组请求"
       }
     },
     "instanceSwitcher": {

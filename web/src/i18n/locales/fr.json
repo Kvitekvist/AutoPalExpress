@@ -9,7 +9,8 @@
     "settings": "Paramètres",
     "superAdmin": "Super administrateur",
     "hostControls": "Contrôles de l'hôte",
-    "hostOnlyBadge": "Visible uniquement par le super administrateur"
+    "hostOnlyBadge": "Visible uniquement par le super administrateur",
+    "modWishlist": "Liste de souhaits de mods"
   },
   "topbar": {
     "pages": {
@@ -44,6 +45,10 @@
       "superAdmin": {
         "title": "Super administrateur",
         "subtitle": "Exposition réseau et accès, réservé à l'hôte"
+      },
+      "modWishlist": {
+        "title": "Liste de souhaits de mods",
+        "subtitle": "Approuvez ou refusez les demandes de mods des autres administrateurs"
       }
     },
     "instanceSwitcher": {
