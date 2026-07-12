@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, BookOpen, Swords, ScrollText, Settings2, Flame, SlidersHorizontal, Crown, Rocket } from "lucide-react";
+import { LayoutDashboard, BookOpen, Swords, ScrollText, Settings2, Flame, SlidersHorizontal, Crown, Rocket, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -109,9 +109,26 @@ export function Sidebar() {
         )}
       </nav>
 
-      <div className="hidden border-t border-stone-700/80 p-4 lg:block">
-        <p className="text-[10px] leading-relaxed text-parchment-300/30">
-          AutoPalExpress &middot; v0.1.0
+      <div className="border-t border-stone-700/80 p-2 lg:p-4">
+        <form action="https://www.paypal.com/donate" method="post" target="_blank">
+          <input type="hidden" name="business" value="U6FYTKUFFE82W" />
+          <input type="hidden" name="no_recurring" value="0" />
+          <input type="hidden" name="item_name" value="AutoPalExpress" />
+          <input type="hidden" name="currency_code" value="NOK" />
+          <button
+            type="submit"
+            className="group flex w-full items-center justify-center gap-2 rounded-md border border-stone-700/80 bg-stone-900/30 px-2 py-2 text-parchment-300/35 transition-colors hover:border-gold-700/40 hover:bg-gold-950/20 hover:text-gold-300/65 lg:justify-start lg:px-3"
+            title={t("nav.donateTitle", { defaultValue: "Support AutoPalExpress with a PayPal donation" })}
+            aria-label={t("nav.donateTitle", { defaultValue: "Support AutoPalExpress with a PayPal donation" })}
+          >
+            <Heart className="h-3.5 w-3.5 shrink-0 transition-colors group-hover:text-gold-400/70" />
+            <span className="hidden text-[11px] font-medium tracking-wide lg:inline">
+              {t("nav.donate", { defaultValue: "Support the project" })}
+            </span>
+          </button>
+        </form>
+        <p className="mt-2 hidden text-[10px] leading-relaxed text-parchment-300/25 lg:block">
+          AutoPalExpress &middot; v1.0.6
         </p>
       </div>
     </aside>
