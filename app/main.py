@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import mimetypes
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,6 +29,13 @@ from app.services import first_run_setup, instance_store, scheduler
 from app.services import system_settings as system_settings_service
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+
+# Windows can inherit a registry mapping that reports JavaScript as
+# text/plain. Browsers refuse to execute ES modules served with that MIME type,
+# leaving the packaged app's background visible but never mounting the UI.
+# Register both module extensions before StaticFiles/FileResponse are created.
+mimetypes.add_type("application/javascript", ".js")
+mimetypes.add_type("application/javascript", ".mjs")
 
 # Frontend polls these routes every few seconds just to keep status/logs live
 # (useServerStatus, the Logs page's own auto-refresh) - every hit landing in
