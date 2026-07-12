@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased (1.0.6)
+## 1.0.6 - 2026-07-12
 
+- Installer checksum (SHA256): `aabaddd84a80676ea753e925d85fea23e4bd5a1ba80444edbd738149e3139b83`.
 - **README refresh (TICKET-0096):** documented the sidebar donation link and `scripts\build.bat` as the recommended way to build the installer; verified the local README already matched what's live on GitHub before editing.
 - **Installer build script (TICKET-0095):** added `scripts\build.bat`, a one-command wrapper around `build_installer.ps1` for rebuilding the packaged executable and installer.
 - **First-run "no servers" fix (TICKET-0093):** the top bar's server switcher now keeps checking for the installer's seeded first server instead of permanently showing "no servers" if the browser opened before that background deploy finished. Fixes a real install where the switcher stayed empty even after the server was ready, leading to a confusing duplicate-name error until the page was manually refreshed.
