@@ -1,29 +1,47 @@
 # World Settings
 
-Edit the active server's real `PalWorldSettings.ini` from the browser, with grouped sections, tooltips, and guided dropdowns instead of hand-editing a config file.
+This page changes the actual rules of your Palworld world - the same things you'd normally edit by hand in a config file.
 
-![World Settings screenshot placeholder](../images/wiki/world-settings.png)
-*(Screenshot placeholder - drop a real screenshot at `images/wiki/world-settings.png`)*
+![Full World Settings page](../images/wiki/world-settings-01-overview.png)
+*(Screenshot placeholder - a full view of the World Settings page, showing the grouped sections)*
 
-## What you can do here
+## How do I find a specific setting?
 
-Settings are grouped into readable sections:
+Settings are grouped into labeled sections like **Identity and Access**, **World Rules**, **Combat**, **Progression**, **Time and Survival**, and more. Scroll through the section headers to find the one you want.
 
-- **Identity and Access** - server name, passwords, player limits.
-- **World Rules** - difficulty, randomizer options, and other core rules.
-- **Combat** - damage rates, PvP settings, kill-drop configuration.
-- **Progression** - XP rate, stat-point allocation, and related settings.
-- **Time and Survival** - day/night speed, hunger/stamina, death penalties.
-- **World Density** - Pal spawn rate and related density options.
-- **Bases and Work** - base building and Pal work settings.
-- **Saving and Backups** - auto-save behavior.
-- **Performance Limits** - server-side performance tuning.
-- **Mods and Compatibility** - settings related to mod support.
-- **Other** - anything not yet grouped above; still editable.
+![A group section heading, e.g. World Rules](../images/wiki/world-settings-02-group-heading.png)
+*(Screenshot placeholder - circle a section heading like "World Rules" and the fields listed under it)*
 
-Every field shows a tooltip explaining what it does, with concrete low/default/high example values where relevant. Categorical fields (like Difficulty or Death Penalty) show a dropdown of Palworld's real accepted values instead of a free-text box.
+## How do I know what a setting actually does?
 
-## Notes
+Hover over the small info icon next to any field's name. It shows an explanation, plus example values (like "10 is low, 30 is normal, 60+ is high") so you're not guessing.
 
-- Changes are written to the real `.ini` file. Restart the server for changes to take effect.
-- A few settings intentionally live elsewhere instead of here: the server's game port and public IP/port are set from [Super Admin](super-admin.md) and [Launcher Options](launcher-options.md), so there's exactly one place to edit them.
+![Tooltip info icon next to a field](../images/wiki/world-settings-03-tooltip.png)
+*(Screenshot placeholder - circle the (i) tooltip icon next to a field, with the tooltip open)*
+
+## How do I change a setting like Difficulty?
+
+Some settings show a dropdown with a fixed list of choices instead of a text box - pick one from the list.
+
+![A dropdown field, e.g. Difficulty](../images/wiki/world-settings-04-dropdown.png)
+*(Screenshot placeholder - circle a dropdown field showing its open list of options)*
+
+## How do I turn a setting on or off?
+
+Boolean (yes/no) settings show as a labeled box reading **Enable** or **Disable**. Click it to flip it.
+
+![A boolean toggle field](../images/wiki/world-settings-05-toggle.png)
+*(Screenshot placeholder - circle a boolean toggle field)*
+
+## How do I save my changes?
+
+Click **Save Changes** at the top or bottom of the page.
+
+![Save Changes button](../images/wiki/world-settings-06-save.png)
+*(Screenshot placeholder - circle the Save Changes button)*
+
+> Restart the server afterward - Palworld only picks up World Settings changes on the next start.
+
+## Where do I change the game port or public IP?
+
+Those live elsewhere on purpose, so there's only one place to edit them: the game port is on [Super Admin](super-admin.md), and public IP/port overrides are on [Launcher Options](launcher-options.md).

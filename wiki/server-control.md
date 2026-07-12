@@ -1,21 +1,48 @@
 # Server Control
 
-Start, stop, restart, and manage the running Palworld dedicated server itself.
+This is where you turn the Palworld server on and off, and send commands to it while it's running.
 
-![Server Control screenshot placeholder](../images/wiki/server-control.png)
-*(Screenshot placeholder - drop a real screenshot at `images/wiki/server-control.png`)*
+![Full Server Control page](../images/wiki/server-control-01-overview.png)
+*(Screenshot placeholder - a full view of the Server Control page)*
 
-## What you can do here
+## How do I start my server?
 
-- **Start Server** - launches the active server. If you manage more than one server, use the small "Change" menu on the Start button to pick which one becomes active first.
-- **Stop Server** - shuts the server down (with a confirmation, since it disconnects everyone immediately).
-- **Restart Server** - stops and starts the server again, with a confirmation.
-- **Save World** - forces an immediate world save without restarting.
-- **Check Updates** - asks Steam whether a newer Palworld Dedicated Server build exists, and offers to update through SteamCMD if the server is stopped.
-- **Broadcast Message** - sends an instant in-game announcement to everyone currently connected.
-- **Shutdown Countdown** - warns players and shuts the server down after a chosen delay (30s to 5 minutes) instead of immediately.
+Click the big **Start Server** tile. If you manage more than one server, click **Change** in the corner of that tile first to pick which one you're starting.
 
-## Notes
+![Start Server tile with Change dropdown](../images/wiki/server-control-02-start.png)
+*(Screenshot placeholder - circle the Start Server tile and its "Change" dropdown)*
 
-- Updates can only run while the server is offline.
-- Stop/Restart try Palworld's own REST shutdown path first, then clean up the local Windows process if needed.
+## How do I stop or restart it?
+
+Click **Stop Server** or **Restart Server**. Either way, you'll get a confirmation popup first, since this disconnects everyone currently playing.
+
+![Stop and Restart buttons with confirmation dialog](../images/wiki/server-control-03-stop-restart.png)
+*(Screenshot placeholder - circle Stop Server / Restart Server, and show the "Are you sure?" confirmation popup)*
+
+## How do I save the world without restarting?
+
+Click **Save World**. This forces an immediate save without taking the server offline.
+
+![Save World button](../images/wiki/server-control-04-save.png)
+*(Screenshot placeholder - circle the Save World button)*
+
+## How do I update Palworld itself?
+
+Click **Check Updates**. If Steam has a newer version, you'll be asked to confirm before it updates - this only works while the server is stopped.
+
+![Check Updates button and update confirmation](../images/wiki/server-control-05-update.png)
+*(Screenshot placeholder - circle Check Updates, and show the "Update server files?" confirmation popup)*
+
+## How do I message everyone on the server?
+
+Click **Broadcast Message**, type your text, and send it. It appears instantly for every connected player.
+
+![Broadcast Message button and text box](../images/wiki/server-control-06-broadcast.png)
+*(Screenshot placeholder - circle Broadcast Message and the text input popup)*
+
+## How do I schedule a shutdown instead of stopping immediately?
+
+Click **Shutdown Countdown**, pick a delay (30 seconds up to 5 minutes), and confirm. Players stay connected until the timer runs out.
+
+![Shutdown Countdown button and time presets](../images/wiki/server-control-07-shutdown.png)
+*(Screenshot placeholder - circle Shutdown Countdown and the time preset buttons)*

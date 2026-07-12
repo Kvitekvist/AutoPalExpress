@@ -1,23 +1,52 @@
 # Super Admin
 
-*Visible only to the super admin, under Host Controls.*
+*Only the super admin sees this page, under Host Controls in the sidebar.*
 
-Anything that changes this machine's network exposure, who can reach it, or what external accounts it's connected to lives here.
+This page controls anything that touches your network, your firewall, or outside accounts like Nexus Mods.
 
-![Super Admin screenshot placeholder](../images/wiki/super-admin.png)
-*(Screenshot placeholder - drop a real screenshot at `images/wiki/super-admin.png`)*
+![Full Super Admin page](../images/wiki/super-admin-01-overview.png)
+*(Screenshot placeholder - a full view of the Super Admin page)*
 
-## What you can do here
+## How do I find my Game Port? (needed to let friends join)
 
-- **Active Server** - see which server is currently selected and its folder path on disk.
-- **Local API** - Palworld REST API settings used for Dashboard stats, player actions, and scheduled tasks.
-- **Mod File Uploads** - install a mod from a file you already downloaded from Nexus yourself; AutoPalExpress verifies the file's exact hash against Nexus's own catalog before installing it.
-- **Port Forwarding** - view and manage UPnP port mappings for the game port (and query port, if enabled).
-- **Remote Access** - manage remote/admin-panel port exposure so friends can reach the panel itself.
-- **Diagnostics** - run the bundled diagnostics tool from inside the app and see the report inline, without needing the separate Start Menu shortcut.
-- **Nexus Integration** - connect a Nexus Mods Premium API key to enable one-click direct installs (used only by this page and by approving [Mod Wishlist](mod-wishlist.md) requests).
+Look at the **Active Server** panel near the top - it shows the server's folder and its real game port.
 
-## Notes
+![Active Server panel showing the game port](../images/wiki/super-admin-02-game-port.png)
+*(Screenshot placeholder - circle the game port value in the Active Server / network panel)*
 
-- Everything on this page is reserved for the super admin - the saved Nexus API key, real ports, and Windows Firewall rules are all treated as super-admin-only capabilities, same as account management.
-- If port-forwarded, remember the admin panel itself uses plain HTTP by default - see the README's Remote Access and Security section for safer alternatives (Tailscale, ZeroTier, a VPN, or a reverse proxy with real HTTPS).
+## How do I install a mod file I already downloaded myself?
+
+Click **Install From File** in the **Mod File Uploads** panel, then choose the file. AutoPalExpress checks it against Nexus's own catalog before installing, so you know it's the real, unmodified file.
+
+![Install From File button](../images/wiki/super-admin-03-install-from-file.png)
+*(Screenshot placeholder - circle the Install From File button)*
+
+## How do I open my server to friends over the internet?
+
+In the **Port Forwarding** panel, click **Forward** to let AutoPalExpress try to open the port automatically through your router (UPnP). If that doesn't work, the panel shows the exact values to enter manually in your router's settings.
+
+![Port Forwarding panel Forward button](../images/wiki/super-admin-04-port-forward.png)
+*(Screenshot placeholder - circle the Forward button and the manual forwarding instructions)*
+
+## How do I set up remote access to the admin panel itself?
+
+Use the **Remote Access** panel to expose AutoPalExpress's own web page beyond your home network.
+
+![Remote Access panel](../images/wiki/super-admin-05-remote-access.png)
+*(Screenshot placeholder - circle the Remote Access panel's main toggle/button)*
+
+> This uses plain HTTP by default. For anything beyond a small trusted group, consider Tailscale, ZeroTier, a VPN, or a reverse proxy with real HTTPS instead.
+
+## How do I check why something isn't working?
+
+Click **Run Diagnostics** in the **Diagnostics** panel. It checks your server folder, ports, firewall, and REST API, then shows a report right on the page.
+
+![Run Diagnostics button](../images/wiki/super-admin-06-diagnostics.png)
+*(Screenshot placeholder - circle the Run Diagnostics button)*
+
+## How do I connect my Nexus Premium account?
+
+In the **Nexus Integration** panel, paste your Nexus API key and click **Connect**. This enables one-click direct installs on the [Mods](mods.md) page and lets you approve [Mod Wishlist](mod-wishlist.md) requests.
+
+![Nexus Integration API key field and Connect button](../images/wiki/super-admin-07-nexus-key.png)
+*(Screenshot placeholder - circle the API key field and Connect button)*

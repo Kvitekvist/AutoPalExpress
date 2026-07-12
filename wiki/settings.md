@@ -1,20 +1,47 @@
 # Settings
 
-*Visible only to the super admin, under Host Controls.*
+*Only the super admin sees this page, under Host Controls in the sidebar.*
 
-Manage server instances, admin accounts, automation, and startup behavior for AutoPalExpress itself.
+This page manages your servers, your admins, backups, and startup behavior.
 
-![Settings screenshot placeholder](../images/wiki/settings.png)
-*(Screenshot placeholder - drop a real screenshot at `images/wiki/settings.png`)*
+![Full Settings page](../images/wiki/settings-01-overview.png)
+*(Screenshot placeholder - a full view of the Settings page)*
 
-## What you can do here
+## How do I make the server come back after a PC restart?
 
-- **Startup Recovery** - start AutoPalExpress automatically when Windows signs in, and auto-start the active server when the app launches, so the server comes back after a reboot or power loss.
-- **Users** - generate invite codes so trusted friends can register their own regular admin account.
-- **Server Instances** - deploy a brand-new server with SteamCMD, import an existing one, switch which server is active, open a server's folder in Explorer, or unregister/delete a server.
-- **Automation** - schedule recurring backups and scheduled restarts.
+In the **Startup Recovery** panel, turn on starting AutoPalExpress with Windows, and auto-starting the active server.
 
-## Notes
+![Startup Recovery toggles](../images/wiki/settings-02-startup-recovery.png)
+*(Screenshot placeholder - circle the two Startup Recovery toggles)*
 
-- Duplicate server records (e.g. from re-importing the same install) are automatically deduplicated by folder path.
-- Deleting a server's files only happens through the explicit "Remove and Delete" action, and only while that server is stopped.
+## How do I invite a friend to help admin the server?
+
+In the **Users** panel, click **Generate Invite Code**. Share that code with your friend - they use it to register their own account.
+
+![Generate Invite Code button and generated code](../images/wiki/settings-03-invite.png)
+*(Screenshot placeholder - circle the Generate Invite Code button and the resulting code)*
+
+> Only invite people you trust. Regular admins can't touch the dangerous stuff (ports, server folders, mods folder, startup) - that stays locked to you.
+
+## How do I add another server?
+
+In the **Server Instances** panel, click **Deploy New Server** to create one from scratch, or **Import Existing** if you already have server files somewhere.
+
+![Deploy New Server and Import Existing buttons](../images/wiki/settings-04-deploy-import.png)
+*(Screenshot placeholder - circle the Deploy New Server and Import Existing buttons)*
+
+## How do I switch, open, or delete a server?
+
+Each server in the list has its own menu with **Switch To**, **Browse Files**, **Remove**, and **Remove and Delete**.
+
+![Per-server action menu](../images/wiki/settings-05-server-actions.png)
+*(Screenshot placeholder - circle the per-server action menu, open so all options are visible)*
+
+> "Remove" just un-lists it - your files stay untouched. "Remove and Delete" actually deletes the server folder, and only works while that server is stopped.
+
+## How do I schedule automatic backups?
+
+In the **Automation** panel, set up your backup and scheduled restart times.
+
+![Automation panel with backup schedule](../images/wiki/settings-06-automation.png)
+*(Screenshot placeholder - circle the backup/restart schedule controls in the Automation panel)*

@@ -1,19 +1,43 @@
 # Logs
 
-Two live feeds side by side: AutoPalExpress's own output, and real server activity events.
+This page shows you what's been happening - both AutoPalExpress's own activity and real events from your Palworld server.
 
-![Logs screenshot placeholder](../images/wiki/logs.png)
-*(Screenshot placeholder - drop a real screenshot at `images/wiki/logs.png`)*
+![Full Logs page](../images/wiki/logs-01-overview.png)
+*(Screenshot placeholder - a full view of the Logs page with both panels side by side)*
 
-## What you can do here
+## What am I looking at?
 
-- Read the **AutoPalExpress** panel - the app's own console output, useful for troubleshooting the admin panel itself.
-- Read the **Server Activity** panel - real events like joins, leaves, saves, and warnings, each tagged with a level (info, warning, error, debug).
-- Search across both panels, and filter Server Activity by level.
-- Toggle auto-refresh on or off.
-- Export both logs to a text file you can share when asking for help.
+The left panel, **AutoPalExpress**, is the app's own output - useful if the admin panel itself is acting up. The right panel, **Server Activity**, shows real events like joins, leaves, saves, and warnings.
 
-## Notes
+![AutoPalExpress panel and Server Activity panel headers](../images/wiki/logs-02-panels.png)
+*(Screenshot placeholder - circle both panel headers so it's clear which is which)*
 
-- IP addresses in the AutoPalExpress panel are hidden from regular admins - only the super admin can see them.
-- Palworld's own server console window can't be mirrored into the browser - it's rendered as a graphical overlay, not real text - so that window stays visible separately on the host PC.
+## How do I find something specific?
+
+Type into the search box at the top - it filters both panels as you type.
+
+![Search box](../images/wiki/logs-03-search.png)
+*(Screenshot placeholder - circle the search box)*
+
+## How do I only see warnings or errors?
+
+Use the **All / Info / Warnings / Errors / Debug** tabs above Server Activity to filter by level.
+
+![Level filter tabs](../images/wiki/logs-04-level-tabs.png)
+*(Screenshot placeholder - circle the level filter tabs, especially Warnings and Errors)*
+
+## How do I stop the page from constantly refreshing?
+
+Flip the **Auto-refresh** switch off if you want the log to stay still while you read it.
+
+![Auto-refresh toggle](../images/wiki/logs-05-auto-refresh.png)
+*(Screenshot placeholder - circle the Auto-refresh toggle)*
+
+## How do I send my logs to someone for help?
+
+Click **Export** at the top of the page - it downloads both logs as one text file you can attach when asking for help.
+
+![Export button](../images/wiki/logs-06-export.png)
+*(Screenshot placeholder - circle the Export button)*
+
+> Only the super admin can see real IP addresses in the AutoPalExpress panel - regular admins see them masked out.

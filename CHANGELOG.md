@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Wiki rewrite (TICKET-0100):** rewrote all 9 wiki pages as step-by-step "how do I...?" guides with a specific screenshot placeholder per step, instead of generic feature lists.
 - **GitHub Wiki (TICKET-0099):** published one page per sidebar item to the actual GitHub Wiki tab, matching the pre-existing Home/Getting Started pages' conventions. Also fixed `git push` failing with a stale-credential 403 by pointing git at the already-working `gh` CLI login.
 - **Wiki (TICKET-0098):** added a `wiki/` folder with one article per sidebar page, each with a screenshot placeholder under `images/wiki/` for the user to fill in.
 

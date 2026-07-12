@@ -1,20 +1,38 @@
 # Launcher Options
 
-*Visible only to the super admin, under Host Controls.*
+*Only the super admin sees this page, under Host Controls in the sidebar.*
 
-Per-server startup arguments passed to Palworld's dedicated server process.
+This page controls the extra startup flags Palworld's server is launched with.
 
-![Launcher Options screenshot placeholder](../images/wiki/launcher-options.png)
-*(Screenshot placeholder - drop a real screenshot at `images/wiki/launcher-options.png`)*
+![Full Launcher Options page](../images/wiki/launcher-options-01-overview.png)
+*(Screenshot placeholder - a full view of the Launcher Options page)*
 
-## What you can do here
+## How do I turn on performance flags?
 
-- Toggle Palworld's performance flags: `-useperfthreads`, `-NoAsyncLoadingThread`, and `-UseMultithreadForDS`.
-- Show the server in Palworld's public Community Server list (`-publiclobby`).
-- Enable and set a separate Steam Query Port, kept distinct from the game port to avoid a known Steam/Palworld port collision.
-- Override the public IP and/or public port shown to the Community Server list - these read their actual values from [Super Admin](super-admin.md)'s network settings, so there's still only one place the real values are set.
+Flip the toggles for the performance options (`-useperfthreads`, `-NoAsyncLoadingThread`, `-UseMultithreadForDS`) if your server is struggling with performance.
 
-## Notes
+![Performance flag toggles](../images/wiki/launcher-options-02-performance.png)
+*(Screenshot placeholder - circle the three performance toggles)*
 
-- Restart the server for any launcher option change to take effect.
-- The query port defaults to off; only enable it if you specifically need Steam server-query tools to work over a separate port from the game port.
+## How do I make my server show up in Palworld's public server list?
+
+Turn on the **Community Server** toggle (`-publiclobby`).
+
+![Community Server toggle](../images/wiki/launcher-options-03-community.png)
+*(Screenshot placeholder - circle the Community Server toggle)*
+
+## How do I use a separate query port?
+
+Turn on **Query Port**, then set a port number. Only do this if you specifically need it - it defaults to off, and AutoPalExpress keeps it separate from your game port automatically to avoid a known conflict.
+
+![Query Port toggle and input](../images/wiki/launcher-options-04-query-port.png)
+*(Screenshot placeholder - circle the Query Port toggle and its port number field)*
+
+## How do I override my public IP or port for the community list?
+
+Turn on the override toggles here - the actual values still come from [Super Admin](super-admin.md), so you only ever set the real IP/port in one place.
+
+![Public IP/Port override toggles](../images/wiki/launcher-options-05-overrides.png)
+*(Screenshot placeholder - circle the public IP and public port override toggles)*
+
+> Restart the server after changing anything on this page - launch options only apply on the next start.
