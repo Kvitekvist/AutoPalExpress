@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Wiki (TICKET-0098):** added a `wiki/` folder with one article per sidebar page, each with a screenshot placeholder under `images/wiki/` for the user to fill in.
+
 ## 1.0.6 - 2026-07-12
 
 - Installer checksum (SHA256): `aabaddd84a80676ea753e925d85fea23e4bd5a1ba80444edbd738149e3139b83`.
