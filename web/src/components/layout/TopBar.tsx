@@ -34,7 +34,27 @@ function InstanceSwitcher() {
   const [deployOpen, setDeployOpen] = React.useState(false);
 
   React.useEffect(() => {
-    instancesApi.list().then(setData);
+    let cancelled = false;
+    let timer: number;
+
+    async function tick() {
+      const next = await instancesApi.list();
+      if (cancelled) return;
+      setData(next);
+      // The installer's seeded first server can still be deploying (SteamCMD
+      // download) after the browser opens, so keep polling until an instance
+      // actually shows up instead of leaving a stale "no servers" state that
+      // only a manual page refresh would fix.
+      if (next.instances.length === 0) {
+        timer = window.setTimeout(tick, 3000);
+      }
+    }
+    tick();
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, []);
 
   async function handleSwitch(id: string) {

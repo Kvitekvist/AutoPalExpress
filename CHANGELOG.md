@@ -2,6 +2,7 @@
 
 ## Unreleased (1.0.6)
 
+- **First-run "no servers" fix (TICKET-0093):** the top bar's server switcher now keeps checking for the installer's seeded first server instead of permanently showing "no servers" if the browser opened before that background deploy finished. Fixes a real install where the switcher stayed empty even after the server was ready, leading to a confusing duplicate-name error until the page was manually refreshed.
 - **Windows 10 packaged login fix (TICKET-0092 / GitHub #154):** explicitly serve bundled `.js` and `.mjs` files as `application/javascript`. This fixes systems where Windows' MIME registry caused the packaged frontend bundle to be sent as `text/plain`, leaving only the background visible while browsers refused to load the login page.
 - **GitHub release notifications (TICKET-0091):** AutoPalExpress now checks the public GitHub Releases feed through a cached, non-blocking backend service and shows a restrained sidebar update indicator when a newer stable version exists. No GitHub credential is required and installers are never downloaded or executed automatically. Runtime, Nexus, sidebar, and packaging version checks now share one authoritative application version.
 - **Subtle donation link (TICKET-0090):** added a small project-styled PayPal donation control at the bottom of the sidebar, using the provided AutoPalExpress merchant details and NOK currency without PayPal's stock image button or tracking pixel.
