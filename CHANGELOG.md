@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Wiki cleanup (TICKET-0102):** removed the leftover placeholder captions under each screenshot now that real images are in place.
 - **Wiki screenshots (TICKET-0101):** added all 55 real screenshots to `images/wiki/` and the live GitHub Wiki, replacing the placeholders.
 - **Wiki rewrite (TICKET-0100):** rewrote all 9 wiki pages as step-by-step "how do I...?" guides with a specific screenshot placeholder per step, instead of generic feature lists.
 - **GitHub Wiki (TICKET-0099):** published one page per sidebar item to the actual GitHub Wiki tab, matching the pre-existing Home/Getting Started pages' conventions. Also fixed `git push` failing with a stale-credential 403 by pointing git at the already-working `gh` CLI login.
