@@ -28,6 +28,7 @@ It's not a mod for the game itself. It's a standalone Windows application that m
 [list]
 [*]Browse Palworld mods from Nexus Mods without entering a personal API key.[/*]
 [*]Install directly from Nexus when the super admin connects a Nexus API key with Premium download access.[/*]
+[*]Let regular admins add browsed mods to a per-server wishlist; only the super admin can approve a request and initiate the download.[/*]
 [*]Or download files on Nexus, then install them through the tool after it verifies the exact file hash against Nexus's catalog.[/*]
 [*]Enable, disable, reorder, and remove mods without digging through folders.[/*]
 [*]Installs go into the correct UE4SS Mods folder automatically.[/*]
@@ -157,7 +158,7 @@ Go to Mods to install UE4SS and manage mods.
 
 [img]https://raw.githubusercontent.com/Kvitekvist/AutoPalExpress/refs/heads/main/images/getting-started-12-mods.png[/img]
 
-For Nexus Mods: you can browse mods without an API key, direct install needs a Nexus Premium API key, and you can also download a mod yourself and install it from file in Super Admin. Restart the server after changing mods.
+For Nexus Mods: you can browse mods without an API key, regular admins can add mods to a server wishlist, and only the super admin can approve a request or start a direct install using the saved Nexus Premium API key. You can also download a mod yourself and install it from file in Super Admin. Restart the server after changing mods.
 
 [size=4][b]9. Invite Friends To Help[/b][/size]
 
@@ -236,7 +237,7 @@ The installer is not code-signed yet, so Windows SmartScreen may warn on first r
 [*]Windows 10 or 11, 64-bit.[/*]
 [*]A Steam account is not required: the dedicated server downloads anonymously via SteamCMD.[/*]
 [*]A Nexus Mods account is only needed when you download files from Nexus itself. Browsing inside the tool does not require an API key.[/*]
-[*]Direct installs require Nexus Premium download access through the saved super-admin API key.[/*]
+[*]Direct installs and approved wishlist requests require Nexus Premium download access through the saved super-admin API key. Regular admins cannot invoke that key themselves.[/*]
 [*]If you plan to let friends connect from outside your home network: a router that supports UPnP makes this easier. Without it, you may need to forward ports manually.[/*]
 [/list]
 

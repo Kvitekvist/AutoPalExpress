@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased (1.0.6)
+
+- **Nexus compliance fix (TICKET-0088):** Nexus API requests and the installer now both declare version 1.0.6. Every endpoint that can use the saved Nexus Premium key or initiate a Nexus download, including updates to installed mods, now requires the super admin.
+- **Server mod wishlist (TICKET-0089):** regular admins can add publicly browsed Nexus mods to a per-server wishlist without using the saved key. Super Admin now has a Mod Wishlist tab where the host can approve and install a request or deny it.
+
 ## 1.0.5 - 2026-07-11
 
 - Installer checksum (SHA256): `11AB0B83B8230B00A3F4C8B51451CB4DA68C0756867BDC99170F540685236FD9`.

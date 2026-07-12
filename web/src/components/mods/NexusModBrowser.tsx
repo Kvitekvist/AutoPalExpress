@@ -2,7 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Search } from "lucide-react";
 import { modsApi, nexusApi } from "@/api";
-import type { Mod, NexusAccount, NexusModList, NexusModResult } from "@/types/models";
+import type { Mod, ModWishlistRequest, NexusAccount, NexusModList, NexusModResult } from "@/types/models";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AncientTabs, AncientTabsList, AncientTabsTrigger } from "@/components/fantasy/AncientTabs";
@@ -33,6 +33,8 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   const [loading, setLoading] = React.useState(false);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [installingId, setInstallingId] = React.useState<number | null>(null);
+  const [requestingId, setRequestingId] = React.useState<number | null>(null);
+  const [wishlist, setWishlist] = React.useState<ModWishlistRequest[]>([]);
   const [filePicker, setFilePicker] = React.useState<{ modId: number; modName: string } | null>(null);
   const [query, setQuery] = React.useState("");
   const allCategory = t("mods.nexusBrowser.allCategory", { defaultValue: "All" });
@@ -40,6 +42,7 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
 
   React.useEffect(() => {
     nexusApi.getAccount().then(setAccount);
+    modsApi.getWishlist().then(setWishlist);
   }, []);
 
   React.useEffect(() => {
@@ -97,13 +100,35 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
     }
   }
 
+  async function handleRequest(mod: NexusModResult) {
+    setRequestingId(mod.modId);
+    try {
+      const updated = await modsApi.addToWishlist(mod);
+      setWishlist(updated);
+      notifications.success({
+        title: t("mods.nexusBrowser.requestedTitle", { defaultValue: "Added to server wishlist" }),
+        message: t("mods.nexusBrowser.requestedMessage", { defaultValue: "{{name}} is waiting for super-admin review.", name: mod.name }),
+      });
+    } catch (e) {
+      notifications.error({
+        title: t("mods.nexusBrowser.requestFailedTitle", { defaultValue: "Could not add mod" }),
+        message: e instanceof Error ? e.message : t("mods.nexusBrowser.unknownError", { defaultValue: "Unknown error." }),
+      });
+    } finally {
+      setRequestingId(null);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs text-gold-400/90">
-        {t("mods.nexusBrowser.banner", {
-          defaultValue:
-            "Browsing uses Nexus Mods metadata only. Direct Install appears on each card and turns on when Super Admin has a saved Nexus Premium API key; Install File remains available for downloaded archives.",
-        })}
+        {isSuperAdmin
+          ? t("mods.nexusBrowser.bannerSuperAdmin", {
+              defaultValue: "Browsing uses public Nexus metadata. Direct Install uses your saved Premium key; admins' wishlist requests wait for your approval in Super Admin.",
+            })
+          : t("mods.nexusBrowser.bannerAdmin", {
+              defaultValue: "Browse public Nexus mod information and add mods to the server wishlist. The super admin decides whether to install each request.",
+            })}
       </div>
 
       <AncientTabs value={list} onValueChange={(v) => setList(v as NexusModList)}>
@@ -171,6 +196,9 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
                 directInstallUnavailableReason={directInstallUnavailableReason}
                 installing={installingId === mod.modId}
                 onInstall={() => handleInstall(mod)}
+                requested={wishlist.some((item) => item.nexusModId === mod.modId)}
+                requesting={requestingId === mod.modId}
+                onRequest={() => handleRequest(mod)}
               />
             ))}
           </div>

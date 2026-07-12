@@ -147,7 +147,8 @@ Use this page to install UE4SS and manage mods.
 For Nexus Mods:
 
 - You can browse mods without an API key.
-- Direct install needs a Nexus Premium API key.
+- Regular admins can add mods to the server wishlist for the super admin to approve or deny.
+- Direct install and wishlist approval need the super admin's saved Nexus Premium API key.
 - You can also download a mod yourself and install it from file in **Super Admin**.
 
 Restart the server after changing mods.

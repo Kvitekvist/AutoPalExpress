@@ -79,6 +79,7 @@ See `memory/tech_stack.md` for the full list and versions. The recurring theme: 
 * **Fail open to "tell the user clearly," not silently or with a crash.** REST-unavailable, UPnP-unavailable, and similar "the environment isn't set up for this yet" conditions are modeled as expected, frequent, non-exceptional outcomes with clear user-facing messages - not 500s.
 * **Verify live, not just in theory.** Nearly every feature in this project was tested against the real, running Palworld server on the developer's own machine (real UAC prompts, a real connected player for RCON testing, a real router for UPnP, a real PyInstaller build for packaging) rather than trusting untested code.
 * **Security decisions favor the smaller blast radius.** E.g., mod installation moved from "trust a claimed source URL" to "verify the file's exact hash against Nexus's own catalog"; a self-signed-cert-as-CA approach was rejected specifically because a stolen private key would have had a much bigger blast radius than the problem it solved.
+* **Saved Nexus credentials are super-admin capabilities.** Public GraphQL metadata remains available to every authenticated admin, but every route that reads the saved Nexus key, lists downloadable files, requests a download link, updates a Nexus-sourced mod, or writes a Nexus download to disk is explicitly protected with `require_super_admin`. Regular admins can only create per-instance `mod_wishlist.json` requests from public metadata; the super admin's approval is the authorization boundary that starts a keyed download.
 
 ---
 

@@ -1,5 +1,5 @@
 import { api } from "./httpClient";
-import type { Mod, ModsPathInfo, NexusModFile, VerifiedFileInstall } from "@/types/models";
+import type { Mod, ModsPathInfo, ModWishlistRequest, NexusModFile, NexusModResult, VerifiedFileInstall } from "@/types/models";
 
 // GET /api/mods/mods-path
 export async function getModsPath(): Promise<ModsPathInfo> {
@@ -56,6 +56,28 @@ export async function getNexusModFiles(nexusModId: number): Promise<NexusModFile
 export async function installFromNexus(nexusModId: number, fileId?: number): Promise<Mod[]> {
   const query = fileId != null ? `?file_id=${fileId}` : "";
   return api.post<Mod[]>(`/api/mods/from-nexus/${nexusModId}/install${query}`);
+}
+
+export async function getWishlist(): Promise<ModWishlistRequest[]> {
+  return api.get<ModWishlistRequest[]>("/api/mods/wishlist");
+}
+
+export async function addToWishlist(mod: NexusModResult): Promise<ModWishlistRequest[]> {
+  return api.post<ModWishlistRequest[]>("/api/mods/wishlist", {
+    nexusModId: mod.modId,
+    name: mod.name,
+    author: mod.author,
+    summary: mod.summary,
+    pictureUrl: mod.pictureUrl,
+  });
+}
+
+export async function approveWishlistRequest(id: string): Promise<ModWishlistRequest[]> {
+  return api.post<ModWishlistRequest[]>(`/api/mods/wishlist/${id}/approve`);
+}
+
+export async function denyWishlistRequest(id: string): Promise<ModWishlistRequest[]> {
+  return api.post<ModWishlistRequest[]>(`/api/mods/wishlist/${id}/deny`);
 }
 
 // POST /api/mods/reorder

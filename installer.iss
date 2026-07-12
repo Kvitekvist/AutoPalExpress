@@ -1,5 +1,5 @@
 #define MyAppName "Palworld Server Admin"
-#define MyAppVersion "1.0.5"
+#define MyAppVersion "1.0.6"
 #define MyAppPublisher "Palworld Server Admin"
 #define MyAppExeName "PalworldServerAdmin.exe"
 

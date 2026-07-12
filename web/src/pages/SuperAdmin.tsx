@@ -11,6 +11,8 @@ import { NexusIntegrationPanel } from "@/components/settings/NexusIntegrationPan
 import { LocalApiSettingsPanel } from "@/components/settings/LocalApiSettingsPanel";
 import { DiagnosticsPanel } from "@/components/settings/DiagnosticsPanel";
 import { InstallFromFileDialog } from "@/components/mods/InstallFromFileDialog";
+import { ModWishlistPanel } from "@/components/settings/ModWishlistPanel";
+import { AncientTabs, AncientTabsContent, AncientTabsList, AncientTabsTrigger } from "@/components/fantasy/AncientTabs";
 
 export default function SuperAdmin() {
   const { t } = useTranslation();
@@ -30,6 +32,13 @@ export default function SuperAdmin() {
         })}
       </p>
 
+      <AncientTabs defaultValue="host-controls">
+        <AncientTabsList>
+          <AncientTabsTrigger value="host-controls">{t("superAdmin.tabs.hostControls", { defaultValue: "Host Controls" })}</AncientTabsTrigger>
+          <AncientTabsTrigger value="mod-wishlist">{t("superAdmin.tabs.modWishlist", { defaultValue: "Mod Wishlist" })}</AncientTabsTrigger>
+        </AncientTabsList>
+
+        <AncientTabsContent value="host-controls" className="space-y-6 pt-4">
       {instance && (
         <ScrollPanel icon={<HardDrive />} title={t("superAdmin.activeServer", { defaultValue: "Active Server" })}>
           <p className="truncate text-sm text-parchment-300/70">
@@ -55,6 +64,12 @@ export default function SuperAdmin() {
       <RemoteAccessPanel />
       <DiagnosticsPanel />
       <NexusIntegrationPanel />
+
+        </AncientTabsContent>
+        <AncientTabsContent value="mod-wishlist" className="pt-4">
+          <ModWishlistPanel />
+        </AncientTabsContent>
+      </AncientTabs>
 
       <InstallFromFileDialog
         open={installFromFileOpen}

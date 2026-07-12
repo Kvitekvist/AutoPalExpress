@@ -1,4 +1,4 @@
-import { Download, Check, ThumbsUp, ExternalLink, BookOpen, ShieldCheck, Upload } from "lucide-react";
+import { Download, Check, ThumbsUp, ExternalLink, BookOpen, Heart, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { SpellCard } from "@/components/fantasy/SpellCard";
@@ -12,6 +12,9 @@ interface NexusModCardProps {
   directInstallUnavailableReason?: string | null;
   installing: boolean;
   onInstall: () => void;
+  requested: boolean;
+  requesting: boolean;
+  onRequest: () => void;
 }
 
 export function NexusModCard({
@@ -22,6 +25,9 @@ export function NexusModCard({
   directInstallUnavailableReason,
   installing,
   onInstall,
+  requested,
+  requesting,
+  onRequest,
 }: NexusModCardProps) {
   const { t } = useTranslation();
   return (
@@ -99,14 +105,22 @@ export function NexusModCard({
               {t("mods.nexusCard.installFile", { defaultValue: "Install File" })}
             </Link>
           </>
-        ) : (
-          <span
-            className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-stone-600/60 bg-stone-800/20 px-3 py-2 text-xs font-medium text-parchment-300/55"
-            title={t("mods.nexusCard.superAdminOnlyTooltip", { defaultValue: "Only the super admin can install downloaded mod files." })}
-          >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            {t("mods.nexusCard.superAdminOnly", { defaultValue: "Super Admin Only" })}
+        ) : requested ? (
+          <span className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs font-medium text-gold-300/80">
+            <Check className="h-3.5 w-3.5" />
+            {t("mods.nexusCard.requested", { defaultValue: "Requested" })}
           </span>
+        ) : (
+          <button
+            type="button"
+            onClick={onRequest}
+            disabled={requesting}
+            className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs font-medium text-gold-300/80 transition-colors hover:border-gold-400/50 hover:text-gold-200 disabled:pointer-events-none disabled:opacity-50"
+            title={t("mods.nexusCard.wishlistTooltip", { defaultValue: "Ask the super admin to approve and install this mod." })}
+          >
+            <Heart className="h-3.5 w-3.5" />
+            {requesting ? t("mods.nexusCard.requesting", { defaultValue: "Requesting..." }) : t("mods.nexusCard.addToWishlist", { defaultValue: "Add to Wishlist" })}
+          </button>
         )}
       </div>
       {!installed && (
@@ -115,9 +129,9 @@ export function NexusModCard({
             ? t("mods.nexusCard.hintDirect", { defaultValue: "Direct install uses your saved Nexus key and Premium download access." })
             : canInstallFromFile
               ? `${directInstallUnavailableReason ?? t("mods.nexusCard.needsPremiumKey", { defaultValue: "Direct install needs a saved Nexus Premium API key." })} ${t("mods.nexusCard.hintFileAvailable", { defaultValue: "You can still use Install File after downloading." })}`
-              : t("mods.nexusCard.hintViewThenAsk", {
-                  defaultValue: '"View on Nexus" opens the download page. After downloading, ask the super admin to use Install From File.',
-                })}
+              : requested
+                ? t("mods.nexusCard.hintRequested", { defaultValue: "Waiting for the super admin to approve or deny this request." })
+                : t("mods.nexusCard.hintWishlist", { defaultValue: "Add this mod to the server wishlist for the super admin to review." })}
         </p>
       )}
     </SpellCard>

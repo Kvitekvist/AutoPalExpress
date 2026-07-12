@@ -209,6 +209,18 @@ export interface NexusModFile {
   description: string;
 }
 
+export interface ModWishlistRequest {
+  id: string;
+  nexusModId: number;
+  name: string;
+  author: string;
+  summary: string;
+  pictureUrl?: string;
+  nexusUrl: string;
+  requestedBy: string;
+  requestedAt: string;
+}
+
 
 export type ModsPathSource = "override" | "derived" | null;
 export type InstanceSource = "steam" | "manual" | "deployed";

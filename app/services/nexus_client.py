@@ -17,7 +17,7 @@ BASE_URL = "https://api.nexusmods.com/v1"
 GRAPHQL_URL = "https://api.nexusmods.com/v2/graphql"
 GAME_DOMAIN = "palworld"
 APP_NAME = "AutoPalExpress"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.6"
 
 
 class NexusApiError(Exception):
