@@ -99,6 +99,22 @@ begin
     FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\instances.json'));
 end;
 
+// Setup never elevates (PrivilegesRequired=lowest, no override) - if the
+// chosen folder actually needs administrator rights (most commonly true of
+// anything under Program Files), the real file copy later would fail with a
+// bare, unhelpful "Access is denied". Catching that here with a real write
+// test lets the user pick a different folder immediately instead.
+function CanWriteToDir(Dir: String): Boolean;
+var
+  TestFile: String;
+begin
+  ForceDirectories(Dir);
+  TestFile := Dir + '\.autopalexpress_write_test.tmp';
+  Result := SaveStringToFile(TestFile, 'test', False);
+  if Result then
+    DeleteFile(TestFile);
+end;
+
 // Whether AutoPalExpress is actually currently installed (a real Inno
 // uninstall entry exists), as opposed to HasAdminAccount/HasServerData
 // above, which only check for leftover app data - most app data is
@@ -209,6 +225,17 @@ begin
   Result := True;
   if CurPageID = wpSelectDir then
   begin
+    if not CanWriteToDir(ExpandConstant('{app}')) then
+    begin
+      MsgBox('AutoPalExpress could not write to this folder:' + #13#10 + #13#10 +
+             ExpandConstant('{app}') + #13#10 + #13#10 +
+             'This usually means the folder needs administrator rights (for example, anything under ' +
+             'Program Files) - this installer never asks for those. Please choose a different folder ' +
+             'instead, such as one under your own user folder or Desktop.',
+             mbError, MB_OK);
+      Result := False;
+      Exit;
+    end;
     // {app} is only valid from this point on (the user has just confirmed a
     // destination folder) - see the comment in InitializeWizard above.
     AdminAccountExists := HasAdminAccount;
