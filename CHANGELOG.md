@@ -1,7 +1,9 @@
 # Changelog
 
-## Unreleased
+## 1.0.7 - 2026-07-13
 
+- Installer checksum (SHA256): `0cfc40030236abf389a2f95d3ba5423670c83625c2004d2512b0ae8573f88759`.
+- **This is a pre-release build.** It bundles Nexus SSO integration ahead of Nexus Mods confirming AutoPalExpress's application registration - Direct Install/Wishlist-approve are not fully functional until that's confirmed. Everything else in this changelog is fully working.
 - **Pending Install badge, Nexus Login re-enabled (TICKET-0109):** the Mods page now shows a "Pending Install" card for wishlisted mods that aren't installed yet at all (update requests for an already-installed mod keep their own "Update Requested" badge). Also reverted TICKET-0107: "Nexus Login" is visible and clickable again even though Nexus hasn't confirmed AutoPalExpress's application slug yet, per explicit user request to see the real authorization step rather than have it hidden.
 - **Fixed: Nexus errors force-logging you out (TICKET-0108):** an expected "no Nexus connection" or "Nexus key invalid" error was being misread as "your AutoPalExpress session died," forcing a full logout back to the login screen instead of a normal popup error. Both were using HTTP 401, which this app's frontend specifically treats as a dead session - they now use 400/whatever Nexus actually returned, and show as an ordinary error toast like every other action failure.
 - **Nexus Connect degrades gracefully until Nexus approves (TICKET-0107):** since AutoPalExpress doesn't have its real Nexus application slug yet, "Connect via Nexus Mods" would have opened a Nexus page for an unregistered application - now disabled and clearly labeled "Pending Nexus Mods Approval" instead, until that's confirmed.
