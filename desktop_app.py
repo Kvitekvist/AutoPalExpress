@@ -71,6 +71,9 @@ def _tee_console_streams() -> None:
 
 _MB_ICONERROR = 0x10
 _MB_ICONINFORMATION = 0x40
+_MB_ICONQUESTION = 0x20
+_MB_YESNO = 0x4
+_IDYES = 6
 
 
 def _show_message_box(message: str, icon: int = _MB_ICONERROR) -> None:
@@ -82,26 +85,64 @@ def _show_message_box(message: str, icon: int = _MB_ICONERROR) -> None:
         pass
 
 
+def _ask_yes_no(message: str) -> bool:
+    """Real Yes/No native dialog. Closing it (Escape/the X button) is treated
+    as No by Windows itself when there's no separate Cancel button - the
+    safer default here, since it leaves existing data untouched either way."""
+    try:
+        import ctypes
+
+        result = ctypes.windll.user32.MessageBoxW(
+            0, message, "AutoPalExpress", _MB_YESNO | _MB_ICONQUESTION
+        )
+        return result == _IDYES
+    except Exception:
+        return False
+
+
 def _port_in_use(host: str, port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.settimeout(0.5)
         return s.connect_ex((host, port)) == 0
 
 
-def _migrate_legacy_data() -> None:
+def _offer_legacy_data_migration() -> None:
+    """Runs once per install (see documents_data_dir()'s docstring): if the
+    current Documents-based data folder doesn't exist yet and real data from
+    an older version is found, asks the user whether to bring it forward
+    rather than migrating automatically and silently."""
     from app import paths
 
-    if paths.migrate_legacy_data_if_needed():
+    if paths.documents_data_dir().exists():
+        return
+
+    legacy_dir = paths.detect_legacy_data_dir()
+    if legacy_dir is None:
+        return
+
+    migrate = _ask_yes_no(
+        "AutoPalExpress found existing data from a previous install:\n\n"
+        f"{legacy_dir}\n\n"
+        "Move it into your Documents folder and keep your existing servers, accounts, and mods?\n\n"
+        "Choose \"No\" to leave that data where it is and start with a brand new, empty setup instead."
+    )
+    if migrate:
+        new_dir = paths.migrate_data_dir(legacy_dir)
         _show_message_box(
-            "AutoPalExpress has moved its data into your Documents folder as part of this update:\n\n"
-            f"{paths.data_dir()}\n\n"
-            "Your servers, accounts, mods, and backups were carried over automatically - nothing to do.",
+            "Your existing data was moved to:\n\n"
+            f"{new_dir}\n\n"
+            "Everything was carried over automatically.",
             icon=_MB_ICONINFORMATION,
         )
+    else:
+        # Explicitly create the (empty) Documents data folder now, so
+        # documents_data_dir().exists() is True on the next launch and this
+        # isn't asked again - the old data is left completely untouched.
+        paths.data_dir()
 
 
 def main() -> None:
-    _migrate_legacy_data()
+    _offer_legacy_data_migration()
     _tee_console_streams()
 
     url = f"http://{LOCAL_HOST}:{PORT}/"

@@ -11,9 +11,10 @@ run modes:
   find, and independent of wherever the program itself got installed (which
   may not even be writable without admin rights, e.g. Program Files).
   Earlier builds used %LOCALAPPDATA%\\PalworldServerAdmin\\data, then
-  briefly a `data` folder inside the install folder itself (TICKET-0123);
-  migrate_legacy_data_if_needed() moves either forward automatically the
-  first time an upgraded build runs.
+  briefly a `data` folder inside the install folder itself (TICKET-0123).
+  detect_legacy_data_dir()/migrate_data_dir() (TICKET-0130) let the caller
+  ask the user whether to carry either of those forward, rather than
+  migrating automatically and silently.
 
 Bundled *read-only* resources (the built frontend) are the opposite: those
 only ever need to be read from wherever PyInstaller actually extracted them.
@@ -25,11 +26,9 @@ from pathlib import Path
 # Historical folder name pre-TICKET-0123/0127 versions used under
 # %LOCALAPPDATA%. Must stay exactly "PalworldServerAdmin" - it has to keep
 # matching the literal folder name old installs actually used on disk, or
-# migrate_legacy_data_if_needed() would silently stop finding anyone's
-# existing data. Not related to the app's current AutoPalExpress branding.
+# detect_legacy_data_dir() would silently stop finding anyone's existing
+# data. Not related to the app's current AutoPalExpress branding.
 _LEGACY_APP_DIR_NAME = "PalworldServerAdmin"
-
-_legacy_migration_checked = False
 
 
 def is_frozen() -> bool:
@@ -54,6 +53,14 @@ def _documents_dir() -> Path:
     return Path.home() / "Documents"
 
 
+def documents_data_dir() -> Path:
+    """Where data_dir() resolves to when frozen - without data_dir()'s
+    mkdir side effect, so callers can check whether a migrate-or-start-fresh
+    decision has already been made (the folder exists either way once it
+    has) without that check itself creating the folder."""
+    return _documents_dir() / "AutoPalExpress" / "data"
+
+
 def _legacy_appdata_data_dir() -> Path:
     import os
 
@@ -65,41 +72,36 @@ def _legacy_install_folder_data_dir() -> Path:
     return install_dir() / "data"
 
 
-def migrate_legacy_data_if_needed() -> bool:
-    """One-time move of app data from an older location into the current
-    Documents-based one, for anyone upgrading from before data lived there.
+def detect_legacy_data_dir() -> Path | None:
+    """Looks for real data from an older version, without touching anything.
     Checks TICKET-0123's install-folder location first, then the original
-    pre-0123 %LOCALAPPDATA% location. Idempotent per process (and
-    effectively per machine, since the second check below short-circuits
-    once the new folder exists) - safe to call from data_dir() on every
-    access. Returns True the one time it actually moves something, so the
-    caller can tell the user it happened."""
-    global _legacy_migration_checked
-    if _legacy_migration_checked or not is_frozen():
-        return False
-    _legacy_migration_checked = True
+    pre-0123 %LOCALAPPDATA% location. Returns None if neither has anything -
+    including on a fresh install, or once a previous launch has already
+    resolved this (see documents_data_dir())."""
+    if not is_frozen():
+        return None
+    for candidate in (_legacy_install_folder_data_dir(), _legacy_appdata_data_dir()):
+        if candidate.is_dir():
+            return candidate
+    return None
 
-    new_dir = _documents_dir() / "AutoPalExpress" / "data"
-    if new_dir.exists():
-        return False
 
-    legacy_dir = _legacy_install_folder_data_dir()
-    if not legacy_dir.is_dir():
-        legacy_dir = _legacy_appdata_data_dir()
-        if not legacy_dir.is_dir():
-            return False
+def migrate_data_dir(legacy_dir: Path) -> Path:
+    """Moves a legacy data folder (as found by detect_legacy_data_dir()) into
+    the current Documents-based location. Caller's responsibility to only
+    call this after the user has actually agreed to it."""
+    new_dir = documents_data_dir()
+    new_dir.parent.mkdir(parents=True, exist_ok=True)
 
     import shutil
 
-    new_dir.parent.mkdir(parents=True, exist_ok=True)
     shutil.move(str(legacy_dir), str(new_dir))
-    return True
+    return new_dir
 
 
 def data_dir() -> Path:
     if is_frozen():
-        migrate_legacy_data_if_needed()
-        base = _documents_dir() / "AutoPalExpress" / "data"
+        base = documents_data_dir()
     else:
         base = Path(__file__).resolve().parent.parent / "data"
     base.mkdir(parents=True, exist_ok=True)
