@@ -6,6 +6,11 @@ export async function getAccount(): Promise<NexusAccount> {
   return api.get<NexusAccount>("/api/integrations/nexus/account");
 }
 
+// GET /api/integrations/nexus/sso/configured
+export async function getSsoConfigured(): Promise<{ configured: boolean }> {
+  return api.get<{ configured: boolean }>("/api/integrations/nexus/sso/configured");
+}
+
 // POST /api/integrations/nexus/sso/start
 export async function startSso(): Promise<NexusSsoStart> {
   return api.post<NexusSsoStart>("/api/integrations/nexus/sso/start");
