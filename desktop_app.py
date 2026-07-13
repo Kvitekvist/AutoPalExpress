@@ -99,7 +99,15 @@ def _relaunch_silently_if_needed() -> bool:
         if not system_settings.get_config().get("runSilently"):
             return False
 
-        env = {**os.environ, _SILENT_RELAUNCH_ENV: "1"}
+        # _MEIPASS2 is the frozen onefile bootloader's own "where did I
+        # already extract myself to" marker. If the child inherits it, its
+        # bootloader assumes it's a continuation of *this* process's
+        # extraction instead of doing its own fresh one, and then can't find
+        # bundled binary extension modules like asyncio's _overlapped -
+        # confirmed live (ModuleNotFoundError: No module named '_overlapped'
+        # deep in uvicorn's asyncio import, only when relaunched this way).
+        env = {k: v for k, v in os.environ.items() if k != "_MEIPASS2"}
+        env[_SILENT_RELAUNCH_ENV] = "1"
         subprocess.Popen(
             [sys.executable, *sys.argv[1:]],
             creationflags=subprocess.CREATE_NO_WINDOW,
