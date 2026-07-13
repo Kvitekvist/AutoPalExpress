@@ -49,7 +49,13 @@ export function RunSilentlyPanel() {
       <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
         {t("superAdmin.runSilently.description", {
           defaultValue:
-            "Hides both the AutoPalExpress console window and the Palworld server's own console window. Off by default - turn this on if you'd rather have a clean desktop once you're done actively watching the console.",
+            "Hides the Palworld server's own console window the next time the server starts. Off by default - turn this on if you'd rather not see it once you're done actively watching the console.",
+        })}
+      </p>
+      <p className="mb-4 text-xs leading-relaxed text-gold-400/80">
+        {t("superAdmin.runSilently.exeNote", {
+          defaultValue:
+            'AutoPalExpress\'s own console window is a separate choice made when installing or updating - look for "Run Silently" in the installer if you want that hidden too. This toggle only controls the Palworld server\'s window.',
         })}
       </p>
       <div className="space-y-4">
@@ -61,7 +67,7 @@ export function RunSilentlyPanel() {
             setDirty(true);
           }}
           label={t("superAdmin.runSilently.enableOrDisable", { defaultValue: "Enable or Disable" })}
-          description={t("superAdmin.runSilently.hint", { defaultValue: "Takes effect on the next start, not live." })}
+          description={t("superAdmin.runSilently.hint", { defaultValue: "Takes effect the next time the server starts." })}
           disabled={saving}
         />
         <div className="flex justify-end">

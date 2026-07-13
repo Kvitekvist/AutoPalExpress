@@ -1,18 +1,22 @@
 """Entry point for the packaged (PyInstaller) build. Starts the backend and
 opens the default browser to it - the whole app is one process on one port,
 since app/main.py also serves the built frontend when it's present.
+
+Built twice from PalworldServerAdmin.spec, as PalworldServerAdmin.exe
+(console=True, the default) and PalworldServerAdminSilent.exe
+(console=False) - the installer's Run Silently question decides which one
+gets used for shortcuts/startup, so this file itself doesn't need to know
+or care which variant it's running as. Console visibility is fixed at
+build time on purpose: trying to hide/relaunch an already-visible console
+at runtime (TICKET-0116/0117/0118) proved unreliable in practice.
 """
 
-import os
 import socket
-import subprocess
 import sys
 import threading
 import time
 import traceback
 import webbrowser
-
-_SILENT_RELAUNCH_ENV = "_AUTOPALEXPRESS_SILENT_RELAUNCH"
 
 
 BIND_HOST = "0.0.0.0"
@@ -58,8 +62,10 @@ class _Tee:
 
 
 def _tee_console_streams() -> None:
-    """Keep the packaged console visible and also copy stdout/stderr into
-    backend.log so the Logs page can show AutoPalExpress' own output."""
+    """Copies stdout/stderr into backend.log so the Logs page can show
+    AutoPalExpress' own output. sys.stdout/sys.stderr are None on the
+    console=False Silent build - _Tee already filters those out, so this
+    still works there, it just has nothing but the log file to write to."""
     from app.paths import data_dir
 
     try:
@@ -71,53 +77,6 @@ def _tee_console_streams() -> None:
         log_file = io.StringIO()
     sys.stdout = _Tee(sys.stdout, log_file)
     sys.stderr = _Tee(sys.stderr, log_file)
-
-
-def _relaunch_silently_if_needed() -> bool:
-    """If Super Admin's "Run Silently" toggle is on, spawns a detached copy
-    of this same process with CREATE_NO_WINDOW and returns True so the
-    caller exits immediately, instead of trying to hide this process's own
-    already-visible console window in place.
-
-    Hiding an existing console via ShowWindow(hwnd, SW_HIDE) turned out not
-    to be reliable in practice - confirmed live that it can leave the window
-    minimized in the taskbar rather than truly gone (Windows Terminal in
-    particular manages its own window somewhat independently of the classic
-    console HWND). CREATE_NO_WINDOW prevents a console from ever being
-    allocated in the first place, which is the same mechanism already
-    proven reliable for hiding Palworld's own window
-    (process_manager._run_silently_enabled) - relaunching as a fresh process
-    with that flag set is the only way to get it for a process whose console
-    already exists by the time our own code starts running."""
-    if sys.platform != "win32":
-        return False
-    if os.environ.get(_SILENT_RELAUNCH_ENV) == "1":
-        return False  # already the silent relaunch - don't loop
-    try:
-        from app.services import system_settings
-
-        if not system_settings.get_config().get("runSilently"):
-            return False
-
-        # _MEIPASS2 is the frozen onefile bootloader's own "where did I
-        # already extract myself to" marker. If the child inherits it, its
-        # bootloader assumes it's a continuation of *this* process's
-        # extraction instead of doing its own fresh one, and then can't find
-        # bundled binary extension modules like asyncio's _overlapped -
-        # confirmed live (ModuleNotFoundError: No module named '_overlapped'
-        # deep in uvicorn's asyncio import, only when relaunched this way).
-        env = {k: v for k, v in os.environ.items() if k != "_MEIPASS2"}
-        env[_SILENT_RELAUNCH_ENV] = "1"
-        subprocess.Popen(
-            [sys.executable, *sys.argv[1:]],
-            creationflags=subprocess.CREATE_NO_WINDOW,
-            env=env,
-            close_fds=True,
-        )
-        return True
-    except Exception:
-        traceback.print_exc()
-        return False
 
 
 def _show_startup_error(message: str) -> None:
@@ -136,9 +95,6 @@ def _port_in_use(host: str, port: int) -> bool:
 
 
 def main() -> None:
-    if _relaunch_silently_if_needed():
-        return  # the detached, windowless relaunch takes over from here
-
     _tee_console_streams()
 
     url = f"http://{LOCAL_HOST}:{PORT}/"

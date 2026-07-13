@@ -2,6 +2,7 @@
 #define MyAppVersion "1.0.7"
 #define MyAppPublisher "Palworld Server Admin"
 #define MyAppExeName "PalworldServerAdmin.exe"
+#define MyAppExeNameSilent "PalworldServerAdminSilent.exe"
 
 [Setup]
 AppId={{C9B75D37-C6F7-4487-A49C-FBE76815AF7F}
@@ -31,19 +32,24 @@ Name: "startuprecovery"; Description: "Start AutoPalExpress with Windows (helps 
 
 [Files]
 Source: "dist\PalworldServerAdmin.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\PalworldServerAdminSilent.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "support\diagnose-autopalexpress.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Check: not ShouldRunSilently
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeNameSilent}"; Check: ShouldRunSilently
 Name: "{group}\Diagnose AutoPalExpress"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\diagnose-autopalexpress.ps1"" -DataDir ""{localappdata}\PalworldServerAdmin\data"" -ReportDir ""{localappdata}\PalworldServerAdmin\diagnostics"""; WorkingDir: "{app}"
 Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; Check: not ShouldRunSilently
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeNameSilent}"; Tasks: desktopicon; Check: ShouldRunSilently
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent; Check: not ShouldRunSilently
+Filename: "{app}\{#MyAppExeNameSilent}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent; Check: ShouldRunSilently
 
 [Registry]
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AutoPalExpress"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: startuprecovery
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AutoPalExpress"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: startuprecovery; Check: not ShouldRunSilently
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AutoPalExpress"; ValueData: """{app}\{#MyAppExeNameSilent}"""; Flags: uninsdeletevalue; Tasks: startuprecovery; Check: ShouldRunSilently
 
 ; App data lives in %LOCALAPPDATA%\PalworldServerAdmin. Most of it is
 ; deliberately left in place on uninstall (instances.json - references to
@@ -60,6 +66,7 @@ procedure ExitProcess(uExitCode: UINT);
 
 var
   InstallModePage: TInputOptionWizardPage;
+  RunSilentlyPage: TInputOptionWizardPage;
   ServerNamePage: TInputQueryWizardPage;
   ServerInstallDirPage: TInputDirWizardPage;
   SuperAdminPage: TInputQueryWizardPage;
@@ -76,6 +83,24 @@ var
 function HasAdminAccount(): Boolean;
 begin
   Result := FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\users.json'));
+end;
+
+// Crude substring check rather than real JSON parsing - Inno's Pascal has
+// no JSON library, and the app itself only ever writes this file compactly
+// (Python's json.dumps default separators, or this installer's own
+// hand-built compact JSON), so this is good enough to read one boolean back.
+function CurrentRunSilentlySetting(): Boolean;
+var
+  SettingsPath: String;
+  Contents: AnsiString;
+begin
+  Result := False;
+  SettingsPath := ExpandConstant('{localappdata}\PalworldServerAdmin\data\system_settings.json');
+  if not FileExists(SettingsPath) then
+    Exit;
+  if not LoadStringFromFile(SettingsPath, Contents) then
+    Exit;
+  Result := (Pos('"runSilently": true', Contents) > 0) or (Pos('"runSilently":true', Contents) > 0);
 end;
 
 function HasServerData(): Boolean;
@@ -104,6 +129,13 @@ end;
 function IsAppInstalled(): Boolean;
 begin
   Result := GetUninstallString() <> '';
+end;
+
+// Used as the Check: condition on the paired [Icons]/[Run]/[Registry]
+// entries above, so exactly one of each pair actually applies.
+function ShouldRunSilently(): Boolean;
+begin
+  Result := RunSilentlyPage.SelectedValueIndex = 1;
 end;
 
 procedure RunUninstallAndExit();
@@ -143,6 +175,23 @@ begin
     InstallModePage.SelectedValueIndex := 1
   else
     InstallModePage.SelectedValueIndex := 0;
+
+  // Shown on every install AND update (deliberately not in ShouldSkipPage's
+  // skip list below) - console visibility is fixed per-executable at build
+  // time (PalworldServerAdmin.exe vs PalworldServerAdminSilent.exe), so
+  // there's no reliable way to change it later without running this
+  // installer again anyway.
+  RunSilentlyPage := CreateInputOptionPage(InstallModePage.ID,
+    'Run Silently', 'Hide the console windows?',
+    'AutoPalExpress normally leaves a console window open so you can see it''s running, plus the Palworld ' +
+    'server''s own window. Choose to hide both instead if you''d rather have a clean desktop - you can change ' +
+    'this later by running this installer again.', True, False);
+  RunSilentlyPage.Add('Show the console windows (recommended)');
+  RunSilentlyPage.Add('Run silently in the background (hide both console windows)');
+  if CurrentRunSilentlySetting then
+    RunSilentlyPage.SelectedValueIndex := 1
+  else
+    RunSilentlyPage.SelectedValueIndex := 0;
 
   ServerNamePage := CreateInputQueryPage(wpSelectTasks,
     'New Server', 'Deploy a Palworld Dedicated Server now',
@@ -270,23 +319,41 @@ begin
   Result := '{' + NL + Body + NL + '}' + NL;
 end;
 
-procedure SaveStartupRecoverySettings;
+// Always writes all three fields fresh from the wizard's current answers,
+// rather than only writing (and only when checked) like the old
+// startup-recovery-only version of this did - that meant unchecking
+// "start with Windows" on an update never actually cleared a previously
+// saved `true`, since the old code just skipped writing entirely in that
+// case. Run Silently needs writing every time regardless, since it's asked
+// on every install/update, not gated behind a task checkbox.
+procedure SaveSystemSettings;
 var
   SettingsDir: String;
   SettingsPath: String;
   NL: String;
   Body: String;
+  StartupRecoveryEnabled: String;
+  RunSilentlyValue: String;
 begin
-  if not WizardIsTaskSelected('startuprecovery') then
-    Exit;
-
   NL := Chr(13) + Chr(10);
   SettingsDir := ExpandConstant('{localappdata}\PalworldServerAdmin\data');
   SettingsPath := SettingsDir + '\system_settings.json';
   ForceDirectories(SettingsDir);
+
+  if WizardIsTaskSelected('startuprecovery') then
+    StartupRecoveryEnabled := 'true'
+  else
+    StartupRecoveryEnabled := 'false';
+
+  if ShouldRunSilently then
+    RunSilentlyValue := 'true'
+  else
+    RunSilentlyValue := 'false';
+
   Body := '{' + NL +
-          '  "bootWithWindows": true,' + NL +
-          '  "autoStartActiveServer": true' + NL +
+          '  "bootWithWindows": ' + StartupRecoveryEnabled + ',' + NL +
+          '  "autoStartActiveServer": ' + StartupRecoveryEnabled + ',' + NL +
+          '  "runSilently": ' + RunSilentlyValue + NL +
           '}' + NL;
   SaveStringToFile(SettingsPath, Body, False);
 end;
@@ -300,7 +367,10 @@ var
   ElapsedSeconds: Integer;
   Done: Boolean;
 begin
-  ExePath := ExpandConstant('{app}\{#MyAppExeName}');
+  if ShouldRunSilently then
+    ExePath := ExpandConstant('{app}\{#MyAppExeNameSilent}')
+  else
+    ExePath := ExpandConstant('{app}\{#MyAppExeName}');
   LogPath := ExpandConstant('{localappdata}\PalworldServerAdmin\data\first_run_progress.log');
 
   SetupProgressPage.SetText('Starting the app to apply your answers...', '');
@@ -354,7 +424,7 @@ var
 begin
   if CurStep = ssPostInstall then
   begin
-    SaveStartupRecoverySettings;
+    SaveSystemSettings;
     SeedPath := ExpandConstant('{app}\first_run_seed.json');
     // Nothing left to provision only when both an admin account and server
     // data already exist - a post-uninstall reinstall has AdminAccountExists

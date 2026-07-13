@@ -31,6 +31,13 @@ def _save(config: dict[str, Any]) -> None:
 
 
 def _startup_target() -> Path:
+    # sys.executable is whichever installed exe is actually running right
+    # now (PalworldServerAdmin.exe or PalworldServerAdminSilent.exe) - using
+    # that instead of a hardcoded filename means "Start with Windows" always
+    # relaunches the same variant the user is currently using, not
+    # necessarily the visible one.
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve()
     packaged = install_dir() / "PalworldServerAdmin.exe"
     if packaged.is_file():
         return packaged
