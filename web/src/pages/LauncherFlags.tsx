@@ -5,6 +5,7 @@ import { instancesApi, networkApi } from "@/api";
 import type { ServerInstance, UpnpStatus } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
+import { Skeleton } from "@/components/fantasy/Skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
@@ -116,15 +117,30 @@ export default function LauncherFlags() {
   const queryPortDirty = !!instance && queryPort !== null && queryPort !== instance.queryPort;
   const unavailable = t("launcherOptions.unavailable", { defaultValue: "Unavailable" });
 
-  if (!loaded) {
-    return (
-      <div className="flex h-64 items-center justify-center text-parchment-300/50">
-        <p className="animate-pulse font-display">{t("launcherOptions.loading", { defaultValue: "Loading launcher options..." })}</p>
-      </div>
-    );
-  }
-
   if (!instance) {
+    if (!loaded) {
+      return (
+        <div className="space-y-6 pb-10">
+          <ScrollPanel icon={<Rocket />} title={t("launcherOptions.title", { defaultValue: "Launcher Options" })}>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-2 rounded-md border border-stone-700 bg-abyss-950/40 p-4">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-full" />
+                </div>
+              ))}
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={`wide-${i}`} className="space-y-3 rounded-md border border-stone-700 bg-abyss-950/40 p-4">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-9 w-full" />
+                </div>
+              ))}
+            </div>
+          </ScrollPanel>
+        </div>
+      );
+    }
     return (
       <div className="flex h-64 items-center justify-center text-parchment-300/50">
         <p className="font-display">{t("launcherOptions.selectServer", { defaultValue: "Select a server to edit launcher options." })}</p>

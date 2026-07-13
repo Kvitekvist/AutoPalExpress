@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Launcher Options skeleton loading (TICKET-0121):** the Launcher Options page no longer blocks behind a full-page spinner - all option cards render immediately with placeholders standing in for the data (toggle states, Super Admin IP/port/query port values) until it loads, matching the pattern already used for Remote Access/Share With Friends.
 - **Dashboard network traffic lights (TICKET-0112):** three grey/yellow/red/green indicators (Game Port, Steam Query Port, Remote Access) summarizing the same firewall+forwarding checks Super Admin's detailed panels already do, visible to super admins.
 - **Dashboard CPU/RAM: Palworld vs whole machine (TICKET-0115):** both tiles now show two bars each - Palworld's own usage (unchanged) and the whole machine's current load, so a host can tell "is Palworld struggling" apart from "is this machine busy with something else."
 - **Fixed: "Last saved" never updated (TICKET-0113):** clicking Save World (or a scheduled backup's live-save) produced a real timestamp that was then thrown away - nothing persisted it anywhere the status endpoint could read back. Dashboard/Server Control now reflect real save times.
