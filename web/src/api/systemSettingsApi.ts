@@ -17,6 +17,6 @@ export interface DiagnosticsResult {
 }
 
 // POST /api/system-settings/diagnostics
-export async function runDiagnostics(): Promise<DiagnosticsResult> {
-  return api.post<DiagnosticsResult>("/api/system-settings/diagnostics");
+export async function runDiagnostics(forceAdmin: boolean = false): Promise<DiagnosticsResult> {
+  return api.post<DiagnosticsResult>("/api/system-settings/diagnostics", { forceAdmin });
 }

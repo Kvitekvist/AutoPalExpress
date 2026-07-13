@@ -162,7 +162,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  20310940C489D1B46B020538843A4B0F0A43BA60F5698451FFD63A3589239578
+SHA256  PalworldServerAdmin-Setup.exe  5466E7F90BEBFA8A843DA31144BCE770F1604DD5EB4BF47DE57C93BE9223F919
 ```
 
 > [!IMPORTANT]
@@ -217,20 +217,23 @@ Outputs:
 
 ## Where Data Is Stored
 
-When installed, app data is stored under:
+App data lives inside the install folder you picked during setup, so the whole install is self-contained and portable:
 
 ```text
-%LOCALAPPDATA%\PalworldServerAdmin\data
+<your install folder>\data
 ```
 
 This includes server registry data, users, sessions, invites, and mod records.
+
+> [!NOTE]
+> Earlier versions stored this under `%LOCALAPPDATA%\PalworldServerAdmin\data` instead. If you're upgrading from one of those versions, AutoPalExpress moves your existing data into the install folder automatically the first time the new version runs, and shows a one-time message confirming it.
 
 ## Support
 
 If something does not work and you are not sure why, run **Diagnose AutoPalExpress** from the Start Menu. It checks the active server setup, Palworld files, local game port, Windows Firewall, REST API access, and writes a report to:
 
 ```text
-%LOCALAPPDATA%\PalworldServerAdmin\diagnostics
+<your install folder>\diagnostics
 ```
 
 If the report says local checks passed but outside players still cannot connect, the remaining cause is usually router forwarding, double NAT/CGNAT from the ISP, the wrong public IP, or an upstream firewall.

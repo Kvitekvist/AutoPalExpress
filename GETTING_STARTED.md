@@ -187,7 +187,7 @@ It checks:
 It saves a report here:
 
 ```text
-%LOCALAPPDATA%\PalworldServerAdmin\diagnostics
+<your install folder>\diagnostics
 ```
 
 Send that report when asking for help.

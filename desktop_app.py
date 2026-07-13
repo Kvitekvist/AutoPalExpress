@@ -69,11 +69,15 @@ def _tee_console_streams() -> None:
     sys.stderr = _Tee(sys.stderr, log_file)
 
 
-def _show_startup_error(message: str) -> None:
+_MB_ICONERROR = 0x10
+_MB_ICONINFORMATION = 0x40
+
+
+def _show_message_box(message: str, icon: int = _MB_ICONERROR) -> None:
     try:
         import ctypes
 
-        ctypes.windll.user32.MessageBoxW(0, message, "Palworld Server Admin", 0x10)
+        ctypes.windll.user32.MessageBoxW(0, message, "Palworld Server Admin", icon)
     except Exception:
         pass
 
@@ -84,7 +88,20 @@ def _port_in_use(host: str, port: int) -> bool:
         return s.connect_ex((host, port)) == 0
 
 
+def _migrate_legacy_data() -> None:
+    from app import paths
+
+    if paths.migrate_legacy_data_if_needed():
+        _show_message_box(
+            "AutoPalExpress has moved its data into the install folder as part of this update:\n\n"
+            f"{paths.install_dir() / 'data'}\n\n"
+            "Your servers, accounts, mods, and backups were carried over automatically - nothing to do.",
+            icon=_MB_ICONINFORMATION,
+        )
+
+
 def main() -> None:
+    _migrate_legacy_data()
     _tee_console_streams()
 
     url = f"http://{LOCAL_HOST}:{PORT}/"
@@ -113,7 +130,7 @@ def main() -> None:
         traceback.print_exc()
         from app.paths import data_dir
 
-        _show_startup_error(
+        _show_message_box(
             "Palworld Server Admin couldn't start.\n\n"
             f"Details were written to:\n{data_dir() / 'backend.log'}"
         )

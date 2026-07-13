@@ -705,3 +705,25 @@ AutoPalExpress now migrates old same-port query values, rejects new same-port sa
 ### Date
 
 2026-07-11
+
+---
+
+### Decision
+
+All app data (`data_dir()`) moved from `%LOCALAPPDATA%\PalworldServerAdmin\data` to `<install folder>\data`, and the installer no longer offers an all-users/admin-elevated install option (TICKET-0123).
+
+### Reason
+
+Direct user request: "I want to set this up so that nothing goes into appdata folder. Everything should live inside the install folder" - a fully self-contained, portable install matters more here than the traditional per-user-profile Windows convention `%LOCALAPPDATA%` was originally chosen for. This is an architecture-level change, so two open questions were resolved with the user via `AskUserQuestion` before writing any code, rather than assumed: (1) how to handle the fact that a normal running process can't write into an admin-elevated Program Files install - resolved by dropping the all-users option entirely (`installer.iss` no longer sets `PrivilegesRequiredOverridesAllowed`, keeping `PrivilegesRequired=lowest`) so the picked folder is always writable by the installing user; (2) what happens to existing users' real data already sitting in the old AppData location - resolved as an automatic one-time migration with a one-time popup telling the user it happened, not a silent move and not a fresh start that would lose their setup.
+
+### Alternatives
+
+Keep the all-users install option and grant folder permissions via `icacls` instead (rejected by the user - more moving parts, more that can go wrong on locked-down machines, for a single-host trusted-friends app that doesn't need it). Fresh start with no migration (rejected - would silently break every existing install, including the maintainer's own).
+
+### Consequences
+
+`app/paths.py`'s `data_dir()` resolves to `install_dir()/"data"` when frozen; `migrate_legacy_data_if_needed()` does a one-time `shutil.move()` of any real legacy AppData folder into that location, called first thing in `desktop_app.main()`. `installer.iss`'s entire `[Code]` section (first-run seed, startup-recovery settings, the Diagnose shortcut's `-DataDir`/`-ReportDir`, `CurUninstallStepChanged`) now points at `{app}\data`; `HasAdminAccount`/`HasServerData` check both the new and legacy locations, since the installer wizard's own page-skip logic runs before the Python app ever gets a chance to migrate anything. A user who reinstalls into a *different* folder than their original install won't have their data found automatically - only the one-time AppData migration is automatic; reinstalling into the same folder preserves data the same way it always has (Inno's uninstaller only removes files it tracks, not runtime-created `data\` contents). Verified end-to-end against the real packaged exe in isolated scratch folders, both the migration path (fake legacy data moved correctly, legacy folder removed) and the fresh-install path (clean boot, everything self-contained, nothing written to AppData).
+
+### Date
+
+2026-07-13

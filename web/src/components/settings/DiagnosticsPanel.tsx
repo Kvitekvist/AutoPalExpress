@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Stethoscope } from "lucide-react";
+import { Stethoscope, ShieldCheck } from "lucide-react";
 import { systemSettingsApi } from "@/api";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
@@ -14,10 +14,10 @@ export function DiagnosticsPanel() {
   const [reportPath, setReportPath] = React.useState<string | null>(null);
   const notifications = useNotifications();
 
-  async function handleRun() {
+  async function handleRun(forceAdmin: boolean) {
     setRunning(true);
     try {
-      const result = await systemSettingsApi.runDiagnostics();
+      const result = await systemSettingsApi.runDiagnostics(forceAdmin);
       setReport(result.report);
       setReportPath(result.reportPath);
       notifications.success({
@@ -39,9 +39,24 @@ export function DiagnosticsPanel() {
       icon={<Stethoscope />}
       title={t("superAdmin.diagnostics.title", { defaultValue: "Diagnostics" })}
       actions={
-        <RuneButton type="button" variant="gold" size="sm" icon={<Stethoscope />} onClick={handleRun} disabled={running}>
-          {running ? t("superAdmin.diagnostics.running", { defaultValue: "Running..." }) : t("superAdmin.diagnostics.run", { defaultValue: "Run Diagnostics" })}
-        </RuneButton>
+        <div className="flex flex-wrap items-center gap-2">
+          <RuneButton type="button" variant="gold" size="sm" icon={<Stethoscope />} onClick={() => handleRun(false)} disabled={running}>
+            {running ? t("superAdmin.diagnostics.running", { defaultValue: "Running..." }) : t("superAdmin.diagnostics.run", { defaultValue: "Run Diagnostics" })}
+          </RuneButton>
+          <RuneButton
+            type="button"
+            variant="ghost"
+            size="sm"
+            icon={<ShieldCheck />}
+            onClick={() => handleRun(true)}
+            disabled={running}
+            title={t("superAdmin.diagnostics.runAsAdminTooltip", {
+              defaultValue: "Requires the Windows permission prompt to succeed - reports an error instead of a limited report if it's declined.",
+            })}
+          >
+            {t("superAdmin.diagnostics.runAsAdmin", { defaultValue: "Run Diagnostics as Admin" })}
+          </RuneButton>
+        </div>
       }
     >
       <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">

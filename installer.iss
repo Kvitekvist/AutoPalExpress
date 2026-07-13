@@ -18,8 +18,11 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+; Deliberately no PrivilegesRequiredOverridesAllowed - never offer to elevate
+; to an all-users/Program Files install. Every AutoPalExpress data file now
+; lives inside {app}, so the install folder must always be writable by the
+; user running the app; a per-user, non-elevated install guarantees that.
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
@@ -35,7 +38,7 @@ Source: "support\diagnose-autopalexpress.ps1"; DestDir: "{app}"; Flags: ignoreve
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\Diagnose AutoPalExpress"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\diagnose-autopalexpress.ps1"" -DataDir ""{localappdata}\PalworldServerAdmin\data"" -ReportDir ""{localappdata}\PalworldServerAdmin\diagnostics"""; WorkingDir: "{app}"
+Name: "{group}\Diagnose AutoPalExpress"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\diagnose-autopalexpress.ps1"" -DataDir ""{app}\data"" -ReportDir ""{app}\diagnostics"""; WorkingDir: "{app}"
 Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
@@ -45,10 +48,15 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: no
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AutoPalExpress"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: startuprecovery
 
-; App data lives in %LOCALAPPDATA%\PalworldServerAdmin. Most of it is
-; deliberately left in place on uninstall (instances.json - references to
-; real, separately-installed Palworld server folders - plus mods and
-; backups), so a reinstall doesn't lose track of anything real. The admin
+; App data lives in {app}\data, inside the install folder itself (TICKET-0123
+; moved this from %LOCALAPPDATA%\PalworldServerAdmin - AutoPalExpress migrates
+; any existing data from that old location automatically the first time it
+; runs after an update). Most of it is deliberately left in place on
+; uninstall (instances.json - references to real, separately-installed
+; Palworld server folders - plus mods and backups), so a reinstall doesn't
+; lose track of anything real; Inno's uninstaller only removes files it
+; installed via [Files], not this runtime-created data, so {app}\data
+; survives on disk untouched unless explicitly cleared below. The admin
 ; account (users.json) and app-level settings (system_settings.json) are the
 ; exception: CurUninstallStepChanged in [Code] clears those specifically, so
 ; reinstalling after a real uninstall asks to set up a fresh admin account
@@ -73,14 +81,22 @@ var
 // reinstall, AdminAccountExists is False while ServerDataExists is still
 // True. Collapsing these back into one flag is what originally caused the
 // Super Admin page to wrongly stay hidden after a real uninstall (TICKET-0063).
+//
+// Each check looks in {app}\data first (TICKET-0123's new home), then falls
+// back to the old %LOCALAPPDATA% location - the app itself only migrates
+// that legacy data to {app}\data on its own first run, which happens after
+// this wizard has already decided which pages to show, so someone upgrading
+// from before TICKET-0123 still needs to be recognized as already set up.
 function HasAdminAccount(): Boolean;
 begin
-  Result := FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\users.json'));
+  Result := FileExists(ExpandConstant('{app}\data\users.json')) or
+    FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\users.json'));
 end;
 
 function HasServerData(): Boolean;
 begin
-  Result := FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\instances.json'));
+  Result := FileExists(ExpandConstant('{app}\data\instances.json')) or
+    FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\instances.json'));
 end;
 
 // Whether AutoPalExpress is actually currently installed (a real Inno
@@ -155,7 +171,7 @@ begin
     'AutoPalExpress will create a server folder named after your server inside this location.',
     False, '');
   ServerInstallDirPage.Add('Parent folder for the first server:');
-  ServerInstallDirPage.Values[0] := ExpandConstant('{localappdata}\PalworldServerAdmin\data\servers');
+  ServerInstallDirPage.Values[0] := ExpandConstant('{app}\data\servers');
 
   SuperAdminPage := CreateInputQueryPage(ServerInstallDirPage.ID,
     'Super Admin Account', 'Create the account that fully controls this tool',
@@ -281,7 +297,7 @@ begin
     Exit;
 
   NL := Chr(13) + Chr(10);
-  SettingsDir := ExpandConstant('{localappdata}\PalworldServerAdmin\data');
+  SettingsDir := ExpandConstant('{app}\data');
   SettingsPath := SettingsDir + '\system_settings.json';
   ForceDirectories(SettingsDir);
   Body := '{' + NL +
@@ -301,7 +317,7 @@ var
   Done: Boolean;
 begin
   ExePath := ExpandConstant('{app}\{#MyAppExeName}');
-  LogPath := ExpandConstant('{localappdata}\PalworldServerAdmin\data\first_run_progress.log');
+  LogPath := ExpandConstant('{app}\data\first_run_progress.log');
 
   SetupProgressPage.SetText('Starting the app to apply your answers...', '');
   SetupProgressPage.Show;
@@ -391,7 +407,7 @@ begin
   // deliberately left alone - see the [Registry] section comment.
   if CurUninstallStep = usPostUninstall then
   begin
-    DataDir := ExpandConstant('{localappdata}\PalworldServerAdmin\data');
+    DataDir := ExpandConstant('{app}\data');
     DeleteFile(DataDir + '\users.json');
     DeleteFile(DataDir + '\system_settings.json');
   end;

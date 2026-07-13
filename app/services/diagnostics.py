@@ -35,12 +35,12 @@ def _script_path() -> Path:
 
 
 def _report_dir() -> Path:
-    # Matches Diagnose-AutoPalExpress.cmd's own %LOCALAPPDATA%\PalworldServerAdmin\diagnostics
-    # convention when frozen; a sibling "diagnostics" folder next to "data" when run from source.
+    # A sibling "diagnostics" folder next to "data" - inside the install
+    # folder when frozen, next to the project's own data/ folder in dev.
     return paths.data_dir().parent / "diagnostics"
 
 
-def run() -> dict[str, Any]:
+def run(force_admin: bool = False) -> dict[str, Any]:
     script = _script_path()
     if not script.is_file():
         raise DiagnosticsError(f"Diagnostics script not found at '{script}'.")
@@ -54,6 +54,11 @@ def run() -> dict[str, Any]:
     fallback_note = ""
     elevated = _run_elevated(script=script, data_dir=data_dir, report_dir=report_dir)
     if not elevated:
+        if force_admin:
+            raise DiagnosticsError(
+                "Windows didn't allow diagnostics to run with admin rights - click \"Yes\" on the "
+                "permission prompt and try again, or use the regular Run Diagnostics button instead."
+            )
         fallback_note = (
             "NOTE: Windows did not allow the elevated diagnostics helper to run, "
             "so AutoPalExpress ran diagnostics without admin rights. Firewall "

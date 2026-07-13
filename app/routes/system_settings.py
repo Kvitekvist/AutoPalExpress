@@ -15,6 +15,10 @@ class SystemSettingsRequest(BaseModel):
     autoStartActiveServer: bool
 
 
+class RunDiagnosticsRequest(BaseModel):
+    forceAdmin: bool = False
+
+
 @router.get("")
 async def get_system_settings() -> dict[str, Any]:
     return system_settings.get_config()
@@ -34,8 +38,8 @@ async def update_system_settings(body: SystemSettingsRequest) -> dict[str, Any]:
 
 
 @router.post("/diagnostics")
-async def run_diagnostics() -> dict[str, Any]:
+async def run_diagnostics(body: RunDiagnosticsRequest = RunDiagnosticsRequest()) -> dict[str, Any]:
     try:
-        return await asyncio.to_thread(diagnostics.run)
+        return await asyncio.to_thread(diagnostics.run, body.forceAdmin)
     except DiagnosticsError as e:
         raise HTTPException(status_code=500, detail=e.message)
