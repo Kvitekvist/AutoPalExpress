@@ -1,6 +1,6 @@
 import { Reorder, useDragControls } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { GripVertical, User, Layers, TriangleAlert, Trash2, ArrowUpCircle } from "lucide-react";
+import { GripVertical, User, Layers, TriangleAlert, Trash2, ArrowUpCircle, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Mod } from "@/types/models";
 import { SpellCard } from "@/components/fantasy/SpellCard";
@@ -11,7 +11,8 @@ interface ModCardProps {
   mod: Mod;
   onToggle: (mod: Mod, next: boolean) => void;
   onRemove: (mod: Mod) => void;
-  onUpdate: (mod: Mod) => void;
+  onRequestUpdate: (mod: Mod) => void;
+  updateRequested: boolean;
   busy?: boolean;
 }
 
@@ -21,7 +22,7 @@ const STATUS_BADGE: Record<Mod["status"], string> = {
   broken: "border-blood-500/50 bg-blood-500/10 text-blood-400",
 };
 
-export function ModCard({ mod, onToggle, onRemove, onUpdate, busy }: ModCardProps) {
+export function ModCard({ mod, onToggle, onRemove, onRequestUpdate, updateRequested, busy }: ModCardProps) {
   const { t } = useTranslation();
   const dragControls = useDragControls();
 
@@ -96,9 +97,23 @@ export function ModCard({ mod, onToggle, onRemove, onUpdate, busy }: ModCardProp
               />
               <div className="flex items-center gap-2">
                 {mod.updateAvailable && (
-                  <RuneButton variant="mana" size="sm" icon={<ArrowUpCircle />} onClick={() => onUpdate(mod)} disabled={busy}>
-                    {t("mods.card.updateTo", { defaultValue: "Update to {{version}}", version: mod.latestVersion })}
-                  </RuneButton>
+                  updateRequested ? (
+                    <span className="flex items-center gap-1.5 rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs font-medium text-gold-300/80">
+                      <Check className="h-3.5 w-3.5" />
+                      {t("mods.card.updateRequested", { defaultValue: "Update Requested" })}
+                    </span>
+                  ) : (
+                    <RuneButton
+                      variant="mana"
+                      size="sm"
+                      icon={<ArrowUpCircle />}
+                      onClick={() => onRequestUpdate(mod)}
+                      disabled={busy}
+                      title={t("mods.card.requestUpdateTooltip", { defaultValue: "Ask the super admin to approve and install this update." })}
+                    >
+                      {t("mods.card.requestUpdateTo", { defaultValue: "Request Update to {{version}}", version: mod.latestVersion })}
+                    </RuneButton>
+                  )
                 )}
                 <RuneButton variant="danger" size="sm" icon={<Trash2 />} onClick={() => onRemove(mod)} disabled={busy}>
                   {t("mods.card.remove", { defaultValue: "Remove" })}

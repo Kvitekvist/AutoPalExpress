@@ -1,17 +1,18 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { BookKey, Crown, KeyRound, LogOut, ShieldCheck } from "lucide-react";
+import { BookKey, Crown, ExternalLink, LogOut, ShieldCheck } from "lucide-react";
 import { nexusApi } from "@/api";
 import type { NexusAccount } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
-import { Input } from "@/components/ui/input";
 import { useNotifications } from "@/hooks/useNotifications";
+
+const POLL_INTERVAL_MS = 2000;
+const POLL_TIMEOUT_MS = 3 * 60 * 1000;
 
 export function NexusIntegrationPanel() {
   const { t } = useTranslation();
   const [account, setAccount] = React.useState<NexusAccount | null>(null);
-  const [apiKey, setApiKey] = React.useState("");
   const [connecting, setConnecting] = React.useState(false);
   const notifications = useNotifications();
 
@@ -23,28 +24,42 @@ export function NexusIntegrationPanel() {
     const acc = await nexusApi.disconnectAccount();
     setAccount(acc);
     notifications.info({
-      title: t("superAdmin.nexus.keyRemovedTitle", { defaultValue: "Nexus Mods key removed" }),
-      message: t("superAdmin.nexus.keyRemovedMessage", { defaultValue: "Browsing still works, but direct installs need a saved Premium key." }),
+      title: t("superAdmin.nexus.disconnectedTitle", { defaultValue: "Nexus Mods disconnected" }),
+      message: t("superAdmin.nexus.disconnectedMessage", { defaultValue: "Browsing still works, but direct installs need reconnecting." }),
     });
   }
 
   async function handleConnect() {
-    if (!apiKey.trim()) return;
     setConnecting(true);
     try {
-      const acc = await nexusApi.connectApiKey(apiKey.trim());
-      setAccount(acc);
-      setApiKey("");
-      notifications.success({
-        title: t("superAdmin.nexus.keySavedTitle", { defaultValue: "Nexus Mods key saved" }),
-        message: acc.isPremium
-          ? t("superAdmin.nexus.directInstallsAvailable", { defaultValue: "Direct Nexus installs are available." })
-          : t("superAdmin.nexus.needsPremium", { defaultValue: "Browsing works, but direct installs require Nexus Premium." }),
-      });
-    } catch (e) {
+      const { requestId, authorizeUrl } = await nexusApi.startSso();
+      window.open(authorizeUrl, "_blank", "noopener,noreferrer");
+
+      const deadline = Date.now() + POLL_TIMEOUT_MS;
+      while (Date.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+        const result = await nexusApi.getSsoStatus(requestId);
+        if (result.status === "connected") {
+          setAccount(result.account);
+          notifications.success({
+            title: t("superAdmin.nexus.connectedTitle", { defaultValue: "Nexus Mods connected" }),
+            message: result.account.isPremium
+              ? t("superAdmin.nexus.directInstallsAvailable", { defaultValue: "Direct Nexus installs are available." })
+              : t("superAdmin.nexus.needsPremium", { defaultValue: "Browsing works, but direct installs require Nexus Premium." }),
+          });
+          return;
+        }
+        if (result.status === "error") {
+          notifications.error({
+            title: t("superAdmin.nexus.connectFailedTitle", { defaultValue: "Nexus Mods connection failed" }),
+            message: result.message,
+          });
+          return;
+        }
+      }
       notifications.error({
-        title: t("superAdmin.nexus.keyFailedTitle", { defaultValue: "Nexus key failed" }),
-        message: e instanceof Error ? e.message : t("superAdmin.nexus.unknownError", { defaultValue: "Unknown error." }),
+        title: t("superAdmin.nexus.connectTimedOutTitle", { defaultValue: "Nexus Mods connection timed out" }),
+        message: t("superAdmin.nexus.connectTimedOutMessage", { defaultValue: "The approval window closed. Try connecting again." }),
       });
     } finally {
       setConnecting(false);
@@ -53,16 +68,10 @@ export function NexusIntegrationPanel() {
 
   return (
     <ScrollPanel icon={<BookKey />} title={t("superAdmin.nexus.title", { defaultValue: "Nexus Mods Integration" })}>
-      <p className="mb-2 text-xs leading-relaxed text-parchment-300/50">
+      <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
         {t("superAdmin.nexus.description1", {
           defaultValue:
-            "Browse Nexus Mods now uses Nexus's public GraphQL metadata, so the server no longer needs the super admin's personal API key for browsing or verified manual installs.",
-        })}
-      </p>
-      <p className="mb-4 text-xs leading-relaxed text-gold-400/80">
-        {t("superAdmin.nexus.description2", {
-          defaultValue:
-            'Direct Nexus installs use the saved API key and require Nexus Premium download access. Without that, download files on Nexus and use "Install From File" here so the exact file can be checked before install.',
+            "Browsing and verified manual installs use Nexus's public metadata and need no connection at all. Connecting through Nexus Mods below only unlocks Direct Install (and requires Nexus Premium download access).",
         })}
       </p>
 
@@ -86,33 +95,32 @@ export function NexusIntegrationPanel() {
             </div>
           </div>
           <RuneButton variant="ghost" size="sm" icon={<LogOut />} onClick={handleDisconnect}>
-            {t("superAdmin.nexus.removeSavedKey", { defaultValue: "Remove Saved Key" })}
+            {t("superAdmin.nexus.disconnect", { defaultValue: "Disconnect" })}
           </RuneButton>
         </div>
       ) : (
         <div className="space-y-3 rounded-md border border-life-600/30 bg-life-500/5 px-4 py-3">
           <div className="flex items-center gap-3 text-xs text-life-300/80">
             <ShieldCheck className="h-4 w-4 shrink-0" />
-            {t("superAdmin.nexus.worksWithoutKey", { defaultValue: "Browsing and verified file upload work without a Nexus API key." })}
+            {t("superAdmin.nexus.worksWithoutKey", { defaultValue: "Browsing and verified file upload work without connecting anything." })}
           </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Input
-              value={apiKey}
-              onChange={(event) => setApiKey(event.target.value)}
-              placeholder={t("superAdmin.nexus.apiKeyPlaceholder", { defaultValue: "Nexus Mods API key for direct installs" })}
-              type="password"
-            />
-            <RuneButton
-              type="button"
-              variant="gold"
-              icon={<KeyRound />}
-              onClick={handleConnect}
-              disabled={connecting || !apiKey.trim()}
-              className="shrink-0"
-            >
-              {connecting ? t("superAdmin.nexus.checking", { defaultValue: "Checking..." }) : t("superAdmin.nexus.saveKey", { defaultValue: "Save Key" })}
-            </RuneButton>
-          </div>
+          <RuneButton
+            type="button"
+            variant="gold"
+            icon={<ExternalLink />}
+            onClick={handleConnect}
+            disabled={connecting}
+            className="w-full"
+          >
+            {connecting
+              ? t("superAdmin.nexus.waitingForApproval", { defaultValue: "Waiting for approval on Nexus Mods..." })
+              : t("superAdmin.nexus.connect", { defaultValue: "Connect via Nexus Mods" })}
+          </RuneButton>
+          <p className="text-[11px] leading-relaxed text-parchment-300/40">
+            {t("superAdmin.nexus.connectHint", {
+              defaultValue: "Opens a Nexus Mods tab where you log in and approve AutoPalExpress - no key to copy or paste.",
+            })}
+          </p>
         </div>
       )}
     </ScrollPanel>

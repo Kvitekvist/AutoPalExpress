@@ -82,12 +82,35 @@ async def deny_wishlist_request(request_id: str) -> list[dict[str, Any]]:
     return mod_wishlist.list_requests(instance["id"])
 
 
+async def _with_update_status(mods: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Populates real updateAvailable/latestVersion (previously always false/
+    unset) via a single keyless GraphQL lookup, computed per-request rather
+    than persisted so it always reflects Nexus's current published version."""
+    mod_ids = [m["sourceModId"] for m in mods if m.get("sourceModId")]
+    if not mod_ids:
+        return mods
+    try:
+        current_versions = await nexus_client.get_current_versions(mod_ids)
+    except NexusApiError as e:
+        logger.info("mods: skipping update check (%s)", e.message)
+        return mods
+
+    result = []
+    for m in mods:
+        current = current_versions.get(m.get("sourceModId"))
+        if current and current != m.get("version"):
+            m = {**m, "updateAvailable": True, "latestVersion": current}
+        result.append(m)
+    return result
+
+
 @router.get("")
 async def get_mods() -> list[dict[str, Any]]:
     instance = instance_store.get_active()
     if not instance:
         return []
-    return mods_store.sorted_mods(mods_store.load_mods(instance["id"]))
+    mods = mods_store.sorted_mods(mods_store.load_mods(instance["id"]))
+    return await _with_update_status(mods)
 
 
 def _mods_path_view(instance: dict[str, Any]) -> dict[str, Any]:
@@ -210,7 +233,7 @@ async def _install_nexus_mod(
     else:
         mods.append(entry)
     mods_store.save_mods(instance["id"], mods)
-    return mods_store.sorted_mods(mods)
+    return await _with_update_status(mods_store.sorted_mods(mods))
 
 
 @router.get("/mods-path")
@@ -279,7 +302,7 @@ async def enable_mod(mod_id: str) -> list[dict[str, Any]]:
                         raise HTTPException(status_code=500, detail=f"Could not place mod files on disk: {e}")
             m["status"] = "enabled"
     mods_store.save_mods(instance["id"], mods)
-    return mods_store.sorted_mods(mods)
+    return await _with_update_status(mods_store.sorted_mods(mods))
 
 
 @router.post("/{mod_id}/disable")
@@ -296,7 +319,7 @@ async def disable_mod(mod_id: str) -> list[dict[str, Any]]:
                     raise HTTPException(status_code=500, detail=f"Could not disable mod on disk: {e}")
             m["status"] = "disabled"
     mods_store.save_mods(instance["id"], mods)
-    return mods_store.sorted_mods(mods)
+    return await _with_update_status(mods_store.sorted_mods(mods))
 
 
 @router.post("/{mod_id}/remove")
@@ -312,7 +335,7 @@ async def remove_mod(mod_id: str) -> list[dict[str, Any]]:
             raise HTTPException(status_code=500, detail=f"Could not remove mod files from disk: {e}")
     mods = [m for m in mods if m["id"] != mod_id]
     mods_store.save_mods(instance["id"], mods)
-    return mods_store.sorted_mods(mods)
+    return await _with_update_status(mods_store.sorted_mods(mods))
 
 
 class ReorderRequest(BaseModel):
@@ -328,7 +351,7 @@ async def reorder(body: ReorderRequest) -> list[dict[str, Any]]:
         if m["id"] in order:
             m["loadPriority"] = order[m["id"]]
     mods_store.save_mods(instance["id"], mods)
-    return mods_store.sorted_mods(mods)
+    return await _with_update_status(mods_store.sorted_mods(mods))
 
 
 @router.get("/from-nexus/{nexus_mod_id}/files", dependencies=[Depends(require_super_admin)])
@@ -360,16 +383,6 @@ async def get_nexus_mod_files(nexus_mod_id: int) -> list[dict[str, Any]]:
 async def install_from_nexus(nexus_mod_id: int, file_id: int | None = None) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     return await _install_nexus_mod(instance, nexus_mod_id, file_id)
-
-
-@router.post("/{mod_id}/update", dependencies=[Depends(require_super_admin)])
-async def update_mod(mod_id: str, file_id: int | None = None) -> list[dict[str, Any]]:
-    instance = _require_active_instance()
-    mods = mods_store.load_mods(instance["id"])
-    target = next((m for m in mods if m["id"] == mod_id), None)
-    if not target or not target.get("sourceModId"):
-        raise HTTPException(status_code=400, detail="This mod has no Nexus Mods source to update from.")
-    return await _install_nexus_mod(instance, int(target["sourceModId"]), file_id)
 
 
 @router.post("/install-from-file/prepare", dependencies=[Depends(require_super_admin)])
@@ -492,7 +505,7 @@ async def confirm_install_from_file(body: ConfirmFileInstallRequest) -> list[dic
     else:
         mods.append(entry)
     mods_store.save_mods(instance["id"], mods)
-    return mods_store.sorted_mods(mods)
+    return await _with_update_status(mods_store.sorted_mods(mods))
 
 
 @router.delete("/install-from-file/{token}", dependencies=[Depends(require_super_admin)])

@@ -1,16 +1,12 @@
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
 
 from app.auth_deps import require_super_admin
-from app.services import nexus_client, nexus_session
+from app.services import nexus_client, nexus_session, nexus_sso
 from app.services.nexus_client import NexusApiError
 
 router = APIRouter()
-
-class ConnectRequest(BaseModel):
-    api_key: str
 
 
 # account_view() never exposes the raw API key. It remains public to authenticated
@@ -20,23 +16,43 @@ async def get_account() -> dict[str, Any]:
     return nexus_session.account_view()
 
 
-@router.post("/connect", dependencies=[Depends(require_super_admin)])
-async def connect(body: ConnectRequest) -> dict[str, Any]:
+@router.post("/sso/start", dependencies=[Depends(require_super_admin)])
+async def start_sso() -> dict[str, Any]:
+    return nexus_sso.start()
+
+
+@router.get("/sso/status/{request_id}", dependencies=[Depends(require_super_admin)])
+async def get_sso_status(request_id: str) -> dict[str, Any]:
+    session = nexus_sso.get_status(request_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="This Nexus Mods connection request has expired. Try again.")
+
+    if session["status"] == "pending":
+        return {"status": "pending"}
+
+    if session["status"] == "error":
+        nexus_sso.finish(request_id)
+        return {"status": "error", "message": session["error"]}
+
+    # session["status"] == "authorized": finish the same validate-and-save
+    # step the old pasted-key /connect endpoint used to do.
     try:
-        data = await nexus_client.validate_key(body.api_key)
+        data = await nexus_client.validate_key(session["apiKey"])
     except NexusApiError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
+        nexus_sso.finish(request_id)
+        return {"status": "error", "message": e.message}
 
     nexus_session.save_record(
         {
             "connected": True,
-            "apiKey": body.api_key,
+            "apiKey": session["apiKey"],
             "username": data.get("name"),
             "userId": data.get("user_id"),
             "isPremium": bool(data.get("is_premium")),
         }
     )
-    return nexus_session.account_view()
+    nexus_sso.finish(request_id)
+    return {"status": "connected", "account": nexus_session.account_view()}
 
 
 @router.post("/disconnect", dependencies=[Depends(require_super_admin)])

@@ -4,7 +4,7 @@ import { Reorder } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { BookOpen, ScrollText, TriangleAlert } from "lucide-react";
 import { modsApi } from "@/api";
-import type { Mod, ModsPathInfo } from "@/types/models";
+import type { Mod, ModsPathInfo, ModWishlistRequest } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
@@ -22,6 +22,7 @@ export default function Mods() {
   const [removeTarget, setRemoveTarget] = React.useState<Mod | null>(null);
   const [browseOpen, setBrowseOpen] = React.useState(false);
   const [modsPathInfo, setModsPathInfo] = React.useState<ModsPathInfo | null>(null);
+  const [wishlist, setWishlist] = React.useState<ModWishlistRequest[]>([]);
   const notifications = useNotifications();
   const { user } = useAuth();
 
@@ -31,6 +32,7 @@ export default function Mods() {
       setLoading(false);
     });
     modsApi.getModsPath().then(setModsPathInfo);
+    modsApi.getWishlist().then(setWishlist);
   }, []);
 
   async function handleReorder(next: Mod[]) {
@@ -57,15 +59,15 @@ export default function Mods() {
     }
   }
 
-  async function handleUpdate(mod: Mod) {
+  async function handleRequestUpdate(mod: Mod) {
     setBusyId(mod.id);
     try {
-      const updated = await modsApi.updateMod(mod.id);
-      setMods(updated);
-      notifications.info({
-        title: t("mods.notifications.updatedTitle", { defaultValue: "Mod updated" }),
-        message: t("mods.notifications.updatedMessage", {
-          defaultValue: "{{name}} has been reforged to v{{version}}.",
+      const updated = await modsApi.requestModUpdate(mod);
+      setWishlist(updated);
+      notifications.success({
+        title: t("mods.notifications.updateRequestedTitle", { defaultValue: "Update requested" }),
+        message: t("mods.notifications.updateRequestedMessage", {
+          defaultValue: "{{name}}'s update to v{{version}} is waiting for super-admin approval.",
           name: mod.name,
           version: mod.latestVersion,
         }),
@@ -152,7 +154,8 @@ export default function Mods() {
                 mod={mod}
                 onToggle={handleToggle}
                 onRemove={setRemoveTarget}
-                onUpdate={handleUpdate}
+                onRequestUpdate={handleRequestUpdate}
+                updateRequested={wishlist.some((r) => r.nexusModId === mod.sourceModId)}
                 busy={busyId === mod.id}
               />
             ))}

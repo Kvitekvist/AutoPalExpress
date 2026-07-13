@@ -18,6 +18,7 @@ logger = logging.getLogger("palworld_admin.nexus_client")
 BASE_URL = "https://api.nexusmods.com/v1"
 GRAPHQL_URL = "https://api.nexusmods.com/v2/graphql"
 GAME_DOMAIN = "palworld"
+GAME_ID = 6063  # Palworld's numeric Nexus game id, needed by GraphQL's modId filter
 APP_NAME = "AutoPalExpress"
 
 
@@ -183,6 +184,35 @@ async def file_hash_search(md5_hash: str) -> list[dict[str, Any]]:
         for match in matches
         if (((match.get("modFile") or {}).get("mod") or {}).get("game") or {}).get("domainName") == GAME_DOMAIN
     ]
+
+
+async def get_current_versions(mod_ids: list[int]) -> dict[int, str]:
+    """Keyless GraphQL lookup of each mod's currently-published version, used
+    to compute real update availability instead of the old always-false
+    placeholder. Confirmed live that `modId` filtering requires `gameId`
+    alongside it, and that OR-combining one sub-filter per mod id (via the
+    nested `filter`/`op: OR` shape) is how to batch several mod ids into a
+    single request - Nexus's GraphQL schema has no `IN`/list-value operator
+    for a single filter field."""
+    if not mod_ids:
+        return {}
+    query = """
+    query AutoPalExpressModVersions($subFilters: [ModsFilter!]) {
+      mods(filter: {op: OR, filter: $subFilters}) {
+        nodes {
+          modId
+          version
+        }
+      }
+    }
+    """
+    sub_filters = [
+        {"gameId": {"value": str(GAME_ID), "op": "EQUALS"}, "modId": {"value": str(mod_id), "op": "EQUALS"}}
+        for mod_id in mod_ids
+    ]
+    data = await _graphql(query, {"subFilters": sub_filters})
+    nodes = (data.get("mods") or {}).get("nodes") or []
+    return {n["modId"]: n["version"] for n in nodes if n.get("version")}
 
 
 async def get_download_link(api_key: str, mod_id: int, file_id: int) -> list[dict[str, Any]]:

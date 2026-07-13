@@ -4,3 +4,4 @@ httpx>=0.27
 pydantic>=2.9
 python-multipart>=0.0.20
 psutil>=6.0
+websockets>=12.0

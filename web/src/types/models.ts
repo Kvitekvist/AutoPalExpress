@@ -204,6 +204,16 @@ export interface NexusAccount {
   avatarInitial?: string;
 }
 
+export interface NexusSsoStart {
+  requestId: string;
+  authorizeUrl: string;
+}
+
+export type NexusSsoStatus =
+  | { status: "pending" }
+  | { status: "connected"; account: NexusAccount }
+  | { status: "error"; message: string };
+
 export type NexusModList = "trending" | "latest_added" | "latest_updated";
 
 export interface NexusModResult {

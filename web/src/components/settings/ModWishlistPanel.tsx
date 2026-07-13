@@ -2,7 +2,7 @@ import * as React from "react";
 import { Check, ExternalLink, Heart, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { modsApi } from "@/api";
-import type { ModWishlistRequest } from "@/types/models";
+import type { Mod, ModWishlistRequest } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -11,10 +11,12 @@ export function ModWishlistPanel() {
   const { t } = useTranslation();
   const notifications = useNotifications();
   const [requests, setRequests] = React.useState<ModWishlistRequest[]>([]);
+  const [installedMods, setInstalledMods] = React.useState<Mod[]>([]);
   const [busyId, setBusyId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     modsApi.getWishlist().then(setRequests);
+    modsApi.getMods().then(setInstalledMods);
   }, []);
 
   async function decide(request: ModWishlistRequest, approve: boolean) {
@@ -58,6 +60,11 @@ export function ModWishlistPanel() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <h4 className="truncate font-display text-sm font-semibold text-parchment-100">{request.name}</h4>
+                  {installedMods.some((m) => m.sourceModId === request.nexusModId) && (
+                    <span className="shrink-0 rounded-full border border-mana-500/40 bg-mana-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-mana-300">
+                      {t("superAdmin.modWishlist.updateBadge", { defaultValue: "Update" })}
+                    </span>
+                  )}
                   <a href={request.nexusUrl} target="_blank" rel="noreferrer" className="text-gold-400 hover:text-gold-300" title="View on Nexus">
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>

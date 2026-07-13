@@ -50,8 +50,9 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Start AutoPalExpress with Windows and bring the active server back online after a machine restart.
 - Install and update UE4SS.
 - Browse Nexus Mods without entering a personal API key.
-- Install directly from Nexus when the super admin connects a Premium API key.
-- Let regular admins add browsed mods to a per-server wishlist for the super admin to approve or deny.
+- Install directly from Nexus once the super admin connects their Nexus Mods account through Nexus's own Single Sign-On - no key to copy or paste.
+- Let regular admins add browsed mods, or updates to already-installed mods, to a per-server wishlist for the super admin to approve or deny.
+- Show which installed mods have a newer version published on Nexus Mods.
 - See a quiet in-app notice when a newer stable AutoPalExpress release is available on GitHub.
 - Optionally show a small, understated donation link in the sidebar - never required, never intrusive.
 - Enable, disable, reorder, and remove mods.
@@ -106,7 +107,7 @@ AutoPalExpress browses Palworld mod metadata through Nexus Mods' public GraphQL 
 AutoPalExpress also checks the repository's public GitHub Releases feed for newer stable versions. The check is cached for six hours, requires no GitHub account or token, and only shows a link to the official release page; it never downloads or runs an installer automatically.
 
 > [!NOTE]
-> Direct Nexus installs require the super admin to save a Nexus API key with Premium download access. Regular admins never use that saved key directly: they can add mods to the server wishlist, and only the super admin's approval starts a download. Browsing still works without a key.
+> Direct Nexus installs require the super admin to connect their Nexus Mods account through Nexus's Single Sign-On (opens a Nexus Mods tab to log in and approve AutoPalExpress) and requires Premium download access. Regular admins never connect anything directly: they can add mods (or updates to already-installed mods) to the server wishlist, and only the super admin's approval starts a download. Browsing still works without connecting anything.
 
 If you do not use direct install, download files on Nexus Mods, then use **Install From File** in Super Admin. AutoPalExpress checks the uploaded file's exact hash against Nexus' catalog before installing it.
 

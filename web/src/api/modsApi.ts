@@ -41,12 +41,6 @@ export async function removeMod(id: string): Promise<Mod[]> {
   return api.post<Mod[]>(`/api/mods/${id}/remove`);
 }
 
-// POST /api/mods/{id}/update
-export async function updateMod(id: string, fileId?: number): Promise<Mod[]> {
-  const query = fileId != null ? `?file_id=${fileId}` : "";
-  return api.post<Mod[]>(`/api/mods/${id}/update${query}`);
-}
-
 // GET /api/mods/from-nexus/{nexusModId}/files
 export async function getNexusModFiles(nexusModId: number): Promise<NexusModFile[]> {
   return api.get<NexusModFile[]>(`/api/mods/from-nexus/${nexusModId}/files`);
@@ -69,6 +63,19 @@ export async function addToWishlist(mod: NexusModResult): Promise<ModWishlistReq
     author: mod.author,
     summary: mod.summary,
     pictureUrl: mod.pictureUrl,
+  });
+}
+
+// Requests an update for an already-installed Nexus-sourced mod through the
+// same wishlist the super admin already reviews - installing a new mod and
+// updating one already went through the same backend approve path anyway.
+export async function requestModUpdate(mod: Mod): Promise<ModWishlistRequest[]> {
+  return api.post<ModWishlistRequest[]>("/api/mods/wishlist", {
+    nexusModId: mod.sourceModId,
+    name: mod.name,
+    author: mod.author,
+    summary: mod.description,
+    pictureUrl: null,
   });
 }
 
