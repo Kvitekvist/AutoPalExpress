@@ -85,8 +85,14 @@ async def deny_wishlist_request(request_id: str) -> list[dict[str, Any]]:
 async def _with_update_status(mods: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Populates real updateAvailable/latestVersion (previously always false/
     unset) via a single keyless GraphQL lookup, computed per-request rather
-    than persisted so it always reflects Nexus's current published version."""
-    mod_ids = [m["sourceModId"] for m in mods if m.get("sourceModId")]
+    than persisted so it always reflects Nexus's current published version.
+    Also flags manually-installed mods (verified file uploads) from their
+    `verified-` id prefix - their sourceModId only proves the uploaded file's
+    hash matches something on Nexus, not that they came through the Nexus
+    download/wishlist pipeline "Request Update" triggers, so they're excluded
+    from the update check entirely."""
+    mods = [{**m, "manuallyInstalled": m["id"].startswith("verified-")} for m in mods]
+    mod_ids = [m["sourceModId"] for m in mods if m.get("sourceModId") and not m["manuallyInstalled"]]
     if not mod_ids:
         return mods
     try:

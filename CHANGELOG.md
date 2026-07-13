@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **"Manually Added" flag, no Request Update for manual installs (TICKET-0122):** mods installed via Super Admin's Install From File now show a "Manually Added" badge and never offer "Request Update" - their Nexus mod ID only proves the uploaded file's hash matched something on Nexus, not that they came through the Nexus download/wishlist pipeline that button triggers.
 - **Launcher Options skeleton loading (TICKET-0121):** the Launcher Options page no longer blocks behind a full-page spinner - all option cards render immediately with placeholders standing in for the data (toggle states, Super Admin IP/port/query port values) until it loads, matching the pattern already used for Remote Access/Share With Friends.
 - **Dashboard network traffic lights (TICKET-0112):** three grey/yellow/red/green indicators (Game Port, Steam Query Port, Remote Access) summarizing the same firewall+forwarding checks Super Admin's detailed panels already do, visible to super admins.
 - **Dashboard CPU/RAM: Palworld vs whole machine (TICKET-0115):** both tiles now show two bars each - Palworld's own usage (unchanged) and the whole machine's current load, so a host can tell "is Palworld struggling" apart from "is this machine busy with something else."

@@ -52,6 +52,11 @@ export function ModCard({ mod, onToggle, onRemove, onRequestUpdate, updateReques
               <div className="flex items-center gap-2">
                 <h3 className="font-display text-base font-semibold text-parchment-100">{mod.name}</h3>
                 <span className="font-mono text-xs text-parchment-300/45">v{mod.version}</span>
+                {mod.manuallyInstalled && (
+                  <span className="rounded-full border border-stone-600 bg-stone-800/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-parchment-300/60">
+                    {t("mods.card.manuallyAdded", { defaultValue: "Manually Added" })}
+                  </span>
+                )}
               </div>
               <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider", STATUS_BADGE[mod.status])}>
                 {t(`mods.status.${mod.status}`, { defaultValue: mod.status })}

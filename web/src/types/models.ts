@@ -100,6 +100,7 @@ export interface Mod {
   updateAvailable: boolean;
   latestVersion?: string;
   sourceModId?: number | null;
+  manuallyInstalled?: boolean;
 }
 
 export interface VerifiedFileInstall {
