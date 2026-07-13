@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Save Import (TICKET-0104):** added an "Import Save" tool in Settings > Automation so a co-op or single-player save copied over from another PC (e.g. the host's own Steam library) can be dropped straight into a registered server's save slot, even on a machine that never had Steam installed. Point it at the copied save folder (or its parent folder, if there's more than one world to choose from), confirm, and it automatically backs up the server's current save before replacing it. The server must be stopped first.
 - **Docs cross-links (TICKET-0103):** README and Getting Started now reference the new wiki screenshots and link to the full Wiki; fixed Getting Started's long-missing diagnostics screenshot.
 - **Wiki cleanup (TICKET-0102):** removed the leftover placeholder captions under each screenshot now that real images are in place.
 - **Wiki screenshots (TICKET-0101):** added all 55 real screenshots to `images/wiki/` and the live GitHub Wiki, replacing the placeholders.

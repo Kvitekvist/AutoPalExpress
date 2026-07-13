@@ -1,9 +1,11 @@
+import asyncio
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services import automation_store, backup_service, instance_store, palworld_rest
+from app.services import automation_store, backup_service, instance_store, native_dialog, palworld_rest, save_import_service
+from app.services.save_import_service import SaveImportError
 
 router = APIRouter()
 
@@ -82,3 +84,33 @@ async def run_backup_now() -> dict[str, Any]:
         return await backup_service.run_backup(instance)
     except FileNotFoundError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/save-import/browse")
+async def browse_save_import() -> dict[str, Any]:
+    path = await asyncio.to_thread(
+        native_dialog.pick_folder, "Select the world save folder (or its parent SaveGames folder)"
+    )
+    return {"path": path}
+
+
+class SaveImportPathRequest(BaseModel):
+    path: str
+
+
+@router.post("/save-import/inspect")
+async def inspect_save_import(body: SaveImportPathRequest) -> dict[str, Any]:
+    try:
+        candidates = await asyncio.to_thread(save_import_service.inspect_source, body.path)
+    except SaveImportError as e:
+        raise HTTPException(status_code=400, detail=e.message)
+    return {"candidates": candidates}
+
+
+@router.post("/save-import/apply")
+async def apply_save_import(body: SaveImportPathRequest) -> dict[str, Any]:
+    instance = _require_active_instance()
+    try:
+        return await save_import_service.import_save(instance, body.path)
+    except SaveImportError as e:
+        raise HTTPException(status_code=400, detail=e.message)

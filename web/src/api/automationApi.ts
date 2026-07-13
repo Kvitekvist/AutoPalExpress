@@ -1,5 +1,5 @@
 import { api } from "./httpClient";
-import type { AutomationConfig, BackupRecord } from "@/types/models";
+import type { AutomationConfig, BackupRecord, SaveImportCandidate, SaveImportResult } from "@/types/models";
 
 // GET /api/automation
 export async function getAutomation(): Promise<AutomationConfig> {
@@ -20,4 +20,19 @@ export async function listBackups(): Promise<BackupRecord[]> {
 // POST /api/automation/backups/run
 export async function runBackupNow(): Promise<BackupRecord> {
   return api.post<BackupRecord>("/api/automation/backups/run");
+}
+
+// POST /api/automation/save-import/browse
+export async function browseSaveImportDir(): Promise<{ path: string | null }> {
+  return api.post<{ path: string | null }>("/api/automation/save-import/browse");
+}
+
+// POST /api/automation/save-import/inspect
+export async function inspectSaveImport(path: string): Promise<{ candidates: SaveImportCandidate[] }> {
+  return api.post<{ candidates: SaveImportCandidate[] }>("/api/automation/save-import/inspect", { path });
+}
+
+// POST /api/automation/save-import/apply
+export async function applySaveImport(path: string): Promise<SaveImportResult> {
+  return api.post<SaveImportResult>("/api/automation/save-import/apply", { path });
 }

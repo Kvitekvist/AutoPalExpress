@@ -163,6 +163,19 @@ export interface BackupRecord {
   liveSaveForced: boolean;
 }
 
+export interface SaveImportCandidate {
+  path: string;
+  name: string;
+  sizeBytes: number;
+  modified: string;
+}
+
+export interface SaveImportResult {
+  importedFrom: string;
+  worldName: string;
+  backupCreated: boolean;
+}
+
 export type NotificationKind = "success" | "info" | "warning" | "error";
 
 export interface AppNotification {

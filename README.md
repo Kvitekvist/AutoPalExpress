@@ -58,6 +58,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - View players, kick players, and ban players through Palworld's REST API.
 - Monitor Dashboard CPU, RAM, players, uptime, and REST-backed server metrics.
 - Schedule backups and restarts.
+- Import a co-op or single-player world save from another PC straight into a server's save slot, with an automatic backup of whatever save was there before - no Steam install required on the server machine.
 - Create invite codes so friends can help administer the server.
 - Manage ports, Local API settings, Windows Firewall rules, public IP, and verified mod uploads from Super Admin.
 - Run a bundled diagnostics command that checks the active server, local ports, firewall, REST API, and produces a support report.
@@ -135,6 +136,7 @@ Most of the app is wired to the real machine and real server:
 - If a server has REST enabled but an empty Admin Password, starting it through AutoPalExpress fills one in so REST-backed controls can authenticate.
 - Dashboard CPU and RAM are read from the selected server's Palworld processes.
 - Scheduled backups and restarts are real.
+- Save Import is real: it copies an actual world-save folder onto disk into the server's save slot, after backing up whatever was there before.
 - Windows startup recovery is real: the app can start at sign-in and restart the active server.
 - World Settings edits the real `PalWorldSettings.ini`.
 - Mods and UE4SS install to disk.

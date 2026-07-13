@@ -43,6 +43,19 @@ def _copy_backup(src: Path, dest: Path) -> None:
     shutil.copytree(src, dest / "SaveGames")
 
 
+def _unique_backup_dest(instance_id: str, timestamp: str) -> Path:
+    """Two backups (e.g. a manual Backup Now right after a scheduled one, or
+    a pre-import snapshot from two quick imports in a row) can land in the
+    same second - fall back to a numbered suffix instead of colliding."""
+    base = _backups_dir(instance_id)
+    dest = base / timestamp
+    suffix = 2
+    while dest.exists():
+        dest = base / f"{timestamp}-{suffix}"
+        suffix += 1
+    return dest
+
+
 async def run_backup(instance: dict[str, Any]) -> dict[str, Any]:
     src = _save_games_dir(instance)
     if not src.is_dir():
@@ -56,12 +69,11 @@ async def run_backup(instance: dict[str, Any]) -> dict[str, Any]:
     except PalworldRestError as e:
         logger.info("backup_service: skipping live save before backup (%s)", e.message)
 
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    dest = _backups_dir(instance["id"]) / timestamp
+    dest = await asyncio.to_thread(_unique_backup_dest, instance["id"], datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
     await asyncio.to_thread(_copy_backup, src, dest)
 
     record = {
-        "timestamp": timestamp,
+        "timestamp": dest.name,
         "sizeBytes": await asyncio.to_thread(_dir_size, dest),
         "liveSaveForced": live_save_forced,
     }
@@ -69,6 +81,29 @@ async def run_backup(instance: dict[str, Any]) -> dict[str, Any]:
 
     await asyncio.to_thread(_prune_old_backups, instance["id"])
     logger.info("backup_service: backed up %s -> %s (live save forced: %s)", instance["name"], dest, live_save_forced)
+    return record
+
+
+async def backup_before_import(instance: dict[str, Any]) -> dict[str, Any] | None:
+    """Snapshots the current SaveGames folder before a save import overwrites it.
+    Returns None when there is nothing on disk yet to snapshot."""
+    src = _save_games_dir(instance)
+    if not src.is_dir():
+        return None
+
+    dest = await asyncio.to_thread(_unique_backup_dest, instance["id"], datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+    await asyncio.to_thread(_copy_backup, src, dest)
+
+    record = {
+        "timestamp": dest.name,
+        "sizeBytes": await asyncio.to_thread(_dir_size, dest),
+        "liveSaveForced": False,
+        "preImport": True,
+    }
+    (dest / "meta.json").write_text(json.dumps(record), encoding="utf-8")
+
+    await asyncio.to_thread(_prune_old_backups, instance["id"])
+    logger.info("backup_service: pre-import snapshot for %s -> %s", instance["name"], dest)
     return record
 
 
