@@ -99,5 +99,5 @@ async def list_mods(
     try:
         raw = await nexus_client.get_mod_list(list)
     except NexusApiError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
+        raise HTTPException(status_code=e.http_status, detail=e.message)
     return [_map_mod_summary(m) for m in raw]

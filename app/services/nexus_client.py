@@ -28,6 +28,14 @@ class NexusApiError(Exception):
         self.message = message
         super().__init__(message)
 
+    @property
+    def http_status(self) -> int:
+        """Status to surface on AutoPalExpress's own API, not Nexus's raw one.
+        Nexus's 401 means "that Nexus API key is invalid/expired" - it must
+        never become our own HTTP 401, which the frontend treats as "your
+        AutoPalExpress session died" and force-logs the user out over."""
+        return 400 if self.status_code == 401 else self.status_code
+
 
 def _headers(api_key: str | None = None) -> dict[str, str]:
     headers = {

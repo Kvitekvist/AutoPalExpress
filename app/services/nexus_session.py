@@ -41,7 +41,11 @@ def account_view() -> dict[str, Any]:
 def require_api_key() -> str:
     record = get_record()
     if not record.get("connected") or not record.get("apiKey"):
-        raise HTTPException(status_code=401, detail="Connect a Nexus Mods API key in Super Admin first.")
+        # 400, not 401: this means "no Nexus Mods connection yet," not "your
+        # AutoPalExpress session is invalid" - the frontend treats any 401
+        # outside /api/auth/* as a dead session and force-logs the user out,
+        # which must not happen just because Nexus isn't connected.
+        raise HTTPException(status_code=400, detail="Connect a Nexus Mods API key in Super Admin first.")
     return record["apiKey"]
 
 

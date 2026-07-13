@@ -179,7 +179,7 @@ async def _install_nexus_mod(
         file_id = int(file_info["file_id"])
         links = await nexus_client.get_download_link(api_key, nexus_mod_id, file_id)
     except NexusApiError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
+        raise HTTPException(status_code=e.http_status, detail=e.message)
     except (KeyError, TypeError, ValueError):
         raise HTTPException(status_code=502, detail="Nexus returned an unexpected file response.")
 
@@ -363,7 +363,7 @@ async def get_nexus_mod_files(nexus_mod_id: int) -> list[dict[str, Any]]:
     try:
         files_payload = await nexus_client.get_mod_files(api_key, nexus_mod_id)
     except NexusApiError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
+        raise HTTPException(status_code=e.http_status, detail=e.message)
     files = _installable_nexus_files(files_payload)
     return [
         {
@@ -423,7 +423,7 @@ async def prepare_install_from_file(file: UploadFile = File(...)) -> dict[str, A
         results = await nexus_client.file_hash_search(md5_hash)
     except NexusApiError as e:
         dest.unlink(missing_ok=True)
-        raise HTTPException(status_code=e.status_code, detail=f"Couldn't verify this file against Nexus: {e.message}")
+        raise HTTPException(status_code=e.http_status, detail=f"Couldn't verify this file against Nexus: {e.message}")
 
     if not results:
         dest.unlink(missing_ok=True)
