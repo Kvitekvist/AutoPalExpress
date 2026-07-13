@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Fixed: Run Silently only minimized AutoPalExpress's window (TICKET-0117):** the user tested TICKET-0116 and found the console was left minimized in the taskbar, not truly hidden. Hiding an already-visible console window in place isn't reliable (Windows Terminal in particular doesn't always fully honor it) - now uses the same proven mechanism as Palworld's own window instead: relaunches as a fresh, windowless process rather than trying to hide the existing one.
 - **Run Silently (TICKET-0116):** new Super Admin toggle, off by default, that hides both the AutoPalExpress console window and Palworld's own server console window from the next start onward. The Logs page keeps showing real output either way.
 - **Dashboard network traffic lights (TICKET-0112):** three grey/yellow/red/green indicators (Game Port, Steam Query Port, Remote Access) summarizing the same firewall+forwarding checks Super Admin's detailed panels already do, visible to super admins.
 - **Dashboard CPU/RAM: Palworld vs whole machine (TICKET-0115):** both tiles now show two bars each - Palworld's own usage (unchanged) and the whole machine's current load, so a host can tell "is Palworld struggling" apart from "is this machine busy with something else."

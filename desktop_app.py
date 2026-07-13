@@ -3,12 +3,16 @@ opens the default browser to it - the whole app is one process on one port,
 since app/main.py also serves the built frontend when it's present.
 """
 
+import os
 import socket
+import subprocess
 import sys
 import threading
 import time
 import traceback
 import webbrowser
+
+_SILENT_RELAUNCH_ENV = "_AUTOPALEXPRESS_SILENT_RELAUNCH"
 
 
 BIND_HOST = "0.0.0.0"
@@ -69,26 +73,43 @@ def _tee_console_streams() -> None:
     sys.stderr = _Tee(sys.stderr, log_file)
 
 
-def _apply_run_silently() -> None:
-    """Hides this process's own console window if Super Admin's "Run
-    Silently" toggle is on. Applied once at startup, same as the equivalent
-    Palworld-side launch flag (process_manager._run_silently_enabled) -
-    hiding the window doesn't affect the already-teed stdout/stderr handles,
-    so backend.log and the Logs page keep working either way."""
+def _relaunch_silently_if_needed() -> bool:
+    """If Super Admin's "Run Silently" toggle is on, spawns a detached copy
+    of this same process with CREATE_NO_WINDOW and returns True so the
+    caller exits immediately, instead of trying to hide this process's own
+    already-visible console window in place.
+
+    Hiding an existing console via ShowWindow(hwnd, SW_HIDE) turned out not
+    to be reliable in practice - confirmed live that it can leave the window
+    minimized in the taskbar rather than truly gone (Windows Terminal in
+    particular manages its own window somewhat independently of the classic
+    console HWND). CREATE_NO_WINDOW prevents a console from ever being
+    allocated in the first place, which is the same mechanism already
+    proven reliable for hiding Palworld's own window
+    (process_manager._run_silently_enabled) - relaunching as a fresh process
+    with that flag set is the only way to get it for a process whose console
+    already exists by the time our own code starts running."""
     if sys.platform != "win32":
-        return
+        return False
+    if os.environ.get(_SILENT_RELAUNCH_ENV) == "1":
+        return False  # already the silent relaunch - don't loop
     try:
         from app.services import system_settings
 
         if not system_settings.get_config().get("runSilently"):
-            return
-        import ctypes
+            return False
 
-        hwnd = ctypes.windll.kernel32.GetConsoleWindow()
-        if hwnd:
-            ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_HIDE
+        env = {**os.environ, _SILENT_RELAUNCH_ENV: "1"}
+        subprocess.Popen(
+            [sys.executable, *sys.argv[1:]],
+            creationflags=subprocess.CREATE_NO_WINDOW,
+            env=env,
+            close_fds=True,
+        )
+        return True
     except Exception:
         traceback.print_exc()
+        return False
 
 
 def _show_startup_error(message: str) -> None:
@@ -107,8 +128,10 @@ def _port_in_use(host: str, port: int) -> bool:
 
 
 def main() -> None:
+    if _relaunch_silently_if_needed():
+        return  # the detached, windowless relaunch takes over from here
+
     _tee_console_streams()
-    _apply_run_silently()
 
     url = f"http://{LOCAL_HOST}:{PORT}/"
 
