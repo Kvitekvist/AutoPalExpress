@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { BookKey, Crown, ExternalLink, Hourglass, LogOut, ShieldCheck } from "lucide-react";
+import { BookKey, Crown, LogIn, LogOut, ShieldCheck } from "lucide-react";
 import { nexusApi } from "@/api";
 import type { NexusAccount } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
@@ -13,13 +13,11 @@ const POLL_TIMEOUT_MS = 3 * 60 * 1000;
 export function NexusIntegrationPanel() {
   const { t } = useTranslation();
   const [account, setAccount] = React.useState<NexusAccount | null>(null);
-  const [ssoConfigured, setSsoConfigured] = React.useState<boolean | null>(null);
   const [connecting, setConnecting] = React.useState(false);
   const notifications = useNotifications();
 
   React.useEffect(() => {
     nexusApi.getAccount().then(setAccount);
-    nexusApi.getSsoConfigured().then((r) => setSsoConfigured(r.configured));
   }, []);
 
   async function handleDisconnect() {
@@ -32,7 +30,6 @@ export function NexusIntegrationPanel() {
   }
 
   async function handleConnect() {
-    if (!ssoConfigured) return;
     setConnecting(true);
     try {
       const { requestId, authorizeUrl } = await nexusApi.startSso();
@@ -64,6 +61,11 @@ export function NexusIntegrationPanel() {
         title: t("superAdmin.nexus.connectTimedOutTitle", { defaultValue: "Nexus Mods connection timed out" }),
         message: t("superAdmin.nexus.connectTimedOutMessage", { defaultValue: "The approval window closed. Try connecting again." }),
       });
+    } catch (e) {
+      notifications.error({
+        title: t("superAdmin.nexus.connectFailedTitle", { defaultValue: "Nexus Mods connection failed" }),
+        message: e instanceof Error ? e.message : t("superAdmin.nexus.unknownError", { defaultValue: "Unknown error." }),
+      });
     } finally {
       setConnecting(false);
     }
@@ -74,7 +76,7 @@ export function NexusIntegrationPanel() {
       <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
         {t("superAdmin.nexus.description1", {
           defaultValue:
-            "Browsing and verified manual installs use Nexus's public metadata and need no connection at all. Connecting through Nexus Mods below only unlocks Direct Install (and requires Nexus Premium download access).",
+            "Browsing and verified manual installs use Nexus's public metadata and need no connection at all. Nexus Login below only unlocks Direct Install (and requires Nexus Premium download access).",
         })}
       </p>
 
@@ -110,25 +112,19 @@ export function NexusIntegrationPanel() {
           <RuneButton
             type="button"
             variant="gold"
-            icon={ssoConfigured === false ? <Hourglass /> : <ExternalLink />}
+            icon={<LogIn />}
             onClick={handleConnect}
-            disabled={connecting || ssoConfigured !== true}
+            disabled={connecting}
             className="w-full"
           >
             {connecting
               ? t("superAdmin.nexus.waitingForApproval", { defaultValue: "Waiting for approval on Nexus Mods..." })
-              : ssoConfigured === false
-                ? t("superAdmin.nexus.pendingApproval", { defaultValue: "Pending Nexus Mods Approval" })
-                : t("superAdmin.nexus.connect", { defaultValue: "Connect via Nexus Mods" })}
+              : t("superAdmin.nexus.connect", { defaultValue: "Nexus Login" })}
           </RuneButton>
           <p className="text-[11px] leading-relaxed text-parchment-300/40">
-            {ssoConfigured === false
-              ? t("superAdmin.nexus.pendingApprovalHint", {
-                  defaultValue: "AutoPalExpress is waiting on Nexus Mods to confirm its application registration before Direct Install can be connected.",
-                })
-              : t("superAdmin.nexus.connectHint", {
-                  defaultValue: "Opens a Nexus Mods tab where you log in and approve AutoPalExpress - no key to copy or paste.",
-                })}
+            {t("superAdmin.nexus.connectHint", {
+              defaultValue: "Opens a Nexus Mods tab where you log in and approve AutoPalExpress - no key to copy or paste.",
+            })}
           </p>
         </div>
       )}

@@ -16,18 +16,8 @@ async def get_account() -> dict[str, Any]:
     return nexus_session.account_view()
 
 
-@router.get("/sso/configured")
-async def sso_configured() -> dict[str, Any]:
-    return {"configured": nexus_sso.is_configured()}
-
-
 @router.post("/sso/start", dependencies=[Depends(require_super_admin)])
 async def start_sso() -> dict[str, Any]:
-    if not nexus_sso.is_configured():
-        raise HTTPException(
-            status_code=409,
-            detail="Nexus Mods hasn't confirmed AutoPalExpress's application registration yet - Connect isn't available.",
-        )
     return nexus_sso.start()
 
 

@@ -29,20 +29,15 @@ logger = logging.getLogger("palworld_admin.nexus_sso")
 
 SSO_WS_URL = "wss://sso.nexusmods.com"
 # TODO: replace with the real slug once Nexus Mods confirms AutoPalExpress's
-# application registration, and flip SLUG_CONFIRMED to True at the same time -
-# until then this is a guess, not a value Nexus's SSO server will recognize,
-# so the Connect flow stays disabled rather than sending someone to a Nexus
-# page that's guaranteed to reject an unregistered application slug.
+# application registration - until then this is a guess, so Nexus's own SSO
+# page may reject it. Left clickable anyway (at the user's explicit request)
+# so they can see for themselves what that looks like rather than the button
+# being disabled pending confirmation.
 APPLICATION_SLUG = "autopalexpress"
-SLUG_CONFIRMED = False
 
 _SESSION_TIMEOUT_SECONDS = 300
 
 _sessions: dict[str, dict[str, Any]] = {}
-
-
-def is_configured() -> bool:
-    return SLUG_CONFIRMED
 
 
 def authorize_url(request_id: str) -> str:

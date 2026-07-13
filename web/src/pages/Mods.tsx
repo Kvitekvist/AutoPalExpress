@@ -9,6 +9,7 @@ import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
 import { ModCard } from "@/components/mods/ModCard";
+import { PendingModCard } from "@/components/mods/PendingModCard";
 import { NexusBrowseDialog } from "@/components/mods/NexusBrowseDialog";
 import { Ue4ssPanel } from "@/components/mods/Ue4ssPanel";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -98,6 +99,10 @@ export default function Mods() {
 
   const enabledCount = mods.filter((m) => m.status === "enabled").length;
   const brokenCount = mods.filter((m) => m.status === "broken").length;
+  // Wishlist requests for a mod that isn't installed yet at all - update
+  // requests for an already-installed mod show their own badge on ModCard
+  // instead, so they're excluded here.
+  const pendingNewRequests = wishlist.filter((r) => !mods.some((m) => m.sourceModId === r.nexusModId));
 
   return (
     <div className="space-y-6">
@@ -147,19 +152,24 @@ export default function Mods() {
             <p className="animate-pulse font-display">{t("mods.loading", { defaultValue: "Unsealing the grimoire..." })}</p>
           </div>
         ) : (
-          <Reorder.Group axis="y" values={mods} onReorder={handleReorder} className="space-y-4">
-            {mods.map((mod) => (
-              <ModCard
-                key={mod.id}
-                mod={mod}
-                onToggle={handleToggle}
-                onRemove={setRemoveTarget}
-                onRequestUpdate={handleRequestUpdate}
-                updateRequested={wishlist.some((r) => r.nexusModId === mod.sourceModId)}
-                busy={busyId === mod.id}
-              />
+          <div className="space-y-4">
+            {pendingNewRequests.map((request) => (
+              <PendingModCard key={request.id} request={request} />
             ))}
-          </Reorder.Group>
+            <Reorder.Group axis="y" values={mods} onReorder={handleReorder} className="space-y-4">
+              {mods.map((mod) => (
+                <ModCard
+                  key={mod.id}
+                  mod={mod}
+                  onToggle={handleToggle}
+                  onRemove={setRemoveTarget}
+                  onRequestUpdate={handleRequestUpdate}
+                  updateRequested={wishlist.some((r) => r.nexusModId === mod.sourceModId)}
+                  busy={busyId === mod.id}
+                />
+              ))}
+            </Reorder.Group>
+          </div>
         )}
       </ScrollPanel>
 
