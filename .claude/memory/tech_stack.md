@@ -98,7 +98,7 @@ Frontend (`web/package.json`, key ones): react, react-router-dom, framer-motion,
 
 # Storage
 
-* JSON files under `data/` (when run from source) or `<install folder>\data` (when running the packaged app, since TICKET-0123 - was `%LOCALAPPDATA%\PalworldServerAdmin\data` before) - see `app/paths.py`.
+* JSON files under `data/` (when run from source) or `Documents\AutoPalExpress\data` (when running the packaged app, since TICKET-0129 - briefly the install folder under TICKET-0123, `%LOCALAPPDATA%\PalworldServerAdmin\data` before that) - see `app/paths.py`.
 * No database. Per-instance data lives under `data/instances/<id>/*.json` (mods, automation schedules, UE4SS install record, mods-path override, backups).
 * No secrets are stored encrypted at rest currently - PBKDF2 password hashes live in plain JSON files on the local machine. Older installs may still have a saved Nexus API key in `nexus.json`, but the public release flow no longer requires one and the Super Admin panel can remove it.
 
@@ -136,7 +136,7 @@ Manual: build the frontend, run PyInstaller, compile the Inno Setup script, dist
 
 # Environment Variables
 
-None required for normal operation. `%LOCALAPPDATA%` (a standard Windows environment variable, not one this project defines) determines where the packaged app's data directory lives.
+None required for normal operation. The packaged app's data directory lives under the current user's real Documents folder (resolved via the Win32 shell API, not an environment variable - see `app/paths.py:_documents_dir()`).
 
 ---
 

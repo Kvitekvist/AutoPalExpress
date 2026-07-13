@@ -176,7 +176,7 @@ Use Diagnose AutoPalExpress from the Windows Start Menu.
 
 It checks your server folder, game port, Local API, Windows Firewall, and whether Palworld is listening, then saves a report here:
 
-[code]<your install folder>\diagnostics[/code]
+[code]Documents\AutoPalExpress\diagnostics[/code]
 
 Send that report when asking for help in the Posts tab.
 

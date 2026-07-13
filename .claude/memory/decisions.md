@@ -749,3 +749,25 @@ For TICKET-0128: re-adding an elevation option to fix the underlying permissions
 ### Date
 
 2026-07-13
+
+---
+
+### Decision
+
+Superseding the "everything self-contained in the install folder, no admin installs" decision above (TICKET-0123), after two rounds of direct user pushback in immediate succession: Program Files is now a real, supported install destination again (`installer.iss`'s `PrivilegesRequiredOverridesAllowed=dialog` restored), and all app data moved out of the install folder entirely, to `Documents\AutoPalExpress\data` (TICKET-0129).
+
+### Reason
+
+The user hit the TICKET-0128 write-guard trying to install to Program Files and said "i want it to install to program files like any other normal program." Offered a choice between (a) restoring elevation while keeping the one-folder model via loosened permissions, or (b) the standard Windows convention of splitting program from data - the user picked neither outright, instead adding "could we use my documents instead of appdata? i dont like how appdata is so hidden." The actual resolved design is the standard convention (program and data live independently), just with Documents instead of AppData as the data location, since the user's real objection to the *previous* AppData-based design (before TICKET-0123 even started) was specifically that it's hidden - Documents solves that directly while still being a stable, per-user, always-writable location regardless of where the program itself is installed.
+
+### Alternatives
+
+Loosening permissions on a shared install folder via `icacls` so Program Files could hold both program and data together (rejected - the user's Documents suggestion sidesteps the entire problem instead of managing it, and avoids a real if minor security tradeoff of a world-writable folder under Program Files). Reverting all the way back to the original `%LOCALAPPDATA%` design (rejected - doesn't address the "hidden" complaint that was the deeper, real objection all along).
+
+### Consequences
+
+`app/paths.py` gained `_documents_dir()` (`SHGetFolderPathW`/CSIDL_PERSONAL, so it honors OneDrive-style Documents redirection rather than assuming a plain `~\Documents` path); `data_dir()` now resolves there instead of `install_dir()/"data"`. `migrate_legacy_data_if_needed()` now has two legacy locations to check in order (TICKET-0123's install-folder data, then the original pre-0123 AppData location), moving whichever is found into the new Documents home - `installer.iss`'s `HasAdminAccount`/`HasServerData` check all three locations for the same reason. `install_dir()` now cleanly means only "where the program's own files are" (exe, diagnostics script) - it's never used for anything the app writes to at runtime anymore, which is what makes it safe for `{app}` to be an admin-only folder again. This is the second decision this session that got reversed under direct, immediate user pushback after shipping (see TICKET-0116->0120 for the first, on Run Silently) - worth noting as a pattern: architecture changes driven by "I want X" are worth probing for the *underlying* complaint (here: "hidden," not "not self-contained") before locking in a specific mechanism, since the first mechanism chosen solved the literal request but not the real one.
+
+### Date
+
+2026-07-13

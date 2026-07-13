@@ -162,7 +162,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  AutoPalExpress-Setup.exe  8B8794ACC0F597C8B0786D23A08AD7F5FDC40E5010D61D463B567AFAB74D01A4
+SHA256  AutoPalExpress-Setup.exe  D77136F8AC121AFEA3FB967C00A317970A195D355992B1B787B9AF16FE1B962B
 ```
 
 > [!IMPORTANT]
@@ -217,23 +217,23 @@ Outputs:
 
 ## Where Data Is Stored
 
-App data lives inside the install folder you picked during setup, so the whole install is self-contained and portable:
+The installed program can go wherever you like - your own user folder, or Program Files if you choose the "install for all users" option and approve the Windows permission prompt. App data always lives in a clearly visible spot regardless, under your own Documents folder:
 
 ```text
-<your install folder>\data
+Documents\AutoPalExpress\data
 ```
 
 This includes server registry data, users, sessions, invites, and mod records.
 
 > [!NOTE]
-> Earlier versions stored this under `%LOCALAPPDATA%\PalworldServerAdmin\data` instead. If you're upgrading from one of those versions, AutoPalExpress moves your existing data into the install folder automatically the first time the new version runs, and shows a one-time message confirming it.
+> Earlier versions stored this under `%LOCALAPPDATA%\PalworldServerAdmin\data`, or briefly inside the install folder itself. If you're upgrading from one of those versions, AutoPalExpress moves your existing data into the Documents location automatically the first time the new version runs, and shows a one-time message confirming it.
 
 ## Support
 
 If something does not work and you are not sure why, run **Diagnose AutoPalExpress** from the Start Menu. It checks the active server setup, Palworld files, local game port, Windows Firewall, REST API access, and writes a report to:
 
 ```text
-<your install folder>\diagnostics
+Documents\AutoPalExpress\diagnostics
 ```
 
 If the report says local checks passed but outside players still cannot connect, the remaining cause is usually router forwarding, double NAT/CGNAT from the ISP, the wrong public IP, or an upstream firewall.

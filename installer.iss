@@ -18,11 +18,16 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-; Deliberately no PrivilegesRequiredOverridesAllowed - never offer to elevate
-; to an all-users/Program Files install. Every AutoPalExpress data file now
-; lives inside {app}, so the install folder must always be writable by the
-; user running the app; a per-user, non-elevated install guarantees that.
+; PrivilegesRequired=lowest keeps a no-admin, per-user install as the default
+; (still Setup's suggested {autopf} location), but
+; PrivilegesRequiredOverridesAllowed=dialog lets the user opt into an
+; elevated, all-users install into the real Program Files instead (TICKET-0129
+; restored this after TICKET-0123 briefly removed it). Safe to allow again
+; now that app data (TICKET-0129) lives under the user's Documents folder,
+; not inside {app} - the install folder only ever holds the program itself,
+; so it no longer matters whether {app} ends up admin-only.
 PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
@@ -43,7 +48,7 @@ Source: "support\diagnose-autopalexpress.ps1"; DestDir: "{app}"; Flags: ignoreve
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\Diagnose AutoPalExpress"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\diagnose-autopalexpress.ps1"" -DataDir ""{app}\data"" -ReportDir ""{app}\diagnostics"""; WorkingDir: "{app}"
+Name: "{group}\Diagnose AutoPalExpress"; Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\diagnose-autopalexpress.ps1"" -DataDir ""{userdocs}\AutoPalExpress\data"" -ReportDir ""{userdocs}\AutoPalExpress\diagnostics"""; WorkingDir: "{app}"
 Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
@@ -53,19 +58,20 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: no
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AutoPalExpress"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: startuprecovery
 
-; App data lives in {app}\data, inside the install folder itself (TICKET-0123
-; moved this from %LOCALAPPDATA%\PalworldServerAdmin - AutoPalExpress migrates
-; any existing data from that old location automatically the first time it
+; App data lives in {userdocs}\AutoPalExpress\data - the user's real Documents
+; folder, not inside {app} (TICKET-0129; briefly inside {app} under TICKET-0123,
+; and %LOCALAPPDATA%\PalworldServerAdmin before that - AutoPalExpress migrates
+; any existing data from either old location automatically the first time it
 ; runs after an update). Most of it is deliberately left in place on
 ; uninstall (instances.json - references to real, separately-installed
 ; Palworld server folders - plus mods and backups), so a reinstall doesn't
-; lose track of anything real; Inno's uninstaller only removes files it
-; installed via [Files], not this runtime-created data, so {app}\data
-; survives on disk untouched unless explicitly cleared below. The admin
-; account (users.json) and app-level settings (system_settings.json) are the
-; exception: CurUninstallStepChanged in [Code] clears those specifically, so
-; reinstalling after a real uninstall asks to set up a fresh admin account
-; instead of silently reusing the old one (TICKET-0063).
+; lose track of anything real; nothing in [Files]/[InstallDelete] touches this
+; folder at all, so it survives on disk untouched unless explicitly cleared
+; below. The admin account (users.json) and app-level settings
+; (system_settings.json) are the exception: CurUninstallStepChanged in [Code]
+; clears those specifically, so reinstalling after a real uninstall asks to
+; set up a fresh admin account instead of silently reusing the old one
+; (TICKET-0063).
 
 [Code]
 procedure ExitProcess(uExitCode: UINT);
@@ -87,28 +93,34 @@ var
 // True. Collapsing these back into one flag is what originally caused the
 // Super Admin page to wrongly stay hidden after a real uninstall (TICKET-0063).
 //
-// Each check looks in {app}\data first (TICKET-0123's new home), then falls
-// back to the old %LOCALAPPDATA% location - the app itself only migrates
-// that legacy data to {app}\data on its own first run, which happens after
-// this wizard has already decided which pages to show, so someone upgrading
-// from before TICKET-0123 still needs to be recognized as already set up.
+// Each check looks in {userdocs}\AutoPalExpress\data first (TICKET-0129's
+// current home), then falls back to the two older locations this app has
+// used (TICKET-0123's {app}\data, and the original %LOCALAPPDATA% one) - the
+// app itself only migrates legacy data on its own first run, which happens
+// after this wizard has already decided which pages to show, so someone
+// upgrading from any earlier version still needs to be recognized as
+// already set up.
 function HasAdminAccount(): Boolean;
 begin
-  Result := FileExists(ExpandConstant('{app}\data\users.json')) or
+  Result := FileExists(ExpandConstant('{userdocs}\AutoPalExpress\data\users.json')) or
+    FileExists(ExpandConstant('{app}\data\users.json')) or
     FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\users.json'));
 end;
 
 function HasServerData(): Boolean;
 begin
-  Result := FileExists(ExpandConstant('{app}\data\instances.json')) or
+  Result := FileExists(ExpandConstant('{userdocs}\AutoPalExpress\data\instances.json')) or
+    FileExists(ExpandConstant('{app}\data\instances.json')) or
     FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\instances.json'));
 end;
 
-// Setup never elevates (PrivilegesRequired=lowest, no override) - if the
-// chosen folder actually needs administrator rights (most commonly true of
-// anything under Program Files), the real file copy later would fail with a
-// bare, unhelpful "Access is denied". Catching that here with a real write
-// test lets the user pick a different folder immediately instead.
+// If the user declines the elevation dialog but still ends up with a folder
+// that needs administrator rights (most commonly true of anything under
+// Program Files), the real file copy later would fail with a bare,
+// unhelpful "Access is denied". Catching that here with a real write test
+// lets the user pick a different folder (or go back and accept elevation)
+// immediately instead. Only guards {app} itself now (the program files) -
+// app data (TICKET-0129) lives under Documents, never affected by this.
 function CanWriteToDir(Dir: String): Boolean;
 var
   TestFile: String;
@@ -167,13 +179,16 @@ end;
 
 procedure InitializeWizard;
 begin
-  // AdminAccountExists/ServerDataExists/ServerInstallDirPage.Values[0] are
-  // NOT set here - HasAdminAccount/HasServerData and the {app}\data\servers
-  // default both expand {app}, which Inno has not initialized yet this early
-  // (InitializeWizard runs before the Select Destination Location page has
-  // even been shown, causing "attempt was made to expand app constant before
-  // it was initialized"). They're set instead in NextButtonClick once the
-  // user has confirmed a destination folder - see the wpSelectDir case below.
+  // AdminAccountExists/ServerDataExists are NOT set here - HasAdminAccount/
+  // HasServerData's legacy-location fallback checks expand {app}, which Inno
+  // has not initialized yet this early (InitializeWizard runs before the
+  // Select Destination Location page has even been shown, causing "attempt
+  // was made to expand app constant before it was initialized"). They're set
+  // instead in NextButtonClick once the user has confirmed a destination
+  // folder - see the wpSelectDir case below. ServerInstallDirPage.Values[0]'s
+  // default is set there too, for the same reason it was originally moved
+  // (simplest to keep all of this together in one place), even though its
+  // current {userdocs}-based default no longer actually depends on {app}.
   InstallModePage := CreateInputOptionPage(wpWelcome,
     'Setup Mode', 'What would you like to do?',
     'Choose an option, then click Next.', True, False);
@@ -245,7 +260,7 @@ begin
     // destination folder) - see the comment in InitializeWizard above.
     AdminAccountExists := HasAdminAccount;
     ServerDataExists := HasServerData;
-    ServerInstallDirPage.Values[0] := ExpandConstant('{app}\data\servers');
+    ServerInstallDirPage.Values[0] := ExpandConstant('{userdocs}\AutoPalExpress\data\servers');
     Exit;
   end;
   if CurPageID = InstallModePage.ID then
@@ -341,7 +356,7 @@ begin
     Exit;
 
   NL := Chr(13) + Chr(10);
-  SettingsDir := ExpandConstant('{app}\data');
+  SettingsDir := ExpandConstant('{userdocs}\AutoPalExpress\data');
   SettingsPath := SettingsDir + '\system_settings.json';
   ForceDirectories(SettingsDir);
   Body := '{' + NL +
@@ -361,7 +376,7 @@ var
   Done: Boolean;
 begin
   ExePath := ExpandConstant('{app}\{#MyAppExeName}');
-  LogPath := ExpandConstant('{app}\data\first_run_progress.log');
+  LogPath := ExpandConstant('{userdocs}\AutoPalExpress\data\first_run_progress.log');
 
   SetupProgressPage.SetText('Starting the app to apply your answers...', '');
   SetupProgressPage.Show;
@@ -451,7 +466,7 @@ begin
   // deliberately left alone - see the [Registry] section comment.
   if CurUninstallStep = usPostUninstall then
   begin
-    DataDir := ExpandConstant('{app}\data');
+    DataDir := ExpandConstant('{userdocs}\AutoPalExpress\data');
     DeleteFile(DataDir + '\users.json');
     DeleteFile(DataDir + '\system_settings.json');
   end;

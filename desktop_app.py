@@ -93,8 +93,8 @@ def _migrate_legacy_data() -> None:
 
     if paths.migrate_legacy_data_if_needed():
         _show_message_box(
-            "AutoPalExpress has moved its data into the install folder as part of this update:\n\n"
-            f"{paths.install_dir() / 'data'}\n\n"
+            "AutoPalExpress has moved its data into your Documents folder as part of this update:\n\n"
+            f"{paths.data_dir()}\n\n"
             "Your servers, accounts, mods, and backups were carried over automatically - nothing to do.",
             icon=_MB_ICONINFORMATION,
         )

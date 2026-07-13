@@ -187,7 +187,7 @@ It checks:
 It saves a report here:
 
 ```text
-<your install folder>\diagnostics
+Documents\AutoPalExpress\diagnostics
 ```
 
 Send that report when asking for help.
