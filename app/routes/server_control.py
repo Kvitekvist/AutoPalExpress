@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +27,8 @@ _OFFLINE_STATUS: dict[str, Any] = {
     "cpuPercent": 0,
     "ramUsedGB": 0,
     "ramTotalGB": 0,
+    "systemCpuPercent": 0,
+    "systemRamUsedGB": 0,
     "tickRateMs": None,
     "targetTickRateMs": 0,
     "playersOnline": 0,
@@ -36,6 +37,19 @@ _OFFLINE_STATUS: dict[str, Any] = {
     "modCount": 0,
     "lastSavedAt": "",
 }
+
+
+def _system_load() -> dict[str, Any]:
+    """Whole-machine load, independent of Palworld - lets the Dashboard show
+    "is Palworld itself struggling" and "is this machine under heavy load
+    from something else" as two separate numbers instead of one conflated
+    one. cpu_percent(interval=None) is the correct non-blocking usage here:
+    it reports the delta since the last call, which is exactly what a
+    polling loop like this one wants."""
+    return {
+        "systemCpuPercent": round(psutil.cpu_percent(interval=None), 1),
+        "systemRamUsedGB": round(psutil.virtual_memory().used / (1024**3), 2),
+    }
 
 
 def _require_active_instance() -> dict[str, Any]:
@@ -47,7 +61,7 @@ def _require_active_instance() -> dict[str, Any]:
 
 def _status_view(instance: dict[str, Any] | None) -> dict[str, Any]:
     if not instance:
-        return dict(_OFFLINE_STATUS)
+        return {**_OFFLINE_STATUS, **_system_load()}
 
     stats = process_manager.get_status(instance["id"])
     max_players = palworld_settings.read_max_players(Path(instance["serverPath"])) or 32
@@ -55,6 +69,7 @@ def _status_view(instance: dict[str, Any] | None) -> dict[str, Any]:
 
     return {
         **_OFFLINE_STATUS,
+        **_system_load(),
         "state": stats["state"],
         "uptimeSeconds": stats["uptimeSeconds"],
         "cpuPercent": stats["cpuPercent"],
@@ -62,6 +77,7 @@ def _status_view(instance: dict[str, Any] | None) -> dict[str, Any]:
         "ramTotalGB": round(psutil.virtual_memory().total / (1024**3), 1),
         "maxPlayers": max_players,
         "modCount": mod_count,
+        "lastSavedAt": process_manager.get_last_saved(instance["id"]) or "",
     }
 
 
@@ -135,7 +151,7 @@ async def save_world() -> dict[str, Any]:
         await palworld_rest.save(instance)
     except PalworldRestError as e:
         raise HTTPException(status_code=400, detail=e.message)
-    return {"savedAt": datetime.now().isoformat()}
+    return {"savedAt": process_manager.record_save(instance["id"])}
 
 
 @router.get("/update/check")

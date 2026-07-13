@@ -42,6 +42,8 @@ export interface ServerStatus {
   cpuPercent: number;
   ramUsedGB: number;
   ramTotalGB: number;
+  systemCpuPercent: number;
+  systemRamUsedGB: number;
   tickRateMs: number | null;
   targetTickRateMs: number;
   playersOnline: number;
@@ -137,6 +139,7 @@ export interface ServerSettings {
 export interface SystemStartupSettings {
   bootWithWindows: boolean;
   autoStartActiveServer: boolean;
+  runSilently: boolean;
 }
 
 export interface ScheduleConfig {

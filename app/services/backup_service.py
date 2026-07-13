@@ -11,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from app.services import instance_store, palworld_rest
+from app.services import instance_store, palworld_rest, process_manager
 from app.services.palworld_rest import PalworldRestError
 
 logger = logging.getLogger("palworld_admin.backup_service")
@@ -66,6 +66,7 @@ async def run_backup(instance: dict[str, Any]) -> dict[str, Any]:
         await palworld_rest.save(instance)
         await asyncio.sleep(2)  # give the save write a moment to land on disk before copying
         live_save_forced = True
+        process_manager.record_save(instance["id"])
     except PalworldRestError as e:
         logger.info("backup_service: skipping live save before backup (%s)", e.message)
 

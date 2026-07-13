@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Server, Plus, FolderPlus, Trash2, CircleCheck, CircleAlert, FolderOpen } from "lucide-react";
+import { Server, Plus, FolderPlus, FolderInput, Trash2, CircleCheck, CircleAlert, FolderOpen } from "lucide-react";
 import { instancesApi } from "@/api";
 import type { InstanceListView, ServerInstance } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
@@ -9,6 +9,7 @@ import { RuneDialog } from "@/components/fantasy/RuneDialog";
 import { useNotifications } from "@/hooks/useNotifications";
 import { DeployServerWizard } from "./DeployServerWizard";
 import { ImportServerDialog } from "./ImportServerDialog";
+import { SaveImportDialog } from "./SaveImportDialog";
 import { cn } from "@/lib/utils";
 
 const SOURCE_LABEL_KEYS: Record<ServerInstance["source"], { key: string; fallback: string }> = {
@@ -22,6 +23,7 @@ export function InstanceManagerPanel() {
   const [data, setData] = React.useState<InstanceListView | null>(null);
   const [deployOpen, setDeployOpen] = React.useState(false);
   const [importOpen, setImportOpen] = React.useState(false);
+  const [saveImportOpen, setSaveImportOpen] = React.useState(false);
   const [removeTarget, setRemoveTarget] = React.useState<ServerInstance | null>(null);
   const [deleteFiles, setDeleteFiles] = React.useState(false);
   const [removing, setRemoving] = React.useState(false);
@@ -125,6 +127,9 @@ export function InstanceManagerPanel() {
           </RuneButton>
           <RuneButton type="button" variant="gold" size="sm" icon={<Plus />} onClick={() => setDeployOpen(true)}>
             {t("settings.instances.deployNew", { defaultValue: "Deploy New Server" })}
+          </RuneButton>
+          <RuneButton type="button" variant="arcane" size="sm" icon={<FolderInput />} onClick={() => setSaveImportOpen(true)}>
+            {t("settings.saveImport.open", { defaultValue: "Import Save" })}
           </RuneButton>
         </>
       }
@@ -235,6 +240,7 @@ export function InstanceManagerPanel() {
 
       <DeployServerWizard open={deployOpen} onOpenChange={setDeployOpen} onDeployed={handleCreated} />
       <ImportServerDialog open={importOpen} onOpenChange={setImportOpen} onImported={handleCreated} />
+      <SaveImportDialog open={saveImportOpen} onOpenChange={setSaveImportOpen} onImported={() => {}} />
 
       <RuneDialog
         open={!!removeTarget}

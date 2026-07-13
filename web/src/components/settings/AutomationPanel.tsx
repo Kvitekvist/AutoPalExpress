@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { RefreshCw, Save, TriangleAlert, HardDriveDownload, FolderInput } from "lucide-react";
+import { RefreshCw, Save, TriangleAlert, HardDriveDownload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { automationApi } from "@/api";
 import type { AutomationConfig, BackupRecord, ScheduleConfig, RestartScheduleConfig } from "@/types/models";
@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { useNotifications } from "@/hooks/useNotifications";
-import { SaveImportDialog } from "./SaveImportDialog";
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const DAY_DEFAULTS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -109,7 +108,6 @@ export function AutomationPanel() {
   const [saving, setSaving] = React.useState(false);
   const [backups, setBackups] = React.useState<BackupRecord[]>([]);
   const [backingUp, setBackingUp] = React.useState(false);
-  const [saveImportOpen, setSaveImportOpen] = React.useState(false);
   const notifications = useNotifications();
 
   const refreshBackups = React.useCallback(() => {
@@ -256,14 +254,9 @@ export function AutomationPanel() {
         <div className="border-t border-stone-700/60 pt-6">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-xs uppercase tracking-wide text-parchment-300/40">{t("settings.automation.recentBackups", { defaultValue: "Recent Backups" })}</p>
-            <div className="flex gap-2">
-              <RuneButton variant="ghost" size="sm" icon={<FolderInput />} onClick={() => setSaveImportOpen(true)}>
-                {t("settings.saveImport.open", { defaultValue: "Import Save" })}
-              </RuneButton>
-              <RuneButton variant="ghost" size="sm" icon={<HardDriveDownload />} onClick={handleBackupNow} disabled={backingUp}>
-                {backingUp ? t("settings.automation.preserving", { defaultValue: "Preserving..." }) : t("settings.automation.backupNow", { defaultValue: "Backup Now" })}
-              </RuneButton>
-            </div>
+            <RuneButton variant="ghost" size="sm" icon={<HardDriveDownload />} onClick={handleBackupNow} disabled={backingUp}>
+              {backingUp ? t("settings.automation.preserving", { defaultValue: "Preserving..." }) : t("settings.automation.backupNow", { defaultValue: "Backup Now" })}
+            </RuneButton>
           </div>
           {backups.length === 0 ? (
             <p className="text-sm text-parchment-300/40">{t("settings.automation.noBackups", { defaultValue: "No backups yet." })}</p>
@@ -272,8 +265,6 @@ export function AutomationPanel() {
           )}
         </div>
       </div>
-
-      <SaveImportDialog open={saveImportOpen} onOpenChange={setSaveImportOpen} onImported={refreshBackups} />
     </ScrollPanel>
   );
 }

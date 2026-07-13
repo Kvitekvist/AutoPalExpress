@@ -69,6 +69,28 @@ def _tee_console_streams() -> None:
     sys.stderr = _Tee(sys.stderr, log_file)
 
 
+def _apply_run_silently() -> None:
+    """Hides this process's own console window if Super Admin's "Run
+    Silently" toggle is on. Applied once at startup, same as the equivalent
+    Palworld-side launch flag (process_manager._run_silently_enabled) -
+    hiding the window doesn't affect the already-teed stdout/stderr handles,
+    so backend.log and the Logs page keep working either way."""
+    if sys.platform != "win32":
+        return
+    try:
+        from app.services import system_settings
+
+        if not system_settings.get_config().get("runSilently"):
+            return
+        import ctypes
+
+        hwnd = ctypes.windll.kernel32.GetConsoleWindow()
+        if hwnd:
+            ctypes.windll.user32.ShowWindow(hwnd, 0)  # SW_HIDE
+    except Exception:
+        traceback.print_exc()
+
+
 def _show_startup_error(message: str) -> None:
     try:
         import ctypes
@@ -86,6 +108,7 @@ def _port_in_use(host: str, port: int) -> bool:
 
 def main() -> None:
     _tee_console_streams()
+    _apply_run_silently()
 
     url = f"http://{LOCAL_HOST}:{PORT}/"
 

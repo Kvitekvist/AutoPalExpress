@@ -4,6 +4,7 @@ import { authApi } from "@/api";
 import type { AuthUser } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { cn } from "@/lib/utils";
@@ -82,9 +83,8 @@ export function LoginScreen({ onDone }: LoginScreenProps) {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="auth-password">Password</Label>
-              <Input
+              <PasswordInput
                 id="auth-password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

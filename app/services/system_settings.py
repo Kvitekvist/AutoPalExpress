@@ -17,6 +17,7 @@ _RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 _DEFAULTS: dict[str, Any] = {
     "bootWithWindows": False,
     "autoStartActiveServer": False,
+    "runSilently": False,
 }
 
 
@@ -81,11 +82,12 @@ def get_config() -> dict[str, Any]:
     }
 
 
-def update_config(*, boot_with_windows: bool, auto_start_active_server: bool) -> dict[str, Any]:
+def update_config(*, boot_with_windows: bool, auto_start_active_server: bool, run_silently: bool) -> dict[str, Any]:
     _write_run_value(boot_with_windows)
     config = {
         "bootWithWindows": boot_with_windows,
         "autoStartActiveServer": auto_start_active_server,
+        "runSilently": run_silently,
     }
     _save(config)
     return get_config()

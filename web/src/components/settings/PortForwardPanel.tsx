@@ -7,6 +7,7 @@ import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
+import { Skeleton } from "@/components/fantasy/Skeleton";
 import { ManualForwardInstructions } from "./ManualForwardInstructions";
 import { useNotifications } from "@/hooks/useNotifications";
 
@@ -192,7 +193,33 @@ export function PortForwardPanel() {
       {!hasInstance ? (
         <p className="text-sm text-parchment-300/50">{t("superAdmin.portForward.noInstance", { defaultValue: "Set up a server first to share it with friends." })}</p>
       ) : !status ? (
-        <p className="animate-pulse text-sm text-parchment-300/50">{t("superAdmin.portForward.lookingUp", { defaultValue: "Looking up your public address..." })}</p>
+        <div className="space-y-4">
+          <div>
+            <Label>{t("superAdmin.portForward.gamePort", { defaultValue: "Game Port" })}</Label>
+            <div className="mt-1.5 flex items-center gap-2">
+              <Skeleton className="h-10 max-w-[10rem] flex-1" />
+              <Skeleton className="h-8 w-24" />
+            </div>
+          </div>
+          <div className="border-t border-stone-700/60 pt-4">
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.yourAddress", { defaultValue: "Your Address" })}</p>
+            <Skeleton className="h-9 w-full" />
+          </div>
+          <div className="border-t border-stone-700/60 pt-4">
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}</p>
+            <Skeleton className="h-5 w-64" />
+          </div>
+          <div className="border-t border-stone-700/60 pt-4">
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}</p>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-3/4" />
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-8 w-32" />
+              </div>
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="space-y-4">
           <div>

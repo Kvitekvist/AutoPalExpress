@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- **Run Silently (TICKET-0116):** new Super Admin toggle, off by default, that hides both the AutoPalExpress console window and Palworld's own server console window from the next start onward. The Logs page keeps showing real output either way.
+- **Dashboard network traffic lights (TICKET-0112):** three grey/yellow/red/green indicators (Game Port, Steam Query Port, Remote Access) summarizing the same firewall+forwarding checks Super Admin's detailed panels already do, visible to super admins.
+- **Dashboard CPU/RAM: Palworld vs whole machine (TICKET-0115):** both tiles now show two bars each - Palworld's own usage (unchanged) and the whole machine's current load, so a host can tell "is Palworld struggling" apart from "is this machine busy with something else."
+- **Fixed: "Last saved" never updated (TICKET-0113):** clicking Save World (or a scheduled backup's live-save) produced a real timestamp that was then thrown away - nothing persisted it anywhere the status endpoint could read back. Dashboard/Server Control now reflect real save times.
+- **Skeleton loading + static toggle text (TICKET-0111):** Remote Access and Share With Friends now show their real labels immediately with loading placeholders standing in for just the data, instead of the whole card popping in once network data resolves. Every boolean toggle across World Settings/Local API Settings now reads a static "Enable or Disable" instead of flipping between the two based on current state.
+- **Import Save moved to Server Instances (TICKET-0114):** relocated from Automation to Settings > Server Instances, with a purple (arcane) accent.
+- **Mod File Uploads moved to Mod Wishlist (TICKET-0110):** both super-admin mod-installation entry points (approve a wishlist request, install an already-downloaded file) now live on the same page.
+- **Password reveal toggle (TICKET-0072):** every password field (login, first-run setup, World Settings/Local API sensitive fields) now has a show/hide eye icon, masked by default.
+
 ## 1.0.7 - 2026-07-13
 
 - Installer checksum (SHA256): `0cfc40030236abf389a2f95d3ba5423670c83625c2004d2512b0ae8573f88759`.

@@ -5,6 +5,7 @@ import { networkApi } from "@/api";
 import type { UpnpStatus } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
+import { Skeleton } from "@/components/fantasy/Skeleton";
 import { ManualForwardInstructions } from "./ManualForwardInstructions";
 import { useNotifications } from "@/hooks/useNotifications";
 
@@ -94,8 +95,6 @@ export function RemoteAccessPanel() {
     setTimeout(() => setCopied(false), 1500);
   }
 
-  if (!status) return null;
-
   return (
     <ScrollPanel icon={<Globe />} title={t("superAdmin.remoteAccess.title", { defaultValue: "Remote Access" })}>
       <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
@@ -108,7 +107,9 @@ export function RemoteAccessPanel() {
       <div className="space-y-4">
         <div>
           <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}</p>
-          {firewallOk ? (
+          {!status || firewallOk === null ? (
+            <Skeleton className="h-5 w-64" />
+          ) : firewallOk ? (
             <p className="flex items-center gap-1.5 text-sm text-life-400">
               <ShieldCheck className="h-4 w-4 shrink-0" />
               {t("superAdmin.remoteAccess.firewallAllowed", { defaultValue: "Allowed: incoming connections on port {{port}} aren't blocked.", port: status.adminPort })}
@@ -136,72 +137,85 @@ export function RemoteAccessPanel() {
         <div className="border-t border-stone-700/60 pt-4">
           <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}</p>
 
-          {status.externalIp && (
-            <div className="mb-3 flex items-center gap-2 rounded-md border border-stone-700 bg-abyss-900/40 px-3 py-2">
-              <span className="flex-1 truncate font-mono text-sm text-parchment-100">
-                http://{status.externalIp}:{status.adminPort}
-              </span>
-              <RuneButton
-                type="button"
-                variant="ghost"
-                size="sm"
-                icon={copied ? <Check /> : <Copy />}
-                onClick={handleCopy}
-              >
-                {copied ? t("superAdmin.portForward.copied", { defaultValue: "Copied" }) : t("superAdmin.portForward.copy", { defaultValue: "Copy" })}
-              </RuneButton>
-            </div>
-          )}
-
-          {!status.available ? (
-            <div className="space-y-2">
-              <p className="text-xs leading-relaxed text-parchment-300/40">
-                {t("superAdmin.remoteAccess.noUpnpHint", {
-                  defaultValue: "No UPnP-capable router found, so this can't be opened automatically. Forward it manually in your router's admin page instead:",
-                })}
-              </p>
-              <ManualForwardInstructions
-                name={t("superAdmin.remoteAccess.adminPanelName", { defaultValue: "Palworld Server Admin Panel" })}
-                protocol="TCP"
-                port={status.adminPort}
-                localIp={status.localIp}
-              />
-            </div>
-          ) : (
+          {!status ? (
             <div className="space-y-3">
-              {mapping ? (
-                mapping.isThisMachine ? (
-                  <p className="text-sm text-life-400">
-                    {t("superAdmin.remoteAccess.openVia", { defaultValue: "Remote access is open via {{router}}.", router: status.routerName })}
-                  </p>
-                ) : (
-                  <p className="text-sm text-gold-400">
-                    {t("superAdmin.portForward.forwardedElsewhere", {
-                      defaultValue: "Port {{port}} is currently forwarded to a different machine on this network ({{client}}), not this PC.",
-                      port: status.adminPort,
-                      client: mapping.internalClient,
-                    })}
-                  </p>
-                )
-              ) : (
-                <p className="text-xs text-parchment-300/40">
-                  {t("superAdmin.portForward.noMappingDetected", {
-                    defaultValue:
-                      'No mapping currently detected for this port - some routers don\'t report this reliably, so "Remove" is always available below just in case one exists anyway.',
-                  })}
-                </p>
-              )}
-              <div className="flex flex-wrap items-center gap-2">
-                <RuneButton type="button" variant="gold" size="sm" onClick={handleForward} disabled={forwarding}>
-                  {forwarding ? t("superAdmin.remoteAccess.opening", { defaultValue: "Opening..." }) : t("superAdmin.remoteAccess.openRemoteAccess", { defaultValue: "Open Remote Access" })}
-                </RuneButton>
-                <RuneButton type="button" variant="danger" size="sm" onClick={handleUnforward} disabled={unforwarding}>
-                  {unforwarding
-                    ? t("superAdmin.remoteAccess.closing", { defaultValue: "Closing..." })
-                    : t("superAdmin.portForward.removeThisForward", { defaultValue: "Remove This Forward" })}
-                </RuneButton>
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <div className="flex gap-2">
+                <Skeleton className="h-8 w-32" />
+                <Skeleton className="h-8 w-32" />
               </div>
             </div>
+          ) : (
+            <>
+              {status.externalIp && (
+                <div className="mb-3 flex items-center gap-2 rounded-md border border-stone-700 bg-abyss-900/40 px-3 py-2">
+                  <span className="flex-1 truncate font-mono text-sm text-parchment-100">
+                    http://{status.externalIp}:{status.adminPort}
+                  </span>
+                  <RuneButton
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    icon={copied ? <Check /> : <Copy />}
+                    onClick={handleCopy}
+                  >
+                    {copied ? t("superAdmin.portForward.copied", { defaultValue: "Copied" }) : t("superAdmin.portForward.copy", { defaultValue: "Copy" })}
+                  </RuneButton>
+                </div>
+              )}
+
+              {!status.available ? (
+                <div className="space-y-2">
+                  <p className="text-xs leading-relaxed text-parchment-300/40">
+                    {t("superAdmin.remoteAccess.noUpnpHint", {
+                      defaultValue: "No UPnP-capable router found, so this can't be opened automatically. Forward it manually in your router's admin page instead:",
+                    })}
+                  </p>
+                  <ManualForwardInstructions
+                    name={t("superAdmin.remoteAccess.adminPanelName", { defaultValue: "Palworld Server Admin Panel" })}
+                    protocol="TCP"
+                    port={status.adminPort}
+                    localIp={status.localIp}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {mapping ? (
+                    mapping.isThisMachine ? (
+                      <p className="text-sm text-life-400">
+                        {t("superAdmin.remoteAccess.openVia", { defaultValue: "Remote access is open via {{router}}.", router: status.routerName })}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gold-400">
+                        {t("superAdmin.portForward.forwardedElsewhere", {
+                          defaultValue: "Port {{port}} is currently forwarded to a different machine on this network ({{client}}), not this PC.",
+                          port: status.adminPort,
+                          client: mapping.internalClient,
+                        })}
+                      </p>
+                    )
+                  ) : (
+                    <p className="text-xs text-parchment-300/40">
+                      {t("superAdmin.portForward.noMappingDetected", {
+                        defaultValue:
+                          'No mapping currently detected for this port - some routers don\'t report this reliably, so "Remove" is always available below just in case one exists anyway.',
+                      })}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <RuneButton type="button" variant="gold" size="sm" onClick={handleForward} disabled={forwarding}>
+                      {forwarding ? t("superAdmin.remoteAccess.opening", { defaultValue: "Opening..." }) : t("superAdmin.remoteAccess.openRemoteAccess", { defaultValue: "Open Remote Access" })}
+                    </RuneButton>
+                    <RuneButton type="button" variant="danger" size="sm" onClick={handleUnforward} disabled={unforwarding}>
+                      {unforwarding
+                        ? t("superAdmin.remoteAccess.closing", { defaultValue: "Closing..." })
+                        : t("superAdmin.portForward.removeThisForward", { defaultValue: "Remove This Forward" })}
+                    </RuneButton>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

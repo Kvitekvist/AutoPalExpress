@@ -13,11 +13,13 @@ import signal
 import subprocess
 import threading
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 import psutil
 
+from app import storage
 from app.services import activity_log, instance_store, palworld_settings, public_ip, upnp
 
 logger = logging.getLogger("palworld_admin.process_manager")
@@ -28,6 +30,11 @@ _lock = threading.Lock()
 _processes: dict[str, subprocess.Popen] = {}
 _started_at: dict[str, float] = {}
 _stopping: set[str] = set()
+# Live-only "when did a save last actually happen" hint for the Dashboard -
+# not persisted to disk, matching how uptime/process tracking already works
+# in this module. Populated by both a manual Save World click and a
+# scheduled backup's own live-save step.
+_last_saved_at: dict[str, str] = {}
 _PALWORLD_PROCESS_NAMES = {"palserver.exe", "palserver-win64-shipping-cmd.exe"}
 
 
@@ -35,6 +42,24 @@ class ProcessError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
         self.message = message
+
+
+def _run_silently_enabled() -> bool:
+    # Reads the setting straight from storage rather than importing
+    # app.services.system_settings, which itself imports this module
+    # (for restore_active_server_if_enabled) - importing it back here
+    # would be a circular import.
+    return bool(storage.load("system_settings", {}).get("runSilently", False))
+
+
+def record_save(instance_id: str) -> str:
+    timestamp = datetime.now().isoformat()
+    _last_saved_at[instance_id] = timestamp
+    return timestamp
+
+
+def get_last_saved(instance_id: str) -> str | None:
+    return _last_saved_at.get(instance_id)
 
 
 def _exe_path(instance: dict[str, Any]) -> Path:
@@ -174,14 +199,20 @@ def start(instance: dict[str, Any]) -> None:
         if instance.get("jsonLogFormat"):
             launch_args.append("-logformat=json")
 
+        # Keep Palworld's own server window visible by default so the host
+        # can see at a glance that it is running - stdout/stderr still do
+        # not contain the window text either way, Palworld renders that
+        # content through its own console/overlay path rather than writing
+        # normal process output. The Super Admin "Run Silently" toggle hides
+        # it instead, for hosts who'd rather not see floating consoles.
+        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP
+        if _run_silently_enabled():
+            creationflags |= subprocess.CREATE_NO_WINDOW
+
         proc = subprocess.Popen(
             launch_args,
             cwd=str(exe.parent),
-            # Keep Palworld's own server window visible so the host can see at
-            # a glance that it is running. stdout/stderr still do not contain
-            # the window text - Palworld renders that content through its own
-            # console/overlay path rather than writing normal process output.
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
+            creationflags=creationflags,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             stdin=subprocess.DEVNULL,

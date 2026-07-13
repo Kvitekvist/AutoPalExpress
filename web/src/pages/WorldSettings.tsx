@@ -5,6 +5,7 @@ import { serverSettingsApi } from "@/api";
 import type { SettingField } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -174,11 +175,7 @@ function FieldControl({
           id={`field-${field.key}`}
           checked={Boolean(value)}
           onCheckedChange={onChange}
-          label={
-            Boolean(value)
-              ? t("worldSettings.chrome.disable", { defaultValue: "Disable" })
-              : t("worldSettings.chrome.enable", { defaultValue: "Enable" })
-          }
+          label={t("worldSettings.chrome.enableOrDisable", { defaultValue: "Enable or Disable" })}
           compact
         />
         {description && <p className="text-xs text-parchment-300/40">{description}</p>}
@@ -229,22 +226,27 @@ function FieldControl({
     );
   }
 
-  const inputType = field.type === "int" || field.type === "float" ? "number" : field.sensitive ? "password" : "text";
+  const inputType = field.type === "int" || field.type === "float" ? "number" : "text";
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (field.type === "int") onChange(e.target.value === "" ? 0 : parseInt(e.target.value, 10));
+    else if (field.type === "float") onChange(e.target.value === "" ? 0 : parseFloat(e.target.value));
+    else onChange(e.target.value);
+  }
 
   return (
     <div className="space-y-1.5">
       <Label htmlFor={`field-${field.key}`}>{label}</Label>
-      <Input
-        id={`field-${field.key}`}
-        type={inputType}
-        step={field.type === "float" ? "0.01" : undefined}
-        value={value as string | number}
-        onChange={(e) => {
-          if (field.type === "int") onChange(e.target.value === "" ? 0 : parseInt(e.target.value, 10));
-          else if (field.type === "float") onChange(e.target.value === "" ? 0 : parseFloat(e.target.value));
-          else onChange(e.target.value);
-        }}
-      />
+      {field.sensitive ? (
+        <PasswordInput id={`field-${field.key}`} value={value as string} onChange={handleChange} />
+      ) : (
+        <Input
+          id={`field-${field.key}`}
+          type={inputType}
+          step={field.type === "float" ? "0.01" : undefined}
+          value={value as string | number}
+          onChange={handleChange}
+        />
+      )}
       {description && <p className="text-xs text-parchment-300/40">{description}</p>}
     </div>
   );

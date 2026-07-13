@@ -7,13 +7,16 @@ import { CrystalStatus } from "@/components/fantasy/CrystalStatus";
 import { StatTile } from "@/components/fantasy/StatTile";
 import { ManaProgressBar } from "@/components/fantasy/ManaProgressBar";
 import { PlayersSection } from "@/components/players/PlayersSection";
+import { NetworkStatusLights } from "@/components/dashboard/NetworkStatusLights";
 import { useServerStatus } from "@/hooks/useServerStatus";
+import { useAuth } from "@/hooks/useAuth";
 import { modsApi, instancesApi } from "@/api";
 import type { ServerInstance } from "@/types/models";
 import { formatUptime, formatRelativeTime } from "@/lib/format";
 
 export default function Dashboard() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { status, loading } = useServerStatus(4000);
   const [modCount, setModCount] = React.useState<number | null>(null);
   const [instance, setInstance] = React.useState<ServerInstance | null>(null);
@@ -34,6 +37,7 @@ export default function Dashboard() {
   }
 
   const ramPercent = status.ramTotalGB > 0 ? (status.ramUsedGB / status.ramTotalGB) * 100 : 0;
+  const systemRamPercent = status.ramTotalGB > 0 ? (status.systemRamUsedGB / status.ramTotalGB) * 100 : 0;
   const tickHealth =
     status.tickRateMs !== null && status.targetTickRateMs > 0
       ? Math.max(0, 100 - Math.abs(status.tickRateMs - status.targetTickRateMs) * 4)
@@ -86,6 +90,8 @@ export default function Dashboard() {
         </div>
       </ScrollPanel>
 
+      {user.role === "super_admin" && <NetworkStatusLights hasInstance={!!instance} />}
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
         <StatTile
           icon={<Cpu />}
@@ -93,7 +99,20 @@ export default function Dashboard() {
           value={`${Math.round(status.cpuPercent)}%`}
           accent="arcane"
         >
-          <ManaProgressBar value={status.cpuPercent} variant="arcane" className="mt-3" />
+          <ManaProgressBar
+            value={status.cpuPercent}
+            variant="arcane"
+            label={t("dashboard.stats.palworldOnly", { defaultValue: "Palworld" })}
+            valueLabel={`${Math.round(status.cpuPercent)}%`}
+            className="mt-3"
+          />
+          <ManaProgressBar
+            value={status.systemCpuPercent}
+            variant="gold"
+            label={t("dashboard.stats.systemTotal", { defaultValue: "System" })}
+            valueLabel={`${Math.round(status.systemCpuPercent)}%`}
+            className="mt-3"
+          />
         </StatTile>
 
         <StatTile
@@ -103,7 +122,20 @@ export default function Dashboard() {
           hint={t("dashboard.stats.ramHint", { defaultValue: "of {{total}} GB", total: status.ramTotalGB })}
           accent="mana"
         >
-          <ManaProgressBar value={ramPercent} variant="mana" className="mt-3" />
+          <ManaProgressBar
+            value={ramPercent}
+            variant="mana"
+            label={t("dashboard.stats.palworldOnly", { defaultValue: "Palworld" })}
+            valueLabel={`${status.ramUsedGB.toFixed(1)} GB`}
+            className="mt-3"
+          />
+          <ManaProgressBar
+            value={systemRamPercent}
+            variant="gold"
+            label={t("dashboard.stats.systemTotal", { defaultValue: "System" })}
+            valueLabel={`${status.systemRamUsedGB.toFixed(1)} GB`}
+            className="mt-3"
+          />
         </StatTile>
 
         <StatTile
