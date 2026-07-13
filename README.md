@@ -54,7 +54,6 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Let regular admins add browsed mods, or updates to already-installed mods, to a per-server wishlist for the super admin to approve or deny.
 - Show which installed mods have a newer version published on Nexus Mods.
 - See a quiet in-app notice when a newer stable AutoPalExpress release is available on GitHub.
-- Optionally hide the AutoPalExpress console window entirely (choose "Run Silently" when installing or updating) and/or hide the Palworld server's own console window (Super Admin toggle) for a cleaner desktop - both default to visible.
 - Optionally show a small, understated donation link in the sidebar - never required, never intrusive.
 - Enable, disable, reorder, and remove mods.
 - View players, kick players, and ban players through Palworld's REST API.
@@ -114,17 +113,14 @@ If you do not use direct install, download files on Nexus Mods, then use **Insta
 
 ## Logs And Windows
 
-By default, the app leaves command windows visible:
+The app intentionally leaves command windows visible:
 
 - The AutoPalExpress console window shows the app running.
 - The Palworld server window shows the dedicated server running.
 - The Logs page shows AutoPalExpress output and server activity side by side.
 
-> [!TIP]
-> Prefer a cleaner desktop? The installer asks "Run Silently?" on every install and update - choosing it hides AutoPalExpress's own console entirely (console visibility is fixed per build, so this is an install-time choice, not a live setting). Palworld's own server console has a separate, live Super Admin toggle instead, which takes effect the next time the server starts. The Logs page keeps working exactly the same either way.
-
 > [!WARNING]
-> Palworld's own server-window text cannot currently be mirrored into the browser. The game does not expose that text as normal stdout or a log file, so the real Palworld window stays visible separately unless hidden via Super Admin's toggle.
+> Palworld's own server-window text cannot currently be mirrored into the browser. The game does not expose that text as normal stdout or a log file, so the real Palworld window stays visible separately.
 
 ## What Is Real
 
@@ -166,7 +162,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  D512DB4C484AA791367BF85871A63789D23713FE7421BD2DCF4866BBC69ABB71
+SHA256  PalworldServerAdmin-Setup.exe  8AAD9B9F2C2F26C0C09647A22A9D071CE041C9296178E21C9DB3F934AF527803
 ```
 
 > [!IMPORTANT]

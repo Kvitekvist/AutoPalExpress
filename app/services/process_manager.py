@@ -19,7 +19,6 @@ from typing import Any
 
 import psutil
 
-from app import storage
 from app.services import activity_log, instance_store, palworld_settings, public_ip, upnp
 
 logger = logging.getLogger("palworld_admin.process_manager")
@@ -42,14 +41,6 @@ class ProcessError(Exception):
     def __init__(self, message: str):
         super().__init__(message)
         self.message = message
-
-
-def _run_silently_enabled() -> bool:
-    # Reads the setting straight from storage rather than importing
-    # app.services.system_settings, which itself imports this module
-    # (for restore_active_server_if_enabled) - importing it back here
-    # would be a circular import.
-    return bool(storage.load("system_settings", {}).get("runSilently", False))
 
 
 def record_save(instance_id: str) -> str:
@@ -199,20 +190,14 @@ def start(instance: dict[str, Any]) -> None:
         if instance.get("jsonLogFormat"):
             launch_args.append("-logformat=json")
 
-        # Keep Palworld's own server window visible by default so the host
-        # can see at a glance that it is running - stdout/stderr still do
-        # not contain the window text either way, Palworld renders that
-        # content through its own console/overlay path rather than writing
-        # normal process output. The Super Admin "Run Silently" toggle hides
-        # it instead, for hosts who'd rather not see floating consoles.
-        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP
-        if _run_silently_enabled():
-            creationflags |= subprocess.CREATE_NO_WINDOW
-
         proc = subprocess.Popen(
             launch_args,
             cwd=str(exe.parent),
-            creationflags=creationflags,
+            # Keep Palworld's own server window visible so the host can see at
+            # a glance that it is running. stdout/stderr still do not contain
+            # the window text - Palworld renders that content through its own
+            # console/overlay path rather than writing normal process output.
+            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             stdin=subprocess.DEVNULL,

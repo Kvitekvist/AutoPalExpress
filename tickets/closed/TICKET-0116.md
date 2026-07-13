@@ -73,11 +73,15 @@ Direct user request - some hosts likely want a cleaner desktop (no floating cons
 
 Super Admin now has a "Run Silently" toggle, off by default. When enabled, both AutoPalExpress's own console window and Palworld's server console window stay hidden from the next start onward; the Logs page is unaffected either way.
 
+**REVERTED (2026-07-13, TICKET-0120)**: after three follow-on bug tickets (TICKET-0117 minimized-not-hidden, TICKET-0118 `_MEIPASS2` crash, TICKET-0119's install-time exe-variant rework), the user asked to roll the entire feature back rather than keep debugging it ("it messes up things, roll back"). See TICKET-0120 for the revert itself.
+
 ---
 
 ## Notes
 
 Ticket created per explicit user request; implementation deliberately not started yet. The AutoPalExpress-own-console mechanism (live WinAPI show/hide vs. restart-to-apply) is the one open design question worth a quick decision at implementation time.
+
+Retrospective: this feature never actually reached a stable, verified-working state across three real attempts (TICKET-0117/0118/0119) before being reverted - each fix uncovered a new Windows/PyInstaller-specific problem. Worth remembering if "run silently"/headless mode is requested again: the TICKET-0119 approach (two separate PyInstaller builds, console visibility fixed at build time, installer asks at install/update time) was the technically correct direction and got as far as passing a real executable-level test, but was still rolled back before a full end-to-end install/upgrade cycle was verified on the user's actual machine.
 
 ---
 

@@ -139,7 +139,6 @@ export interface ServerSettings {
 export interface SystemStartupSettings {
   bootWithWindows: boolean;
   autoStartActiveServer: boolean;
-  runSilently: boolean;
 }
 
 export interface ScheduleConfig {

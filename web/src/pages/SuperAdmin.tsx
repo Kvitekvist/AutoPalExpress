@@ -9,7 +9,6 @@ import { PortForwardPanel } from "@/components/settings/PortForwardPanel";
 import { NexusIntegrationPanel } from "@/components/settings/NexusIntegrationPanel";
 import { LocalApiSettingsPanel } from "@/components/settings/LocalApiSettingsPanel";
 import { DiagnosticsPanel } from "@/components/settings/DiagnosticsPanel";
-import { RunSilentlyPanel } from "@/components/settings/RunSilentlyPanel";
 
 export default function SuperAdmin() {
   const { t } = useTranslation();
@@ -41,7 +40,6 @@ export default function SuperAdmin() {
       <RemoteAccessPanel />
       <DiagnosticsPanel />
       <NexusIntegrationPanel />
-      <RunSilentlyPanel />
     </div>
   );
 }

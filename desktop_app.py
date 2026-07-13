@@ -1,14 +1,6 @@
 """Entry point for the packaged (PyInstaller) build. Starts the backend and
 opens the default browser to it - the whole app is one process on one port,
 since app/main.py also serves the built frontend when it's present.
-
-Built twice from PalworldServerAdmin.spec, as PalworldServerAdmin.exe
-(console=True, the default) and PalworldServerAdminSilent.exe
-(console=False) - the installer's Run Silently question decides which one
-gets used for shortcuts/startup, so this file itself doesn't need to know
-or care which variant it's running as. Console visibility is fixed at
-build time on purpose: trying to hide/relaunch an already-visible console
-at runtime (TICKET-0116/0117/0118) proved unreliable in practice.
 """
 
 import socket
@@ -62,10 +54,8 @@ class _Tee:
 
 
 def _tee_console_streams() -> None:
-    """Copies stdout/stderr into backend.log so the Logs page can show
-    AutoPalExpress' own output. sys.stdout/sys.stderr are None on the
-    console=False Silent build - _Tee already filters those out, so this
-    still works there, it just has nothing but the log file to write to."""
+    """Keep the packaged console visible and also copy stdout/stderr into
+    backend.log so the Logs page can show AutoPalExpress' own output."""
     from app.paths import data_dir
 
     try:
