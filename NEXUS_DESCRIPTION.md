@@ -1,4 +1,4 @@
-[size=6][b]Palworld Server Admin[/b][/size]
+[size=6][b]AutoPalExpress[/b][/size]
 
 A desktop admin panel for running your own Palworld Dedicated Server(s): deploy a fresh server in a few clicks, manage mods and UE4SS without touching config files, and let friends log in with their own account to help run the server. No command line required.
 
@@ -67,7 +67,7 @@ This is the same walkthrough as the project's Getting Started guide on GitHub. Y
 
 [size=4][b]1. Install The App[/b][/size]
 
-Download PalworldServerAdmin-Setup.exe from the Files tab and run it.
+Download AutoPalExpress-Setup.exe from the Files tab and run it.
 
 [img]https://raw.githubusercontent.com/Kvitekvist/AutoPalExpress/refs/heads/main/images/getting-started-01-installer-start.png[/img]
 

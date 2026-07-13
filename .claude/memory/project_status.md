@@ -44,7 +44,7 @@ n/a - no git repository has been initialized for this project yet.
 
 ## Build Status
 
-Builds successfully. The distributable installer (`PalworldServerAdmin-Setup.exe`) has been built and verified multiple times (silent install/uninstall, real launch on this machine).
+Builds successfully. The distributable installer (`AutoPalExpress-Setup.exe`) has been built and verified multiple times (silent install/uninstall, real launch on this machine).
 
 ---
 

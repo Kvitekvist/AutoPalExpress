@@ -70,7 +70,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 
 ## Quick Start
 
-1. Download `PalworldServerAdmin-Setup.exe` from the release page.
+1. Download `AutoPalExpress-Setup.exe` from the release page.
 2. Run the installer.
 3. Create the super admin account.
 4. Deploy a new server or import one you already have.
@@ -162,7 +162,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  PalworldServerAdmin-Setup.exe  73A3418EB3E43295DCEE7F4D32F67636787453B753B69752BAC048B375FF4712
+SHA256  AutoPalExpress-Setup.exe  8B8794ACC0F597C8B0786D23A08AD7F5FDC40E5010D61D463B567AFAB74D01A4
 ```
 
 > [!IMPORTANT]
@@ -210,8 +210,8 @@ Both build the frontend, package the backend with PyInstaller, and compile the i
 
 Outputs:
 
-- `dist/PalworldServerAdmin.exe`
-- `installer_output/PalworldServerAdmin-Setup.exe`
+- `dist/AutoPalExpress.exe`
+- `installer_output/AutoPalExpress-Setup.exe`
 
 </details>
 

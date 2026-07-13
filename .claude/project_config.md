@@ -18,4 +18,4 @@ branch_strategy: n/a (no git repo yet)
 
 tests_required: false (no automated test suite exists - correctness has relied on manual/live verification of each feature; see memory/project_memory.md)
 
-release_method: Manual - build the frontend, run PyInstaller against PalworldServerAdmin.spec, compile installer.iss with Inno Setup, producing PalworldServerAdmin-Setup.exe
+release_method: Manual - build the frontend, run PyInstaller against AutoPalExpress.spec, compile installer.iss with Inno Setup, producing AutoPalExpress-Setup.exe

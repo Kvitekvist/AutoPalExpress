@@ -173,7 +173,7 @@ export function RemoteAccessPanel() {
                     })}
                   </p>
                   <ManualForwardInstructions
-                    name={t("superAdmin.remoteAccess.adminPanelName", { defaultValue: "Palworld Server Admin Panel" })}
+                    name={t("superAdmin.remoteAccess.adminPanelName", { defaultValue: "AutoPalExpress Panel" })}
                     protocol="TCP"
                     port={status.adminPort}
                     localIp={status.localIp}

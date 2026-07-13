@@ -30,7 +30,7 @@ def _save(config: dict[str, Any]) -> None:
 
 
 def _startup_target() -> Path:
-    packaged = install_dir() / "PalworldServerAdmin.exe"
+    packaged = install_dir() / "AutoPalExpress.exe"
     if packaged.is_file():
         return packaged
     return Path(sys.executable).resolve()

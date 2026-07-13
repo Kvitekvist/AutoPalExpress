@@ -77,7 +77,7 @@ def _show_message_box(message: str, icon: int = _MB_ICONERROR) -> None:
     try:
         import ctypes
 
-        ctypes.windll.user32.MessageBoxW(0, message, "Palworld Server Admin", icon)
+        ctypes.windll.user32.MessageBoxW(0, message, "AutoPalExpress", icon)
     except Exception:
         pass
 
@@ -131,7 +131,7 @@ def main() -> None:
         from app.paths import data_dir
 
         _show_message_box(
-            "Palworld Server Admin couldn't start.\n\n"
+            "AutoPalExpress couldn't start.\n\n"
             f"Details were written to:\n{data_dir() / 'backend.log'}"
         )
         raise

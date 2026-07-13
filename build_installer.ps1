@@ -1,4 +1,4 @@
-# Builds the distributable PalworldServerAdmin-Setup.exe from source.
+# Builds the distributable AutoPalExpress-Setup.exe from source.
 # Requires: Node/npm, this project's Python venv (with pyinstaller installed),
 # and Inno Setup 6 (winget install JRSoftware.InnoSetup).
 
@@ -10,7 +10,7 @@ Push-Location "$root\web"
 npm.cmd run build
 Pop-Location
 
-Write-Host "==> Building PalworldServerAdmin.exe with PyInstaller..." -ForegroundColor Cyan
+Write-Host "==> Building AutoPalExpress.exe with PyInstaller..." -ForegroundColor Cyan
 Push-Location $root
 $pythonCandidates = @(
     "$root\.venv312\Scripts\python.exe",
@@ -34,7 +34,7 @@ Write-Host "==> Verifying application version sources..." -ForegroundColor Cyan
 if ($LASTEXITCODE -ne 0) {
     throw "Application version verification failed."
 }
-& $python -m PyInstaller PalworldServerAdmin.spec --noconfirm
+& $python -m PyInstaller AutoPalExpress.spec --noconfirm
 Pop-Location
 
 $innoCandidates = @(
@@ -50,4 +50,4 @@ if (-not $iscc) {
 Write-Host "==> Compiling installer with Inno Setup..." -ForegroundColor Cyan
 & $iscc "$root\installer.iss"
 
-Write-Host "==> Done: $root\installer_output\PalworldServerAdmin-Setup.exe" -ForegroundColor Green
+Write-Host "==> Done: $root\installer_output\AutoPalExpress-Setup.exe" -ForegroundColor Green

@@ -51,8 +51,8 @@ Purpose: FastAPI serves the JSON API and, in the packaged app, also serves the b
 
 # Build System
 
-* PyInstaller (onefile mode) packages `desktop_app.py` into `PalworldServerAdmin.exe` per `PalworldServerAdmin.spec`
-* Inno Setup 6 compiles `installer.iss` into `PalworldServerAdmin-Setup.exe` (wraps the PyInstaller exe with a desktop shortcut, Start Menu entry, uninstaller)
+* PyInstaller (onefile mode) packages `desktop_app.py` into `AutoPalExpress.exe` per `AutoPalExpress.spec`
+* Inno Setup 6 compiles `installer.iss` into `AutoPalExpress-Setup.exe` (wraps the PyInstaller exe with a desktop shortcut, Start Menu entry, uninstaller)
 * `npm run build` produces the frontend's `web/dist`, which PyInstaller bundles in via the spec's `datas`
 
 ---
@@ -98,7 +98,7 @@ Frontend (`web/package.json`, key ones): react, react-router-dom, framer-motion,
 
 # Storage
 
-* JSON files under `data/` (when run from source) or `%LOCALAPPDATA%\PalworldServerAdmin\data` (when running the packaged app) - see `app/paths.py`.
+* JSON files under `data/` (when run from source) or `<install folder>\data` (when running the packaged app, since TICKET-0123 - was `%LOCALAPPDATA%\PalworldServerAdmin\data` before) - see `app/paths.py`.
 * No database. Per-instance data lives under `data/instances/<id>/*.json` (mods, automation schedules, UE4SS install record, mods-path override, backups).
 * No secrets are stored encrypted at rest currently - PBKDF2 password hashes live in plain JSON files on the local machine. Older installs may still have a saved Nexus API key in `nexus.json`, but the public release flow no longer requires one and the Super Admin panel can remove it.
 
@@ -114,8 +114,8 @@ Frontend (`web/package.json`, key ones): react, react-router-dom, framer-motion,
 
 # Build Output
 
-* `PalworldServerAdmin.exe` (PyInstaller onefile) - not distributed directly.
-* `PalworldServerAdmin-Setup.exe` (Inno Setup) - the actual distributable, installs to the user's profile (no admin rights required), creates a desktop shortcut.
+* `AutoPalExpress.exe` (PyInstaller onefile) - not distributed directly.
+* `AutoPalExpress-Setup.exe` (Inno Setup) - the actual distributable, installs to the user's profile (no admin rights required), creates a desktop shortcut.
 
 ---
 

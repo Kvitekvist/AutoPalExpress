@@ -727,3 +727,25 @@ Keep the all-users install option and grant folder permissions via `icacls` inst
 ### Date
 
 2026-07-13
+
+---
+
+### Decision
+
+Two follow-on fixes shipped in the same sitting as the app-data move above: the installer's own `{app}`-referencing checks were moved out of `InitializeWizard` into `NextButtonClick(wpSelectDir)` (TICKET-0125), and a real write-test against the chosen folder was added at that same point (TICKET-0128). Separately, the app itself - including the installed `.exe` - was renamed from "Palworld Server Admin"/`PalworldServerAdmin.exe` to "AutoPalExpress"/`AutoPalExpress.exe` everywhere (TICKET-0127), matching the name already used for the GitHub repo, README, and the Nexus API `Application-Name` identity.
+
+### Reason
+
+TICKET-0125: `{app}` is only valid once Setup has an actual destination folder, which doesn't happen until the directory-selection page is confirmed - `InitializeWizard` runs immediately at startup, before that, so calling `HasAdminAccount`/`HasServerData`/setting the default server folder from there crashed immediately with Inno's own "attempt was made to expand the app constant before it was initialized". TICKET-0128: since dropping the elevation option (previous decision) means Setup can never self-elevate to fix an unwritable folder, a folder that genuinely needs admin rights (most commonly under Program Files) failed deep in the file-copy step with a bare OS error instead of anything actionable. TICKET-0127: direct user request for consistent branding, confirmed via `AskUserQuestion` that the rename should include the actual `.exe`, not just installer display text.
+
+### Alternatives
+
+For TICKET-0128: re-adding an elevation option to fix the underlying permissions problem directly (rejected - reopens exactly the complexity/all-users-install risk the previous decision deliberately avoided; a clear message directing the user to a folder they own is simpler and matches the single-user-picked-location model).
+
+### Consequences
+
+`HasAdminAccount`/`HasServerData`/`ServerInstallDirPage`'s default and the new `CanWriteToDir` write-test all now run from one place, `NextButtonClick(CurPageID = wpSelectDir)`, right after `{app}` first becomes valid. The rename kept the `AppId` GUID untouched (that's what Inno actually uses to recognize "same app" for upgrades, not the name) and added compatibility fallbacks where old-named state could otherwise silently stop being recognized: `HasAdminAccount`/`HasServerData` also check `%LOCALAPPDATA%\PalworldServerAdmin\data` (pre-existing, from the data-move decision above), an `[InstallDelete]` entry removes a stale old-named exe on upgrade, and `GET /firewall/status` also recognizes a firewall rule created under the old "Palworld Server Admin" name so an existing allow-rule doesn't look absent. `app/paths.py`'s legacy-folder-name constant deliberately keeps its literal string value ("PalworldServerAdmin") despite being renamed for clarity (`_LEGACY_APP_DIR_NAME`), since that value has to keep matching what old installs actually used on disk. Known accepted gap: an *upgrading* (not fresh) install keeps its previous Start Menu group folder name, since Inno remembers that by `AppId` independent of the current `DefaultGroupName` - only the shortcut inside it renames. All three fixes were verified against the real compiled installer/exe (window-title inspection via `EnumWindows`, real `/VERYSILENT` installs against both a blocked and a writable folder, a real boot smoke test of the renamed exe), not just by reading the changed source.
+
+### Date
+
+2026-07-13

@@ -19,7 +19,12 @@ only ever need to be read from wherever PyInstaller actually extracted them.
 import sys
 from pathlib import Path
 
-APP_DIR_NAME = "PalworldServerAdmin"
+# Historical folder name pre-TICKET-0123/0127 versions used under
+# %LOCALAPPDATA%. Must stay exactly "PalworldServerAdmin" - it has to keep
+# matching the literal folder name old installs actually used on disk, or
+# migrate_legacy_data_if_needed() would silently stop finding anyone's
+# existing data. Not related to the app's current AutoPalExpress branding.
+_LEGACY_APP_DIR_NAME = "PalworldServerAdmin"
 
 _legacy_migration_checked = False
 
@@ -31,7 +36,7 @@ def is_frozen() -> bool:
 def _legacy_data_dir() -> Path:
     import os
 
-    return Path(os.environ.get("LOCALAPPDATA", Path.home())) / APP_DIR_NAME / "data"
+    return Path(os.environ.get("LOCALAPPDATA", Path.home())) / _LEGACY_APP_DIR_NAME / "data"
 
 
 def migrate_legacy_data_if_needed() -> bool:
@@ -79,7 +84,7 @@ def resource_dir() -> Path:
 
 
 def install_dir() -> Path:
-    """The real, stable folder the installer put PalworldServerAdmin.exe in -
+    """The real, stable folder the installer put AutoPalExpress.exe in -
     NOT the same as resource_dir(), which for a frozen onefile build is a
     fresh temp extraction folder that's gone the moment the process exits.
     This is where the installer writes its one-time first-run seed file, so

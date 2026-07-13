@@ -15,7 +15,12 @@ logger = logging.getLogger("palworld_admin.network")
 router = APIRouter()
 
 ADMIN_PORT = 8000  # matches desktop_app.py / Palworld_Server.py
-ADMIN_FIREWALL_RULE_NAME = "Palworld Server Admin"
+ADMIN_FIREWALL_RULE_NAME = "AutoPalExpress"
+# Name a pre-rename (TICKET-0127) install would have created this rule under -
+# checked as a fallback so an existing rule from before the rename still
+# counts as "already allowed" instead of looking absent and prompting a
+# redundant duplicate-rule UAC re-elevation.
+_LEGACY_ADMIN_FIREWALL_RULE_NAME = "Palworld Server Admin"
 
 
 def _game_firewall_rule_name(port: int, protocol: str) -> str:
@@ -168,7 +173,7 @@ async def upnp_unforward(body: ForwardGameRequest | None = None) -> dict[str, An
 async def upnp_forward_admin() -> dict[str, Any]:
     """Forwards the admin panel's own port (TCP), separate from the game
     port, so friends can reach the login screen from outside your network."""
-    return await _forward(port=ADMIN_PORT, protocol="TCP", description="Palworld Server Admin Panel")
+    return await _forward(port=ADMIN_PORT, protocol="TCP", description="AutoPalExpress Panel")
 
 
 @router.post("/upnp/unforward-admin")
@@ -179,6 +184,8 @@ async def upnp_unforward_admin() -> dict[str, Any]:
 @router.get("/firewall/status")
 async def firewall_status() -> dict[str, Any]:
     exists = await asyncio.to_thread(firewall.rule_exists, ADMIN_FIREWALL_RULE_NAME)
+    if not exists:
+        exists = await asyncio.to_thread(firewall.rule_exists, _LEGACY_ADMIN_FIREWALL_RULE_NAME)
     return {"ruleExists": exists}
 
 

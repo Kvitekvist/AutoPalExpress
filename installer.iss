@@ -1,7 +1,7 @@
-#define MyAppName "Palworld Server Admin"
+#define MyAppName "AutoPalExpress"
 #define MyAppVersion "1.0.7"
-#define MyAppPublisher "Palworld Server Admin"
-#define MyAppExeName "PalworldServerAdmin.exe"
+#define MyAppPublisher "AutoPalExpress"
+#define MyAppExeName "AutoPalExpress.exe"
 
 [Setup]
 AppId={{C9B75D37-C6F7-4487-A49C-FBE76815AF7F}
@@ -12,7 +12,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=installer_output
-OutputBaseFilename=PalworldServerAdmin-Setup
+OutputBaseFilename=AutoPalExpress-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -32,8 +32,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional shortcuts:"
 Name: "startuprecovery"; Description: "Start AutoPalExpress with Windows (helps restart your server after this machine reboots)"; GroupDescription: "Startup recovery:"; Flags: unchecked
 
+[InstallDelete]
+; Removes the stale old-named exe left behind in an existing install folder
+; when upgrading from a version before this app was renamed to AutoPalExpress.
+Type: files; Name: "{app}\PalworldServerAdmin.exe"
+
 [Files]
-Source: "dist\PalworldServerAdmin.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\AutoPalExpress.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "support\diagnose-autopalexpress.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]

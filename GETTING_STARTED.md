@@ -25,7 +25,7 @@ You do not need to understand SteamCMD, config files, or Windows Firewall to sta
 
 ## 1. Install The App
 
-Download `PalworldServerAdmin-Setup.exe` from GitHub.
+Download `AutoPalExpress-Setup.exe` from GitHub.
 
 Run the installer.
 
