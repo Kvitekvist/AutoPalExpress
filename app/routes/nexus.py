@@ -45,6 +45,7 @@ async def get_sso_status(request_id: str) -> dict[str, Any]:
     nexus_session.save_record(
         {
             "connected": True,
+            "via": "sso",
             "apiKey": session["apiKey"],
             "username": data.get("name"),
             "userId": data.get("user_id"),

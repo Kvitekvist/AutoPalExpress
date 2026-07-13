@@ -8,7 +8,16 @@ _STORE_NAME = "nexus"
 
 
 def get_record() -> dict[str, Any]:
-    return storage.load(_STORE_NAME, {"connected": False})
+    record = storage.load(_STORE_NAME, {"connected": False})
+    if record.get("connected") and record.get("via") != "sso":
+        # Nexus's application registration requires removing personal API key
+        # usage entirely - a connection saved before the SSO flow existed (or
+        # any record missing the "via": "sso" marker) is exactly that, and
+        # must not keep authenticating installs just because it predates this
+        # check. Self-heals on the very next read, no separate migration step.
+        record = {"connected": False}
+        storage.save(_STORE_NAME, record)
+    return record
 
 
 def save_record(record: dict[str, Any]) -> None:
