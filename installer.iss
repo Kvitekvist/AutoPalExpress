@@ -146,9 +146,13 @@ end;
 
 procedure InitializeWizard;
 begin
-  AdminAccountExists := HasAdminAccount;
-  ServerDataExists := HasServerData;
-
+  // AdminAccountExists/ServerDataExists/ServerInstallDirPage.Values[0] are
+  // NOT set here - HasAdminAccount/HasServerData and the {app}\data\servers
+  // default both expand {app}, which Inno has not initialized yet this early
+  // (InitializeWizard runs before the Select Destination Location page has
+  // even been shown, causing "attempt was made to expand app constant before
+  // it was initialized"). They're set instead in NextButtonClick once the
+  // user has confirmed a destination folder - see the wpSelectDir case below.
   InstallModePage := CreateInputOptionPage(wpWelcome,
     'Setup Mode', 'What would you like to do?',
     'Choose an option, then click Next.', True, False);
@@ -171,7 +175,6 @@ begin
     'AutoPalExpress will create a server folder named after your server inside this location.',
     False, '');
   ServerInstallDirPage.Add('Parent folder for the first server:');
-  ServerInstallDirPage.Values[0] := ExpandConstant('{app}\data\servers');
 
   SuperAdminPage := CreateInputQueryPage(ServerInstallDirPage.ID,
     'Super Admin Account', 'Create the account that fully controls this tool',
@@ -204,6 +207,15 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
+  if CurPageID = wpSelectDir then
+  begin
+    // {app} is only valid from this point on (the user has just confirmed a
+    // destination folder) - see the comment in InitializeWizard above.
+    AdminAccountExists := HasAdminAccount;
+    ServerDataExists := HasServerData;
+    ServerInstallDirPage.Values[0] := ExpandConstant('{app}\data\servers');
+    Exit;
+  end;
   if CurPageID = InstallModePage.ID then
   begin
     if InstallModePage.SelectedValueIndex = 2 then
