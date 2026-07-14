@@ -9,6 +9,7 @@
 - **`.7z` mod archives supported (TICKET-0145):** Install From File and Nexus direct-install now accept `.7z` archives in addition to `.zip`.
 - **Manually-installed mods now show up (TICKET-0146):** mods placed directly into the mods folders by hand now appear on the Mods page (tagged "Manually Added") and can be enabled/disabled/removed through the app, instead of being permanently invisible to it.
 - **Nexus search and lists can now page through everything (TICKET-0149):** the Mods page search and Trending/Latest Added/Latest Updated tabs were capped at a fixed first 60 results with no way to see more - now they show a "Load More" button until every matching mod has been loaded.
+- **Fixed: deleting a server left it in the Current Server dropdown (TICKET-0150):** removing or unregistering a server in Server Instances now refreshes the app immediately, instead of the TopBar's server switcher still showing the deleted server until a manual browser refresh.
 
 ## 1.0.7 - 2026-07-14
 

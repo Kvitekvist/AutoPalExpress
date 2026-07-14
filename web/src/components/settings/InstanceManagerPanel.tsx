@@ -72,8 +72,7 @@ export function InstanceManagerPanel() {
     if (!removeTarget) return;
     setRemoving(true);
     try {
-      const next = await instancesApi.removeInstance(removeTarget.id, deleteFiles);
-      setData(next);
+      await instancesApi.removeInstance(removeTarget.id, deleteFiles);
       if (deleteFiles) {
         notifications.warning({
           title: t("settings.instances.deletedTitle", { defaultValue: "Server deleted" }),
@@ -91,6 +90,11 @@ export function InstanceManagerPanel() {
           }),
         });
       }
+      // Every page (including the TopBar server switcher) reads the instance
+      // list independently and only on mount - reload so they all pick up
+      // the removal instead of showing a stale, now-deleted server until a
+      // manual browser refresh (TICKET-0150), same as handleSwitch below.
+      window.location.reload();
     } catch (e) {
       notifications.error({
         title: t("settings.instances.removeFailedTitle", { defaultValue: "Could not remove server" }),
