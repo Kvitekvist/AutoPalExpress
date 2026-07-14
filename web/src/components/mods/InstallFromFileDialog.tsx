@@ -96,7 +96,7 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
           <DialogDescription>
             {t("mods.installFromFile.description", {
               defaultValue:
-                "For mods you downloaded from Nexus yourself. Upload the .zip you already downloaded; it's checked against Nexus's own records by its exact file hash before anything is installed. Files that don't match a real, published Palworld mod are rejected.",
+                "For mods you downloaded from Nexus yourself. Upload the .zip or .7z you already downloaded; it's checked against Nexus's own records by its exact file hash before anything is installed. Files that don't match a real, published Palworld mod are rejected.",
             })}
           </DialogDescription>
         </DialogHeader>
@@ -106,7 +106,7 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
             <input
               ref={fileInputRef}
               type="file"
-              accept=".zip"
+              accept=".zip,.7z"
               onChange={handleFileSelected}
               disabled={checking}
               className="block w-full text-sm text-parchment-300/70 file:mr-3 file:rounded-md file:border file:border-stone-600 file:bg-stone-800 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-parchment-200 hover:file:border-gold-600/50"
@@ -119,7 +119,7 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
             {error && <p className="text-xs text-blood-400">{error}</p>}
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
               {t("mods.installFromFile.fileHint", {
-                defaultValue: "Only .zip archives are supported, up to 500 MB. The file's hash must exactly match a file Nexus actually hosts for this game.",
+                defaultValue: "Only .zip and .7z archives are supported, up to 500 MB. The file's hash must exactly match a file Nexus actually hosts for this game.",
               })}
             </p>
           </div>

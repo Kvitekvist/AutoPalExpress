@@ -7,12 +7,13 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+import py7zr
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
 from app import paths
 from app.auth_deps import get_current_user, require_super_admin
-from app.services import instance_store, local_config, mod_installer, mod_wishlist, mods_store, native_dialog, nexus_client, nexus_session
+from app.services import instance_store, local_config, mod_installer, mod_wishlist, mods_store, native_dialog, nexus_client, nexus_session, ue4ss_installer
 from app.services.mod_installer import ModInstallError
 from app.services.nexus_client import NexusApiError
 
@@ -86,12 +87,14 @@ async def _with_update_status(mods: list[dict[str, Any]]) -> list[dict[str, Any]
     """Populates real updateAvailable/latestVersion (previously always false/
     unset) via a single keyless GraphQL lookup, computed per-request rather
     than persisted so it always reflects Nexus's current published version.
-    Also flags manually-installed mods (verified file uploads) from their
-    `verified-` id prefix - their sourceModId only proves the uploaded file's
-    hash matches something on Nexus, not that they came through the Nexus
-    download/wishlist pipeline "Request Update" triggers, so they're excluded
-    from the update check entirely."""
-    mods = [{**m, "manuallyInstalled": m["id"].startswith("verified-")} for m in mods]
+    Also flags manually-installed mods - verified file uploads (`verified-`
+    id prefix) and mods discovered already sitting on disk instead of
+    installed through this app (`manuallyInstalled` already set true by
+    `_register_untracked_disk_mods`) - since their sourceModId (if any) only
+    proves a hash match with something on Nexus, not that they came through
+    the Nexus download/wishlist pipeline "Request Update" triggers, so
+    they're excluded from the update check entirely."""
+    mods = [{**m, "manuallyInstalled": m["id"].startswith("verified-") or m.get("manuallyInstalled", False)} for m in mods]
     mod_ids = [m["sourceModId"] for m in mods if m.get("sourceModId") and not m["manuallyInstalled"]]
     if not mod_ids:
         return mods
@@ -110,19 +113,76 @@ async def _with_update_status(mods: list[dict[str, Any]]) -> list[dict[str, Any]
     return result
 
 
+def _register_untracked_disk_mods(instance: dict[str, Any], mods: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Finds mod folders sitting directly in the UE4SS or pak mods folders
+    that were never installed through this app (dropped in by hand) and
+    registers them as normal tracked mods with `manuallyInstalled: True`, so
+    they actually show up on the Mods page and can be enabled/disabled/
+    removed like any other mod instead of being invisible to the app
+    forever (TICKET-0146). Persists immediately so this is a one-time
+    discovery, not a re-scan-and-re-add on every page load."""
+    tracked_names = {m["folderName"] for m in mods if m.get("folderName")}
+    discovered: list[dict[str, str]] = []
+
+    ue4ss_path = local_config.get_mods_path(instance)
+    if ue4ss_path:
+        builtin = ue4ss_installer.builtin_mod_names(instance["id"])
+        for name in mod_installer.list_untracked_entries(Path(ue4ss_path), tracked_names, builtin):
+            discovered.append({"name": name, "installKind": "ue4ss"})
+
+    pak_path = local_config.get_pak_mods_path(instance)
+    for name in mod_installer.list_untracked_entries(Path(pak_path), tracked_names):
+        discovered.append({"name": name, "installKind": "pak"})
+
+    if not discovered:
+        return mods
+
+    for i, d in enumerate(discovered):
+        mods.append(
+            {
+                "id": mods_store.new_id("manual"),
+                "name": d["name"],
+                "version": "Unknown",
+                "author": "Unknown",
+                "description": "",
+                "dependencies": [],
+                "status": "enabled",
+                "loadPriority": len(mods) + i + 1,
+                "updateAvailable": False,
+                "sourceModId": None,
+                "folderName": d["name"],
+                "installKind": d["installKind"],
+                "manuallyInstalled": True,
+            }
+        )
+    mods_store.save_mods(instance["id"], mods)
+    logger.info("mods: registered %d manually-installed mod(s) found on disk", len(discovered))
+    return mods
+
+
 @router.get("")
 async def get_mods() -> list[dict[str, Any]]:
     instance = instance_store.get_active()
     if not instance:
         return []
-    mods = mods_store.sorted_mods(mods_store.load_mods(instance["id"]))
-    return await _with_update_status(mods)
+    mods = mods_store.load_mods(instance["id"])
+    mods = _register_untracked_disk_mods(instance, mods)
+    return await _with_update_status(mods_store.sorted_mods(mods))
 
 
 def _mods_path_view(instance: dict[str, Any]) -> dict[str, Any]:
     info = local_config.get_mods_path_info(instance)
     path = info["path"]
     return {"modsPath": path, "source": info["source"], "exists": bool(path and Path(path).is_dir())}
+
+
+def _base_path_for_kind(instance: dict[str, Any], kind: str) -> str | None:
+    """Pak mods (raw .pak, mounted directly by the game) and UE4SS mods (Lua/
+    Blueprint, including PalSchema) live in different folders (TICKET-0143) -
+    this picks the right one for a given mod's recorded/detected kind."""
+    if kind == "pak":
+        return local_config.get_pak_mods_path(instance)
+    return local_config.get_mods_path(instance)
 
 
 def _safe_download_name(name: str, fallback: str) -> str:
@@ -193,7 +253,9 @@ async def _install_nexus_mod(
         str(file_info.get("file_name") or file_info.get("name") or ""),
         f"nexus-{nexus_mod_id}-{file_id}.zip",
     )
-    if not file_name.lower().endswith(".zip"):
+    if "." not in file_name:
+        # Only guess an extension when the real name didn't have one at all -
+        # forcing ".zip" unconditionally used to mislabel real .7z downloads.
         file_name = f"{file_name}.zip"
     dest = NEXUS_DOWNLOAD_DIR / f"{nexus_mod_id}-{file_id}-{file_name}"
 
@@ -204,15 +266,19 @@ async def _install_nexus_mod(
     except httpx.HTTPError as e:
         raise HTTPException(status_code=502, detail=f"Nexus file download failed: {e}")
 
-    if not zipfile.is_zipfile(dest):
+    if not mod_installer.is_supported_archive(dest):
         dest.unlink(missing_ok=True)
-        raise HTTPException(status_code=422, detail="The downloaded Nexus file is not a .zip archive.")
+        raise HTTPException(status_code=422, detail="The downloaded Nexus file is not a supported archive (.zip or .7z).")
 
     mod_name = details.get("name") or file_info.get("name") or "Nexus Mod"
+    kind = mod_installer.detect_mod_kind(dest)
+    install_path = _base_path_for_kind(instance, kind)
+    if not install_path:
+        raise HTTPException(status_code=400, detail="No Mods folder configured for this server yet.")
     try:
-        folder_name = mod_installer.extract_and_install(dest, Path(mods_path), mod_name)
-    except zipfile.BadZipFile:
-        raise HTTPException(status_code=422, detail="The downloaded Nexus file is not a valid .zip archive.")
+        folder_name = mod_installer.extract_and_install(dest, Path(install_path), mod_name)
+    except (zipfile.BadZipFile, py7zr.exceptions.ArchiveError):
+        raise HTTPException(status_code=422, detail="The downloaded Nexus file is not a valid archive.")
     except ModInstallError as e:
         raise HTTPException(status_code=422, detail=e.message)
     except (OSError, ValueError) as e:
@@ -233,6 +299,7 @@ async def _install_nexus_mod(
         "sourceModId": nexus_mod_id,
         "downloadedFile": str(dest),
         "folderName": folder_name,
+        "installKind": kind,
     }
     if existing:
         mods = [entry if m["id"] == existing["id"] else m for m in mods]
@@ -283,9 +350,9 @@ async def browse_mods_path() -> dict[str, Any]:
 async def enable_mod(mod_id: str) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     mods = mods_store.load_mods(instance["id"])
-    mods_path = local_config.get_mods_path(instance)
     for m in mods:
         if m["id"] == mod_id and m["status"] != "broken":
+            mods_path = _base_path_for_kind(instance, m.get("installKind", "ue4ss"))
             if m.get("folderName") and mods_path:
                 try:
                     mod_installer.enable(Path(mods_path), m["folderName"])
@@ -296,11 +363,14 @@ async def enable_mod(mod_id: str) -> list[dict[str, Any]]:
                 downloaded = Path(m["downloadedFile"])
                 if downloaded.is_file():
                     try:
+                        kind = mod_installer.detect_mod_kind(downloaded)
+                        mods_path = _base_path_for_kind(instance, kind)
                         m["folderName"] = mod_installer.extract_and_install(downloaded, Path(mods_path), m["name"])
-                    except zipfile.BadZipFile:
+                        m["installKind"] = kind
+                    except (zipfile.BadZipFile, py7zr.exceptions.ArchiveError):
                         raise HTTPException(
                             status_code=422,
-                            detail=f"'{downloaded.name}' isn't a .zip archive - can't install it automatically.",
+                            detail=f"'{downloaded.name}' isn't a valid archive - can't install it automatically.",
                         )
                     except ModInstallError as e:
                         raise HTTPException(status_code=422, detail=e.message)
@@ -315,9 +385,9 @@ async def enable_mod(mod_id: str) -> list[dict[str, Any]]:
 async def disable_mod(mod_id: str) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     mods = mods_store.load_mods(instance["id"])
-    mods_path = local_config.get_mods_path(instance)
     for m in mods:
         if m["id"] == mod_id:
+            mods_path = _base_path_for_kind(instance, m.get("installKind", "ue4ss"))
             if m.get("folderName") and mods_path:
                 try:
                     mod_installer.disable(Path(mods_path), m["folderName"])
@@ -332,8 +402,8 @@ async def disable_mod(mod_id: str) -> list[dict[str, Any]]:
 async def remove_mod(mod_id: str) -> list[dict[str, Any]]:
     instance = _require_active_instance()
     mods = mods_store.load_mods(instance["id"])
-    mods_path = local_config.get_mods_path(instance)
     target = next((m for m in mods if m["id"] == mod_id), None)
+    mods_path = _base_path_for_kind(instance, target.get("installKind", "ue4ss")) if target else None
     if target and target.get("folderName") and mods_path:
         try:
             mod_installer.remove(Path(mods_path), target["folderName"])
@@ -420,9 +490,9 @@ async def prepare_install_from_file(file: UploadFile = File(...)) -> dict[str, A
         dest.unlink(missing_ok=True)
         raise
 
-    if not zipfile.is_zipfile(dest):
+    if not mod_installer.is_supported_archive(dest):
         dest.unlink(missing_ok=True)
-        raise HTTPException(status_code=422, detail="Only .zip archives are supported.")
+        raise HTTPException(status_code=422, detail="Only .zip and .7z archives are supported.")
 
     md5_hash = digest.hexdigest()
     try:
@@ -477,14 +547,15 @@ async def confirm_install_from_file(body: ConfirmFileInstallRequest) -> list[dic
         raise HTTPException(status_code=404, detail="That upload has expired - try again.")
 
     dest = pending["path"]
-    mods_path = local_config.get_mods_path(instance)
-    if not mods_path:
+    kind = mod_installer.detect_mod_kind(dest)
+    install_path = _base_path_for_kind(instance, kind)
+    if not install_path:
         raise HTTPException(status_code=400, detail="No Mods folder configured for this server yet.")
 
     try:
-        folder_name = mod_installer.extract_and_install(dest, Path(mods_path), pending["name"])
-    except zipfile.BadZipFile:
-        raise HTTPException(status_code=422, detail="That file isn't a valid .zip archive.")
+        folder_name = mod_installer.extract_and_install(dest, Path(install_path), pending["name"])
+    except (zipfile.BadZipFile, py7zr.exceptions.ArchiveError):
+        raise HTTPException(status_code=422, detail="That file isn't a valid archive.")
     except ModInstallError as e:
         raise HTTPException(status_code=422, detail=e.message)
     except (OSError, ValueError) as e:
@@ -505,6 +576,7 @@ async def confirm_install_from_file(body: ConfirmFileInstallRequest) -> list[dic
         "sourceModId": pending["modId"],
         "downloadedFile": str(dest),
         "folderName": folder_name,
+        "installKind": kind,
     }
     if existing:
         mods = [entry if m["id"] == existing["id"] else m for m in mods]

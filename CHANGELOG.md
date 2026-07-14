@@ -3,6 +3,11 @@
 ## Unreleased
 
 - **README sponsor section (TICKET-0141):** added an Indifferent Broccoli banner, personal recommendation, two-day free-trial note, and clear affiliate disclosure.
+- **Fixed: UE4SS didn't create a `ue4ss` folder and mods didn't work (TICKET-0142):** UE4SS now installs from the Palworld-specific experimental fork (with the `Win64/ue4ss/...` layout PalSchema and most current mods require) instead of the generic stable release's old flat layout. Upgrading from a previous install automatically removes the old conflicting files and migrates any mods that had landed in the wrong place.
+- **Fixed: mods always installed to the wrong folder regardless of type (TICKET-0143):** pak-based content mods now install to `Pal/Content/Paks/~mods`, and UE4SS/PalSchema mods now install to `Pal/Binaries/Win64/ue4ss/Mods`, instead of everything landing in one folder that matched neither.
+- **Real Nexus Mods search (TICKET-0144):** searching the Mods page now searches all of Nexus Mods by name, instead of only filtering whatever was already loaded into the Trending/Latest Added/Latest Updated tabs.
+- **`.7z` mod archives supported (TICKET-0145):** Install From File and Nexus direct-install now accept `.7z` archives in addition to `.zip`.
+- **Manually-installed mods now show up (TICKET-0146):** mods placed directly into the mods folders by hand now appear on the Mods page (tagged "Manually Added") and can be enabled/disabled/removed through the app, instead of being permanently invisible to it.
 
 ## 1.0.7 - 2026-07-14
 

@@ -24,3 +24,9 @@ export async function disconnectAccount(): Promise<NexusAccount> {
 export async function getModList(list: NexusModList): Promise<NexusModResult[]> {
   return api.get<NexusModResult[]>(`/api/integrations/nexus/mods?list=${list}`);
 }
+
+// GET /api/integrations/nexus/search?q=... - real Nexus-side search by name,
+// not just a client-side filter over an already-loaded list (TICKET-0144).
+export async function searchMods(query: string): Promise<NexusModResult[]> {
+  return api.get<NexusModResult[]>(`/api/integrations/nexus/search?q=${encodeURIComponent(query)}`);
+}

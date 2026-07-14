@@ -135,6 +135,44 @@ async def get_mod_list(list_name: str) -> list[dict[str, Any]]:
     return ((data.get("mods") or {}).get("nodes") or [])
 
 
+async def search_mods(query: str) -> list[dict[str, Any]]:
+    """Real server-side search by name (TICKET-0144), instead of the old
+    approach of only ever filtering whatever 60 mods happened to already be
+    loaded into trending/latest_added/latest_updated - which meant most
+    published Palworld mods could never be found by searching for them at
+    all. Nexus's GraphQL `name` filter does plain case-insensitive substring
+    matching when given `op: WILDCARD` with no wildcard characters in the
+    value itself (confirmed directly against the live API - `*`/`%` are NOT
+    wildcard tokens here, despite the operator's name)."""
+    graphql_query = """
+    query AutoPalExpressModSearch($filter: ModsFilter, $sort: [ModsSort!], $count: Int) {
+      mods(filter: $filter, sort: $sort, count: $count) {
+        nodes {
+          modId
+          name
+          author
+          summary
+          category
+          downloads
+          endorsements
+          pictureUrl
+          directDownloadEnabled
+        }
+      }
+    }
+    """
+    variables = {
+        "filter": {
+            "gameDomainName": [{"value": GAME_DOMAIN, "op": "EQUALS"}],
+            "name": [{"value": query, "op": "WILDCARD"}],
+        },
+        "sort": [{"downloads": {"direction": "DESC"}}],
+        "count": 60,
+    }
+    data = await _graphql(graphql_query, variables)
+    return (data.get("mods") or {}).get("nodes") or []
+
+
 async def get_game_categories(api_key: str) -> list[dict[str, Any]]:
     data = await _get(f"/games/{GAME_DOMAIN}.json", api_key)
     return data.get("categories", [])

@@ -91,3 +91,14 @@ async def list_mods(
     except NexusApiError as e:
         raise HTTPException(status_code=e.http_status, detail=e.message)
     return [_map_mod_summary(m) for m in raw]
+
+
+@router.get("/search")
+async def search_mods(q: str = Query(min_length=1, max_length=200)) -> list[dict[str, Any]]:
+    """Real Nexus-side search by name (TICKET-0144), not just a client-side
+    filter over whichever 60 mods the trending/latest lists already loaded."""
+    try:
+        raw = await nexus_client.search_mods(q)
+    except NexusApiError as e:
+        raise HTTPException(status_code=e.http_status, detail=e.message)
+    return [_map_mod_summary(m) for m in raw]

@@ -37,8 +37,12 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   const [wishlist, setWishlist] = React.useState<ModWishlistRequest[]>([]);
   const [filePicker, setFilePicker] = React.useState<{ modId: number; modName: string } | null>(null);
   const [query, setQuery] = React.useState("");
+  const [searchResults, setSearchResults] = React.useState<NexusModResult[] | null>(null);
+  const [searching, setSearching] = React.useState(false);
+  const [searchError, setSearchError] = React.useState<string | null>(null);
   const allCategory = t("mods.nexusBrowser.allCategory", { defaultValue: "All" });
   const [category, setCategory] = React.useState(allCategory);
+  const isSearching = query.trim().length >= 2;
 
   React.useEffect(() => {
     nexusApi.getAccount().then(setAccount);
@@ -58,7 +62,37 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
       .finally(() => setLoading(false));
   }, [list, cache, t]);
 
-  const results = cache[list] ?? [];
+  // Real Nexus-side search once the query looks intentional (2+ chars),
+  // debounced so we don't fire a request per keystroke (TICKET-0144) -
+  // previously "search" only ever filtered whichever 60 mods the
+  // trending/latest tabs had already loaded, so most published mods could
+  // never be found at all.
+  React.useEffect(() => {
+    if (!isSearching) {
+      setSearchResults(null);
+      setSearchError(null);
+      return;
+    }
+    const trimmed = query.trim();
+    setSearching(true);
+    const handle = setTimeout(() => {
+      nexusApi
+        .searchMods(trimmed)
+        .then((results) => {
+          setSearchResults(results);
+          setSearchError(null);
+        })
+        .catch((e) =>
+          setSearchError(e instanceof Error ? e.message : t("mods.nexusBrowser.searchErrorFallback", { defaultValue: "Failed to search Nexus Mods." }))
+        )
+        .finally(() => setSearching(false));
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [query, isSearching, t]);
+
+  const results = isSearching ? searchResults ?? [] : cache[list] ?? [];
+  const loading_ = isSearching ? searching : loading;
+  const loadError_ = isSearching ? searchError : loadError;
   const isSuperAdmin = user.role === "super_admin";
   const canDirectInstall = isSuperAdmin && Boolean(account?.connected && account.isPremium);
   const directInstallUnavailableReason = !isSuperAdmin
@@ -71,7 +105,10 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   const categories = [allCategory, ...Array.from(new Set(results.map((m) => m.categoryName))).sort()];
   const filtered = results.filter((m) => {
     if (category !== allCategory && m.categoryName !== category) return false;
-    if (!query.trim()) return true;
+    // Server-side search already matched the query; a short (1-char) query
+    // isn't sent to Nexus at all, so still filter that locally against
+    // whichever tab's already-loaded list is showing.
+    if (isSearching || !query.trim()) return true;
     const q = query.toLowerCase();
     return m.name.toLowerCase().includes(q) || m.summary.toLowerCase().includes(q) || m.author.toLowerCase().includes(q);
   });
@@ -132,7 +169,7 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
       </div>
 
       <AncientTabs value={list} onValueChange={(v) => setList(v as NexusModList)}>
-        <AncientTabsList>
+        <AncientTabsList className={cn(isSearching && "pointer-events-none opacity-40")}>
           {LISTS.map((l) => (
             <AncientTabsTrigger key={l.value} value={l.value}>
               {t(`mods.nexusBrowser.lists.${l.labelKey}`, { defaultValue: l.labelDefault })}
@@ -146,11 +183,18 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("mods.nexusBrowser.filterPlaceholder", { defaultValue: "Filter loaded results by name, author, or summary..." })}
+          placeholder={t("mods.nexusBrowser.searchPlaceholder", { defaultValue: "Search all of Nexus Mods by name..." })}
           className="pl-9"
           autoFocus
         />
       </div>
+      {isSearching && (
+        <p className="text-[11px] text-parchment-300/40">
+          {t("mods.nexusBrowser.searchingAllHint", {
+            defaultValue: "Searching all of Nexus Mods, not just the tab above - clear the search to go back to browsing by list.",
+          })}
+        </p>
+      )}
 
       {categories.length > 2 && (
         <div className="flex flex-wrap gap-2">
@@ -172,13 +216,17 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
       )}
 
       <ScrollArea className="h-[440px] rounded-md border border-stone-700 bg-abyss-950/40 p-4">
-        {loading ? (
+        {loading_ ? (
           <div className="flex h-32 items-center justify-center text-parchment-300/40">
-            <p className="animate-pulse font-display">{t("mods.nexusBrowser.loading", { defaultValue: "Fetching from Nexus Mods..." })}</p>
+            <p className="animate-pulse font-display">
+              {isSearching
+                ? t("mods.nexusBrowser.searching", { defaultValue: "Searching Nexus Mods..." })
+                : t("mods.nexusBrowser.loading", { defaultValue: "Fetching from Nexus Mods..." })}
+            </p>
           </div>
-        ) : loadError ? (
+        ) : loadError_ ? (
           <div className="flex h-32 flex-col items-center justify-center gap-2 text-center text-blood-400">
-            <p className="text-sm">{loadError}</p>
+            <p className="text-sm">{loadError_}</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex h-32 items-center justify-center text-parchment-300/40">
