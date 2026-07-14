@@ -8,7 +8,7 @@ AppId={{C9B75D37-C6F7-4487-A49C-FBE76815AF7F}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={autopf}\{#MyAppName}
+DefaultDirName={commonpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=installer_output
@@ -18,16 +18,15 @@ SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-; PrivilegesRequired=lowest keeps a no-admin, per-user install as the default
-; (still Setup's suggested {autopf} location), but
-; PrivilegesRequiredOverridesAllowed=dialog lets the user opt into an
-; elevated, all-users install into the real Program Files instead (TICKET-0129
-; restored this after TICKET-0123 briefly removed it). Safe to allow again
-; now that app data (TICKET-0129) lives under the user's Documents folder,
-; not inside {app} - the install folder only ever holds the program itself,
-; so it no longer matters whether {app} ends up admin-only.
-PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
+; Always requires administrator rights (one UAC prompt) and always defaults
+; to the real Program Files (TICKET-0136) - matches how most traditional
+; Windows installers behave. The user can still Browse to a different folder
+; on the destination page; this only changes what's suggested by default and
+; removes the earlier no-admin "install for me only" choice (TICKET-0129)
+; the user asked to drop in favor of a predictable Program Files default.
+; Safe regardless of where {app} ends up, since app data (TICKET-0129) lives
+; under the user's Documents folder, not inside {app}.
+PrivilegesRequired=admin
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
 [Languages]
@@ -109,13 +108,13 @@ begin
     FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\users.json'));
 end;
 
-// If the user declines the elevation dialog but still ends up with a folder
-// that needs administrator rights (most commonly true of anything under
-// Program Files), the real file copy later would fail with a bare,
-// unhelpful "Access is denied". Catching that here with a real write test
-// lets the user pick a different folder (or go back and accept elevation)
-// immediately instead. Only guards {app} itself now (the program files) -
-// app data (TICKET-0129) lives under Documents, never affected by this.
+// Setup always elevates now (TICKET-0136), so this should always pass in
+// practice - kept as defense-in-depth for the rare genuinely-unwritable
+// custom folder (e.g. some restrictive network path) a user might Browse
+// to, so that failure surfaces here with a clear message instead of as a
+// bare, unhelpful "Access is denied" during the real file copy later. Only
+// guards {app} itself (the program files) - app data (TICKET-0129) lives
+// under Documents, never affected by this.
 function CanWriteToDir(Dir: String): Boolean;
 var
   TestFile: String;
@@ -222,11 +221,9 @@ begin
   begin
     if not CanWriteToDir(ExpandConstant('{app}')) then
     begin
-      MsgBox('AutoPalExpress could not write to this folder:' + #13#10 + #13#10 +
+      MsgBox('AutoPalExpress could not write to this folder even with administrator rights:' + #13#10 + #13#10 +
              ExpandConstant('{app}') + #13#10 + #13#10 +
-             'This usually means the folder needs administrator rights (for example, anything under ' +
-             'Program Files) - this installer never asks for those. Please choose a different folder ' +
-             'instead, such as one under your own user folder or Desktop.',
+             'Please choose a different folder instead.',
              mbError, MB_OK);
       Result := False;
       Exit;

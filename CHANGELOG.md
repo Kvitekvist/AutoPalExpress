@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Installer checksum (SHA256): `CF55EF2631A0E5820CF8A3438D5187CBAABFA8C5B98C4C395FCBA703FAA17038`.
+- Installer checksum (SHA256): `73A7146DD87E01394FF12F8DC7A9564661A35C7614C3CA2851EDBFD6BBC5C81F`.
+- **Installer now defaults to Program Files (TICKET-0136):** the installer always asks for administrator permission (one UAC prompt) and defaults to installing into Program Files, like most Windows programs - removed the earlier "install for me only" no-admin choice. You can still Browse to a different folder on the destination page if you prefer.
+- **Fixed: "Run Diagnostics as Admin" failed with a permission error (TICKET-0137):** a Windows argument-quoting gap in the elevation helper silently broke for any path containing a space - which every install path now does, since Program Files always has one. Diagnostics elevation (both buttons share the same helper) now works correctly regardless of where AutoPalExpress or your Documents folder are located.
 - **Fun loading screen (TICKET-0135):** the plain "Awakening the realm..." loading text is now a small playable Space Invaders mini-game (arrow keys, Space to shoot) while the app checks your login status - disappears the moment it's done.
 - **Documents\AutoPalExpress\Servers is now the default deploy location, and the installer stops offering a redundant launch (TICKET-0133):** new Palworld server deployments now land in a visible `Servers` folder next to the app's own data folder by default, created immediately when the installer finishes (not just on first deploy). The Finished page no longer offers to "Launch AutoPalExpress" on a fresh install, since the app is already running by then - it still offers this normally when updating/reinstalling over an existing account.
 - **Fixed: Browse folder picker could silently open behind the app window (TICKET-0134):** clicking Browse (deploy location, Import Server, UE4SS folder, save import) could look like nothing happened - the dialog was opening, just without Windows granting it foreground focus. Also renamed "Install Location" to "Server Deployment Location" in the Deploy New Server dialog.

@@ -86,17 +86,44 @@ def run(force_admin: bool = False) -> dict[str, Any]:
     return {"reportPath": str(report_path), "report": text}
 
 
+def _ps_quote(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+
+def _ps_path_arg(value: str) -> str:
+    """A PowerShell -ArgumentList array element carrying a path that may
+    contain spaces. Start-Process -Verb RunAs uses ShellExecuteEx under the
+    hood, which - unlike Start-Process's normal (non-elevated) CreateProcess
+    path - does NOT auto-quote array elements for you; it just joins them
+    with spaces, silently truncating any path at its first space with no
+    error at all. Embedding real double quotes in the element's own content
+    (confirmed live: fails with a bare non-zero exit code without this,
+    succeeds with it) works around that."""
+    return _ps_quote(f'"{value}"')
+
+
 def _run_elevated(*, script: Path, data_dir: Path, report_dir: Path) -> bool:
     # Elevates powershell.exe itself (not this backend process) via
     # Start-Process -Verb RunAs, same pattern as firewall.add_inbound_rule -
     # -Wait blocks until the elevated script (and its own report-writing)
     # finishes; -NoPause stops the script's own "Press Enter to close" from
     # hanging this call forever.
+    inner_args = [
+        _ps_quote("-NoProfile"),
+        _ps_quote("-ExecutionPolicy"),
+        _ps_quote("Bypass"),
+        _ps_quote("-File"),
+        _ps_path_arg(str(script)),
+        _ps_quote("-DataDir"),
+        _ps_path_arg(str(data_dir)),
+        _ps_quote("-ReportDir"),
+        _ps_path_arg(str(report_dir)),
+        _ps_quote("-NoPause"),
+    ]
+    arg_list_literal = ", ".join(inner_args)
     ps_command = (
-        f'$p = Start-Process -FilePath "powershell.exe" -ArgumentList '
-        f'\'-NoProfile -ExecutionPolicy Bypass -File ""{script}"" -DataDir ""{data_dir}"" '
-        f'-ReportDir ""{report_dir}"" -NoPause\' -Verb RunAs -Wait -PassThru; '
-        "exit $p.ExitCode"
+        f"$p = Start-Process -FilePath 'powershell.exe' -ArgumentList {arg_list_literal} "
+        "-Verb RunAs -Wait -PassThru; exit $p.ExitCode"
     )
     try:
         result = subprocess.run(

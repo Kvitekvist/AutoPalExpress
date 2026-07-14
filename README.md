@@ -162,7 +162,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  AutoPalExpress-Setup.exe  CF55EF2631A0E5820CF8A3438D5187CBAABFA8C5B98C4C395FCBA703FAA17038
+SHA256  AutoPalExpress-Setup.exe  73A7146DD87E01394FF12F8DC7A9564661A35C7614C3CA2851EDBFD6BBC5C81F
 ```
 
 > [!IMPORTANT]
@@ -217,7 +217,7 @@ Outputs:
 
 ## Where Data Is Stored
 
-The installed program can go wherever you like - your own user folder, or Program Files if you choose the "install for all users" option and approve the Windows permission prompt. App data always lives in a clearly visible spot regardless, under your own Documents folder:
+The installer asks for administrator permission and defaults the program itself to Program Files, but you can Browse to a different folder if you'd rather. App data always lives in a clearly visible spot regardless, under your own Documents folder:
 
 ```text
 Documents\AutoPalExpress\data       (accounts, server registry, mods, sessions, invites)
