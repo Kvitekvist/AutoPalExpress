@@ -79,24 +79,14 @@ procedure ExitProcess(uExitCode: UINT);
 
 var
   InstallModePage: TInputOptionWizardPage;
-  ServerNamePage: TInputQueryWizardPage;
-  ServerInstallDirPage: TInputDirWizardPage;
   SuperAdminPage: TInputQueryWizardPage;
   SetupProgressPage: TOutputProgressWizardPage;
   AdminAccountExists: Boolean;
-  ServerDataExists: Boolean;
 
-// Deliberately two independent checks, not one combined "existing setup"
-// flag - a real uninstall (see CurUninstallStepChanged below) clears the
-// admin account but keeps instances.json, so right after an uninstall then
-// reinstall, AdminAccountExists is False while ServerDataExists is still
-// True. Collapsing these back into one flag is what originally caused the
-// Super Admin page to wrongly stay hidden after a real uninstall (TICKET-0063).
-//
-// Each check looks in {userdocs}\AutoPalExpress\data first (TICKET-0129's
-// current home), then falls back to the two older locations this app has
-// used (TICKET-0123's {app}\data, and the original %LOCALAPPDATA% one) - the
-// app itself only migrates legacy data on its own first run, which happens
+// Looks in {userdocs}\AutoPalExpress\data first (TICKET-0129's current
+// home), then falls back to the two older locations this app has used
+// (TICKET-0123's {app}\data, and the original %LOCALAPPDATA% one) - the app
+// itself only migrates legacy data on its own first run, which happens
 // after this wizard has already decided which pages to show, so someone
 // upgrading from any earlier version still needs to be recognized as
 // already set up.
@@ -105,13 +95,6 @@ begin
   Result := FileExists(ExpandConstant('{userdocs}\AutoPalExpress\data\users.json')) or
     FileExists(ExpandConstant('{app}\data\users.json')) or
     FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\users.json'));
-end;
-
-function HasServerData(): Boolean;
-begin
-  Result := FileExists(ExpandConstant('{userdocs}\AutoPalExpress\data\instances.json')) or
-    FileExists(ExpandConstant('{app}\data\instances.json')) or
-    FileExists(ExpandConstant('{localappdata}\PalworldServerAdmin\data\instances.json'));
 end;
 
 // If the user declines the elevation dialog but still ends up with a folder
@@ -179,16 +162,13 @@ end;
 
 procedure InitializeWizard;
 begin
-  // AdminAccountExists/ServerDataExists are NOT set here - HasAdminAccount/
-  // HasServerData's legacy-location fallback checks expand {app}, which Inno
-  // has not initialized yet this early (InitializeWizard runs before the
-  // Select Destination Location page has even been shown, causing "attempt
-  // was made to expand app constant before it was initialized"). They're set
-  // instead in NextButtonClick once the user has confirmed a destination
-  // folder - see the wpSelectDir case below. ServerInstallDirPage.Values[0]'s
-  // default is set there too, for the same reason it was originally moved
-  // (simplest to keep all of this together in one place), even though its
-  // current {userdocs}-based default no longer actually depends on {app}.
+  // AdminAccountExists is NOT set here - HasAdminAccount's legacy-location
+  // fallback checks expand {app}, which Inno has not initialized yet this
+  // early (InitializeWizard runs before the Select Destination Location page
+  // has even been shown, causing "attempt was made to expand app constant
+  // before it was initialized"). It's set instead in NextButtonClick once
+  // the user has confirmed a destination folder - see the wpSelectDir case
+  // below.
   InstallModePage := CreateInputOptionPage(wpWelcome,
     'Setup Mode', 'What would you like to do?',
     'Choose an option, then click Next.', True, False);
@@ -200,19 +180,14 @@ begin
   else
     InstallModePage.SelectedValueIndex := 0;
 
-  ServerNamePage := CreateInputQueryPage(wpSelectTasks,
-    'New Server', 'Deploy a Palworld Dedicated Server now',
-    'Give your first server a name and it will be downloaded via SteamCMD into this tool''s own "servers" ' +
-    'folder as soon as setup finishes. Leave this blank to skip - you can deploy one later from the app instead.');
-  ServerNamePage.Add('Server name (optional):', False);
-
-  ServerInstallDirPage := CreateInputDirPage(ServerNamePage.ID,
-    'Server Install Location', 'Choose where the first Palworld server will be stored',
-    'AutoPalExpress will create a server folder named after your server inside this location.',
-    False, '');
-  ServerInstallDirPage.Add('Parent folder for the first server:');
-
-  SuperAdminPage := CreateInputQueryPage(ServerInstallDirPage.ID,
+  // No first-server deploy page here (TICKET-0132 removed it) - creating a
+  // server is a long-running SteamCMD download that used to run as a
+  // fire-and-forget background task on first launch, with no reliable way
+  // for the wizard (or the app's own UI right after) to know it had actually
+  // finished. The app itself now forces the super admin to create their
+  // first server through its own, already-reliable Deploy/Import flow the
+  // first time they log in and none exists yet.
+  SuperAdminPage := CreateInputQueryPage(wpSelectTasks,
     'Super Admin Account', 'Create the account that fully controls this tool',
     'This machine gets exactly one super admin - that''s you. Friends you invite later register as regular ' +
     'admins with day-to-day access (start/stop, mods, players), not this level of control.');
@@ -226,18 +201,7 @@ end;
 
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
-  Result := False;
-
-  if AdminAccountExists and (PageID = SuperAdminPage.ID) then
-    Result := True;
-
-  if ServerDataExists then
-  begin
-    if (PageID = ServerNamePage.ID) or (PageID = ServerInstallDirPage.ID) then
-      Result := True;
-  end
-  else if PageID = ServerInstallDirPage.ID then
-    Result := Trim(ServerNamePage.Values[0]) = '';
+  Result := AdminAccountExists and (PageID = SuperAdminPage.ID);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -259,8 +223,6 @@ begin
     // {app} is only valid from this point on (the user has just confirmed a
     // destination folder) - see the comment in InitializeWizard above.
     AdminAccountExists := HasAdminAccount;
-    ServerDataExists := HasServerData;
-    ServerInstallDirPage.Values[0] := ExpandConstant('{userdocs}\AutoPalExpress\data\servers');
     Exit;
   end;
   if CurPageID = InstallModePage.ID then
@@ -336,12 +298,6 @@ begin
   NL := Chr(13) + Chr(10);
   Body := '  "superAdminUsername": "' + JsonEscape(SuperAdminPage.Values[0]) + '",' + NL +
           '  "superAdminPassword": "' + JsonEscape(SuperAdminPage.Values[1]) + '"';
-  if Trim(ServerNamePage.Values[0]) <> '' then
-  begin
-    Body := Body + ',' + NL + '  "serverName": "' + JsonEscape(ServerNamePage.Values[0]) + '"';
-    if Trim(ServerInstallDirPage.Values[0]) <> '' then
-      Body := Body + ',' + NL + '  "serverInstallParentDir": "' + JsonEscape(ServerInstallDirPage.Values[0]) + '"';
-  end;
   Result := '{' + NL + Body + NL + '}' + NL;
 end;
 
@@ -392,11 +348,12 @@ begin
     ElapsedSeconds := 0;
     LogLines := TStringList.Create;
     try
-      // Up to 15 minutes - long enough for a full SteamCMD download on a slow
-      // connection. If it never finishes in time, the wizard just moves on;
-      // every step here (account, deploy) has a manual fallback
-      // already built into the app, so this is a convenience, not the only
-      // way any of it can happen.
+      // Up to 15 minutes, though creating just the admin account (TICKET-0132
+      // removed the first-server deploy this used to also wait through) is
+      // near-instant in practice. If it somehow never finishes in time, the
+      // wizard just moves on - the app's own first-visit Setup screen is a
+      // manual fallback for the account too, so this is a convenience, not
+      // the only way it can happen.
       // Short sleep + explicit repaint each tick, rather than one long
       // Sleep - Inno Setup's [Code] runs on the same thread as the wizard
       // window, so this keeps the progress text visibly updating and the
@@ -431,15 +388,11 @@ begin
   begin
     SaveStartupRecoverySettings;
     SeedPath := ExpandConstant('{app}\first_run_seed.json');
-    // Nothing left to provision only when both an admin account and server
-    // data already exist - a post-uninstall reinstall has AdminAccountExists
-    // = False (see CurUninstallStepChanged) even though ServerDataExists is
-    // still True, so this still runs to recreate just the admin account.
-    // BuildSeedJson only fills in serverName if ServerNamePage was actually
-    // shown and filled in, and first_run_setup.py safely no-ops
-    // create_first_super_admin if an account is somehow already there - so
-    // this is safe to run whenever either half is missing.
-    if AdminAccountExists and ServerDataExists then
+    // Nothing left to provision once an admin account already exists -
+    // first_run_setup.py safely no-ops create_first_super_admin if one is
+    // somehow already there regardless, so this is just avoiding a needless
+    // re-run, not the only thing keeping it safe.
+    if AdminAccountExists then
     begin
       DeleteFile(SeedPath);
       Exit;

@@ -793,3 +793,25 @@ Same `pick_folder(title, initial_dir=None) -> str | None` signature, so none of 
 ### Date
 
 2026-07-14
+
+---
+
+### Decision
+
+The installer no longer deploys a Palworld server during setup. The super admin is instead shown a forced, full-screen prompt (`FirstServerPrompt.tsx`) on login whenever zero server instances are registered, reusing the app's own Deploy/Import flow (TICKET-0132).
+
+### Reason
+
+A real installer-seeded deploy of "Kraken_1_0" left the app showing "No server" despite the server actually being created. Root cause traced to structural fragility in the seeded-deploy mechanism itself, not a one-off bug: it ran as a fire-and-forget `asyncio.create_task()` at app startup (a real SteamCMD download can take minutes, during which `/instances` legitimately returns empty), `Dashboard.tsx` only fetched the active instance once on mount (unlike `TopBar.tsx`, which already knew to re-poll for this reason), and the deploy job's exception handling only caught `SteamCmdError`/`OSError` - anything else could silently kill the background task before the instance was ever registered, with the server folder possibly already downloaded on disk. Rather than hardening this further (broader exception handling, Dashboard polling, etc.), the user asked to remove the fragile mechanism entirely and force server creation through the path that already reliably works: the in-app wizard, synchronously polled by the browser tab that's actually open and waiting.
+
+### Alternatives
+
+Patch the specific gaps found (catch-all exception handling in `_run_deploy`, make `Dashboard.tsx` poll like `TopBar.tsx` does) - rejected by the user in favor of removing the fragile mechanism outright, since a fire-and-forget background deploy with no UI polling it is inherently harder to make fully reliable than a flow the user is actively watching.
+
+### Consequences
+
+`installer.iss` lost `ServerNamePage`/`ServerInstallDirPage` and the now-unused `HasServerData`/`ServerDataExists`; `first_run_setup.py` lost its deploy branch (and an already-dead, pre-existing `nexusApiKey` seed block noticed along the way, unreachable since TICKET-0105's SSO migration). The installer now only ever seeds a super admin account - much less for `[Code]` to get wrong. Every "start using AutoPalExpress" path now converges on the same, already-battle-tested Deploy/Import components regardless of whether the server is created during a "first login" prompt or later from Settings. Verified with the most thorough installer test performed this session: a complete, real, GUI-automated install (every wizard page driven via `SendMessage`/`WM_SETTEXT`, not just a partial run) confirming zero servers are registered afterward and no deploy step appears in the log.
+
+### Date
+
+2026-07-14

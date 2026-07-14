@@ -108,7 +108,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
           <DialogDescription>
             {t("settings.deploy.description", {
               defaultValue:
-                "Installs a fresh, fully isolated Palworld Dedicated Server via SteamCMD - its own folder, mods, and ports, so it can't conflict with any other server this tool manages.",
+                "Installs a fresh, fully isolated Palworld Dedicated Server via SteamCMD - its own folder, mods, and ports, so it can't conflict with any other server this tool manages. This downloads the server fresh from Steam, so it can take a few minutes - longer on a slower connection.",
             })}
           </DialogDescription>
         </DialogHeader>
@@ -182,7 +182,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
               {t("settings.deploy.hint", {
                 defaultValue:
-                  "AutoPalExpress creates a server folder named after this server inside the selected location. Each server needs its own Game/REST API ports if you plan to run more than one at the same time. This downloads the server fresh from Steam, so it can take a while.",
+                  "AutoPalExpress creates a server folder named after this server inside the selected location. Each server needs its own Game/REST API ports if you plan to run more than one at the same time.",
               })}
             </p>
           </div>

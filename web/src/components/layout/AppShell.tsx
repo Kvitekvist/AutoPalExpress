@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { AmbientEmbers } from "@/components/fantasy/AmbientEmbers";
 import { FloatingActionOrb } from "@/components/fantasy/FloatingActionOrb";
+import { FirstServerPrompt } from "@/components/onboarding/FirstServerPrompt";
 import { serverApi } from "@/api";
 import { useNotifications } from "@/hooks/useNotifications";
 
@@ -18,6 +19,7 @@ export function AppShell() {
 
   return (
     <div className="relative min-h-screen bg-noise">
+      <FirstServerPrompt />
       <AmbientEmbers />
       <Sidebar />
       <div className="relative z-10 pl-[76px] lg:pl-64">
