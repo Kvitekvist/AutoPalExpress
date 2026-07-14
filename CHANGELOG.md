@@ -2,19 +2,18 @@
 
 ## Unreleased
 
-- **README sponsor section (TICKET-0141):** added an Indifferent Broccoli banner, personal recommendation, two-day free-trial note, and clear affiliate disclosure.
-- **Fixed: UE4SS didn't create a `ue4ss` folder and mods didn't work (TICKET-0142):** UE4SS now installs from the Palworld-specific experimental fork (with the `Win64/ue4ss/...` layout PalSchema and most current mods require) instead of the generic stable release's old flat layout. Upgrading from a previous install automatically removes the old conflicting files and migrates any mods that had landed in the wrong place.
-- **Fixed: mods always installed to the wrong folder regardless of type (TICKET-0143):** pak-based content mods now install to `Pal/Content/Paks/~mods`, and UE4SS/PalSchema mods now install to `Pal/Binaries/Win64/ue4ss/Mods`, instead of everything landing in one folder that matched neither.
-- **Real Nexus Mods search (TICKET-0144):** searching the Mods page now searches all of Nexus Mods by name, instead of only filtering whatever was already loaded into the Trending/Latest Added/Latest Updated tabs.
-- **`.7z` mod archives supported (TICKET-0145):** Install From File and Nexus direct-install now accept `.7z` archives in addition to `.zip`.
-- **Manually-installed mods now show up (TICKET-0146):** mods placed directly into the mods folders by hand now appear on the Mods page (tagged "Manually Added") and can be enabled/disabled/removed through the app, instead of being permanently invisible to it.
-- **Nexus search and lists can now page through everything (TICKET-0149):** the Mods page search and Trending/Latest Added/Latest Updated tabs were capped at a fixed first 60 results with no way to see more - now they show a "Load More" button until every matching mod has been loaded.
-- **Fixed: deleting a server left it in the Current Server dropdown (TICKET-0150):** removing or unregistering a server in Server Instances now refreshes the app immediately, instead of the TopBar's server switcher still showing the deleted server until a manual browser refresh.
-
 ## 1.0.7 - 2026-07-14
 
-- Installer checksum (SHA256): `3A8FBBCAA11BE621B069D60180F6F758AC3435AFE38C54CBEE78CD5577DAEAFC`.
+- Installer checksum (SHA256): `1AA87767D2D1B28DAE47EFF8D7DDBC6CD9A2CF0C66C45019679DD8506002E8D9`.
 - **This is a pre-release build.** It bundles Nexus SSO integration ahead of Nexus Mods confirming AutoPalExpress's application registration - Direct Install/Wishlist-approve are not fully functional until that's confirmed. Everything else in this changelog is fully working.
+- **Fixed: deleting a server left it in the Current Server dropdown (TICKET-0150):** removing or unregistering a server in Server Instances now refreshes the app immediately, instead of the TopBar's server switcher still showing the deleted server until a manual browser refresh.
+- **Nexus search and lists can now page through everything (TICKET-0149):** the Mods page search and Trending/Latest Added/Latest Updated tabs were capped at a fixed first 60 results with no way to see more - now they show a "Load More" button until every matching mod has been loaded.
+- **Manually-installed mods now show up (TICKET-0146):** mods placed directly into the mods folders by hand now appear on the Mods page (tagged "Manually Added") and can be enabled/disabled/removed through the app, instead of being permanently invisible to it.
+- **`.7z` mod archives supported (TICKET-0145):** Install From File and Nexus direct-install now accept `.7z` archives in addition to `.zip`.
+- **Real Nexus Mods search (TICKET-0144):** searching the Mods page now searches all of Nexus Mods by name, instead of only filtering whatever was already loaded into the Trending/Latest Added/Latest Updated tabs.
+- **Fixed: mods always installed to the wrong folder regardless of type (TICKET-0143):** pak-based content mods now install to `Pal/Content/Paks/~mods`, and UE4SS/PalSchema mods now install to `Pal/Binaries/Win64/ue4ss/Mods`, instead of everything landing in one folder that matched neither.
+- **Fixed: UE4SS didn't create a `ue4ss` folder and mods didn't work (TICKET-0142):** UE4SS now installs from the Palworld-specific experimental fork (with the `Win64/ue4ss/...` layout PalSchema and most current mods require) instead of the generic stable release's old flat layout. Upgrading from a previous install automatically removes the old conflicting files and migrates any mods that had landed in the wrong place.
+- **README sponsor section (TICKET-0141):** added an Indifferent Broccoli banner, personal recommendation, two-day free-trial note, and clear affiliate disclosure.
 - **Traffic lights can be manually verified (TICKET-0140):** Dashboard's Game/Query/Remote-Access lights no longer stay permanently yellow just because no UPnP router was found - Super Admin's Port Forward and Remote Access panels now have a "Mark as Verified" button for once you've manually forwarded a port and confirmed it works, turning that light green.
 - **Deploy New Server shows the real default location (TICKET-0139):** the "Server Deployment Location" field now shows exactly where a new server will land (e.g. `Documents\AutoPalExpress\Servers`) under the input, instead of just a generic "default folder" label.
 - **Space Invaders while your server deploys (TICKET-0138):** the Deploy New Server dialog now shows the same mini-game from the loading screen while SteamCMD downloads your server - this time with a small squid-pal-styled ship.

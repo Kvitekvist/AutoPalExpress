@@ -175,7 +175,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  AutoPalExpress-Setup.exe  3A8FBBCAA11BE621B069D60180F6F758AC3435AFE38C54CBEE78CD5577DAEAFC
+SHA256  AutoPalExpress-Setup.exe  1AA87767D2D1B28DAE47EFF8D7DDBC6CD9A2CF0C66C45019679DD8506002E8D9
 ```
 
 > [!IMPORTANT]
