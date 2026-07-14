@@ -216,6 +216,11 @@ class DeployRequest(BaseModel):
     installParentDir: str | None = None
 
 
+@router.get("/deploy/default-location", dependencies=[Depends(require_super_admin)])
+async def get_default_deploy_location() -> dict[str, Any]:
+    return {"path": str(deploy_jobs.default_servers_dir())}
+
+
 @router.post("/deploy/browse", dependencies=[Depends(require_super_admin)])
 async def browse_deploy_parent() -> dict[str, Any]:
     path = await asyncio.to_thread(

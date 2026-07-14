@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Installer checksum (SHA256): `CA7443CEB805DC09CB2A73ACED62011C97D9DCA51FB572B79FE3032DD9616829`.
+- Installer checksum (SHA256): `E2A964C0BE388CB9BCD0F510E40C0516A4E07B95F9894E49A1A5D9CD4CE68B50`.
+- **Deploy New Server shows the real default location (TICKET-0139):** the "Server Deployment Location" field now shows exactly where a new server will land (e.g. `Documents\AutoPalExpress\Servers`) under the input, instead of just a generic "default folder" label.
 - **Space Invaders while your server deploys (TICKET-0138):** the Deploy New Server dialog now shows the same mini-game from the loading screen while SteamCMD downloads your server - this time with a small squid-pal-styled ship.
 - **Installer now defaults to Program Files (TICKET-0136):** the installer always asks for administrator permission (one UAC prompt) and defaults to installing into Program Files, like most Windows programs - removed the earlier "install for me only" no-admin choice. You can still Browse to a different folder on the destination page if you prefer.
 - **Fixed: "Run Diagnostics as Admin" failed with a permission error (TICKET-0137):** a Windows argument-quoting gap in the elevation helper silently broke for any path containing a space - which every install path now does, since Program Files always has one. Diagnostics elevation (both buttons share the same helper) now works correctly regardless of where AutoPalExpress or your Documents folder are located.

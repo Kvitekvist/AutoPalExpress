@@ -72,6 +72,11 @@ export async function browseDeployParentDir(): Promise<{ path: string | null }> 
   return api.post<{ path: string | null }>("/api/instances/deploy/browse");
 }
 
+// GET /api/instances/deploy/default-location
+export async function getDefaultDeployLocation(): Promise<{ path: string }> {
+  return api.get<{ path: string }>("/api/instances/deploy/default-location");
+}
+
 export interface DeployParams {
   name: string;
   gamePort: number;

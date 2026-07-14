@@ -24,6 +24,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
   const [rconPort, setRconPort] = React.useState(8212);
   const [maxPlayers, setMaxPlayers] = React.useState(32);
   const [installParentDir, setInstallParentDir] = React.useState("");
+  const [defaultLocation, setDefaultLocation] = React.useState<string | null>(null);
   const [jobId, setJobId] = React.useState<string | null>(null);
   const [log, setLog] = React.useState<string[]>([]);
   const [status, setStatus] = React.useState<WizardStatus>("idle");
@@ -38,7 +39,12 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       setStatus("idle");
       setError(null);
       setInstallParentDir("");
+      return;
     }
+    instancesApi
+      .getDefaultDeployLocation()
+      .then((data) => setDefaultLocation(data.path))
+      .catch(() => setDefaultLocation(null));
   }, [open]);
 
   React.useEffect(() => {
@@ -179,6 +185,11 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                   {t("settings.deploy.browse", { defaultValue: "Browse" })}
                 </RuneButton>
               </div>
+              {!installParentDir && defaultLocation && (
+                <p className="truncate font-mono text-[11px] text-parchment-300/40">
+                  {t("settings.deploy.defaultLocationValue", { defaultValue: "Default: {{path}}", path: defaultLocation })}
+                </p>
+              )}
             </div>
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
               {t("settings.deploy.hint", {
