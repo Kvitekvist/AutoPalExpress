@@ -155,7 +155,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="deploy-location">{t("settings.deploy.installLocation", { defaultValue: "Install Location" })}</Label>
+              <Label htmlFor="deploy-location">{t("settings.deploy.installLocation", { defaultValue: "Server Deployment Location" })}</Label>
               <div className="flex gap-2">
                 <Input
                   id="deploy-location"

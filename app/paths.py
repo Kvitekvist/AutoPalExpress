@@ -61,6 +61,22 @@ def documents_data_dir() -> Path:
     return _documents_dir() / "AutoPalExpress" / "data"
 
 
+def default_servers_dir() -> Path:
+    """Where new Palworld server deployments go by default (TICKET-0133) - a
+    visible sibling of the app's own internal data folder, not nested inside
+    it, so a user browsing Documents\\AutoPalExpress can find their actual
+    server installs easily. The installer creates this folder immediately on
+    install; only affects new deployments, not servers already deployed
+    elsewhere (e.g. under the older data\\servers layout, or a manually
+    chosen install location)."""
+    if is_frozen():
+        base = _documents_dir() / "AutoPalExpress" / "Servers"
+    else:
+        base = Path(__file__).resolve().parent.parent / "data" / "servers"
+    base.mkdir(parents=True, exist_ok=True)
+    return base
+
+
 def _legacy_appdata_data_dir() -> Path:
     import os
 

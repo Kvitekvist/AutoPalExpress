@@ -53,7 +53,7 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent; Check: ShouldOfferLaunch
 
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AutoPalExpress"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: startuprecovery
@@ -82,6 +82,18 @@ var
   SuperAdminPage: TInputQueryWizardPage;
   SetupProgressPage: TOutputProgressWizardPage;
   AdminAccountExists: Boolean;
+  AppAlreadyLaunched: Boolean;
+
+// RunFirstTimeSetup already launches the app to apply the seed file when
+// there's something to provision (a fresh install). The [Run] section's own
+// "Launch AutoPalExpress" step on the Finished page should only be offered
+// when that DIDN'T happen (an update/reinstall where nothing needed
+// seeding, so RunFirstTimeSetup was skipped entirely) - otherwise it's a
+// redundant "launch now?" for an app that's already running.
+function ShouldOfferLaunch(): Boolean;
+begin
+  Result := not AppAlreadyLaunched;
+end;
 
 // Looks in {userdocs}\AutoPalExpress\data first (TICKET-0129's current
 // home), then falls back to the two older locations this app has used
@@ -321,6 +333,17 @@ begin
   SaveStringToFile(SettingsPath, Body, False);
 end;
 
+// Creates the visible Documents\AutoPalExpress\Servers folder right away
+// (TICKET-0133), instead of waiting for the app to lazily create it on
+// first deploy - so it's there to browse/drop things into immediately
+// after install finishes. This is also the real default deploy location
+// (app/paths.py's default_servers_dir()), not just a decorative folder.
+procedure EnsureDataFolders;
+begin
+  ForceDirectories(ExpandConstant('{userdocs}\AutoPalExpress'));
+  ForceDirectories(ExpandConstant('{userdocs}\AutoPalExpress\Servers'));
+end;
+
 procedure RunFirstTimeSetup;
 var
   ResultCode: Integer;
@@ -342,6 +365,7 @@ begin
       Sleep(2000);
       Exit;
     end;
+    AppAlreadyLaunched := True;
 
     Done := False;
     ElapsedSeconds := 0;
@@ -385,6 +409,7 @@ var
 begin
   if CurStep = ssPostInstall then
   begin
+    EnsureDataFolders;
     SaveStartupRecoverySettings;
     SeedPath := ExpandConstant('{app}\first_run_seed.json');
     // Nothing left to provision once an admin account already exists -

@@ -10,7 +10,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from app.paths import data_dir
+from app.paths import default_servers_dir
 from app.services import instance_store, palworld_settings, steamcmd
 from app.services.steamcmd import SteamCmdError
 
@@ -33,9 +33,9 @@ def _sanitize_server_folder_name(name: str) -> str:
 
 def install_dir_for(name: str, parent_dir: Path | None = None) -> Path:
     """Every new deployment gets its own sanitized folder name. By default it
-    lives under this app's data/servers folder; super admins may choose a
+    lives under Documents\\AutoPalExpress\\Servers; super admins may choose a
     different existing parent folder for large installs or alternate drives."""
-    base = parent_dir or data_dir() / "servers"
+    base = parent_dir or default_servers_dir()
     return base / _sanitize_server_folder_name(name)
 
 

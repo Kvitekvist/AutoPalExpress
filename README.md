@@ -162,7 +162,7 @@ After building a release, publish the SHA-256 checksum beside the installer so u
 Current release build:
 
 ```text
-SHA256  AutoPalExpress-Setup.exe  1476C0EA74F801DD5FF5FAA1335AAFDCC42ED53FEEA06CBDBEA3BAC2B75CBAA9
+SHA256  AutoPalExpress-Setup.exe  CF55EF2631A0E5820CF8A3438D5187CBAABFA8C5B98C4C395FCBA703FAA17038
 ```
 
 > [!IMPORTANT]
@@ -220,13 +220,12 @@ Outputs:
 The installed program can go wherever you like - your own user folder, or Program Files if you choose the "install for all users" option and approve the Windows permission prompt. App data always lives in a clearly visible spot regardless, under your own Documents folder:
 
 ```text
-Documents\AutoPalExpress\data
+Documents\AutoPalExpress\data       (accounts, server registry, mods, sessions, invites)
+Documents\AutoPalExpress\Servers    (new Palworld server deployments, by default)
 ```
 
-This includes server registry data, users, sessions, invites, and mod records.
-
 > [!NOTE]
-> Earlier versions stored this under `%LOCALAPPDATA%\PalworldServerAdmin\data`, or briefly inside the install folder itself. If you're upgrading from one of those versions, AutoPalExpress moves your existing data into the Documents location automatically the first time the new version runs, and shows a one-time message confirming it.
+> Earlier versions stored this under `%LOCALAPPDATA%\PalworldServerAdmin\data`, or briefly inside the install folder itself. If you're upgrading from one of those versions, AutoPalExpress asks whether to bring your existing data into the Documents location the first time the new version runs - choosing not to leaves the old data untouched and starts fresh instead.
 
 ## Support
 
