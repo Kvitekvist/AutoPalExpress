@@ -1,5 +1,5 @@
 import { api } from "./httpClient";
-import type { NexusAccount, NexusModList, NexusModResult, NexusSsoStart, NexusSsoStatus } from "@/types/models";
+import type { NexusAccount, NexusModList, NexusModPage, NexusSsoStart, NexusSsoStatus } from "@/types/models";
 
 // GET /api/integrations/nexus/account
 export async function getAccount(): Promise<NexusAccount> {
@@ -21,12 +21,15 @@ export async function disconnectAccount(): Promise<NexusAccount> {
   return api.post<NexusAccount>("/api/integrations/nexus/disconnect");
 }
 
-export async function getModList(list: NexusModList): Promise<NexusModResult[]> {
-  return api.get<NexusModResult[]>(`/api/integrations/nexus/mods?list=${list}`);
+// Paginated (TICKET-0149) - pass the previous page's result count as offset
+// to fetch the next page, using totalCount to know when to stop.
+export async function getModList(list: NexusModList, offset = 0): Promise<NexusModPage> {
+  return api.get<NexusModPage>(`/api/integrations/nexus/mods?list=${list}&offset=${offset}`);
 }
 
 // GET /api/integrations/nexus/search?q=... - real Nexus-side search by name,
-// not just a client-side filter over an already-loaded list (TICKET-0144).
-export async function searchMods(query: string): Promise<NexusModResult[]> {
-  return api.get<NexusModResult[]>(`/api/integrations/nexus/search?q=${encodeURIComponent(query)}`);
+// not just a client-side filter over an already-loaded list (TICKET-0144),
+// paginated (TICKET-0149) the same way as getModList.
+export async function searchMods(query: string, offset = 0): Promise<NexusModPage> {
+  return api.get<NexusModPage>(`/api/integrations/nexus/search?q=${encodeURIComponent(query)}&offset=${offset}`);
 }

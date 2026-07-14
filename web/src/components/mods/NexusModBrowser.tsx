@@ -6,11 +6,17 @@ import type { Mod, ModWishlistRequest, NexusAccount, NexusModList, NexusModResul
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AncientTabs, AncientTabsList, AncientTabsTrigger } from "@/components/fantasy/AncientTabs";
+import { RuneButton } from "@/components/fantasy/RuneButton";
 import { NexusModCard } from "@/components/mods/NexusModCard";
 import { NexusFilePickerDialog } from "@/components/mods/NexusFilePickerDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
+
+interface ModsPageState {
+  items: NexusModResult[];
+  totalCount: number;
+}
 
 const LISTS: { value: NexusModList; labelKey: string; labelDefault: string }[] = [
   { value: "trending", labelKey: "trending", labelDefault: "Trending" },
@@ -29,17 +35,19 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   const notifications = useNotifications();
   const [account, setAccount] = React.useState<NexusAccount | null>(null);
   const [list, setList] = React.useState<NexusModList>("trending");
-  const [cache, setCache] = React.useState<Partial<Record<NexusModList, NexusModResult[]>>>({});
+  const [cache, setCache] = React.useState<Partial<Record<NexusModList, ModsPageState>>>({});
   const [loading, setLoading] = React.useState(false);
   const [loadError, setLoadError] = React.useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = React.useState(false);
   const [installingId, setInstallingId] = React.useState<number | null>(null);
   const [requestingId, setRequestingId] = React.useState<number | null>(null);
   const [wishlist, setWishlist] = React.useState<ModWishlistRequest[]>([]);
   const [filePicker, setFilePicker] = React.useState<{ modId: number; modName: string } | null>(null);
   const [query, setQuery] = React.useState("");
-  const [searchResults, setSearchResults] = React.useState<NexusModResult[] | null>(null);
+  const [searchState, setSearchState] = React.useState<ModsPageState | null>(null);
   const [searching, setSearching] = React.useState(false);
   const [searchError, setSearchError] = React.useState<string | null>(null);
+  const [searchingMore, setSearchingMore] = React.useState(false);
   const allCategory = t("mods.nexusBrowser.allCategory", { defaultValue: "All" });
   const [category, setCategory] = React.useState(allCategory);
   const isSearching = query.trim().length >= 2;
@@ -55,7 +63,7 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
     setLoadError(null);
     nexusApi
       .getModList(list)
-      .then((results) => setCache((prev) => ({ ...prev, [list]: results })))
+      .then((page) => setCache((prev) => ({ ...prev, [list]: { items: page.results, totalCount: page.totalCount } })))
       .catch((e) =>
         setLoadError(e instanceof Error ? e.message : t("mods.nexusBrowser.loadErrorFallback", { defaultValue: "Failed to load mods from Nexus Mods." }))
       )
@@ -69,7 +77,7 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
   // never be found at all.
   React.useEffect(() => {
     if (!isSearching) {
-      setSearchResults(null);
+      setSearchState(null);
       setSearchError(null);
       return;
     }
@@ -78,8 +86,8 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
     const handle = setTimeout(() => {
       nexusApi
         .searchMods(trimmed)
-        .then((results) => {
-          setSearchResults(results);
+        .then((page) => {
+          setSearchState({ items: page.results, totalCount: page.totalCount });
           setSearchError(null);
         })
         .catch((e) =>
@@ -90,9 +98,43 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
     return () => clearTimeout(handle);
   }, [query, isSearching, t]);
 
-  const results = isSearching ? searchResults ?? [] : cache[list] ?? [];
+  // Both the tab lists and search are paginated (TICKET-0149) - Nexus's
+  // GraphQL API only ever returns one page (60 items) per request, and a
+  // broad search or a popular list can easily have hundreds more matches
+  // than that, which used to be permanently unreachable.
+  async function handleLoadMoreList() {
+    const current = cache[list];
+    if (!current) return;
+    setLoadingMore(true);
+    try {
+      const page = await nexusApi.getModList(list, current.items.length);
+      setCache((prev) => ({ ...prev, [list]: { items: [...current.items, ...page.results], totalCount: page.totalCount } }));
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : t("mods.nexusBrowser.loadErrorFallback", { defaultValue: "Failed to load mods from Nexus Mods." }));
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  async function handleLoadMoreSearch() {
+    if (!searchState) return;
+    setSearchingMore(true);
+    try {
+      const page = await nexusApi.searchMods(query.trim(), searchState.items.length);
+      setSearchState((prev) => (prev ? { items: [...prev.items, ...page.results], totalCount: page.totalCount } : prev));
+    } catch (e) {
+      setSearchError(e instanceof Error ? e.message : t("mods.nexusBrowser.searchErrorFallback", { defaultValue: "Failed to search Nexus Mods." }));
+    } finally {
+      setSearchingMore(false);
+    }
+  }
+
+  const results = isSearching ? searchState?.items ?? [] : cache[list]?.items ?? [];
+  const totalCount = isSearching ? searchState?.totalCount ?? 0 : cache[list]?.totalCount ?? 0;
   const loading_ = isSearching ? searching : loading;
   const loadError_ = isSearching ? searchError : loadError;
+  const loadingMore_ = isSearching ? searchingMore : loadingMore;
+  const hasMore = results.length < totalCount;
   const isSuperAdmin = user.role === "super_admin";
   const canDirectInstall = isSuperAdmin && Boolean(account?.connected && account.isPremium);
   const directInstallUnavailableReason = !isSuperAdmin
@@ -233,23 +275,44 @@ export function NexusModBrowser({ installedNames, onModsChanged }: NexusModBrows
             <p>{t("mods.nexusBrowser.empty", { defaultValue: "No mods found." })}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {filtered.map((mod) => (
-              <NexusModCard
-                key={mod.id}
-                mod={mod}
-                installed={installedNames.some((n) => n.toLowerCase() === mod.name.toLowerCase())}
-                canInstallFromFile={isSuperAdmin}
-                canDirectInstall={canDirectInstall}
-                directInstallUnavailableReason={directInstallUnavailableReason}
-                installing={installingId === mod.modId}
-                onInstall={() => handleInstall(mod)}
-                requested={wishlist.some((item) => item.nexusModId === mod.modId)}
-                requesting={requestingId === mod.modId}
-                onRequest={() => handleRequest(mod)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {filtered.map((mod) => (
+                <NexusModCard
+                  key={mod.id}
+                  mod={mod}
+                  installed={installedNames.some((n) => n.toLowerCase() === mod.name.toLowerCase())}
+                  canInstallFromFile={isSuperAdmin}
+                  canDirectInstall={canDirectInstall}
+                  directInstallUnavailableReason={directInstallUnavailableReason}
+                  installing={installingId === mod.modId}
+                  onInstall={() => handleInstall(mod)}
+                  requested={wishlist.some((item) => item.nexusModId === mod.modId)}
+                  requesting={requestingId === mod.modId}
+                  onRequest={() => handleRequest(mod)}
+                />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="mt-4 flex justify-center">
+                <RuneButton
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={isSearching ? handleLoadMoreSearch : handleLoadMoreList}
+                  disabled={loadingMore_}
+                >
+                  {loadingMore_
+                    ? t("mods.nexusBrowser.loadingMore", { defaultValue: "Loading more..." })
+                    : t("mods.nexusBrowser.loadMore", {
+                        defaultValue: "Load More ({{shown}} of {{total}})",
+                        shown: results.length,
+                        total: totalCount,
+                      })}
+                </RuneButton>
+              </div>
+            )}
+          </>
         )}
       </ScrollArea>
 

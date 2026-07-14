@@ -108,34 +108,44 @@ _GRAPHQL_SORTS = {
 }
 
 
-async def get_mod_list(list_name: str) -> list[dict[str, Any]]:
-    query = """
-    query AutoPalExpressMods($filter: ModsFilter, $sort: [ModsSort!], $count: Int) {
-      mods(filter: $filter, sort: $sort, count: $count) {
-        nodes {
-          modId
-          name
-          author
-          summary
-          category
-          downloads
-          endorsements
-          pictureUrl
-          directDownloadEnabled
-        }
-      }
+_MODS_PAGE_QUERY = """
+query AutoPalExpressModsPage($filter: ModsFilter, $sort: [ModsSort!], $count: Int, $offset: Int) {
+  mods(filter: $filter, sort: $sort, count: $count, offset: $offset) {
+    totalCount
+    nodes {
+      modId
+      name
+      author
+      summary
+      category
+      downloads
+      endorsements
+      pictureUrl
+      directDownloadEnabled
     }
-    """
-    variables = {
-        "filter": {"gameDomainName": [{"value": GAME_DOMAIN, "op": "EQUALS"}]},
-        "sort": [_GRAPHQL_SORTS[list_name]],
-        "count": 60,
-    }
-    data = await _graphql(query, variables)
-    return ((data.get("mods") or {}).get("nodes") or [])
+  }
+}
+"""
+
+PAGE_SIZE = 60
 
 
-async def search_mods(query: str) -> list[dict[str, Any]]:
+async def _mods_page(filter_: dict[str, Any], sort: list[dict[str, Any]], offset: int) -> dict[str, Any]:
+    variables = {"filter": filter_, "sort": sort, "count": PAGE_SIZE, "offset": offset}
+    data = await _graphql(_MODS_PAGE_QUERY, variables)
+    mods = data.get("mods") or {}
+    return {"nodes": mods.get("nodes") or [], "totalCount": mods.get("totalCount") or 0}
+
+
+async def get_mod_list(list_name: str, offset: int = 0) -> dict[str, Any]:
+    """Returns one page (PAGE_SIZE items) plus totalCount (TICKET-0149) so
+    callers can page through the rest instead of only ever seeing a fixed
+    first 60."""
+    filter_ = {"gameDomainName": [{"value": GAME_DOMAIN, "op": "EQUALS"}]}
+    return await _mods_page(filter_, [_GRAPHQL_SORTS[list_name]], offset)
+
+
+async def search_mods(query: str, offset: int = 0) -> dict[str, Any]:
     """Real server-side search by name (TICKET-0144), instead of the old
     approach of only ever filtering whatever 60 mods happened to already be
     loaded into trending/latest_added/latest_updated - which meant most
@@ -143,34 +153,13 @@ async def search_mods(query: str) -> list[dict[str, Any]]:
     all. Nexus's GraphQL `name` filter does plain case-insensitive substring
     matching when given `op: WILDCARD` with no wildcard characters in the
     value itself (confirmed directly against the live API - `*`/`%` are NOT
-    wildcard tokens here, despite the operator's name)."""
-    graphql_query = """
-    query AutoPalExpressModSearch($filter: ModsFilter, $sort: [ModsSort!], $count: Int) {
-      mods(filter: $filter, sort: $sort, count: $count) {
-        nodes {
-          modId
-          name
-          author
-          summary
-          category
-          downloads
-          endorsements
-          pictureUrl
-          directDownloadEnabled
-        }
-      }
+    wildcard tokens here, despite the operator's name). Paginated (TICKET-0149)
+    since a broad search term can easily match more than one page's worth."""
+    filter_ = {
+        "gameDomainName": [{"value": GAME_DOMAIN, "op": "EQUALS"}],
+        "name": [{"value": query, "op": "WILDCARD"}],
     }
-    """
-    variables = {
-        "filter": {
-            "gameDomainName": [{"value": GAME_DOMAIN, "op": "EQUALS"}],
-            "name": [{"value": query, "op": "WILDCARD"}],
-        },
-        "sort": [{"downloads": {"direction": "DESC"}}],
-        "count": 60,
-    }
-    data = await _graphql(graphql_query, variables)
-    return (data.get("mods") or {}).get("nodes") or []
+    return await _mods_page(filter_, [{"downloads": {"direction": "DESC"}}], offset)
 
 
 async def get_game_categories(api_key: str) -> list[dict[str, Any]]:

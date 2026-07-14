@@ -85,20 +85,24 @@ def _map_mod_summary(m: dict[str, Any]) -> dict[str, Any]:
 @router.get("/mods")
 async def list_mods(
     list: str = Query("trending", pattern="^(trending|latest_added|latest_updated)$"),
-) -> list[dict[str, Any]]:
+    offset: int = Query(0, ge=0),
+) -> dict[str, Any]:
     try:
-        raw = await nexus_client.get_mod_list(list)
+        page = await nexus_client.get_mod_list(list, offset)
     except NexusApiError as e:
         raise HTTPException(status_code=e.http_status, detail=e.message)
-    return [_map_mod_summary(m) for m in raw]
+    return {"results": [_map_mod_summary(m) for m in page["nodes"]], "totalCount": page["totalCount"]}
 
 
 @router.get("/search")
-async def search_mods(q: str = Query(min_length=1, max_length=200)) -> list[dict[str, Any]]:
+async def search_mods(q: str = Query(min_length=1, max_length=200), offset: int = Query(0, ge=0)) -> dict[str, Any]:
     """Real Nexus-side search by name (TICKET-0144), not just a client-side
-    filter over whichever 60 mods the trending/latest lists already loaded."""
+    filter over whichever 60 mods the trending/latest lists already loaded.
+    Paginated (TICKET-0149) - a broad search can easily match more than one
+    page's worth, and previously results past the first (hardcoded) 60 were
+    simply unreachable."""
     try:
-        raw = await nexus_client.search_mods(q)
+        page = await nexus_client.search_mods(q, offset)
     except NexusApiError as e:
         raise HTTPException(status_code=e.http_status, detail=e.message)
-    return [_map_mod_summary(m) for m in raw]
+    return {"results": [_map_mod_summary(m) for m in page["nodes"]], "totalCount": page["totalCount"]}

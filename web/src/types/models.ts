@@ -235,6 +235,11 @@ export interface NexusModResult {
   nexusUrl: string;
 }
 
+export interface NexusModPage {
+  results: NexusModResult[];
+  totalCount: number;
+}
+
 export interface NexusModFile {
   fileId: number;
   name: string;
