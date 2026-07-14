@@ -116,11 +116,10 @@ begin
 end;
 
 // Whether AutoPalExpress is actually currently installed (a real Inno
-// uninstall entry exists), as opposed to HasAdminAccount/HasServerData
-// above, which only check for leftover app data - most app data is
-// deliberately kept after an uninstall (see the [Registry] section
-// comment), so those would otherwise falsely say "installed" right after a
-// full uninstall.
+// uninstall entry exists), as opposed to HasAdminAccount above, which only
+// checks for a leftover admin account - most app data is deliberately kept
+// after an uninstall (see the [Registry] section comment), so that would
+// otherwise falsely say "installed" right after a full uninstall.
 function GetUninstallString(): String;
 var
   UninstallKey: String;
