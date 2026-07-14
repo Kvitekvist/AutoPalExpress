@@ -33,6 +33,19 @@ It opens in your browser, but it runs on your own PC. You stay in control of the
 > [!TIP]
 > For a page-by-page walkthrough with screenshots of every sidebar page, see the [AutoPalExpress Wiki](https://github.com/Kvitekvist/AutoPalExpress/wiki).
 
+## Sponsor
+
+<p align="center">
+  <a href="https://indifferentbroccoli.com?fpr=ape&amp;fp_sid=readme">
+    <img src="https://d2gdx5nv84sdx2.cloudfront.net/uploads/jh35snrd/marketing_asset/banner/91584664/IB_BANNER(2).gif" alt="Indifferent Broccoli game server hosting">
+  </a>
+</p>
+
+Looking for hosted Palworld servers? I find [Indifferent Broccoli](https://indifferentbroccoli.com?fpr=ape&fp_sid=readme) really easy and convenient. I especially like that you can upload your old save, and they offer a two-day free trial.
+
+> [!NOTE]
+> This is an affiliate link. Using it supports AutoPalExpress at no extra cost to you.
+
 ## What It Helps With
 
 If you just want to host a Palworld server for friends, AutoPalExpress handles the annoying parts:

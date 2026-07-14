@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **README sponsor section (TICKET-0141):** added an Indifferent Broccoli banner, personal recommendation, two-day free-trial note, and clear affiliate disclosure.
+
 ## 1.0.7 - 2026-07-14
 
 - Installer checksum (SHA256): `3A8FBBCAA11BE621B069D60180F6F758AC3435AFE38C54CBEE78CD5577DAEAFC`.
