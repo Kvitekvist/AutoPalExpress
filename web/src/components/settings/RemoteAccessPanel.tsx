@@ -17,11 +17,26 @@ export function RemoteAccessPanel() {
   const [forwarding, setForwarding] = React.useState(false);
   const [unforwarding, setUnforwarding] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
+  const [verifying, setVerifying] = React.useState(false);
   const notifications = useNotifications();
 
   const refreshStatus = React.useCallback(() => {
     networkApi.getUpnpStatus().then(setStatus);
   }, []);
+
+  async function handleToggleVerified() {
+    setVerifying(true);
+    try {
+      if (status?.adminVerified) {
+        await networkApi.unverifyAdminPort();
+      } else {
+        await networkApi.verifyAdminPort();
+      }
+      refreshStatus();
+    } finally {
+      setVerifying(false);
+    }
+  }
 
   React.useEffect(() => {
     refreshStatus();
@@ -178,6 +193,24 @@ export function RemoteAccessPanel() {
                     port={status.adminPort}
                     localIp={status.localIp}
                   />
+                  <RuneButton
+                    type="button"
+                    variant={status.adminVerified ? "life" : "gold"}
+                    size="sm"
+                    icon={status.adminVerified ? <Check /> : undefined}
+                    onClick={handleToggleVerified}
+                    disabled={verifying}
+                  >
+                    {status.adminVerified
+                      ? t("superAdmin.portForward.verifiedWorking", { defaultValue: "Verified Working" })
+                      : t("superAdmin.portForward.markVerified", { defaultValue: "Mark as Verified" })}
+                  </RuneButton>
+                  <p className="text-[11px] leading-relaxed text-parchment-300/35">
+                    {t("superAdmin.portForward.markVerifiedHint", {
+                      defaultValue:
+                        "AutoPalExpress can't test real internet reachability without a UPnP router - only mark this once you've actually confirmed it works (e.g. a friend connected, or an external port checker).",
+                    })}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">

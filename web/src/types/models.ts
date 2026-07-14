@@ -339,6 +339,9 @@ export interface UpnpStatus {
   gameMapping: PortMappingInfo | null;
   queryMapping: PortMappingInfo | null;
   adminMapping: PortMappingInfo | null;
+  gameVerified: boolean;
+  queryVerified: boolean;
+  adminVerified: boolean;
 }
 
 export interface PortForwardResult {

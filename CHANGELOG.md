@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- Installer checksum (SHA256): `E2A964C0BE388CB9BCD0F510E40C0516A4E07B95F9894E49A1A5D9CD4CE68B50`.
+## 1.0.7 - 2026-07-14
+
+- Installer checksum (SHA256): `3A8FBBCAA11BE621B069D60180F6F758AC3435AFE38C54CBEE78CD5577DAEAFC`.
+- **This is a pre-release build.** It bundles Nexus SSO integration ahead of Nexus Mods confirming AutoPalExpress's application registration - Direct Install/Wishlist-approve are not fully functional until that's confirmed. Everything else in this changelog is fully working.
+- **Traffic lights can be manually verified (TICKET-0140):** Dashboard's Game/Query/Remote-Access lights no longer stay permanently yellow just because no UPnP router was found - Super Admin's Port Forward and Remote Access panels now have a "Mark as Verified" button for once you've manually forwarded a port and confirmed it works, turning that light green.
 - **Deploy New Server shows the real default location (TICKET-0139):** the "Server Deployment Location" field now shows exactly where a new server will land (e.g. `Documents\AutoPalExpress\Servers`) under the input, instead of just a generic "default folder" label.
 - **Space Invaders while your server deploys (TICKET-0138):** the Deploy New Server dialog now shows the same mini-game from the loading screen while SteamCMD downloads your server - this time with a small squid-pal-styled ship.
 - **Installer now defaults to Program Files (TICKET-0136):** the installer always asks for administrator permission (one UAC prompt) and defaults to installing into Program Files, like most Windows programs - removed the earlier "install for me only" no-admin choice. You can still Browse to a different folder on the destination page if you prefer.
@@ -29,11 +33,6 @@
 - **Import Save moved to Server Instances (TICKET-0114):** relocated from Automation to Settings > Server Instances, with a purple (arcane) accent.
 - **Mod File Uploads moved to Mod Wishlist (TICKET-0110):** both super-admin mod-installation entry points (approve a wishlist request, install an already-downloaded file) now live on the same page.
 - **Password reveal toggle (TICKET-0072):** every password field (login, first-run setup, World Settings/Local API sensitive fields) now has a show/hide eye icon, masked by default.
-
-## 1.0.7 - 2026-07-13
-
-- Installer checksum (SHA256): `0cfc40030236abf389a2f95d3ba5423670c83625c2004d2512b0ae8573f88759`.
-- **This is a pre-release build.** It bundles Nexus SSO integration ahead of Nexus Mods confirming AutoPalExpress's application registration - Direct Install/Wishlist-approve are not fully functional until that's confirmed. Everything else in this changelog is fully working.
 - **Pending Install badge, Nexus Login re-enabled (TICKET-0109):** the Mods page now shows a "Pending Install" card for wishlisted mods that aren't installed yet at all (update requests for an already-installed mod keep their own "Update Requested" badge). Also reverted TICKET-0107: "Nexus Login" is visible and clickable again even though Nexus hasn't confirmed AutoPalExpress's application slug yet, per explicit user request to see the real authorization step rather than have it hidden.
 - **Fixed: Nexus errors force-logging you out (TICKET-0108):** an expected "no Nexus connection" or "Nexus key invalid" error was being misread as "your AutoPalExpress session died," forcing a full logout back to the login screen instead of a normal popup error. Both were using HTTP 401, which this app's frontend specifically treats as a dead session - they now use 400/whatever Nexus actually returned, and show as an ordinary error toast like every other action failure.
 - **Nexus Connect degrades gracefully until Nexus approves (TICKET-0107):** since AutoPalExpress doesn't have its real Nexus application slug yet, "Connect via Nexus Mods" would have opened a Nexus page for an unregistered application - now disabled and clearly labeled "Pending Nexus Mods Approval" instead, until that's confirmed.

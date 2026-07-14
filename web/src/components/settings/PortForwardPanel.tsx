@@ -26,6 +26,7 @@ export function PortForwardPanel() {
   const [forwarding, setForwarding] = React.useState(false);
   const [unforwarding, setUnforwarding] = React.useState(false);
   const [copied, setCopied] = React.useState(false);
+  const [verifying, setVerifying] = React.useState(false);
   const notifications = useNotifications();
 
   // Derived from the router's actual current mapping, not local session
@@ -184,6 +185,36 @@ export function PortForwardPanel() {
     navigator.clipboard.writeText(`${status.externalIp}:${port}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  }
+
+  async function handleToggleGameVerified() {
+    if (!port) return;
+    setVerifying(true);
+    try {
+      if (status?.gameVerified) {
+        await networkApi.unverifyGamePort();
+      } else {
+        await networkApi.verifyGamePort(port);
+      }
+      await check();
+    } finally {
+      setVerifying(false);
+    }
+  }
+
+  async function handleToggleQueryVerified() {
+    if (!queryPort) return;
+    setVerifying(true);
+    try {
+      if (status?.queryVerified) {
+        await networkApi.unverifyQueryPort();
+      } else {
+        await networkApi.verifyQueryPort(queryPort);
+      }
+      await check();
+    } finally {
+      setVerifying(false);
+    }
   }
 
   if (hasInstance === null) return null;
@@ -351,12 +382,32 @@ export function PortForwardPanel() {
                   })}
                 </p>
                 {port && (
-                  <ManualForwardInstructions
-                    name={t("superAdmin.portForward.palworldServerName", { defaultValue: "Palworld Server" })}
-                    protocol="UDP"
-                    port={port}
-                    localIp={status.localIp}
-                  />
+                  <>
+                    <ManualForwardInstructions
+                      name={t("superAdmin.portForward.palworldServerName", { defaultValue: "Palworld Server" })}
+                      protocol="UDP"
+                      port={port}
+                      localIp={status.localIp}
+                    />
+                    <RuneButton
+                      type="button"
+                      variant={status.gameVerified ? "life" : "gold"}
+                      size="sm"
+                      icon={status.gameVerified ? <Check /> : undefined}
+                      onClick={handleToggleGameVerified}
+                      disabled={verifying}
+                    >
+                      {status.gameVerified
+                        ? t("superAdmin.portForward.verifiedWorking", { defaultValue: "Verified Working" })
+                        : t("superAdmin.portForward.markVerified", { defaultValue: "Mark as Verified" })}
+                    </RuneButton>
+                    <p className="text-[11px] leading-relaxed text-parchment-300/35">
+                      {t("superAdmin.portForward.markVerifiedHint", {
+                        defaultValue:
+                          "AutoPalExpress can't test real internet reachability without a UPnP router - only mark this once you've actually confirmed it works (e.g. a friend connected, or an external port checker).",
+                      })}
+                    </p>
+                  </>
                 )}
                 {queryPortDiffers && queryPort && (
                   <>
@@ -371,6 +422,18 @@ export function PortForwardPanel() {
                       port={queryPort}
                       localIp={status.localIp}
                     />
+                    <RuneButton
+                      type="button"
+                      variant={status.queryVerified ? "life" : "gold"}
+                      size="sm"
+                      icon={status.queryVerified ? <Check /> : undefined}
+                      onClick={handleToggleQueryVerified}
+                      disabled={verifying}
+                    >
+                      {status.queryVerified
+                        ? t("superAdmin.portForward.verifiedWorking", { defaultValue: "Verified Working" })
+                        : t("superAdmin.portForward.markVerified", { defaultValue: "Mark as Verified" })}
+                    </RuneButton>
                   </>
                 )}
                 <RuneButton type="button" variant="ghost" size="sm" onClick={check} disabled={checking}>

@@ -47,3 +47,29 @@ export async function getGameFirewallStatus(port: number, protocol = "UDP"): Pro
 export async function allowGamePortFirewall(port: number, protocol = "UDP"): Promise<{ ruleExists: boolean }> {
   return api.post<{ ruleExists: boolean }>("/api/network/firewall/allow-game-port", { port, protocol });
 }
+
+// POST/DELETE /api/network/verify/game - a manual "I checked this externally
+// and it works" claim, for when there's no UPnP router to auto-confirm it.
+export async function verifyGamePort(port: number): Promise<{ verified: boolean }> {
+  return api.post<{ verified: boolean }>("/api/network/verify/game", { port });
+}
+
+export async function unverifyGamePort(): Promise<{ verified: boolean }> {
+  return api.delete<{ verified: boolean }>("/api/network/verify/game");
+}
+
+export async function verifyQueryPort(port: number): Promise<{ verified: boolean }> {
+  return api.post<{ verified: boolean }>("/api/network/verify/query", { port });
+}
+
+export async function unverifyQueryPort(): Promise<{ verified: boolean }> {
+  return api.delete<{ verified: boolean }>("/api/network/verify/query");
+}
+
+export async function verifyAdminPort(): Promise<{ verified: boolean }> {
+  return api.post<{ verified: boolean }>("/api/network/verify/admin");
+}
+
+export async function unverifyAdminPort(): Promise<{ verified: boolean }> {
+  return api.delete<{ verified: boolean }>("/api/network/verify/admin");
+}

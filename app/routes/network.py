@@ -6,7 +6,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services import firewall, instance_store, palworld_settings, public_ip, upnp
+from app.services import firewall, instance_store, network_verification, palworld_settings, public_ip, upnp
 from app.services.firewall import FirewallError
 from app.services.upnp import UpnpError
 
@@ -128,6 +128,9 @@ async def upnp_status() -> dict[str, Any]:
         "gameMapping": await _mapping_info(gateway, port, "UDP") if gateway and port else None,
         "queryMapping": await _mapping_info(gateway, query_port, "UDP") if gateway and query_port else None,
         "adminMapping": await _mapping_info(gateway, ADMIN_PORT, "TCP") if gateway else None,
+        "gameVerified": network_verification.is_game_verified(instance["id"], port) if instance else False,
+        "queryVerified": network_verification.is_query_verified(instance["id"], query_port) if instance else False,
+        "adminVerified": network_verification.is_admin_verified(ADMIN_PORT),
     }
 
 
@@ -179,6 +182,50 @@ async def upnp_forward_admin() -> dict[str, Any]:
 @router.post("/upnp/unforward-admin")
 async def upnp_unforward_admin() -> dict[str, Any]:
     return await _unforward(port=ADMIN_PORT, protocol="TCP")
+
+
+class VerifyPortRequest(BaseModel):
+    port: int
+
+
+@router.post("/verify/game")
+async def verify_game_port(body: VerifyPortRequest) -> dict[str, Any]:
+    instance = _require_active_instance()
+    network_verification.set_game_verified(instance["id"], body.port)
+    return {"verified": True}
+
+
+@router.delete("/verify/game")
+async def unverify_game_port() -> dict[str, Any]:
+    instance = _require_active_instance()
+    network_verification.clear_game_verified(instance["id"])
+    return {"verified": False}
+
+
+@router.post("/verify/query")
+async def verify_query_port(body: VerifyPortRequest) -> dict[str, Any]:
+    instance = _require_active_instance()
+    network_verification.set_query_verified(instance["id"], body.port)
+    return {"verified": True}
+
+
+@router.delete("/verify/query")
+async def unverify_query_port() -> dict[str, Any]:
+    instance = _require_active_instance()
+    network_verification.clear_query_verified(instance["id"])
+    return {"verified": False}
+
+
+@router.post("/verify/admin")
+async def verify_admin_port() -> dict[str, Any]:
+    network_verification.set_admin_verified(ADMIN_PORT)
+    return {"verified": True}
+
+
+@router.delete("/verify/admin")
+async def unverify_admin_port() -> dict[str, Any]:
+    network_verification.clear_admin_verified()
+    return {"verified": False}
 
 
 @router.get("/firewall/status")
