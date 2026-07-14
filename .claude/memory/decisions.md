@@ -771,3 +771,25 @@ Loosening permissions on a shared install folder via `icacls` so Program Files c
 ### Date
 
 2026-07-13
+
+---
+
+### Decision
+
+`app/services/native_dialog.py:pick_folder()` shows its native folder picker via a short-lived PowerShell subprocess (`System.Windows.Forms.FolderBrowserDialog`) instead of `tkinter` in-process (TICKET-0131).
+
+### Reason
+
+User report: clicking any "Browse" button (Import Server, deploy location, UE4SS Mods folder, save import) could close the entire AutoPalExpress process outright. Root cause: every caller invokes `pick_folder()` via `asyncio.to_thread`, so the `tkinter.Tk()` root it created was always initialized on a `ThreadPoolExecutor` worker thread, never the process's actual main thread (uvicorn's event loop occupies that). Tcl/Tk is not safe to initialize outside the main thread - this could bring down the whole packaged process with a low-level native failure that bypasses Python's own exception handling entirely, rather than failing gracefully.
+
+### Alternatives
+
+Route the dialog through the main thread instead (e.g., a queue the main thread polls) - rejected as needlessly complex and still blocks uvicorn's event loop for as long as the dialog is open, which a subprocess avoids for free. Use a native Win32 COM folder-picker (`IFileDialog`) directly via `ctypes`/`comtypes` - rejected as more code for the same result; PowerShell's WinForms dialog is simpler and already how this project shells out to Windows-native functionality elsewhere.
+
+### Consequences
+
+Same `pick_folder(title, initial_dir=None) -> str | None` signature, so none of the four call sites needed to change. Verified with two real, live end-to-end tests (not just code review) - a Cancel path and a real folder selection - both driven through the exact `asyncio.to_thread` pattern the real routes use, confirming neither crashes. Slightly higher per-call latency (spawning a PowerShell process vs. an in-process Tk root) - not noticeable for an occasional user-initiated Browse click.
+
+### Date
+
+2026-07-14
