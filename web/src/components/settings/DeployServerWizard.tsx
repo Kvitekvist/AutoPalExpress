@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
+import { SpaceInvadersGame } from "@/components/fantasy/SpaceInvadersGame";
 import { useNotifications } from "@/hooks/useNotifications";
 
 interface DeployServerWizardProps {
@@ -190,6 +191,12 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
 
         {status !== "idle" && (
           <div className="space-y-3">
+            {status === "running" && (
+              <SpaceInvadersGame
+                shipStyle="squid"
+                caption={t("settings.deploy.waitGameCaption", { defaultValue: "Use ← → and Space while your server downloads..." })}
+              />
+            )}
             <div className="h-48 overflow-y-auto rounded-md border border-stone-700 bg-abyss-950/60 p-3 font-mono text-[11px] leading-relaxed text-parchment-300/70">
               {log.map((line, i) => (
                 <div key={i}>{line}</div>

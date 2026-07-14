@@ -39,13 +39,51 @@ function makeInvaders(): Invader[] {
   return invaders;
 }
 
+function drawBlockShip(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  ctx.fillStyle = "#e8c874";
+  ctx.fillRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT);
+}
+
+// A simple, original squid-pal-inspired ship (round mantle + trailing
+// tentacles) - not a reproduction of any specific game's artwork, just a
+// small homage since the user wanted something squid-like here.
+function drawSquidShip(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  const centerX = x + PLAYER_WIDTH / 2;
+  const mantleY = y + 3;
+
+  ctx.fillStyle = "#b48ce6";
+  ctx.beginPath();
+  ctx.ellipse(centerX, mantleY, PLAYER_WIDTH / 2, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#2b1a40";
+  ctx.fillRect(centerX - 6, mantleY - 1, 2, 2);
+  ctx.fillRect(centerX + 4, mantleY - 1, 2, 2);
+
+  ctx.fillStyle = "#9668cc";
+  const tentacleCount = 4;
+  const spacing = (PLAYER_WIDTH - 6) / (tentacleCount - 1);
+  for (let i = 0; i < tentacleCount; i++) {
+    const tx = x + 3 + i * spacing;
+    ctx.fillRect(tx, y + 6, 2, 6);
+  }
+}
+
+export type ShipStyle = "block" | "squid";
+
+interface SpaceInvadersGameProps {
+  shipStyle?: ShipStyle;
+  caption?: string;
+}
+
 /**
- * A tiny, self-contained Space Invaders game shown while the app checks
- * auth status on startup - it just unmounts (per React's normal behavior)
- * the moment that check resolves and a real screen takes over, so there's
- * no separate "disappear" logic to write.
+ * A tiny, self-contained Space Invaders game - originally shown while the
+ * app checks auth status on startup, now also reused during a server
+ * deploy's wait (TICKET-0138). It just unmounts (per React's normal
+ * behavior) whenever its parent stops rendering it, so there's no separate
+ * "disappear" logic needed at either call site.
  */
-export function SpaceInvadersLoader() {
+export function SpaceInvadersGame({ shipStyle = "block", caption }: SpaceInvadersGameProps) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   React.useEffect(() => {
@@ -53,6 +91,8 @@ export function SpaceInvadersLoader() {
     const context = canvas?.getContext("2d");
     if (!canvas || !context) return;
     const ctx: CanvasRenderingContext2D = context;
+
+    const drawShip = shipStyle === "squid" ? drawSquidShip : drawBlockShip;
 
     const keys: Record<string, boolean> = {};
     let playerX = WIDTH / 2 - PLAYER_WIDTH / 2;
@@ -116,8 +156,7 @@ export function SpaceInvadersLoader() {
       ctx.fillStyle = "#0b0e14";
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      ctx.fillStyle = "#e8c874";
-      ctx.fillRect(playerX, HEIGHT - PLAYER_HEIGHT - 6, PLAYER_WIDTH, PLAYER_HEIGHT);
+      drawShip(ctx, playerX, HEIGHT - PLAYER_HEIGHT - 6);
 
       ctx.fillStyle = "#7fd4ff";
       for (const b of bullets) ctx.fillRect(b.x - 1, b.y, 2, 6);
@@ -138,12 +177,12 @@ export function SpaceInvadersLoader() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [shipStyle]);
 
   return (
     <div className="flex flex-col items-center gap-3">
       <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} className="rounded-md border border-gold-600/30" />
-      <p className="text-xs text-parchment-300/40">Use ← → and Space while the realm awakens...</p>
+      <p className="text-xs text-parchment-300/40">{caption ?? "Use ← → and Space while you wait..."}</p>
     </div>
   );
 }

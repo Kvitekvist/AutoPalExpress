@@ -4,7 +4,7 @@ import { UNAUTHORIZED_EVENT } from "@/api/httpClient";
 import type { AuthUser } from "@/types/models";
 import { SetupScreen } from "@/components/auth/SetupScreen";
 import { LoginScreen } from "@/components/auth/LoginScreen";
-import { SpaceInvadersLoader } from "@/components/fantasy/SpaceInvadersLoader";
+import { SpaceInvadersGame } from "@/components/fantasy/SpaceInvadersGame";
 import { setLanguage as setI18nLanguage } from "@/i18n";
 
 interface AuthContextValue {
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (phase === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-noise text-parchment-300/50">
-        <SpaceInvadersLoader />
+        <SpaceInvadersGame caption="Use ← → and Space while the realm awakens..." />
       </div>
     );
   }
