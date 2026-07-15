@@ -22,6 +22,11 @@ export async function runBackupNow(): Promise<BackupRecord> {
   return api.post<BackupRecord>("/api/automation/backups/run");
 }
 
+// POST /api/automation/backups/{timestamp}/open
+export async function openBackupFolder(timestamp: string): Promise<{ opened: boolean }> {
+  return api.post<{ opened: boolean }>(`/api/automation/backups/${encodeURIComponent(timestamp)}/open`);
+}
+
 // POST /api/automation/save-import/browse
 export async function browseSaveImportDir(): Promise<{ path: string | null }> {
   return api.post<{ path: string | null }>("/api/automation/save-import/browse");

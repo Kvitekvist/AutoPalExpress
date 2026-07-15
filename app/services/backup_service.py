@@ -77,6 +77,7 @@ async def run_backup(instance: dict[str, Any]) -> dict[str, Any]:
         "timestamp": dest.name,
         "sizeBytes": await asyncio.to_thread(_dir_size, dest),
         "liveSaveForced": live_save_forced,
+        "folder": str(dest),
     }
     (dest / "meta.json").write_text(json.dumps(record), encoding="utf-8")
 
@@ -100,6 +101,7 @@ async def backup_before_import(instance: dict[str, Any]) -> dict[str, Any] | Non
         "sizeBytes": await asyncio.to_thread(_dir_size, dest),
         "liveSaveForced": False,
         "preImport": True,
+        "folder": str(dest),
     }
     (dest / "meta.json").write_text(json.dumps(record), encoding="utf-8")
 
@@ -113,5 +115,10 @@ def list_backups(instance_id: str) -> list[dict[str, Any]]:
     for folder in sorted(_backups_dir(instance_id).iterdir(), reverse=True):
         meta_path = folder / "meta.json"
         if meta_path.is_file():
-            records.append(json.loads(meta_path.read_text(encoding="utf-8")))
+            record = json.loads(meta_path.read_text(encoding="utf-8"))
+            # Always derived from the real folder rather than trusted from
+            # storage, so backups made before this field existed still show
+            # a correct path instead of being missing one.
+            record["folder"] = str(folder)
+            records.append(record)
     return records

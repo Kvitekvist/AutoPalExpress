@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Backup folder path in the UI (TICKET-0151):** Recent Backups now has an "Open Folder" button per row, instead of needing to search the data folder by hand to find where a backup actually lives.
+
 ## 1.0.7 - 2026-07-14
 
 - Installer checksum (SHA256): `1AA87767D2D1B28DAE47EFF8D7DDBC6CD9A2CF0C66C45019679DD8506002E8D9`.

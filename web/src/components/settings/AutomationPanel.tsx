@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { RefreshCw, Save, TriangleAlert, HardDriveDownload } from "lucide-react";
+import { RefreshCw, Save, TriangleAlert, HardDriveDownload, FolderOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { automationApi } from "@/api";
 import type { AutomationConfig, BackupRecord, ScheduleConfig, RestartScheduleConfig } from "@/types/models";
@@ -108,6 +108,7 @@ export function AutomationPanel() {
   const [saving, setSaving] = React.useState(false);
   const [backups, setBackups] = React.useState<BackupRecord[]>([]);
   const [backingUp, setBackingUp] = React.useState(false);
+  const [openingFolder, setOpeningFolder] = React.useState<string | null>(null);
   const notifications = useNotifications();
 
   const refreshBackups = React.useCallback(() => {
@@ -159,12 +160,45 @@ export function AutomationPanel() {
     }
   }
 
+  async function handleOpenBackupFolder(b: BackupRecord) {
+    setOpeningFolder(b.timestamp);
+    try {
+      await automationApi.openBackupFolder(b.timestamp);
+    } catch (e) {
+      notifications.error({
+        title: t("settings.automation.openFolderFailedTitle", { defaultValue: "Could not open folder" }),
+        message: e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
+      });
+    } finally {
+      setOpeningFolder(null);
+    }
+  }
+
   const yes = t("settings.automation.yes", { defaultValue: "Yes" });
   const no = t("settings.automation.no", { defaultValue: "No" });
   const backupColumns: GuildTableColumn<BackupRecord>[] = [
     { key: "timestamp", header: t("settings.automation.when", { defaultValue: "When" }), render: (b) => formatTimestamp(b.timestamp) },
     { key: "sizeBytes", header: t("settings.automation.size", { defaultValue: "Size" }), align: "center", render: (b) => formatBytes(b.sizeBytes) },
     { key: "liveSaveForced", header: t("settings.automation.freshSave", { defaultValue: "Fresh Save" }), align: "right", render: (b) => (b.liveSaveForced ? yes : no) },
+    {
+      key: "folder",
+      header: t("settings.automation.folder", { defaultValue: "Folder" }),
+      align: "right",
+      render: (b) => (
+        <RuneButton
+          type="button"
+          variant="ghost"
+          size="sm"
+          icon={<FolderOpen />}
+          onClick={() => handleOpenBackupFolder(b)}
+          disabled={openingFolder === b.timestamp}
+        >
+          {openingFolder === b.timestamp
+            ? t("settings.automation.opening", { defaultValue: "Opening..." })
+            : t("settings.automation.openFolder", { defaultValue: "Open Folder" })}
+        </RuneButton>
+      ),
+    },
   ];
 
   if (!config) {

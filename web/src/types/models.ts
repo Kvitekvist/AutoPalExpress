@@ -164,6 +164,7 @@ export interface BackupRecord {
   timestamp: string;
   sizeBytes: number;
   liveSaveForced: boolean;
+  folder: string;
 }
 
 export interface SaveImportCandidate {

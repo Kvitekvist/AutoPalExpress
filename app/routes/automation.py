@@ -1,4 +1,6 @@
 import asyncio
+import os
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -84,6 +86,25 @@ async def run_backup_now() -> dict[str, Any]:
         return await backup_service.run_backup(instance)
     except FileNotFoundError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/backups/{timestamp}/open")
+async def open_backup_folder(timestamp: str) -> dict[str, Any]:
+    """Opens a specific backup's folder in Explorer - added after user
+    feedback that finding where a backup actually lives on disk (to restore
+    it manually) required hunting through the data folder by hand."""
+    instance = _require_active_instance()
+    match = next((b for b in backup_service.list_backups(instance["id"]) if b["timestamp"] == timestamp), None)
+    if not match:
+        raise HTTPException(status_code=404, detail="No such backup.")
+    folder = Path(match["folder"])
+    if not folder.is_dir():
+        raise HTTPException(status_code=400, detail=f"'{folder}' no longer exists on this machine.")
+    try:
+        os.startfile(str(folder))  # type: ignore[attr-defined]
+    except OSError as e:
+        raise HTTPException(status_code=500, detail=f"Could not open the backup folder: {e}")
+    return {"opened": True}
 
 
 @router.post("/save-import/browse")
