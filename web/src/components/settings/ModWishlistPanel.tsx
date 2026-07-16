@@ -6,13 +6,20 @@ import type { Mod, ModWishlistRequest } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useActiveQuestStep } from "@/hooks/useActiveQuestStep";
+import { completeQuestStep } from "@/lib/questCompletion";
 
 export function ModWishlistPanel() {
   const { t } = useTranslation();
   const notifications = useNotifications();
+  const { nextStep } = useActiveQuestStep();
   const [requests, setRequests] = React.useState<ModWishlistRequest[]>([]);
   const [installedMods, setInstalledMods] = React.useState<Mod[]>([]);
   const [busyId, setBusyId] = React.useState<string | null>(null);
+  // Session-scoped: how many approvals have happened while approve_one is
+  // the active Mod Supervisor step, since a wishlist request is removed
+  // once decided and can't be counted after the fact from persisted state.
+  const approvedDuringQuest = React.useRef(0);
 
   React.useEffect(() => {
     modsApi.getWishlist().then(setRequests);
@@ -26,6 +33,12 @@ export function ModWishlistPanel() {
         ? await modsApi.approveWishlistRequest(request.id)
         : await modsApi.denyWishlistRequest(request.id);
       setRequests(updated);
+      if (approve && nextStep?.id === "approve_one") {
+        approvedDuringQuest.current += 1;
+        if (approvedDuringQuest.current >= 2) {
+          completeQuestStep("approve_one");
+        }
+      }
       notifications.success({
         title: approve
           ? t("superAdmin.modWishlist.approvedTitle", { defaultValue: "Mod approved and installed" })

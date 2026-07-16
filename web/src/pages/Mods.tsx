@@ -14,6 +14,8 @@ import { NexusBrowseDialog } from "@/components/mods/NexusBrowseDialog";
 import { Ue4ssPanel } from "@/components/mods/Ue4ssPanel";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useAuth } from "@/hooks/useAuth";
+import { completeQuestStep } from "@/lib/questCompletion";
+import { QuestSpotlight } from "@/components/university/QuestSpotlight";
 
 export default function Mods() {
   const { t } = useTranslation();
@@ -40,6 +42,7 @@ export default function Mods() {
     const withPriority = next.map((m, i) => ({ ...m, loadPriority: i + 1 }));
     setMods(withPriority);
     await modsApi.reorderMods(withPriority.map((m) => m.id));
+    completeQuestStep("reorder");
   }
 
   async function handleToggle(mod: Mod, next: boolean) {
@@ -47,6 +50,9 @@ export default function Mods() {
     try {
       const updated = next ? await modsApi.enableMod(mod.id) : await modsApi.disableMod(mod.id);
       setMods(updated);
+      if (updated.length > 0 && updated.every((m) => m.status !== "enabled")) {
+        completeQuestStep("disable_all");
+      }
       notifications.success({
         title: next
           ? t("mods.notifications.enabledTitle", { defaultValue: "Mod enabled" })
@@ -175,19 +181,21 @@ export default function Mods() {
             {pendingNewRequests.map((request) => (
               <PendingModCard key={request.id} request={request} />
             ))}
-            <Reorder.Group axis="y" values={mods} onReorder={handleReorder} className="space-y-4">
-              {mods.map((mod) => (
-                <ModCard
-                  key={mod.id}
-                  mod={mod}
-                  onToggle={handleToggle}
-                  onRemove={setRemoveTarget}
-                  onRequestUpdate={handleRequestUpdate}
-                  updateRequested={wishlist.some((r) => r.nexusModId === mod.sourceModId)}
-                  busy={busyId === mod.id}
-                />
-              ))}
-            </Reorder.Group>
+            <QuestSpotlight stepId={["reorder", "disable_all"]}>
+              <Reorder.Group axis="y" values={mods} onReorder={handleReorder} className="space-y-4">
+                {mods.map((mod) => (
+                  <ModCard
+                    key={mod.id}
+                    mod={mod}
+                    onToggle={handleToggle}
+                    onRemove={setRemoveTarget}
+                    onRequestUpdate={handleRequestUpdate}
+                    updateRequested={wishlist.some((r) => r.nexusModId === mod.sourceModId)}
+                    busy={busyId === mod.id}
+                  />
+                ))}
+              </Reorder.Group>
+            </QuestSpotlight>
           </div>
         )}
       </ScrollPanel>

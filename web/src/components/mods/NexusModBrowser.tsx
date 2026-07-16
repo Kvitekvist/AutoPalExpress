@@ -9,6 +9,8 @@ import { AncientTabs, AncientTabsList, AncientTabsTrigger } from "@/components/f
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { NexusModCard } from "@/components/mods/NexusModCard";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useActiveQuestStep } from "@/hooks/useActiveQuestStep";
+import { completeQuestStep } from "@/lib/questCompletion";
 import { cn } from "@/lib/utils";
 
 interface ModsPageState {
@@ -29,6 +31,7 @@ interface NexusModBrowserProps {
 export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
   const { t } = useTranslation();
   const notifications = useNotifications();
+  const { nextStep } = useActiveQuestStep();
   const [list, setList] = React.useState<NexusModList>("trending");
   const [cache, setCache] = React.useState<Partial<Record<NexusModList, ModsPageState>>>({});
   const [loading, setLoading] = React.useState(false);
@@ -166,6 +169,16 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
     try {
       const updated = await modsApi.addToWishlist(mod);
       setWishlist(updated);
+      if (nextStep?.id === "wishlist_one") {
+        if (updated.length >= 2) {
+          completeQuestStep("wishlist_one");
+        } else {
+          notifications.info({
+            title: "One more to go!",
+            message: "Wishlist one more mod to continue your Mod Supervisor training.",
+          });
+        }
+      }
       notifications.success({
         title: t("mods.nexusBrowser.requestedTitle", { defaultValue: "Added to server wishlist" }),
         message: t("mods.nexusBrowser.requestedMessage", {
