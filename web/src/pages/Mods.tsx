@@ -3,11 +3,12 @@ import { Link } from "react-router-dom";
 import { Reorder } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { BookOpen, ScrollText, TriangleAlert } from "lucide-react";
-import { modsApi } from "@/api";
+import { modsApi, serverSettingsApi } from "@/api";
 import type { Mod, ModsPathInfo, ModWishlistRequest } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
+import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
 import { ModCard } from "@/components/mods/ModCard";
 import { PendingModCard } from "@/components/mods/PendingModCard";
 import { NexusBrowseDialog } from "@/components/mods/NexusBrowseDialog";
@@ -26,6 +27,8 @@ export default function Mods() {
   const [browseOpen, setBrowseOpen] = React.useState(false);
   const [modsPathInfo, setModsPathInfo] = React.useState<ModsPathInfo | null>(null);
   const [wishlist, setWishlist] = React.useState<ModWishlistRequest[]>([]);
+  const [allowMods, setAllowMods] = React.useState<boolean | null>(null);
+  const [savingAllowMods, setSavingAllowMods] = React.useState(false);
   const notifications = useNotifications();
   const { user } = useAuth();
 
@@ -36,7 +39,30 @@ export default function Mods() {
     });
     modsApi.getModsPath().then(setModsPathInfo);
     modsApi.getWishlist().then(setWishlist);
+    serverSettingsApi
+      .getSettings()
+      .then(({ fields }) => {
+        const field = fields.find((f) => f.key === "bAllowClientMod");
+        setAllowMods(field ? Boolean(field.value) : null);
+      })
+      .catch(() => setAllowMods(null));
   }, []);
+
+  // Synchronized with World Settings' "Allow Client Mods" field - both read
+  // and write the same bAllowClientMod ini value through the same endpoint,
+  // so toggling here or there stays in sync with no separate storage.
+  async function handleToggleAllowMods(checked: boolean) {
+    setSavingAllowMods(true);
+    try {
+      await serverSettingsApi.updateSettings({ bAllowClientMod: checked });
+      setAllowMods(checked);
+      if (checked) {
+        completeQuestStep("mods_choice");
+      }
+    } finally {
+      setSavingAllowMods(false);
+    }
+  }
 
   async function handleReorder(next: Mod[]) {
     const withPriority = next.map((m, i) => ({ ...m, loadPriority: i + 1 }));
@@ -148,6 +174,22 @@ export default function Mods() {
               </span>
             )}
           </div>
+        )}
+
+        {allowMods !== null && (
+          <QuestSpotlight stepId="mods_choice" className="mb-5">
+            <EnchantedToggle
+              id="allow-mods"
+              checked={allowMods}
+              disabled={savingAllowMods}
+              onCheckedChange={handleToggleAllowMods}
+              label={t("mods.allowMods", { defaultValue: "Allow Mods" })}
+              description={t("mods.allowModsDescription", {
+                defaultValue:
+                  "Lets players with client mods enabled join. Synced with World Settings' Allow Client Mods field.",
+              })}
+            />
+          </QuestSpotlight>
         )}
 
         <div className="mb-5 flex flex-wrap items-center gap-4 text-xs text-parchment-300/60">

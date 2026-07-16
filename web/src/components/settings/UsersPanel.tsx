@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Users as UsersIcon, Copy, Check, Trash2, UserPlus } from "lucide-react";
-import { usersApi } from "@/api";
-import type { AuthUser, InviteCode } from "@/types/models";
+import { Users as UsersIcon, Copy, Check, Trash2, UserPlus, GraduationCap } from "lucide-react";
+import { usersApi, universityApi } from "@/api";
+import type { AuthUser, InviteCode, AdminBasicsStatus } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
@@ -16,11 +16,16 @@ export function UsersPanel() {
   const [removing, setRemoving] = React.useState(false);
   const [creatingInvite, setCreatingInvite] = React.useState(false);
   const [copiedCode, setCopiedCode] = React.useState<string | null>(null);
+  const [adminBasicsStatus, setAdminBasicsStatus] = React.useState<AdminBasicsStatus[]>([]);
   const notifications = useNotifications();
 
   const refresh = React.useCallback(() => {
     usersApi.listUsers().then(setUsers);
     usersApi.listInvites().then(setInvites);
+    universityApi
+      .getAdminBasicsStatus()
+      .then(setAdminBasicsStatus)
+      .catch(() => {});
   }, []);
 
   React.useEffect(() => {
@@ -95,6 +100,24 @@ export function UsersPanel() {
                   {t("topbar.userMenu.superAdmin", { defaultValue: "Super Admin" })}
                 </span>
               )}
+              {u.role !== "super_admin" &&
+                (() => {
+                  const graduated = adminBasicsStatus.find((s) => s.userId === u.id)?.graduatedAt;
+                  return (
+                    <span
+                      className={
+                        graduated
+                          ? "ml-2 flex items-center gap-1 text-[10px] font-normal uppercase tracking-wide text-life-400"
+                          : "ml-2 text-[10px] font-normal uppercase tracking-wide text-parchment-300/35"
+                      }
+                    >
+                      {graduated && <GraduationCap className="h-3 w-3" />}
+                      {graduated
+                        ? t("settings.users.adminBasicsPassed", { defaultValue: "Admin Basics passed" })
+                        : t("settings.users.adminBasicsNotYet", { defaultValue: "Admin Basics not finished" })}
+                    </span>
+                  );
+                })()}
             </p>
             {u.role !== "super_admin" && (
               <RuneButton type="button" variant="danger" size="sm" icon={<Trash2 />} onClick={() => setRemoveTarget(u)}>
