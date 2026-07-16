@@ -4,6 +4,7 @@ import time
 from typing import Any
 
 from app import storage
+from app.services import auth, instance_store
 
 _STORE = "university_progress"
 
@@ -11,6 +12,7 @@ COURSES: dict[str, dict[str, Any]] = {
     "super_admin": {
         "title": "Authorized AutoPalExpress Super Admin",
         "shortTitle": "Super Admin Degree",
+        "description": "Learn to set up the server.",
         "roles": ("super_admin",),
         "autoStart": True,
         "steps": (
@@ -73,6 +75,7 @@ COURSES: dict[str, dict[str, Any]] = {
     "mod_supervisor": {
         "title": "AutoPalExpress Mod Supervisor",
         "shortTitle": "Mod Supervisor Degree",
+        "description": "Learn to deploy mods.",
         "roles": ("super_admin",),
         "autoStart": False,
         "requires": "super_admin",
@@ -85,26 +88,14 @@ COURSES: dict[str, dict[str, Any]] = {
             ),
             (
                 "wishlist_one",
-                "Wishlist your first mod",
-                "Browse Nexus and add one suitable mod to the wishlist.",
-                "/mods",
-            ),
-            (
-                "wishlist_two",
-                "Wishlist a second mod",
-                "Add a second mod so you can practice reviewing a small change set.",
+                "Wishlist two mods",
+                "Browse Nexus and add two suitable mods to the wishlist.",
                 "/mods",
             ),
             (
                 "approve_one",
-                "Approve the first mod",
-                "Review its source and approve it from Mod Wishlist.",
-                "/mod-wishlist",
-            ),
-            (
-                "approve_two",
-                "Approve the second mod",
-                "Approve the second request and confirm both installs.",
+                "Approve both mods",
+                "Review each mod's source and approve both from Mod Wishlist.",
                 "/mod-wishlist",
             ),
             ("reorder", "Change mod order", "Move a mod and understand that order can affect compatibility.", "/mods"),
@@ -119,6 +110,7 @@ COURSES: dict[str, dict[str, Any]] = {
     "admin_basics": {
         "title": "AutoPalExpress Server Administrator",
         "shortTitle": "Admin Basics Degree",
+        "description": "Learn to manage the server.",
         "roles": ("admin", "super_admin"),
         "autoStart": True,
         "steps": (
@@ -197,6 +189,7 @@ def _serialize(course_id: str, progress: dict[str, Any], role: str) -> dict[str,
         "id": course_id,
         "title": course["title"],
         "shortTitle": course["shortTitle"],
+        "description": course.get("description"),
         "available": _allowed(course, role),
         "active": progress.get("active", False),
         "graduatedAt": progress.get("graduatedAt"),
@@ -218,6 +211,20 @@ def get_catalog(user: dict[str, Any]) -> dict[str, Any]:
             courses[preferred] = {"active": True, "completedSteps": [], "graduatedAt": None}
             user_progress["activeCourse"] = preferred
             _save(data)
+
+    # "Create or import a server" is objectively checkable persisted state,
+    # not a UI event - auto-complete it here rather than needing a frontend
+    # trigger, so it's already ticked off by the time a fresh super admin
+    # first opens the quest tracker.
+    super_admin_progress = courses.get("super_admin")
+    if (
+        super_admin_progress
+        and "create_server" not in super_admin_progress.get("completedSteps", [])
+        and instance_store.list_instances()
+    ):
+        super_admin_progress.setdefault("completedSteps", []).append("create_server")
+        _save(data)
+
     views = [_serialize(cid, courses.get(cid, {}), user["role"]) for cid in allowed]
     return {"activeCourse": user_progress["activeCourse"], "courses": views}
 
@@ -260,3 +267,37 @@ def complete_step(user: dict[str, Any], course_id: str, step_id: str) -> dict[st
         progress["activeCourse"] = None
     _save(data)
     return get_catalog(user)
+
+
+def retake(user: dict[str, Any], course_id: str) -> dict[str, Any]:
+    """Resets a course's progress and reactivates it, so a graduate can be
+    guided through it again - unlike activate(), this is allowed even if the
+    course was already graduated (that's the whole point of a retake)."""
+    if course_id not in COURSES or not _allowed(COURSES[course_id], user["role"]):
+        raise UniversityError("This course is not available for your role.")
+    data = _load()
+    progress = data.setdefault(user["id"], {"activeCourse": None, "courses": {}})
+    for value in progress["courses"].values():
+        value["active"] = False
+    progress["courses"][course_id] = {"active": True, "completedSteps": [], "graduatedAt": None}
+    progress["activeCourse"] = course_id
+    _save(data)
+    return get_catalog(user)
+
+
+def admin_basics_status() -> list[dict[str, Any]]:
+    """Every non-super-admin user's Admin Basics graduation status, for the
+    super admin's Users & Access panel. Each user's own progress remains
+    readable only by themselves via get_catalog() - this is the one
+    deliberate super-admin-only exception, and only exposes graduation
+    status, not step-by-step progress."""
+    data = _load()
+    return [
+        {
+            "userId": u["id"],
+            "username": u["username"],
+            "graduatedAt": data.get(u["id"], {}).get("courses", {}).get("admin_basics", {}).get("graduatedAt"),
+        }
+        for u in auth.list_users()
+        if u["role"] != "super_admin"
+    ]

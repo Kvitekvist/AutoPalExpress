@@ -25,11 +25,18 @@ export interface UniversityCourse {
   id: string;
   title: string;
   shortTitle: string;
+  description: string | null;
   available: boolean;
   active: boolean;
   graduatedAt: number | null;
   requires?: string | null;
   steps: UniversityStep[];
+}
+
+export interface AdminBasicsStatus {
+  userId: string;
+  username: string;
+  graduatedAt: number | null;
 }
 
 export interface UniversityCatalog {

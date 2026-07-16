@@ -1,6 +1,16 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { Award, Check, Circle, GraduationCap, LockKeyhole, Play, ShieldCheck, UserRoundX } from "lucide-react";
+import {
+  Award,
+  Check,
+  Circle,
+  GraduationCap,
+  LockKeyhole,
+  Play,
+  RotateCcw,
+  ShieldCheck,
+  UserRoundX,
+} from "lucide-react";
 import { universityApi } from "@/api";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
@@ -28,7 +38,7 @@ function Confetti() {
   );
 }
 
-function Diploma({ course }: { course: UniversityCourse }) {
+function Diploma({ course, onRetake, busy }: { course: UniversityCourse; onRetake: () => void; busy: boolean }) {
   return (
     <div className="rounded-lg border-2 border-gold-500/60 bg-gold-950/20 p-5 text-center shadow-rune-gold">
       <Award className="mx-auto h-10 w-10 text-gold-300" />
@@ -37,6 +47,9 @@ function Diploma({ course }: { course: UniversityCourse }) {
       <p className="mt-1 text-xs text-parchment-300/50">
         Completed {new Date((course.graduatedAt ?? 0) * 1000).toLocaleDateString()}
       </p>
+      <RuneButton size="sm" variant="ghost" icon={<RotateCcw />} disabled={busy} onClick={onRetake} className="mt-3">
+        Retake
+      </RuneButton>
     </div>
   );
 }
@@ -170,6 +183,9 @@ export default function University() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="font-display text-gold-200">{course.shortTitle}</h3>
+                      {course.description && (
+                        <p className="mt-0.5 text-sm text-parchment-300/70">{course.description}</p>
+                      )}
                       <p className="mt-1 text-sm text-parchment-300/60">{course.steps.length} ordered lessons</p>
                     </div>
                     {course.graduatedAt ? (
@@ -196,7 +212,12 @@ export default function University() {
             {catalog.courses
               .filter((course) => course.graduatedAt)
               .map((course) => (
-                <Diploma key={course.id} course={course} />
+                <Diploma
+                  key={course.id}
+                  course={course}
+                  busy={busy}
+                  onRetake={() => apply(() => universityApi.retake(course.id))}
+                />
               ))}
             {!catalog.courses.some((course) => course.graduatedAt) && (
               <p className="text-sm text-parchment-300/50">Your earned diplomas will be displayed here.</p>
