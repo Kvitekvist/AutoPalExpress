@@ -173,3 +173,7 @@ Continue adding completed tickets in chronological order.
 ## TICKET-0157 / TICKET-0158 / TICKET-0159 - APE University degrees
 
 Completed 2026-07-16. Added the role-aware APE University training center, auto-starting sequential quest tracker, Super Admin and Mod Supervisor curricula, Admin Basics with a safe fake-player kick lesson, persisted diplomas, and graduation confetti. Course ordering and prerequisites are enforced by the backend rather than only by disabled UI controls.
+
+## TICKET-0161 - Remove the floating quick-actions wand button
+
+Completed 2026-07-16. User request: remove the floating "magic wand" button (bottom-right corner) entirely. Removed `<FloatingActionOrb>` from `AppShell.tsx` and deleted the now-unused `web/src/components/fantasy/FloatingActionOrb.tsx` - its three shortcuts (Save World, Server Control, View Logs) aren't otherwise lost since Server Control/Logs stay reachable from the Sidebar and World Settings/Server Control already have their own explicit Save actions. `npm run typecheck`/`lint`/`format:check`/`build` all clean.

@@ -1,23 +1,11 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { Save, Swords, ScrollText } from "lucide-react";
+import { Outlet } from "react-router-dom";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
 import { AmbientEmbers } from "@/components/fantasy/AmbientEmbers";
-import { FloatingActionOrb } from "@/components/fantasy/FloatingActionOrb";
 import { FirstServerPrompt } from "@/components/onboarding/FirstServerPrompt";
 import { UniversityQuestTracker } from "@/components/university/UniversityQuestTracker";
-import { serverApi } from "@/api";
-import { useNotifications } from "@/hooks/useNotifications";
 
 export function AppShell() {
-  const navigate = useNavigate();
-  const notifications = useNotifications();
-
-  async function handleQuickSave() {
-    await serverApi.saveWorld();
-    notifications.success({ title: "World saved", message: "Your realm's fate has been etched into stone." });
-  }
-
   return (
     <div className="relative min-h-screen bg-noise">
       <FirstServerPrompt />
@@ -30,19 +18,6 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
-      <FloatingActionOrb
-        actions={[
-          { key: "save", label: "Save World", icon: <Save />, variant: "mana", onClick: handleQuickSave },
-          {
-            key: "control",
-            label: "Server Control",
-            icon: <Swords />,
-            variant: "gold",
-            onClick: () => navigate("/control"),
-          },
-          { key: "logs", label: "View Logs", icon: <ScrollText />, variant: "life", onClick: () => navigate("/logs") },
-        ]}
-      />
     </div>
   );
 }
