@@ -1,103 +1,24 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { Play, Square, RotateCw, Save, Megaphone, TimerOff, Ban, ChevronDown, DownloadCloud } from "lucide-react";
-import { serverApi, instancesApi } from "@/api";
-import type { InstanceListView, ServerUpdateCheck, ServerUpdateJob } from "@/types/models";
+import { Square, RotateCw, Save, Megaphone, TimerOff, Ban, DownloadCloud } from "lucide-react";
+import { serverApi } from "@/api";
+import type { ServerUpdateCheck } from "@/types/models";
 import { useServerStatus } from "@/hooks/useServerStatus";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useShutdownCountdown } from "@/hooks/useShutdownCountdown";
+import { useServerUpdateJob } from "@/hooks/useServerUpdateJob";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { CrystalStatus } from "@/components/fantasy/CrystalStatus";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { StartServerControl } from "@/components/serverControl/StartServerControl";
+import { ActionButton } from "@/components/serverControl/ActionButton";
+import { BroadcastDialog } from "@/components/serverControl/BroadcastDialog";
+import { ShutdownCountdownDialog } from "@/components/serverControl/ShutdownCountdownDialog";
+import { UpdateConfirmDialog } from "@/components/serverControl/UpdateConfirmDialog";
+import { ServerUpdateProgressPanel } from "@/components/serverControl/ServerUpdateProgressPanel";
 
 type Action = "start" | "stop" | "restart" | "save" | "check-update" | "update" | null;
-
-const COUNTDOWN_PRESETS = [30, 60, 120, 300];
-
-function StartServerControl({
-  disabled,
-  busy,
-  onStart,
-}: {
-  disabled: boolean;
-  busy: boolean;
-  onStart: () => void;
-}) {
-  const { t } = useTranslation();
-  const [data, setData] = React.useState<InstanceListView | null>(null);
-  const [switching, setSwitching] = React.useState(false);
-
-  const refresh = React.useCallback(() => {
-    instancesApi.list().then(setData);
-  }, []);
-
-  React.useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const active = data?.instances.find((i) => i.id === data.activeId);
-
-  async function handleSwitch(id: string) {
-    if (id === data?.activeId) return;
-    setSwitching(true);
-    await instancesApi.setActive(id);
-    // Start/Stop act on whatever is active - reload so every page (not just
-    // this control) reflects the new target before anyone clicks Start.
-    window.location.reload();
-  }
-
-  return (
-    <div
-      className={cn(
-        "relative flex h-24 w-full flex-col items-center justify-center gap-1 overflow-hidden rounded-md border font-display transition-colors",
-        "border-life-500/50 bg-gradient-to-b from-stone-800 to-abyss-900 text-life-400 hover:border-life-400",
-        (disabled || busy || switching) && "pointer-events-none opacity-40 grayscale"
-      )}
-    >
-      {data && data.instances.length > 1 && (
-        <div className="absolute right-1.5 top-1.5 z-10 pointer-events-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-0.5 rounded border border-stone-600 bg-abyss-950/60 px-1.5 py-0.5 text-[10px] text-parchment-300/60 transition-colors hover:border-gold-600/50 hover:text-gold-300"
-              >
-                {t("serverControl.change", { defaultValue: "Change" })} <ChevronDown className="h-3 w-3" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {data.instances.map((instance) => (
-                <DropdownMenuItem key={instance.id} onSelect={() => handleSwitch(instance.id)}>
-                  {instance.id === data.activeId ? "✓ " : ""}
-                  {t("serverControl.nameAndPort", { defaultValue: "{{name}} · port {{port}}", name: instance.name, port: instance.gamePort })}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
-
-      <button type="button" onClick={onStart} disabled={disabled || busy || switching} className="flex flex-col items-center gap-1">
-        <Play className="h-7 w-7" />
-        <span className="text-sm">{busy ? t("serverControl.working", { defaultValue: "Working..." }) : t("serverControl.startServer", { defaultValue: "Start Server" })}</span>
-        <span className="max-w-[10rem] truncate text-[10px] font-sans normal-case tracking-normal text-parchment-300/50">
-          {active
-            ? t("serverControl.nameAndPort", { defaultValue: "{{name}} · port {{port}}", name: active.name, port: active.gamePort })
-            : t("serverControl.noServerSelected", { defaultValue: "No server selected" })}
-        </span>
-      </button>
-    </div>
-  );
-}
 
 export default function ServerControl() {
   const { t } = useTranslation();
@@ -113,77 +34,15 @@ export default function ServerControl() {
 
   const [shutdownOpen, setShutdownOpen] = React.useState(false);
   const [shutdownSeconds, setShutdownSeconds] = React.useState(60);
-  const [countdown, setCountdown] = React.useState<number | null>(null);
   const [updateCheck, setUpdateCheck] = React.useState<ServerUpdateCheck | null>(null);
   const [updateConfirmOpen, setUpdateConfirmOpen] = React.useState(false);
-  const [updateJobId, setUpdateJobId] = React.useState<string | null>(null);
-  const [updateJob, setUpdateJob] = React.useState<ServerUpdateJob | null>(null);
 
-  React.useEffect(() => {
-    if (countdown === null) return;
-    if (countdown <= 0) {
-      setCountdown(null);
-      serverApi.stopServer().then((s) => {
-        setStatus(s);
-        notifications.error({
-          title: t("serverControl.notifications.wentDarkTitle", { defaultValue: "Server has gone dark" }),
-          message: t("serverControl.notifications.wentDarkMessage", { defaultValue: "The shutdown countdown reached zero." }),
-        });
-      });
-      return;
-    }
-    const timeoutId = window.setTimeout(() => setCountdown((c) => (c === null ? null : c - 1)), 1000);
-    return () => window.clearTimeout(timeoutId);
-  }, [countdown, notifications, setStatus, t]);
+  const { countdown, start: startCountdown, cancel: cancelCountdown } = useShutdownCountdown(setStatus, notifications);
+  const { updateJob, start: startUpdateTracking } = useServerUpdateJob(notifications, () => setBusyAction(null), refresh);
 
   const isOnline = status?.state === "online";
   const isTransitioning = status?.state === "starting" || status?.state === "stopping" || status?.state === "restarting";
   const updateRunning = updateJob?.status === "running" || busyAction === "update";
-
-  React.useEffect(() => {
-    if (!updateJobId) return;
-    let cancelled = false;
-    const poll = async () => {
-      try {
-        const job = await serverApi.getServerUpdateJob(updateJobId);
-        if (cancelled) return;
-        setUpdateJob(job);
-        if (job.status === "done") {
-          setBusyAction(null);
-          setUpdateJobId(null);
-          notifications.success({
-            title: t("serverControl.notifications.serverUpdatedTitle", { defaultValue: "Server updated" }),
-            message: job.installedBuildId
-              ? t("serverControl.notifications.installedBuild", { defaultValue: "Installed build {{id}}.", id: job.installedBuildId })
-              : t("serverControl.notifications.updateFinished", { defaultValue: "SteamCMD finished the update." }),
-          });
-          await refresh();
-        } else if (job.status === "error") {
-          setBusyAction(null);
-          setUpdateJobId(null);
-          notifications.error({
-            title: t("serverControl.notifications.updateFailedTitle", { defaultValue: "Update failed" }),
-            message: job.error ?? t("serverControl.notifications.updateFailedFallback", { defaultValue: "SteamCMD could not update the server." }),
-          });
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setBusyAction(null);
-          setUpdateJobId(null);
-          notifications.error({
-            title: t("serverControl.notifications.updateStatusFailedTitle", { defaultValue: "Update status failed" }),
-            message: e instanceof Error ? e.message : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
-          });
-        }
-      }
-    };
-    poll();
-    const timer = window.setInterval(poll, 1500);
-    return () => {
-      cancelled = true;
-      window.clearInterval(timer);
-    };
-  }, [updateJobId, notifications, refresh, t]);
 
   async function handleStart() {
     setBusyAction("start");
@@ -281,14 +140,7 @@ export default function ServerControl() {
     setBusyAction("update");
     try {
       const job = await serverApi.startServerUpdate();
-      setUpdateJobId(job.jobId);
-      setUpdateJob({
-        status: "running",
-        log: [t("serverControl.notifications.startingUpdateLog", { defaultValue: "Starting SteamCMD update..." })],
-        error: null,
-        installedBuildId: null,
-        latestBuildId: null,
-      });
+      startUpdateTracking(job.jobId);
       setUpdateConfirmOpen(false);
       notifications.info({
         title: t("serverControl.notifications.updateStartedTitle", { defaultValue: "Update started" }),
@@ -320,25 +172,8 @@ export default function ServerControl() {
   }
 
   async function handleStartCountdown() {
-    await serverApi.startShutdownCountdown(shutdownSeconds);
-    setCountdown(shutdownSeconds);
+    await startCountdown(shutdownSeconds);
     setShutdownOpen(false);
-    notifications.warning({
-      title: t("serverControl.notifications.countdownStartedTitle", { defaultValue: "Shutdown countdown started" }),
-      message: t("serverControl.notifications.countdownStartedMessage", {
-        defaultValue: "The server will fall silent in {{seconds}}s.",
-        seconds: shutdownSeconds,
-      }),
-    });
-  }
-
-  async function handleCancelCountdown() {
-    await serverApi.cancelShutdownCountdown();
-    setCountdown(null);
-    notifications.info({
-      title: t("serverControl.notifications.countdownCancelledTitle", { defaultValue: "Countdown cancelled" }),
-      message: t("serverControl.notifications.countdownCancelledMessage", { defaultValue: "The realm's fate has been spared, for now." }),
-    });
   }
 
   return (
@@ -364,7 +199,7 @@ export default function ServerControl() {
               <p className="font-display text-lg font-bold text-blood-400">
                 {t("serverControl.shuttingDownIn", { defaultValue: "Shutting down in {{seconds}}s", seconds: countdown })}
               </p>
-              <RuneButton variant="ghost" size="sm" icon={<Ban />} onClick={handleCancelCountdown}>
+              <RuneButton variant="ghost" size="sm" icon={<Ban />} onClick={cancelCountdown}>
                 {t("serverControl.cancel", { defaultValue: "Cancel" })}
               </RuneButton>
             </div>
@@ -424,33 +259,7 @@ export default function ServerControl() {
         </div>
       </ScrollPanel>
 
-      {updateJob && (
-        <ScrollPanel title={t("serverControl.serverUpdateTitle", { defaultValue: "Server Update" })}>
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-3 text-sm text-parchment-300/70">
-              <span className="capitalize">
-                {t("serverControl.statusLabel", {
-                  defaultValue: "Status: {{status}}",
-                  status: t(`serverControl.jobStatus.${updateJob.status}`, { defaultValue: updateJob.status }),
-                })}
-              </span>
-              {updateJob.installedBuildId && (
-                <span>{t("serverControl.installedBuildShort", { defaultValue: "Installed build {{id}}", id: updateJob.installedBuildId })}</span>
-              )}
-              {updateJob.latestBuildId && (
-                <span>{t("serverControl.latestBuildShort", { defaultValue: "Latest build {{id}}", id: updateJob.latestBuildId })}</span>
-              )}
-            </div>
-            {updateJob.log.length > 0 && (
-              <div className="max-h-48 overflow-auto rounded-md border border-stone-700 bg-abyss-950/60 p-3 font-mono text-[11px] leading-relaxed text-parchment-300/55">
-                {updateJob.log.slice(-12).map((line, index) => (
-                  <div key={`${index}-${line}`}>{line}</div>
-                ))}
-              </div>
-            )}
-          </div>
-        </ScrollPanel>
-      )}
+      {updateJob && <ServerUpdateProgressPanel updateJob={updateJob} />}
 
       <RuneDialog
         open={confirmAction === "stop"}
@@ -478,118 +287,31 @@ export default function ServerControl() {
         confirming={busyAction === "restart"}
       />
 
-      <RuneDialog
+      <UpdateConfirmDialog
         open={updateConfirmOpen}
-        onOpenChange={(o) => setUpdateConfirmOpen(o)}
-        tone="warning"
-        title={t("serverControl.updateDialog.title", { defaultValue: "Update server files?" })}
-        description={
-          isOnline
-            ? t("serverControl.updateDialog.stoppedRequired", {
-                defaultValue: "An update is available, but the server must be stopped before AutoPalExpress can update its files.",
-              })
-            : updateCheck?.latestBuildId
-              ? t("serverControl.updateDialog.availableWithBuild", {
-                  defaultValue: "Steam reports a newer Palworld Dedicated Server build ({{buildId}}). Update the active server now?",
-                  buildId: updateCheck.latestBuildId,
-                })
-              : t("serverControl.updateDialog.available", {
-                  defaultValue: "Steam reports a newer Palworld Dedicated Server build. Update the active server now?",
-                })
-        }
-        confirmLabel={t("serverControl.updateServer", { defaultValue: "Update Server" })}
+        onOpenChange={setUpdateConfirmOpen}
+        isOnline={isOnline}
+        updateCheck={updateCheck}
         onConfirm={handleUpdateServer}
         confirming={busyAction === "update"}
       />
 
-      <Dialog open={broadcastOpen} onOpenChange={setBroadcastOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("serverControl.broadcastDialog.title", { defaultValue: "Broadcast a Message" })}</DialogTitle>
-            <DialogDescription>
-              {t("serverControl.broadcastDialog.description", { defaultValue: "Sent instantly to every player currently in the realm." })}
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            value={broadcastText}
-            onChange={(e) => setBroadcastText(e.target.value)}
-            placeholder={t("serverControl.broadcastDialog.placeholder", { defaultValue: "Type your announcement..." })}
-            autoFocus
-          />
-          <DialogFooter>
-            <RuneButton variant="ghost" onClick={() => setBroadcastOpen(false)} disabled={broadcasting}>
-              {t("serverControl.cancel", { defaultValue: "Cancel" })}
-            </RuneButton>
-            <RuneButton variant="arcane" onClick={handleBroadcast} disabled={broadcasting || !broadcastText.trim()}>
-              {broadcasting
-                ? t("serverControl.broadcastDialog.sending", { defaultValue: "Sending..." })
-                : t("serverControl.broadcastDialog.send", { defaultValue: "Broadcast" })}
-            </RuneButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <BroadcastDialog
+        open={broadcastOpen}
+        onOpenChange={setBroadcastOpen}
+        text={broadcastText}
+        onTextChange={setBroadcastText}
+        onSend={handleBroadcast}
+        sending={broadcasting}
+      />
 
-      <Dialog open={shutdownOpen} onOpenChange={setShutdownOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("serverControl.shutdownDialog.title", { defaultValue: "Begin Shutdown Countdown" })}</DialogTitle>
-            <DialogDescription>
-              {t("serverControl.shutdownDialog.description", {
-                defaultValue: "Choose how long until the server shuts down. Players will remain connected until the countdown ends.",
-              })}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-wrap gap-2">
-            {COUNTDOWN_PRESETS.map((s) => (
-              <button
-                key={s}
-                onClick={() => setShutdownSeconds(s)}
-                className={cn(
-                  "rounded-md border px-4 py-2 text-sm font-medium transition-colors",
-                  shutdownSeconds === s
-                    ? "border-blood-500/60 bg-blood-500/10 text-blood-400"
-                    : "border-stone-600 text-parchment-300/60 hover:border-blood-500/40"
-                )}
-              >
-                {s < 60 ? `${s}s` : `${s / 60}m`}
-              </button>
-            ))}
-          </div>
-          <DialogFooter>
-            <RuneButton variant="ghost" onClick={() => setShutdownOpen(false)}>
-              {t("serverControl.cancel", { defaultValue: "Cancel" })}
-            </RuneButton>
-            <RuneButton variant="danger" onClick={handleStartCountdown}>
-              {t("serverControl.shutdownDialog.begin", { defaultValue: "Begin Countdown" })}
-            </RuneButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ShutdownCountdownDialog
+        open={shutdownOpen}
+        onOpenChange={setShutdownOpen}
+        seconds={shutdownSeconds}
+        onSecondsChange={setShutdownSeconds}
+        onBegin={handleStartCountdown}
+      />
     </div>
-  );
-}
-
-interface ActionButtonProps {
-  icon: React.ReactNode;
-  label: string;
-  variant: "gold" | "arcane" | "mana" | "life" | "danger";
-  disabled?: boolean;
-  loading?: boolean;
-  onClick: () => void;
-}
-
-function ActionButton({ icon, label, variant, disabled, loading, onClick }: ActionButtonProps) {
-  const { t } = useTranslation();
-  return (
-    <RuneButton
-      variant={variant}
-      size="lg"
-      onClick={onClick}
-      disabled={disabled || loading}
-      className="h-24 w-full flex-col gap-2 text-sm"
-    >
-      <span className="[&_svg]:h-7 [&_svg]:w-7">{icon}</span>
-      {loading ? t("serverControl.working", { defaultValue: "Working..." }) : label}
-    </RuneButton>
   );
 }
