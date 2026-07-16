@@ -20,6 +20,8 @@ Core feature set is complete and has been exercised live: multi-instance server 
 
 ## Active Priorities
 
+* COMPLETED 2026-07-16 (TICKET-0160): Fresh-server deployment now exposes five real backend phases (initialize, connect to Steam, download/install, configure, register). The wizard renders completed work with green checks, the current phase as animated gold, an exact failed phase with a red X, and untouched future phases in grey while retaining the raw SteamCMD log. Verified with focused phase/failure tests, the full backend suite, frontend lint, and production build.
+
 * REST API has replaced RCON for game-level control; manual Stop/Restart now try Palworld's REST shutdown path before local process cleanup.
 * `process_manager` now discovers Palworld server processes by executable name and selected server folder for status metrics, even if the backend forgot the original launcher process.
 * Remaining mocked surfaces: the general Settings blob's own fields, plus per-player whisper/teleport on the Players page because Palworld's REST API has no matching commands.

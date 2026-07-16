@@ -52,7 +52,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 
 - Start, stop, restart, and save the real Palworld server.
 - Check for Palworld Dedicated Server updates and run SteamCMD upgrades after confirmation.
-- Deploy a fresh dedicated server with SteamCMD.
+- Deploy a fresh dedicated server with SteamCMD, with a live five-step timeline showing completed, current, failed, and remaining work.
 - Import an existing server.
 - Run multiple separate servers with their own folders, mods, and ports.
 - Keep the server list unique when the same install is re-imported or restored.

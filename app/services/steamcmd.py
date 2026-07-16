@@ -81,12 +81,18 @@ async def ensure_steamcmd() -> Path:
     return STEAMCMD_EXE
 
 
-async def install_palserver(install_dir: Path, on_output: Callable[[str], None] | None = None) -> None:
+async def install_palserver(
+    install_dir: Path,
+    on_output: Callable[[str], None] | None = None,
+    on_ready: Callable[[], None] | None = None,
+) -> None:
     """Runs SteamCMD to install (or update/repair) a standalone PalServer
     copy into install_dir. Streams SteamCMD's own output line-by-line via
     on_output so callers can show live progress for what is normally a
     multi-minute, multi-gigabyte download."""
     exe = await ensure_steamcmd()
+    if on_ready:
+        on_ready()
     install_dir.mkdir(parents=True, exist_ok=True)
 
     args = [

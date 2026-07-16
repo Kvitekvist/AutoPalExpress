@@ -169,3 +169,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 ---
 
 Continue adding completed tickets in chronological order.
+
+## TICKET-0160 - Server deployment progress timeline
+
+Completed 2026-07-16. Added five backend-owned deployment phases and a polished wizard timeline with green completed checks, animated gold current work, red exact failures, and grey future work. The raw SteamCMD log remains visible beneath it.

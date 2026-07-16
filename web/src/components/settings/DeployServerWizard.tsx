@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { SpaceInvadersGame } from "@/components/fantasy/SpaceInvadersGame";
 import { useNotifications } from "@/hooks/useNotifications";
+import { DeployProgressTimeline } from "@/components/settings/DeployProgressTimeline";
+import type { DeployPhase } from "@/types/models";
 
 interface DeployServerWizardProps {
   open: boolean;
@@ -36,6 +38,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
   const [log, setLog] = React.useState<string[]>([]);
   const [status, setStatus] = React.useState<WizardStatus>("idle");
   const [error, setError] = React.useState<string | null>(null);
+  const [phases, setPhases] = React.useState<DeployPhase[]>([]);
   const notifications = useNotifications();
   const logEndRef = React.useRef<HTMLDivElement>(null);
 
@@ -45,6 +48,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       setLog([]);
       setStatus("idle");
       setError(null);
+      setPhases([]);
       setInstallParentDir("");
       return;
     }
@@ -59,6 +63,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
     const interval = setInterval(async () => {
       const job = await instancesApi.getDeployStatus(jobId);
       setLog(job.log);
+      setPhases(job.phases);
       if (job.status === "done") {
         setStatus("done");
         notifications.success({
@@ -82,6 +87,13 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
     setStatus("running");
     setError(null);
     setLog([]);
+    setPhases([
+      { id: "initialize", label: "Initialize deployment", status: "active" },
+      { id: "steam", label: "Connect to Steam", status: "pending" },
+      { id: "install", label: "Download and install server", status: "pending" },
+      { id: "configure", label: "Write server settings", status: "pending" },
+      { id: "register", label: "Register server in AutoPalExpress", status: "pending" },
+    ]);
     try {
       const { jobId: id } = await instancesApi.deploy({
         name: name.trim(),
@@ -241,6 +253,7 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                 })}
               />
             )}
+            {phases.length > 0 && <DeployProgressTimeline phases={phases} />}
             <div className="h-48 overflow-y-auto rounded-md border border-stone-700 bg-abyss-950/60 p-3 font-mono text-[11px] leading-relaxed text-parchment-300/70">
               {log.map((line, i) => (
                 <div key={i}>{line}</div>

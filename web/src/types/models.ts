@@ -328,8 +328,17 @@ export interface InstanceListView {
 
 export type DeployJobStatus = "running" | "done" | "error";
 
+export type DeployPhaseStatus = "pending" | "active" | "done" | "error";
+
+export interface DeployPhase {
+  id: string;
+  label: string;
+  status: DeployPhaseStatus;
+}
+
 export interface DeployJob {
   status: DeployJobStatus;
+  phases: DeployPhase[];
   log: string[];
   error: string | null;
   instanceId: string | null;
