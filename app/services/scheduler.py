@@ -93,9 +93,7 @@ async def _check_restart_and_warning(instance: dict[str, Any], config: dict[str,
         warning_key = f"{restart_key}-warn"
         if _within_catch_up_window(warn_target, now) and _last_warning_fired.get(instance["id"]) != warning_key:
             _last_warning_fired[instance["id"]] = warning_key
-            await _try_broadcast(
-                instance, f"The realm will fall silent for maintenance in {warning_minutes} minutes."
-            )
+            await _try_broadcast(instance, f"The realm will fall silent for maintenance in {warning_minutes} minutes.")
 
     if _within_catch_up_window(restart_target, now) and _last_restart_fired.get(instance["id"]) != restart_key:
         _last_restart_fired[instance["id"]] = restart_key
@@ -110,7 +108,9 @@ async def _check_restart_and_warning(instance: dict[str, Any], config: dict[str,
             await asyncio.to_thread(process_manager.start, instance)
         except ProcessError as e:
             logger.warning("scheduler: restart failed to bring %s back up: %s", instance["name"], e.message)
-            activity_log.log("error", instance["name"], f"Scheduled restart failed to bring the server back up: {e.message}")
+            activity_log.log(
+                "error", instance["name"], f"Scheduled restart failed to bring the server back up: {e.message}"
+            )
 
 
 async def _check_player_presence(instance: dict[str, Any], config: dict[str, Any]) -> None:
@@ -126,9 +126,7 @@ async def _check_player_presence(instance: dict[str, Any], config: dict[str, Any
         return
 
     current = {
-        player_id: palworld_rest.player_display_name(p)
-        for p in players
-        if (player_id := palworld_rest.player_key(p))
+        player_id: palworld_rest.player_display_name(p) for p in players if (player_id := palworld_rest.player_key(p))
     }
     known = _known_players.get(instance["id"])
     if known is None:

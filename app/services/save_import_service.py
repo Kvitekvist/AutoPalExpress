@@ -12,7 +12,7 @@ import logging
 import shutil
 import tempfile
 from collections import deque
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -66,7 +66,7 @@ def _candidate(path: Path) -> dict[str, Any]:
         "path": str(path),
         "name": path.name,
         "sizeBytes": sum(f.stat().st_size for f in path.rglob("*") if f.is_file()),
-        "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
+        "modified": datetime.fromtimestamp(stat.st_mtime, tz=UTC).isoformat(),
         "valid": not issues,
         "issues": issues,
     }

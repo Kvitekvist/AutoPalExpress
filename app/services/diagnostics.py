@@ -56,7 +56,7 @@ def run(force_admin: bool = False) -> dict[str, Any]:
     if not elevated:
         if force_admin:
             raise DiagnosticsError(
-                "Windows didn't allow diagnostics to run with admin rights - click \"Yes\" on the "
+                'Windows didn\'t allow diagnostics to run with admin rights - click "Yes" on the '
                 "permission prompt and try again, or use the regular Run Diagnostics button instead."
             )
         fallback_note = (
@@ -168,4 +168,6 @@ def _run_limited(*, script: Path, data_dir: Path, report_dir: Path) -> None:
     )
     if result.returncode != 0:
         logger.warning("diagnostics: limited run failed, exit=%s stderr=%s", result.returncode, result.stderr.strip())
-        raise DiagnosticsError("Diagnostics could not run, even without admin rights. Try the Start Menu diagnostics shortcut.")
+        raise DiagnosticsError(
+            "Diagnostics could not run, even without admin rights. Try the Start Menu diagnostics shortcut."
+        )

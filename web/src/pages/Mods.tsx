@@ -53,7 +53,10 @@ export default function Mods() {
           : t("mods.notifications.disabledTitle", { defaultValue: "Mod disabled" }),
         message: next
           ? t("mods.notifications.enabledMessage", { defaultValue: "{{name}} runes are now glowing.", name: mod.name })
-          : t("mods.notifications.disabledMessage", { defaultValue: "{{name}} runes are now dormant.", name: mod.name }),
+          : t("mods.notifications.disabledMessage", {
+              defaultValue: "{{name}} runes are now dormant.",
+              name: mod.name,
+            }),
       });
     } finally {
       setBusyId(null);
@@ -120,20 +123,31 @@ export default function Mods() {
         {modsPathInfo && !modsPathInfo.modsPath && (
           <div className="mb-5 flex flex-wrap items-center gap-2 rounded-md border border-gold-600/30 bg-gold-500/5 px-4 py-3 text-xs text-gold-300">
             <TriangleAlert className="h-4 w-4 shrink-0" />
-            <span>{t("mods.noModsPathBanner", { defaultValue: "No Mods folder is configured yet, so verified file installs need Super Admin setup first." })}</span>
+            <span>
+              {t("mods.noModsPathBanner", {
+                defaultValue:
+                  "No Mods folder is configured yet, so verified file installs need Super Admin setup first.",
+              })}
+            </span>
             {user.role === "super_admin" ? (
-              <Link to="/super-admin" className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200">
+              <Link
+                to="/super-admin"
+                className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200"
+              >
                 {t("mods.noModsPathCta", { defaultValue: "Set it up in Super Admin" })}
               </Link>
             ) : (
-              <span className="ml-auto text-gold-300/70">{t("mods.noModsPathAskAdmin", { defaultValue: "Ask the super admin to set it up." })}</span>
+              <span className="ml-auto text-gold-300/70">
+                {t("mods.noModsPathAskAdmin", { defaultValue: "Ask the super admin to set it up." })}
+              </span>
             )}
           </div>
         )}
 
         <div className="mb-5 flex flex-wrap items-center gap-4 text-xs text-parchment-300/60">
           <span>
-            <span className="font-mono text-life-400">{enabledCount}</span> {t("mods.status.enabled", { defaultValue: "enabled" })}
+            <span className="font-mono text-life-400">{enabledCount}</span>{" "}
+            {t("mods.status.enabled", { defaultValue: "enabled" })}
           </span>
           <span>
             <span className="font-mono text-parchment-300/50">{mods.length - enabledCount - brokenCount}</span>{" "}
@@ -141,15 +155,20 @@ export default function Mods() {
           </span>
           {brokenCount > 0 && (
             <span>
-              <span className="font-mono text-blood-400">{brokenCount}</span> {t("mods.status.broken", { defaultValue: "broken" })}
+              <span className="font-mono text-blood-400">{brokenCount}</span>{" "}
+              {t("mods.status.broken", { defaultValue: "broken" })}
             </span>
           )}
-          <span className="ml-auto text-parchment-300/40">{t("mods.dragHint", { defaultValue: "Drag the handle to change load priority" })}</span>
+          <span className="ml-auto text-parchment-300/40">
+            {t("mods.dragHint", { defaultValue: "Drag the handle to change load priority" })}
+          </span>
         </div>
 
         {loading ? (
           <div className="flex h-40 items-center justify-center text-parchment-300/50">
-            <p className="animate-pulse font-display">{t("mods.loading", { defaultValue: "Unsealing the grimoire..." })}</p>
+            <p className="animate-pulse font-display">
+              {t("mods.loading", { defaultValue: "Unsealing the grimoire..." })}
+            </p>
           </div>
         ) : (
           <div className="space-y-4">

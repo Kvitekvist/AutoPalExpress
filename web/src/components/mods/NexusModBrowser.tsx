@@ -57,7 +57,11 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
       .getModList(list)
       .then((page) => setCache((prev) => ({ ...prev, [list]: { items: page.results, totalCount: page.totalCount } })))
       .catch((e) =>
-        setLoadError(e instanceof Error ? e.message : t("mods.nexusBrowser.loadErrorFallback", { defaultValue: "Failed to load mods from Nexus Mods." }))
+        setLoadError(
+          e instanceof Error
+            ? e.message
+            : t("mods.nexusBrowser.loadErrorFallback", { defaultValue: "Failed to load mods from Nexus Mods." })
+        )
       )
       .finally(() => setLoading(false));
   }, [list, cache, t]);
@@ -83,7 +87,11 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
           setSearchError(null);
         })
         .catch((e) =>
-          setSearchError(e instanceof Error ? e.message : t("mods.nexusBrowser.searchErrorFallback", { defaultValue: "Failed to search Nexus Mods." }))
+          setSearchError(
+            e instanceof Error
+              ? e.message
+              : t("mods.nexusBrowser.searchErrorFallback", { defaultValue: "Failed to search Nexus Mods." })
+          )
         )
         .finally(() => setSearching(false));
     }, 400);
@@ -100,9 +108,16 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
     setLoadingMore(true);
     try {
       const page = await nexusApi.getModList(list, current.items.length);
-      setCache((prev) => ({ ...prev, [list]: { items: [...current.items, ...page.results], totalCount: page.totalCount } }));
+      setCache((prev) => ({
+        ...prev,
+        [list]: { items: [...current.items, ...page.results], totalCount: page.totalCount },
+      }));
     } catch (e) {
-      setLoadError(e instanceof Error ? e.message : t("mods.nexusBrowser.loadErrorFallback", { defaultValue: "Failed to load mods from Nexus Mods." }));
+      setLoadError(
+        e instanceof Error
+          ? e.message
+          : t("mods.nexusBrowser.loadErrorFallback", { defaultValue: "Failed to load mods from Nexus Mods." })
+      );
     } finally {
       setLoadingMore(false);
     }
@@ -113,16 +128,22 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
     setSearchingMore(true);
     try {
       const page = await nexusApi.searchMods(query.trim(), searchState.items.length);
-      setSearchState((prev) => (prev ? { items: [...prev.items, ...page.results], totalCount: page.totalCount } : prev));
+      setSearchState((prev) =>
+        prev ? { items: [...prev.items, ...page.results], totalCount: page.totalCount } : prev
+      );
     } catch (e) {
-      setSearchError(e instanceof Error ? e.message : t("mods.nexusBrowser.searchErrorFallback", { defaultValue: "Failed to search Nexus Mods." }));
+      setSearchError(
+        e instanceof Error
+          ? e.message
+          : t("mods.nexusBrowser.searchErrorFallback", { defaultValue: "Failed to search Nexus Mods." })
+      );
     } finally {
       setSearchingMore(false);
     }
   }
 
-  const results = isSearching ? searchState?.items ?? [] : cache[list]?.items ?? [];
-  const totalCount = isSearching ? searchState?.totalCount ?? 0 : cache[list]?.totalCount ?? 0;
+  const results = isSearching ? (searchState?.items ?? []) : (cache[list]?.items ?? []);
+  const totalCount = isSearching ? (searchState?.totalCount ?? 0) : (cache[list]?.totalCount ?? 0);
   const loading_ = isSearching ? searching : loading;
   const loadError_ = isSearching ? searchError : loadError;
   const loadingMore_ = isSearching ? searchingMore : loadingMore;
@@ -135,7 +156,9 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
     // whichever tab's already-loaded list is showing.
     if (isSearching || !query.trim()) return true;
     const q = query.toLowerCase();
-    return m.name.toLowerCase().includes(q) || m.summary.toLowerCase().includes(q) || m.author.toLowerCase().includes(q);
+    return (
+      m.name.toLowerCase().includes(q) || m.summary.toLowerCase().includes(q) || m.author.toLowerCase().includes(q)
+    );
   });
 
   async function handleRequest(mod: NexusModResult) {
@@ -145,12 +168,16 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
       setWishlist(updated);
       notifications.success({
         title: t("mods.nexusBrowser.requestedTitle", { defaultValue: "Added to server wishlist" }),
-        message: t("mods.nexusBrowser.requestedMessage", { defaultValue: "{{name}} is waiting for super-admin review.", name: mod.name }),
+        message: t("mods.nexusBrowser.requestedMessage", {
+          defaultValue: "{{name}} is waiting for super-admin review.",
+          name: mod.name,
+        }),
       });
     } catch (e) {
       notifications.error({
         title: t("mods.nexusBrowser.requestFailedTitle", { defaultValue: "Could not add mod" }),
-        message: e instanceof Error ? e.message : t("mods.nexusBrowser.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("mods.nexusBrowser.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setRequestingId(null);
@@ -161,7 +188,8 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
     <div className="space-y-4">
       <div className="rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs text-gold-400/90">
         {t("mods.nexusBrowser.banner", {
-          defaultValue: "Browse public Nexus mod information and add mods to the server wishlist. The super admin decides whether to install each request.",
+          defaultValue:
+            "Browse public Nexus mod information and add mods to the server wishlist. The super admin decides whether to install each request.",
         })}
       </div>
 
@@ -180,7 +208,9 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("mods.nexusBrowser.searchPlaceholder", { defaultValue: "Search all of Nexus Mods by name..." })}
+          placeholder={t("mods.nexusBrowser.searchPlaceholder", {
+            defaultValue: "Search all of Nexus Mods by name...",
+          })}
           className="pl-9"
           autoFocus
         />
@@ -188,7 +218,8 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
       {isSearching && (
         <p className="text-[11px] text-parchment-300/40">
           {t("mods.nexusBrowser.searchingAllHint", {
-            defaultValue: "Searching all of Nexus Mods, not just the tab above - clear the search to go back to browsing by list.",
+            defaultValue:
+              "Searching all of Nexus Mods, not just the tab above - clear the search to go back to browsing by list.",
           })}
         </p>
       )}

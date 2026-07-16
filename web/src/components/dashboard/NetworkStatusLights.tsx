@@ -77,17 +77,26 @@ export function NetworkStatusLights({ hasInstance }: NetworkStatusLightsProps) {
         <TrafficLight
           label={t("dashboard.networkLights.gamePort", { defaultValue: "Game Port" })}
           color={gameColor}
-          hint={t("dashboard.networkLights.hint", { defaultValue: "Green = reachable or verified, yellow = check manually (or mark verified in Super Admin), red = firewall blocked, grey = not applicable" })}
+          hint={t("dashboard.networkLights.hint", {
+            defaultValue:
+              "Green = reachable or verified, yellow = check manually (or mark verified in Super Admin), red = firewall blocked, grey = not applicable",
+          })}
         />
         <TrafficLight
           label={t("dashboard.networkLights.queryPort", { defaultValue: "Steam Query Port" })}
           color={queryColor}
-          hint={t("dashboard.networkLights.hint", { defaultValue: "Green = reachable or verified, yellow = check manually (or mark verified in Super Admin), red = firewall blocked, grey = not applicable" })}
+          hint={t("dashboard.networkLights.hint", {
+            defaultValue:
+              "Green = reachable or verified, yellow = check manually (or mark verified in Super Admin), red = firewall blocked, grey = not applicable",
+          })}
         />
         <TrafficLight
           label={t("dashboard.networkLights.adminPort", { defaultValue: "Remote Access" })}
           color={adminColor}
-          hint={t("dashboard.networkLights.hint", { defaultValue: "Green = reachable or verified, yellow = check manually (or mark verified in Super Admin), red = firewall blocked, grey = not applicable" })}
+          hint={t("dashboard.networkLights.hint", {
+            defaultValue:
+              "Green = reachable or verified, yellow = check manually (or mark verified in Super Admin), red = firewall blocked, grey = not applicable",
+          })}
         />
       </div>
     </ScrollPanel>

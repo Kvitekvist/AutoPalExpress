@@ -31,7 +31,10 @@ export function Ue4ssPanel() {
       const data = await ue4ssApi.getLatest();
       setLatest(data);
     } catch (e) {
-      const message = e instanceof Error ? e.message : t("mods.ue4ss.checkErrorFallback", { defaultValue: "Couldn't check for the latest UE4SS release." });
+      const message =
+        e instanceof Error
+          ? e.message
+          : t("mods.ue4ss.checkErrorFallback", { defaultValue: "Couldn't check for the latest UE4SS release." });
       notifications.error({ title: t("mods.ue4ss.checkFailedTitle", { defaultValue: "Check failed" }), message });
     } finally {
       setChecking(false);
@@ -46,11 +49,17 @@ export function Ue4ssPanel() {
       notifications.success({
         title: t("mods.ue4ss.installedTitle", { defaultValue: "UE4SS installed" }),
         message: data.installedVersion
-          ? t("mods.ue4ss.installedMessage", { defaultValue: "Version {{version}} is ready.", version: data.installedVersion })
+          ? t("mods.ue4ss.installedMessage", {
+              defaultValue: "Version {{version}} is ready.",
+              version: data.installedVersion,
+            })
           : undefined,
       });
     } catch (e) {
-      const message = e instanceof Error ? e.message : t("mods.ue4ss.installErrorFallback", { defaultValue: "Couldn't install UE4SS." });
+      const message =
+        e instanceof Error
+          ? e.message
+          : t("mods.ue4ss.installErrorFallback", { defaultValue: "Couldn't install UE4SS." });
       notifications.error({ title: t("mods.ue4ss.installFailedTitle", { defaultValue: "Install failed" }), message });
     } finally {
       setInstalling(false);
@@ -117,9 +126,12 @@ export function Ue4ssPanel() {
 
       {latest && (
         <p className="mt-2 text-xs text-parchment-300/50">
-          {t("mods.ue4ss.latestRelease", { defaultValue: "Latest release:" })} <span className="text-parchment-200">{latest.version}</span>
+          {t("mods.ue4ss.latestRelease", { defaultValue: "Latest release:" })}{" "}
+          <span className="text-parchment-200">{latest.version}</span>
           {updateAvailable && (
-            <span className="ml-1.5 text-gold-400">{t("mods.ue4ss.updateAvailable", { defaultValue: "Update available" })}</span>
+            <span className="ml-1.5 text-gold-400">
+              {t("mods.ue4ss.updateAvailable", { defaultValue: "Update available" })}
+            </span>
           )}
         </p>
       )}
@@ -162,9 +174,11 @@ export function Ue4ssPanel() {
       </div>
 
       <p className="mt-3 text-[11px] leading-relaxed text-parchment-300/35">
-        {t("mods.ue4ss.antivirusNoticeBefore", { defaultValue: "Some antivirus software flags UE4SS's" })} <code>dwmapi.dll</code>{" "}
+        {t("mods.ue4ss.antivirusNoticeBefore", { defaultValue: "Some antivirus software flags UE4SS's" })}{" "}
+        <code>dwmapi.dll</code>{" "}
         {t("mods.ue4ss.antivirusNoticeAfter", {
-          defaultValue: "because it uses DLL injection to hook the game; this is a well-known false positive for this tool, not a real threat.",
+          defaultValue:
+            "because it uses DLL injection to hook the game; this is a well-known false positive for this tool, not a real threat.",
         })}
       </p>
 

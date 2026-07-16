@@ -65,7 +65,7 @@ def _ssdp_search(search_target: str, timeout: float = 2.0) -> str | None:
         while time.monotonic() < deadline:
             try:
                 data, _ = sock.recvfrom(4096)
-            except socket.timeout:
+            except TimeoutError:
                 break
             text = data.decode(errors="replace")
             match = re.search(r"^location:\s*(.+)$", text, re.IGNORECASE | re.MULTILINE)
@@ -136,7 +136,9 @@ def _soap_request(gateway: Gateway, action: str, params: dict[str, str] | None =
     if resp.status_code != 200:
         code, description = _parse_soap_fault(resp.text)
         if code:
-            raise UpnpError(f"Router rejected {action}: {description or 'unknown error'} (UPnP error {code})", code=code)
+            raise UpnpError(
+                f"Router rejected {action}: {description or 'unknown error'} (UPnP error {code})", code=code
+            )
         raise UpnpError(f"Router rejected {action}: HTTP {resp.status_code} - {resp.text[:200]}")
     return ElementTree.fromstring(resp.text)
 

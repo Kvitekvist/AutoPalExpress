@@ -31,7 +31,13 @@ export function AppShell() {
       <FloatingActionOrb
         actions={[
           { key: "save", label: "Save World", icon: <Save />, variant: "mana", onClick: handleQuickSave },
-          { key: "control", label: "Server Control", icon: <Swords />, variant: "gold", onClick: () => navigate("/control") },
+          {
+            key: "control",
+            label: "Server Control",
+            icon: <Swords />,
+            variant: "gold",
+            onClick: () => navigate("/control"),
+          },
           { key: "logs", label: "View Logs", icon: <ScrollText />, variant: "life", onClick: () => navigate("/logs") },
         ]}
       />

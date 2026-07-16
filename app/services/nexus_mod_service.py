@@ -34,7 +34,9 @@ async def with_update_status(mods: list[dict[str, Any]]) -> list[dict[str, Any]]
     any) only proves a hash match with something on Nexus, not that they
     came through the Nexus download/wishlist pipeline "Request Update"
     triggers, so they're excluded from the update check entirely."""
-    mods = [{**m, "manuallyInstalled": m["id"].startswith("verified-") or m.get("manuallyInstalled", False)} for m in mods]
+    mods = [
+        {**m, "manuallyInstalled": m["id"].startswith("verified-") or m.get("manuallyInstalled", False)} for m in mods
+    ]
     mod_ids = [m["sourceModId"] for m in mods if m.get("sourceModId") and not m["manuallyInstalled"]]
     if not mod_ids:
         return mods
@@ -98,7 +100,9 @@ def _safe_download_name(name: str, fallback: str) -> str:
     return cleaned or fallback
 
 
-async def install_nexus_mod(instance: dict[str, Any], nexus_mod_id: int, file_id: int | None = None) -> list[dict[str, Any]]:
+async def install_nexus_mod(
+    instance: dict[str, Any], nexus_mod_id: int, file_id: int | None = None
+) -> list[dict[str, Any]]:
     api_key = nexus_session.require_premium_api_key()
     mods_path = local_config.get_mods_path(instance)
     if not mods_path:
@@ -134,7 +138,9 @@ async def install_nexus_mod(instance: dict[str, Any], nexus_mod_id: int, file_id
 
     if not mod_installer.is_supported_archive(dest):
         dest.unlink(missing_ok=True)
-        raise HTTPException(status_code=422, detail="The downloaded Nexus file is not a supported archive (.zip or .7z).")
+        raise HTTPException(
+            status_code=422, detail="The downloaded Nexus file is not a supported archive (.zip or .7z)."
+        )
 
     mod_name = details.get("name") or file_info.get("name") or "Nexus Mod"
     kind = mod_installer.detect_mod_kind(dest)

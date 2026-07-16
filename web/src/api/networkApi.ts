@@ -38,9 +38,7 @@ export async function allowAdminPortFirewall(): Promise<{ ruleExists: boolean }>
 
 // GET /api/network/firewall/game-status?port=X&protocol=UDP
 export async function getGameFirewallStatus(port: number, protocol = "UDP"): Promise<{ ruleExists: boolean }> {
-  return api.get<{ ruleExists: boolean }>(
-    `/api/network/firewall/game-status?port=${port}&protocol=${protocol}`
-  );
+  return api.get<{ ruleExists: boolean }>(`/api/network/firewall/game-status?port=${port}&protocol=${protocol}`);
 }
 
 // POST /api/network/firewall/allow-game-port

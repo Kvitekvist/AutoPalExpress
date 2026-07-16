@@ -28,7 +28,12 @@ export function StatTile({ icon, label, value, hint, accent = "gold", className,
       )}
     >
       <div className="flex items-center gap-2.5">
-        <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full border [&_svg]:h-4 [&_svg]:w-4", ACCENT_STYLES[accent])}>
+        <span
+          className={cn(
+            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border [&_svg]:h-4 [&_svg]:w-4",
+            ACCENT_STYLES[accent]
+          )}
+        >
           {icon}
         </span>
         <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-parchment-300/50">{label}</p>

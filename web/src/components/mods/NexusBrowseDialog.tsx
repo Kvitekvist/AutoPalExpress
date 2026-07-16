@@ -17,7 +17,8 @@ export function NexusBrowseDialog({ open, onOpenChange, installedNames }: NexusB
           <DialogTitle>{t("mods.nexusBrowse.title", { defaultValue: "Browse Nexus Mods" })}</DialogTitle>
           <DialogDescription>
             {t("mods.nexusBrowse.description", {
-              defaultValue: "Search Palworld mods from Nexus Mods and add any of them to the server wishlist for the super admin to review.",
+              defaultValue:
+                "Search Palworld mods from Nexus Mods and add any of them to the server wishlist for the super admin to review.",
             })}
           </DialogDescription>
         </DialogHeader>

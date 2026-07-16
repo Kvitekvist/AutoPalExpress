@@ -107,7 +107,12 @@ def _dedupe_data(data: dict[str, Any]) -> tuple[dict[str, Any], bool]:
             changed = True
         game_port = _as_port(instance.get("gamePort")) or 8211
         query_port = _as_port(instance.get("queryPort"))
-        if not query_port or query_port == game_port or query_port in reserved_game_ports or query_port in reserved_query_ports:
+        if (
+            not query_port
+            or query_port == game_port
+            or query_port in reserved_game_ports
+            or query_port in reserved_query_ports
+        ):
             query_port = default_query_port(game_port, reserved_game_ports | reserved_query_ports)
             instance["queryPort"] = query_port
             changed = True

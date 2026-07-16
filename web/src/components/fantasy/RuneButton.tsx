@@ -40,8 +40,7 @@ const glowByVariant: Record<string, string> = {
 };
 
 export interface RuneButtonProps
-  extends Omit<HTMLMotionProps<"button">, "children">,
-    VariantProps<typeof runeButtonVariants> {
+  extends Omit<HTMLMotionProps<"button">, "children">, VariantProps<typeof runeButtonVariants> {
   icon?: React.ReactNode;
   children?: React.ReactNode;
   glowOnHover?: boolean;

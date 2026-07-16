@@ -66,7 +66,11 @@ export function StartServerControl({
               {data.instances.map((instance) => (
                 <DropdownMenuItem key={instance.id} onSelect={() => handleSwitch(instance.id)}>
                   {instance.id === data.activeId ? "✓ " : ""}
-                  {t("serverControl.nameAndPort", { defaultValue: "{{name}} · port {{port}}", name: instance.name, port: instance.gamePort })}
+                  {t("serverControl.nameAndPort", {
+                    defaultValue: "{{name}} · port {{port}}",
+                    name: instance.name,
+                    port: instance.gamePort,
+                  })}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -74,12 +78,25 @@ export function StartServerControl({
         </div>
       )}
 
-      <button type="button" onClick={onStart} disabled={disabled || busy || switching} className="flex flex-col items-center gap-1">
+      <button
+        type="button"
+        onClick={onStart}
+        disabled={disabled || busy || switching}
+        className="flex flex-col items-center gap-1"
+      >
         <Play className="h-7 w-7" />
-        <span className="text-sm">{busy ? t("serverControl.working", { defaultValue: "Working..." }) : t("serverControl.startServer", { defaultValue: "Start Server" })}</span>
+        <span className="text-sm">
+          {busy
+            ? t("serverControl.working", { defaultValue: "Working..." })
+            : t("serverControl.startServer", { defaultValue: "Start Server" })}
+        </span>
         <span className="max-w-[10rem] truncate text-[10px] font-sans normal-case tracking-normal text-parchment-300/50">
           {active
-            ? t("serverControl.nameAndPort", { defaultValue: "{{name}} · port {{port}}", name: active.name, port: active.gamePort })
+            ? t("serverControl.nameAndPort", {
+                defaultValue: "{{name}} · port {{port}}",
+                name: active.name,
+                port: active.gamePort,
+              })
             : t("serverControl.noServerSelected", { defaultValue: "No server selected" })}
         </span>
       </button>

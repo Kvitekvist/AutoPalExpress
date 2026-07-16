@@ -1,0 +1,19 @@
+target-version = "py311"
+line-length = 120
+
+[lint]
+select = ["E", "F", "I", "UP"]
+ignore = [
+    "E501", # Long lines are common for descriptive strings (help text, error
+             # messages) in this codebase - the formatter already wraps code
+             # structure at line-length; string literals are left alone.
+]
+
+[format]
+docstring-code-format = false
+
+[lint.per-file-ignores]
+# tests/conftest.py sets AUTOPAL_DATA_DIR before importing anything under
+# app.* on purpose (see its module docstring) - the import order is required,
+# not a mistake.
+"tests/conftest.py" = ["E402"]

@@ -1,12 +1,11 @@
 import asyncio
 import logging
-from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services import firewall, instance_store, network_verification, palworld_settings, public_ip, upnp
+from app.services import firewall, instance_store, network_verification, public_ip, upnp
 from app.services.firewall import FirewallError
 from app.services.upnp import UpnpError
 
@@ -107,7 +106,11 @@ async def upnp_status() -> dict[str, Any]:
 
     instance = instance_store.get_active()
     port = _resolve_port(instance) if instance else None
-    query_port = instance_store.resolve_query_port(instance, port) if instance and port and instance.get("useQueryPort") else None
+    query_port = (
+        instance_store.resolve_query_port(instance, port)
+        if instance and port and instance.get("useQueryPort")
+        else None
+    )
 
     try:
         local_ip = await asyncio.to_thread(upnp.local_ip)

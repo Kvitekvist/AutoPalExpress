@@ -8,15 +8,7 @@ interface ScrollPanelProps extends React.HTMLAttributes<HTMLDivElement> {
   noPadding?: boolean;
 }
 
-export function ScrollPanel({
-  title,
-  icon,
-  actions,
-  noPadding,
-  className,
-  children,
-  ...props
-}: ScrollPanelProps) {
+export function ScrollPanel({ title, icon, actions, noPadding, className, children, ...props }: ScrollPanelProps) {
   return (
     <div
       className={cn(
@@ -35,9 +27,7 @@ export function ScrollPanel({
         <div className="flex items-center justify-between gap-3 border-b border-stone-700/80 px-5 py-3.5">
           <div className="flex items-center gap-2.5 min-w-0">
             {icon && <span className="shrink-0 text-gold-500 [&_svg]:h-[18px] [&_svg]:w-[18px]">{icon}</span>}
-            {title && (
-              <h3 className="truncate font-display text-base font-semibold text-gold-300">{title}</h3>
-            )}
+            {title && <h3 className="truncate font-display text-base font-semibold text-gold-300">{title}</h3>}
           </div>
           {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </div>

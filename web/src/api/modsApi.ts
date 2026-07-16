@@ -1,5 +1,12 @@
 import { api } from "./httpClient";
-import type { Mod, ModsPathInfo, ModWishlistRequest, NexusModFile, NexusModResult, VerifiedFileInstall } from "@/types/models";
+import type {
+  Mod,
+  ModsPathInfo,
+  ModWishlistRequest,
+  NexusModFile,
+  NexusModResult,
+  VerifiedFileInstall,
+} from "@/types/models";
 
 // GET /api/mods/mods-path
 export async function getModsPath(): Promise<ModsPathInfo> {

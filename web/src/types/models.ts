@@ -242,9 +242,7 @@ export interface NexusSsoStart {
 }
 
 export type NexusSsoStatus =
-  | { status: "pending" }
-  | { status: "connected"; account: NexusAccount }
-  | { status: "error"; message: string };
+  { status: "pending" } | { status: "connected"; account: NexusAccount } | { status: "error"; message: string };
 
 export type NexusModList = "trending" | "latest_added" | "latest_updated";
 
@@ -290,7 +288,6 @@ export interface ModWishlistRequest {
   requestedBy: string;
   requestedAt: string;
 }
-
 
 export type ModsPathSource = "override" | "derived" | null;
 export type InstanceSource = "steam" | "manual" | "deployed";

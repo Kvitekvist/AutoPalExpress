@@ -40,7 +40,8 @@ export function FirstServerPrompt() {
         </h2>
         <p className="text-sm leading-relaxed text-parchment-300/70">
           {t("onboarding.firstServer.description", {
-            defaultValue: "Let's set up your first Palworld server before you get started - deploy a fresh one, or import a server you already have installed.",
+            defaultValue:
+              "Let's set up your first Palworld server before you get started - deploy a fresh one, or import a server you already have installed.",
           })}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-1">

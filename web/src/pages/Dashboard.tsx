@@ -50,7 +50,10 @@ export default function Dashboard() {
         <div className="flex flex-wrap items-center gap-2 rounded-md border border-gold-600/30 bg-gold-500/5 px-4 py-3 text-xs text-gold-300">
           <TriangleAlert className="h-4 w-4 shrink-0" />
           <span>{t("dashboard.noServerBanner", { defaultValue: "No server is set up yet." })}</span>
-          <Link to="/settings" className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200">
+          <Link
+            to="/settings"
+            className="ml-auto font-semibold underline decoration-dotted underline-offset-2 hover:text-gold-200"
+          >
             {t("dashboard.noServerCta", { defaultValue: "Deploy or import one in Settings" })}
           </Link>
         </div>
@@ -67,7 +70,8 @@ export default function Dashboard() {
             <div className="flex items-center gap-2 text-parchment-300/70">
               <Map className="h-4 w-4 text-gold-500/70" />
               <span>
-                {t("dashboard.map", { defaultValue: "Map:" })} <span className="text-parchment-100">{status.map || "-"}</span>
+                {t("dashboard.map", { defaultValue: "Map:" })}{" "}
+                <span className="text-parchment-100">{status.map || "-"}</span>
               </span>
             </div>
             <div className="flex items-center gap-2 text-parchment-300/70">
@@ -82,7 +86,9 @@ export default function Dashboard() {
               <span>
                 {t("dashboard.lastSaved", { defaultValue: "Last saved:" })}{" "}
                 <span className="text-parchment-100">
-                  {status.lastSavedAt ? formatRelativeTime(status.lastSavedAt) : t("dashboard.never", { defaultValue: "Never" })}
+                  {status.lastSavedAt
+                    ? formatRelativeTime(status.lastSavedAt)
+                    : t("dashboard.never", { defaultValue: "Never" })}
                 </span>
               </span>
             </div>

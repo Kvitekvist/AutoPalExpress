@@ -9,7 +9,15 @@ from pydantic import BaseModel
 
 from app.auth_deps import require_super_admin
 from app.routes.mods._shared import require_active_instance
-from app.services import instance_store, local_config, mod_installer, mods_shared, mods_store, native_dialog, nexus_mod_service
+from app.services import (
+    instance_store,
+    local_config,
+    mod_installer,
+    mods_shared,
+    mods_store,
+    native_dialog,
+    nexus_mod_service,
+)
 from app.services.mod_installer import ModInstallError
 
 router = APIRouter()

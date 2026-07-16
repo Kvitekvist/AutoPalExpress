@@ -164,7 +164,10 @@ def start(instance: dict[str, Any]) -> None:
         game_port = palworld_settings.enforce_game_port(exe.parent, game_port, prefer_fallback=True)
         rest_config = palworld_settings.enforce_rest_api(exe.parent, instance.get("rconPort") or 8212)
         if rest_config["passwordGenerated"]:
-            logger.info("process_manager: generated AdminPassword for %r so Palworld REST API can authenticate", instance["name"])
+            logger.info(
+                "process_manager: generated AdminPassword for %r so Palworld REST API can authenticate",
+                instance["name"],
+            )
         if game_port != instance["gamePort"]:
             instance_store.update_game_port(instance_id, game_port)
         query_port = instance_store.resolve_query_port(instance, game_port) if instance.get("useQueryPort") else None
@@ -259,7 +262,9 @@ def stop(instance_id: str, timeout: float = 30) -> None:
             )
             activity_log.log("warning", name, f"Didn't stop gracefully within {int(timeout)}s - force-killed.")
         else:
-            logger.warning("process_manager: launcher pid=%s exited but left child processes running, killing them", proc.pid)
+            logger.warning(
+                "process_manager: launcher pid=%s exited but left child processes running, killing them", proc.pid
+            )
             activity_log.log("warning", name, "Launcher exited but left child processes running - killed them too.")
         for p in still_alive:
             try:

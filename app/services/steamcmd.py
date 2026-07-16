@@ -91,9 +91,13 @@ async def install_palserver(install_dir: Path, on_output: Callable[[str], None] 
 
     args = [
         str(exe),
-        "+force_install_dir", str(install_dir),
-        "+login", "anonymous",
-        "+app_update", PALSERVER_APP_ID, "validate",
+        "+force_install_dir",
+        str(install_dir),
+        "+login",
+        "anonymous",
+        "+app_update",
+        PALSERVER_APP_ID,
+        "validate",
         "+quit",
     ]
 
@@ -135,9 +139,12 @@ async def latest_public_build_id(on_output: Callable[[str], None] | None = None)
 
     args = [
         str(exe),
-        "+login", "anonymous",
-        "+app_info_update", "1",
-        "+app_info_print", PALSERVER_APP_ID,
+        "+login",
+        "anonymous",
+        "+app_info_update",
+        "1",
+        "+app_info_print",
+        PALSERVER_APP_ID,
         "+quit",
     ]
     returncode = await _run(args, collect)

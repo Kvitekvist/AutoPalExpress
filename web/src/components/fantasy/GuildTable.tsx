@@ -16,7 +16,13 @@ interface GuildTableProps<T> {
   emptyMessage?: string;
 }
 
-export function GuildTable<T>({ columns, rows, rowKey, className, emptyMessage = "No entries found." }: GuildTableProps<T>) {
+export function GuildTable<T>({
+  columns,
+  rows,
+  rowKey,
+  className,
+  emptyMessage = "No entries found.",
+}: GuildTableProps<T>) {
   return (
     <div className={cn("overflow-x-auto rounded-md border border-stone-700", className)}>
       <table className="w-full border-collapse text-sm">

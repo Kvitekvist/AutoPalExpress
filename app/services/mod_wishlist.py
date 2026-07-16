@@ -1,6 +1,6 @@
 """Per-server Nexus mod requests awaiting a super-admin decision."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -18,17 +18,19 @@ def add_request(instance_id: str, mod: dict[str, Any], user: dict[str, Any]) -> 
     nexus_mod_id = int(mod["nexusModId"])
     if any(int(item["nexusModId"]) == nexus_mod_id for item in requests):
         return requests
-    requests.append({
-        "id": uuid4().hex,
-        "nexusModId": nexus_mod_id,
-        "name": mod["name"].strip(),
-        "author": mod["author"].strip(),
-        "summary": mod.get("summary", "").strip(),
-        "pictureUrl": mod.get("pictureUrl"),
-        "nexusUrl": mod["nexusUrl"],
-        "requestedBy": user["username"],
-        "requestedAt": datetime.now(timezone.utc).isoformat(),
-    })
+    requests.append(
+        {
+            "id": uuid4().hex,
+            "nexusModId": nexus_mod_id,
+            "name": mod["name"].strip(),
+            "author": mod["author"].strip(),
+            "summary": mod.get("summary", "").strip(),
+            "pictureUrl": mod.get("pictureUrl"),
+            "nexusUrl": mod["nexusUrl"],
+            "requestedBy": user["username"],
+            "requestedAt": datetime.now(UTC).isoformat(),
+        }
+    )
     instance_storage.save(instance_id, _STORE_NAME, requests)
     return requests
 

@@ -50,7 +50,13 @@ export function ImportServerDialog({ open, onOpenChange, onImported }: ImportSer
       onImported();
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("settings.import.detectFailedFallback", { defaultValue: "Couldn't find a Palworld server in any Steam library." }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("settings.import.detectFailedFallback", {
+              defaultValue: "Couldn't find a Palworld server in any Steam library.",
+            })
+      );
     } finally {
       setDetecting(false);
     }
@@ -66,11 +72,18 @@ export function ImportServerDialog({ open, onOpenChange, onImported }: ImportSer
     setError(null);
     try {
       await instancesApi.importExisting(name.trim(), path.trim());
-      notifications.success({ title: t("settings.import.importedTitle", { defaultValue: "Server imported" }), message: name.trim() });
+      notifications.success({
+        title: t("settings.import.importedTitle", { defaultValue: "Server imported" }),
+        message: name.trim(),
+      });
       onImported();
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("settings.import.importFailedFallback", { defaultValue: "Couldn't import that folder." }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("settings.import.importFailedFallback", { defaultValue: "Couldn't import that folder." })
+      );
     } finally {
       setImporting(false);
     }
@@ -82,7 +95,9 @@ export function ImportServerDialog({ open, onOpenChange, onImported }: ImportSer
         <DialogHeader>
           <DialogTitle>{t("settings.import.title", { defaultValue: "Import an Existing Server" })}</DialogTitle>
           <DialogDescription>
-            {t("settings.import.description", { defaultValue: "Register a Palworld Dedicated Server you already have installed." })}
+            {t("settings.import.description", {
+              defaultValue: "Register a Palworld Dedicated Server you already have installed.",
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -101,7 +116,8 @@ export function ImportServerDialog({ open, onOpenChange, onImported }: ImportSer
           </RuneButton>
 
           <div className="flex items-center gap-3 text-[11px] uppercase tracking-wide text-parchment-300/40">
-            <div className="h-px flex-1 bg-stone-700" /> {t("settings.import.orManually", { defaultValue: "or enter manually" })}{" "}
+            <div className="h-px flex-1 bg-stone-700" />{" "}
+            {t("settings.import.orManually", { defaultValue: "or enter manually" })}{" "}
             <div className="h-px flex-1 bg-stone-700" />
           </div>
 
@@ -115,7 +131,9 @@ export function ImportServerDialog({ open, onOpenChange, onImported }: ImportSer
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="import-path">{t("settings.import.installFolder", { defaultValue: "Install Folder" })}</Label>
+            <Label htmlFor="import-path">
+              {t("settings.import.installFolder", { defaultValue: "Install Folder" })}
+            </Label>
             <div className="flex gap-2">
               <Input
                 id="import-path"
@@ -138,7 +156,9 @@ export function ImportServerDialog({ open, onOpenChange, onImported }: ImportSer
             {t("settings.import.cancel", { defaultValue: "Cancel" })}
           </RuneButton>
           <RuneButton variant="gold" onClick={handleImport} disabled={importing || !name.trim() || !path.trim()}>
-            {importing ? t("settings.import.importing", { defaultValue: "Importing..." }) : t("settings.import.import", { defaultValue: "Import" })}
+            {importing
+              ? t("settings.import.importing", { defaultValue: "Importing..." })
+              : t("settings.import.import", { defaultValue: "Import" })}
           </RuneButton>
         </DialogFooter>
       </DialogContent>

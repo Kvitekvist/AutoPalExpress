@@ -25,7 +25,9 @@ async def get_wishlist() -> list[dict[str, Any]]:
 
 
 @router.post("/wishlist")
-async def add_to_wishlist(body: WishlistRequest, user: dict[str, Any] = Depends(get_current_user)) -> list[dict[str, Any]]:
+async def add_to_wishlist(
+    body: WishlistRequest, user: dict[str, Any] = Depends(get_current_user)
+) -> list[dict[str, Any]]:
     instance = require_active_instance()
     return mod_wishlist.add_request(
         instance["id"],

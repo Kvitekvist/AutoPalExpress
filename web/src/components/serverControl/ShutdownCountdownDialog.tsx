@@ -1,5 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { cn } from "@/lib/utils";
 
@@ -13,16 +20,25 @@ interface ShutdownCountdownDialogProps {
   onBegin: () => void;
 }
 
-export function ShutdownCountdownDialog({ open, onOpenChange, seconds, onSecondsChange, onBegin }: ShutdownCountdownDialogProps) {
+export function ShutdownCountdownDialog({
+  open,
+  onOpenChange,
+  seconds,
+  onSecondsChange,
+  onBegin,
+}: ShutdownCountdownDialogProps) {
   const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t("serverControl.shutdownDialog.title", { defaultValue: "Begin Shutdown Countdown" })}</DialogTitle>
+          <DialogTitle>
+            {t("serverControl.shutdownDialog.title", { defaultValue: "Begin Shutdown Countdown" })}
+          </DialogTitle>
           <DialogDescription>
             {t("serverControl.shutdownDialog.description", {
-              defaultValue: "Choose how long until the server shuts down. Players will remain connected until the countdown ends.",
+              defaultValue:
+                "Choose how long until the server shuts down. Players will remain connected until the countdown ends.",
             })}
           </DialogDescription>
         </DialogHeader>

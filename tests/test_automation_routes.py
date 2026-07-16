@@ -94,7 +94,7 @@ def test_verify_unknown_backup_returns_400(super_admin, tmp_path, monkeypatch):
 
 
 def test_save_import_flow_through_routes(super_admin, tmp_path):
-    instance = _register_active_instance(tmp_path)
+    _register_active_instance(tmp_path)
     client = super_admin["client"]
 
     source = tmp_path / "IncomingWorld"

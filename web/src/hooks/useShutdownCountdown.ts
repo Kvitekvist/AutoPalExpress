@@ -4,7 +4,10 @@ import { serverApi } from "@/api";
 import type { ServerStatus } from "@/types/models";
 import type { useNotifications } from "@/hooks/useNotifications";
 
-export function useShutdownCountdown(setStatus: (status: ServerStatus) => void, notifications: ReturnType<typeof useNotifications>) {
+export function useShutdownCountdown(
+  setStatus: (status: ServerStatus) => void,
+  notifications: ReturnType<typeof useNotifications>
+) {
   const { t } = useTranslation();
   const [countdown, setCountdown] = React.useState<number | null>(null);
 
@@ -16,7 +19,9 @@ export function useShutdownCountdown(setStatus: (status: ServerStatus) => void, 
         setStatus(s);
         notifications.error({
           title: t("serverControl.notifications.wentDarkTitle", { defaultValue: "Server has gone dark" }),
-          message: t("serverControl.notifications.wentDarkMessage", { defaultValue: "The shutdown countdown reached zero." }),
+          message: t("serverControl.notifications.wentDarkMessage", {
+            defaultValue: "The shutdown countdown reached zero.",
+          }),
         });
       });
       return;
@@ -45,7 +50,9 @@ export function useShutdownCountdown(setStatus: (status: ServerStatus) => void, 
     setCountdown(null);
     notifications.info({
       title: t("serverControl.notifications.countdownCancelledTitle", { defaultValue: "Countdown cancelled" }),
-      message: t("serverControl.notifications.countdownCancelledMessage", { defaultValue: "The realm's fate has been spared, for now." }),
+      message: t("serverControl.notifications.countdownCancelledMessage", {
+        defaultValue: "The realm's fate has been spared, for now.",
+      }),
     });
   }, [notifications, t]);
 

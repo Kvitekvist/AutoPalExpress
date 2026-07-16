@@ -46,7 +46,8 @@ export function ModWishlistPanel() {
     <ScrollPanel icon={<Heart />} title={t("superAdmin.modWishlist.title", { defaultValue: "Mod Wishlist" })}>
       <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
         {t("superAdmin.modWishlist.description", {
-          defaultValue: "Admins can request mods using public Nexus information. Your saved Nexus key is only used after you approve a request here.",
+          defaultValue:
+            "Admins can request mods using public Nexus information. Your saved Nexus key is only used after you approve a request here.",
         })}
       </p>
       {requests.length === 0 ? (
@@ -56,7 +57,10 @@ export function ModWishlistPanel() {
       ) : (
         <div className="space-y-3">
           {requests.map((request) => (
-            <div key={request.id} className="flex flex-col gap-3 rounded-md border border-stone-700 bg-abyss-950/35 p-4 md:flex-row md:items-center">
+            <div
+              key={request.id}
+              className="flex flex-col gap-3 rounded-md border border-stone-700 bg-abyss-950/35 p-4 md:flex-row md:items-center"
+            >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <h4 className="truncate font-display text-sm font-semibold text-parchment-100">{request.name}</h4>
@@ -65,20 +69,45 @@ export function ModWishlistPanel() {
                       {t("superAdmin.modWishlist.updateBadge", { defaultValue: "Update" })}
                     </span>
                   )}
-                  <a href={request.nexusUrl} target="_blank" rel="noreferrer" className="text-gold-400 hover:text-gold-300" title="View on Nexus">
+                  <a
+                    href={request.nexusUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-gold-400 hover:text-gold-300"
+                    title="View on Nexus"
+                  >
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 </div>
                 <p className="mt-1 text-xs text-parchment-300/55">
-                  {t("superAdmin.modWishlist.requestedBy", { defaultValue: "Requested by {{username}}", username: request.requestedBy })}
+                  {t("superAdmin.modWishlist.requestedBy", {
+                    defaultValue: "Requested by {{username}}",
+                    username: request.requestedBy,
+                  })}
                 </p>
-                {request.summary && <p className="mt-2 line-clamp-2 text-xs text-parchment-300/65">{request.summary}</p>}
+                {request.summary && (
+                  <p className="mt-2 line-clamp-2 text-xs text-parchment-300/65">{request.summary}</p>
+                )}
               </div>
               <div className="flex shrink-0 gap-2">
-                <RuneButton size="sm" variant="life" icon={<Check />} disabled={busyId != null} onClick={() => decide(request, true)}>
-                  {busyId === request.id ? t("common.working", { defaultValue: "Working..." }) : t("superAdmin.modWishlist.approve", { defaultValue: "Approve" })}
+                <RuneButton
+                  size="sm"
+                  variant="life"
+                  icon={<Check />}
+                  disabled={busyId != null}
+                  onClick={() => decide(request, true)}
+                >
+                  {busyId === request.id
+                    ? t("common.working", { defaultValue: "Working..." })
+                    : t("superAdmin.modWishlist.approve", { defaultValue: "Approve" })}
                 </RuneButton>
-                <RuneButton size="sm" variant="danger" icon={<X />} disabled={busyId != null} onClick={() => decide(request, false)}>
+                <RuneButton
+                  size="sm"
+                  variant="danger"
+                  icon={<X />}
+                  disabled={busyId != null}
+                  onClick={() => decide(request, false)}
+                >
                   {t("superAdmin.modWishlist.deny", { defaultValue: "Deny" })}
                 </RuneButton>
               </div>

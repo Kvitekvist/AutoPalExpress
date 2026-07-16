@@ -16,7 +16,8 @@ import pytest
 from app import main as app_main
 
 pytestmark = pytest.mark.skipif(
-    not app_main._FRONTEND_DIR.is_dir(), reason="frontend not built (web/dist missing) - run `npm run build` in web/ first"
+    not app_main._FRONTEND_DIR.is_dir(),
+    reason="frontend not built (web/dist missing) - run `npm run build` in web/ first",
 )
 
 

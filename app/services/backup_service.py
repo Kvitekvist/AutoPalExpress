@@ -91,7 +91,9 @@ def _unique_backup_dest(instance_id: str, timestamp: str) -> Path:
     return dest
 
 
-async def _create_snapshot(instance: dict[str, Any], *, kind: str, live_save_forced: bool = False) -> dict[str, Any] | None:
+async def _create_snapshot(
+    instance: dict[str, Any], *, kind: str, live_save_forced: bool = False
+) -> dict[str, Any] | None:
     """Shared by every snapshot-taking path (manual/scheduled backups,
     pre-import, pre-restore) - copies the current SaveGames folder, records
     a file manifest (count + per-file size/sha256) in meta.json so
@@ -141,7 +143,12 @@ async def run_backup(instance: dict[str, Any], *, kind: str = "manual") -> dict[
     if record is None:
         raise FileNotFoundError(f"No save data found at {src} - has this server ever been started?")
 
-    logger.info("backup_service: backed up %s -> %s (live save forced: %s)", instance["name"], record["folder"], live_save_forced)
+    logger.info(
+        "backup_service: backed up %s -> %s (live save forced: %s)",
+        instance["name"],
+        record["folder"],
+        live_save_forced,
+    )
     return record
 
 
@@ -202,7 +209,10 @@ def verify_backup(instance_id: str, timestamp: str) -> dict[str, Any]:
 
     manifest = meta.get("manifest")
     if not manifest:
-        return {"status": "unknown", "issues": ["This backup was made before integrity checks existed - nothing to verify against."]}
+        return {
+            "status": "unknown",
+            "issues": ["This backup was made before integrity checks existed - nothing to verify against."],
+        }
 
     issues = safe_replace.verify_manifest(folder, manifest)
     return {"status": "ok" if not issues else "corrupted", "issues": issues}

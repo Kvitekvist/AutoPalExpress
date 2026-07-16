@@ -33,12 +33,15 @@ export function SystemStartupPanel() {
       setDirty(false);
       notifications.success({
         title: t("settings.startup.savedTitle", { defaultValue: "Startup recovery saved" }),
-        message: t("settings.startup.savedMessage", { defaultValue: "AutoPalExpress will use these options the next time Windows or the app starts." }),
+        message: t("settings.startup.savedMessage", {
+          defaultValue: "AutoPalExpress will use these options the next time Windows or the app starts.",
+        }),
       });
     } catch (e) {
       notifications.error({
         title: t("settings.startup.failedTitle", { defaultValue: "Startup recovery failed" }),
-        message: e instanceof Error ? e.message : t("settings.startup.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.startup.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setSaving(false);
@@ -63,22 +66,29 @@ export function SystemStartupPanel() {
           checked={settings.bootWithWindows}
           onCheckedChange={(bootWithWindows) => update({ bootWithWindows })}
           label={t("settings.startup.bootWithWindows", { defaultValue: "Start AutoPalExpress with Windows" })}
-          description={t("settings.startup.bootWithWindowsDescription", { defaultValue: "Opens the admin tool automatically when this Windows user signs in." })}
+          description={t("settings.startup.bootWithWindowsDescription", {
+            defaultValue: "Opens the admin tool automatically when this Windows user signs in.",
+          })}
           disabled={saving}
         />
         <EnchantedToggle
           id="autoStartActiveServer"
           checked={settings.autoStartActiveServer}
           onCheckedChange={(autoStartActiveServer) => update({ autoStartActiveServer })}
-          label={t("settings.startup.autoStartServer", { defaultValue: "Restart the active server when AutoPalExpress opens" })}
+          label={t("settings.startup.autoStartServer", {
+            defaultValue: "Restart the active server when AutoPalExpress opens",
+          })}
           description={t("settings.startup.autoStartServerDescription", {
-            defaultValue: "Useful after Windows updates or power loss: when the machine comes back, the app can bring the selected server back online.",
+            defaultValue:
+              "Useful after Windows updates or power loss: when the machine comes back, the app can bring the selected server back online.",
           })}
           disabled={saving}
         />
         <div className="flex justify-end">
           <RuneButton variant="gold" icon={<Save />} onClick={handleSave} disabled={!dirty || saving}>
-            {saving ? t("settings.startup.saving", { defaultValue: "Saving..." }) : t("settings.startup.save", { defaultValue: "Save Startup Recovery" })}
+            {saving
+              ? t("settings.startup.saving", { defaultValue: "Saving..." })
+              : t("settings.startup.save", { defaultValue: "Save Startup Recovery" })}
           </RuneButton>
         </div>
       </div>

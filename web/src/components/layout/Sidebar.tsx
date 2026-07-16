@@ -2,7 +2,19 @@ import * as React from "react";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, BookOpen, Swords, ScrollText, Settings2, Flame, SlidersHorizontal, Crown, Rocket, Heart, ArrowUpCircle } from "lucide-react";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Swords,
+  ScrollText,
+  Settings2,
+  Flame,
+  SlidersHorizontal,
+  Crown,
+  Rocket,
+  Heart,
+  ArrowUpCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { appUpdateApi } from "@/api";
@@ -23,7 +35,19 @@ const HOST_ITEMS = [
   { to: "/super-admin", labelKey: "superAdmin", icon: Crown },
 ];
 
-function NavItem({ to, end, labelKey, icon: Icon, host }: { to: string; end?: boolean; labelKey: string; icon: typeof Crown; host?: boolean }) {
+function NavItem({
+  to,
+  end,
+  labelKey,
+  icon: Icon,
+  host,
+}: {
+  to: string;
+  end?: boolean;
+  labelKey: string;
+  icon: typeof Crown;
+  host?: boolean;
+}) {
   const { t } = useTranslation();
   return (
     <NavLink to={to} end={end}>
@@ -31,7 +55,11 @@ function NavItem({ to, end, labelKey, icon: Icon, host }: { to: string; end?: bo
         <div
           className={cn(
             "group relative flex items-center gap-3 rounded-md px-2.5 py-2.5 transition-colors lg:px-3.5",
-            isActive ? "text-gold-300" : host ? "text-gold-100/70 hover:text-gold-200" : "text-parchment-300/60 hover:text-parchment-100"
+            isActive
+              ? "text-gold-300"
+              : host
+                ? "text-gold-100/70 hover:text-gold-200"
+                : "text-parchment-300/60 hover:text-parchment-100"
           )}
         >
           {isActive && (
@@ -82,7 +110,10 @@ export function Sidebar() {
   const [updateStatus, setUpdateStatus] = React.useState<AppUpdateStatus | null>(null);
 
   React.useEffect(() => {
-    appUpdateApi.getStatus().then(setUpdateStatus).catch(() => {});
+    appUpdateApi
+      .getStatus()
+      .then(setUpdateStatus)
+      .catch(() => {});
   }, []);
 
   return (

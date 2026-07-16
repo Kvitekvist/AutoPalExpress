@@ -1,5 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 
@@ -20,7 +27,9 @@ export function BroadcastDialog({ open, onOpenChange, text, onTextChange, onSend
         <DialogHeader>
           <DialogTitle>{t("serverControl.broadcastDialog.title", { defaultValue: "Broadcast a Message" })}</DialogTitle>
           <DialogDescription>
-            {t("serverControl.broadcastDialog.description", { defaultValue: "Sent instantly to every player currently in the realm." })}
+            {t("serverControl.broadcastDialog.description", {
+              defaultValue: "Sent instantly to every player currently in the realm.",
+            })}
           </DialogDescription>
         </DialogHeader>
         <Input

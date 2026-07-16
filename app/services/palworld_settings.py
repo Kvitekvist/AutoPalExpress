@@ -1,4 +1,4 @@
-﻿"""Writes the server name (and a few other basics) into a freshly deployed
+"""Writes the server name (and a few other basics) into a freshly deployed
 server's PalWorldSettings.ini.
 
 Rather than hand-maintaining Palworld's full OptionSettings schema (a single
@@ -15,12 +15,13 @@ from typing import Any
 
 from app.services.palworld_settings_data import (
     _ADVANCED_META,
-    _group_for_key,
     _MANAGED_ELSEWHERE,
     _POPULAR_META,
     _POPULAR_ORDER,
-    LOCAL_API_SETTING_KEYS,
-    POPULAR_FIELDS,
+    _group_for_key,
+)
+from app.services.palworld_settings_data import (
+    LOCAL_API_SETTING_KEYS as LOCAL_API_SETTING_KEYS,  # noqa: F401 - re-exported for app.routes.server_settings
 )
 
 _OPTION_LINE_RE = re.compile(r"^OptionSettings=\((.*)\)\s*$", re.MULTILINE)
@@ -217,6 +218,7 @@ def initialize_settings(
 
 # POPULAR_FIELDS, _ADVANCED_META, and the option-list/grouping data used below now live in palworld_settings_data.py.
 
+
 def _tokenize_option_body(body: str) -> list[str]:
     """Splits the flat body of OptionSettings=(...) into individual
     key=value tokens, respecting nested parens/quotes so values like
@@ -348,7 +350,12 @@ def read_all_settings(server_path: Path) -> list[dict[str, Any]]:
         )
 
     file_order = {key: i for i, key in enumerate(raw_pairs)}
-    fields.sort(key=lambda f: (0 if f["popular"] else 1, _POPULAR_ORDER.get(f["key"], 0) if f["popular"] else file_order[f["key"]]))
+    fields.sort(
+        key=lambda f: (
+            0 if f["popular"] else 1,
+            _POPULAR_ORDER.get(f["key"], 0) if f["popular"] else file_order[f["key"]],
+        )
+    )
     return fields
 
 

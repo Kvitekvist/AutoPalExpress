@@ -22,15 +22,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-const STATUS_CONFIG: Record<Player["connectionStatus"], { dot: string; labelKey: string; labelDefault: string; text: string }> = {
-  online: { dot: "bg-life-400 shadow-[0_0_8px_2px_rgba(79,206,124,0.7)] animate-glow-pulse", labelKey: "online", labelDefault: "Online", text: "text-life-400" },
-  idle: { dot: "bg-gold-400 shadow-[0_0_8px_2px_rgba(223,177,90,0.6)]", labelKey: "idle", labelDefault: "Idle", text: "text-gold-400" },
+const STATUS_CONFIG: Record<
+  Player["connectionStatus"],
+  { dot: string; labelKey: string; labelDefault: string; text: string }
+> = {
+  online: {
+    dot: "bg-life-400 shadow-[0_0_8px_2px_rgba(79,206,124,0.7)] animate-glow-pulse",
+    labelKey: "online",
+    labelDefault: "Online",
+    text: "text-life-400",
+  },
+  idle: {
+    dot: "bg-gold-400 shadow-[0_0_8px_2px_rgba(223,177,90,0.6)]",
+    labelKey: "idle",
+    labelDefault: "Idle",
+    text: "text-gold-400",
+  },
   offline: { dot: "bg-stone-500", labelKey: "offline", labelDefault: "Offline", text: "text-parchment-300/40" },
 };
 
@@ -73,13 +82,16 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
       <div className="flex items-start gap-3">
         <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-gold-600/40 bg-gradient-to-br from-stone-700 to-abyss-900 font-display text-lg font-bold text-gold-300">
           {player.characterName.slice(0, 1).toUpperCase()}
-          <span className={cn("absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-abyss-900", status.dot)} />
+          <span
+            className={cn(
+              "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-abyss-900",
+              status.dot
+            )}
+          />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="truncate font-display text-base font-semibold text-parchment-100">
-              {player.characterName}
-            </h3>
+            <h3 className="truncate font-display text-base font-semibold text-parchment-100">{player.characterName}</h3>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="shrink-0 rounded-md p-1 text-parchment-300/50 transition-colors hover:bg-stone-700/60 hover:text-gold-400">
@@ -88,29 +100,30 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => onMessage(player)}>
-                  <MessageSquare className="h-3.5 w-3.5" /> {t("dashboard.roster.card.sendMessage", { defaultValue: "Send Message" })}
+                  <MessageSquare className="h-3.5 w-3.5" />{" "}
+                  {t("dashboard.roster.card.sendMessage", { defaultValue: "Send Message" })}
                 </DropdownMenuItem>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()}
-                      className="opacity-40 cursor-not-allowed"
-                    >
-                      <MapPin className="h-3.5 w-3.5" /> {t("dashboard.roster.card.teleport", { defaultValue: "Teleport" })}
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="opacity-40 cursor-not-allowed">
+                      <MapPin className="h-3.5 w-3.5" />{" "}
+                      {t("dashboard.roster.card.teleport", { defaultValue: "Teleport" })}
                     </DropdownMenuItem>
                   </TooltipTrigger>
-                  <TooltipContent>{t("dashboard.roster.card.comingSoon", { defaultValue: "Coming soon" })}</TooltipContent>
+                  <TooltipContent>
+                    {t("dashboard.roster.card.comingSoon", { defaultValue: "Coming soon" })}
+                  </TooltipContent>
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <DropdownMenuItem
-                      onSelect={(e) => e.preventDefault()}
-                      className="opacity-40 cursor-not-allowed"
-                    >
-                      <Backpack className="h-3.5 w-3.5" /> {t("dashboard.roster.card.viewInventory", { defaultValue: "View Inventory" })}
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="opacity-40 cursor-not-allowed">
+                      <Backpack className="h-3.5 w-3.5" />{" "}
+                      {t("dashboard.roster.card.viewInventory", { defaultValue: "View Inventory" })}
                     </DropdownMenuItem>
                   </TooltipTrigger>
-                  <TooltipContent>{t("dashboard.roster.card.comingSoon", { defaultValue: "Coming soon" })}</TooltipContent>
+                  <TooltipContent>
+                    {t("dashboard.roster.card.comingSoon", { defaultValue: "Coming soon" })}
+                  </TooltipContent>
                 </Tooltip>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem destructive onClick={() => onKick(player)}>
@@ -118,7 +131,8 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
                 </DropdownMenuItem>
                 {player.isBanned ? (
                   <DropdownMenuItem onClick={() => onUnban(player)}>
-                    <ShieldCheck className="h-3.5 w-3.5" /> {t("dashboard.roster.card.unban", { defaultValue: "Unban" })}
+                    <ShieldCheck className="h-3.5 w-3.5" />{" "}
+                    {t("dashboard.roster.card.unban", { defaultValue: "Unban" })}
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem destructive onClick={() => onBan(player)}>
@@ -136,7 +150,8 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
         <div className="flex items-center gap-1.5 text-parchment-300/60">
           <Shield className="h-3.5 w-3.5 text-gold-500/70" />
           <span>
-            {t("dashboard.roster.card.level", { defaultValue: "Lvl" })} <span className="font-mono text-parchment-100">{player.level}</span>
+            {t("dashboard.roster.card.level", { defaultValue: "Lvl" })}{" "}
+            <span className="font-mono text-parchment-100">{player.level}</span>
           </span>
         </div>
         <div className="flex items-center gap-1.5 text-parchment-300/60">
@@ -167,7 +182,12 @@ export function PlayerCard({ player, onKick, onBan, onUnban, onMessage }: Player
         </div>
       </div>
 
-      <div className={cn("mt-3 flex items-center gap-1.5 border-t border-stone-700/60 pt-3 text-[11px] font-medium", status.text)}>
+      <div
+        className={cn(
+          "mt-3 flex items-center gap-1.5 border-t border-stone-700/60 pt-3 text-[11px] font-medium",
+          status.text
+        )}
+      >
         <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
         {statusLabel}
       </div>

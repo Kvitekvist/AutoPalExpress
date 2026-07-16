@@ -115,7 +115,9 @@ export default function Logs() {
                   {t("logs.levels.error", { defaultValue: "Errors" })}
                   {errorCount > 0 && <span className="ml-1 text-blood-400">({errorCount})</span>}
                 </AncientTabsTrigger>
-                <AncientTabsTrigger value="debug">{t("logs.levels.debug", { defaultValue: "Debug" })}</AncientTabsTrigger>
+                <AncientTabsTrigger value="debug">
+                  {t("logs.levels.debug", { defaultValue: "Debug" })}
+                </AncientTabsTrigger>
               </AncientTabsList>
             </AncientTabs>
           </div>
@@ -146,7 +148,9 @@ export default function Logs() {
             <ScrollArea className="h-[520px] rounded-md border border-stone-700 bg-abyss-950/60">
               {loading ? (
                 <div className="flex h-full items-center justify-center text-parchment-300/50">
-                  <p className="animate-pulse font-display">{t("logs.loading", { defaultValue: "Unfurling the scroll..." })}</p>
+                  <p className="animate-pulse font-display">
+                    {t("logs.loading", { defaultValue: "Unfurling the scroll..." })}
+                  </p>
                 </div>
               ) : filteredAppLines.length === 0 ? (
                 <div className="flex h-40 items-center justify-center px-4 text-center text-parchment-300/40">
@@ -166,7 +170,9 @@ export default function Logs() {
 
           <div className="min-w-0">
             <div className="mb-2 flex items-center justify-between gap-3">
-              <h2 className="font-display text-sm font-semibold text-gold-300">{t("logs.serverActivity", { defaultValue: "Server Activity" })}</h2>
+              <h2 className="font-display text-sm font-semibold text-gold-300">
+                {t("logs.serverActivity", { defaultValue: "Server Activity" })}
+              </h2>
               <span className="font-mono text-xs text-parchment-300/40">
                 {t("logs.entriesCount", { defaultValue: "{{count}} entries", count: filteredActivity.length })}
               </span>
@@ -174,7 +180,9 @@ export default function Logs() {
             <ScrollArea className="h-[520px] rounded-md border border-stone-700 bg-abyss-950/60">
               {loading ? (
                 <div className="flex h-full items-center justify-center text-parchment-300/50">
-                  <p className="animate-pulse font-display">{t("logs.loading", { defaultValue: "Unfurling the scroll..." })}</p>
+                  <p className="animate-pulse font-display">
+                    {t("logs.loading", { defaultValue: "Unfurling the scroll..." })}
+                  </p>
                 </div>
               ) : filteredActivity.length === 0 ? (
                 <div className="flex h-40 items-center justify-center px-4 text-center text-parchment-300/40">

@@ -25,7 +25,9 @@ export function NexusIntegrationPanel() {
     setAccount(acc);
     notifications.info({
       title: t("superAdmin.nexus.disconnectedTitle", { defaultValue: "Nexus Mods disconnected" }),
-      message: t("superAdmin.nexus.disconnectedMessage", { defaultValue: "Browsing still works, but direct installs need reconnecting." }),
+      message: t("superAdmin.nexus.disconnectedMessage", {
+        defaultValue: "Browsing still works, but direct installs need reconnecting.",
+      }),
     });
   }
 
@@ -45,7 +47,9 @@ export function NexusIntegrationPanel() {
             title: t("superAdmin.nexus.connectedTitle", { defaultValue: "Nexus Mods connected" }),
             message: result.account.isPremium
               ? t("superAdmin.nexus.directInstallsAvailable", { defaultValue: "Direct Nexus installs are available." })
-              : t("superAdmin.nexus.needsPremium", { defaultValue: "Browsing works, but direct installs require Nexus Premium." }),
+              : t("superAdmin.nexus.needsPremium", {
+                  defaultValue: "Browsing works, but direct installs require Nexus Premium.",
+                }),
           });
           return;
         }
@@ -59,12 +63,15 @@ export function NexusIntegrationPanel() {
       }
       notifications.error({
         title: t("superAdmin.nexus.connectTimedOutTitle", { defaultValue: "Nexus Mods connection timed out" }),
-        message: t("superAdmin.nexus.connectTimedOutMessage", { defaultValue: "The approval window closed. Try connecting again." }),
+        message: t("superAdmin.nexus.connectTimedOutMessage", {
+          defaultValue: "The approval window closed. Try connecting again.",
+        }),
       });
     } catch (e) {
       notifications.error({
         title: t("superAdmin.nexus.connectFailedTitle", { defaultValue: "Nexus Mods connection failed" }),
-        message: e instanceof Error ? e.message : t("superAdmin.nexus.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("superAdmin.nexus.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setConnecting(false);
@@ -107,7 +114,9 @@ export function NexusIntegrationPanel() {
         <div className="space-y-3 rounded-md border border-life-600/30 bg-life-500/5 px-4 py-3">
           <div className="flex items-center gap-3 text-xs text-life-300/80">
             <ShieldCheck className="h-4 w-4 shrink-0" />
-            {t("superAdmin.nexus.worksWithoutKey", { defaultValue: "Browsing and verified file upload work without connecting anything." })}
+            {t("superAdmin.nexus.worksWithoutKey", {
+              defaultValue: "Browsing and verified file upload work without connecting anything.",
+            })}
           </div>
           <RuneButton
             type="button"
@@ -123,7 +132,8 @@ export function NexusIntegrationPanel() {
           </RuneButton>
           <p className="text-[11px] leading-relaxed text-parchment-300/40">
             {t("superAdmin.nexus.connectHint", {
-              defaultValue: "Opens a Nexus Mods tab where you log in and approve AutoPalExpress - no key to copy or paste.",
+              defaultValue:
+                "Opens a Nexus Mods tab where you log in and approve AutoPalExpress - no key to copy or paste.",
             })}
           </p>
         </div>

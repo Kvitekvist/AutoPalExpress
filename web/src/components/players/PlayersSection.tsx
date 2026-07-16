@@ -45,7 +45,10 @@ export function PlayersSection() {
       .getPlayers()
       .then((p) => setPlayers(p))
       .catch((e: Error) =>
-        notifications.error({ title: t("dashboard.roster.loadError", { defaultValue: "Couldn't load the roster" }), message: e.message })
+        notifications.error({
+          title: t("dashboard.roster.loadError", { defaultValue: "Couldn't load the roster" }),
+          message: e.message,
+        })
       )
       .finally(() => setLoading(false));
   }, [notifications, t]);
@@ -78,9 +81,24 @@ export function PlayersSection() {
       header: t("dashboard.roster.guildColumns.guild", { defaultValue: "Guild" }),
       render: (r) => <span className="font-display font-medium text-gold-300">{r.guild}</span>,
     },
-    { key: "members", header: t("dashboard.roster.guildColumns.members", { defaultValue: "Members" }), align: "center", render: (r) => r.members },
-    { key: "avgLevel", header: t("dashboard.roster.guildColumns.avgLevel", { defaultValue: "Avg Level" }), align: "center", render: (r) => r.avgLevel },
-    { key: "avgPing", header: t("dashboard.roster.guildColumns.avgPing", { defaultValue: "Avg Ping" }), align: "right", render: (r) => `${r.avgPing}ms` },
+    {
+      key: "members",
+      header: t("dashboard.roster.guildColumns.members", { defaultValue: "Members" }),
+      align: "center",
+      render: (r) => r.members,
+    },
+    {
+      key: "avgLevel",
+      header: t("dashboard.roster.guildColumns.avgLevel", { defaultValue: "Avg Level" }),
+      align: "center",
+      render: (r) => r.avgLevel,
+    },
+    {
+      key: "avgPing",
+      header: t("dashboard.roster.guildColumns.avgPing", { defaultValue: "Avg Ping" }),
+      align: "right",
+      render: (r) => `${r.avgPing}ms`,
+    },
   ];
 
   async function handleKick() {
@@ -178,9 +196,15 @@ export function PlayersSection() {
                 <AncientTabsTrigger value="all">
                   {t("dashboard.roster.tabs.all", { defaultValue: "All ({{count}})", count: players.length })}
                 </AncientTabsTrigger>
-                <AncientTabsTrigger value="online">{t("dashboard.roster.status.online", { defaultValue: "Online" })}</AncientTabsTrigger>
-                <AncientTabsTrigger value="idle">{t("dashboard.roster.status.idle", { defaultValue: "Idle" })}</AncientTabsTrigger>
-                <AncientTabsTrigger value="offline">{t("dashboard.roster.status.offline", { defaultValue: "Offline" })}</AncientTabsTrigger>
+                <AncientTabsTrigger value="online">
+                  {t("dashboard.roster.status.online", { defaultValue: "Online" })}
+                </AncientTabsTrigger>
+                <AncientTabsTrigger value="idle">
+                  {t("dashboard.roster.status.idle", { defaultValue: "Idle" })}
+                </AncientTabsTrigger>
+                <AncientTabsTrigger value="offline">
+                  {t("dashboard.roster.status.offline", { defaultValue: "Offline" })}
+                </AncientTabsTrigger>
               </AncientTabsList>
             </AncientTabs>
           </div>

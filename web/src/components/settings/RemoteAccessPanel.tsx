@@ -56,12 +56,17 @@ export function RemoteAccessPanel() {
       setFirewallOk(true);
       notifications.success({
         title: t("superAdmin.remoteAccess.firewallAddedTitle", { defaultValue: "Firewall rule added" }),
-        message: t("superAdmin.remoteAccess.firewallAddedMessage", { defaultValue: "Windows will now allow incoming connections to the admin panel." }),
+        message: t("superAdmin.remoteAccess.firewallAddedMessage", {
+          defaultValue: "Windows will now allow incoming connections to the admin panel.",
+        }),
       });
     } catch (e) {
       notifications.error({
         title: t("superAdmin.remoteAccess.firewallFailedTitle", { defaultValue: "Couldn't add firewall rule" }),
-        message: e instanceof Error ? e.message : t("superAdmin.remoteAccess.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("superAdmin.remoteAccess.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setAddingRule(false);
@@ -75,12 +80,17 @@ export function RemoteAccessPanel() {
       refreshStatus();
       notifications.success({
         title: t("superAdmin.remoteAccess.forwardedTitle", { defaultValue: "Admin panel forwarded" }),
-        message: t("superAdmin.remoteAccess.forwardedMessage", { defaultValue: "Friends can now reach the login page from outside." }),
+        message: t("superAdmin.remoteAccess.forwardedMessage", {
+          defaultValue: "Friends can now reach the login page from outside.",
+        }),
       });
     } catch (e) {
       notifications.error({
         title: t("superAdmin.remoteAccess.forwardFailedTitle", { defaultValue: "Couldn't forward" }),
-        message: e instanceof Error ? e.message : t("superAdmin.remoteAccess.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("superAdmin.remoteAccess.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setForwarding(false);
@@ -96,7 +106,10 @@ export function RemoteAccessPanel() {
     } catch (e) {
       notifications.error({
         title: t("superAdmin.remoteAccess.removeFailedTitle", { defaultValue: "Couldn't remove" }),
-        message: e instanceof Error ? e.message : t("superAdmin.remoteAccess.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("superAdmin.remoteAccess.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setUnforwarding(false);
@@ -121,20 +134,26 @@ export function RemoteAccessPanel() {
 
       <div className="space-y-4">
         <div>
-          <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}</p>
+          <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
+            {t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}
+          </p>
           {!status || firewallOk === null ? (
             <Skeleton className="h-5 w-64" />
           ) : firewallOk ? (
             <p className="flex items-center gap-1.5 text-sm text-life-400">
               <ShieldCheck className="h-4 w-4 shrink-0" />
-              {t("superAdmin.remoteAccess.firewallAllowed", { defaultValue: "Allowed: incoming connections on port {{port}} aren't blocked.", port: status.adminPort })}
+              {t("superAdmin.remoteAccess.firewallAllowed", {
+                defaultValue: "Allowed: incoming connections on port {{port}} aren't blocked.",
+                port: status.adminPort,
+              })}
             </p>
           ) : (
             <div className="space-y-2">
               <p className="flex items-center gap-1.5 text-sm text-parchment-300/70">
                 <ShieldAlert className="h-4 w-4 shrink-0 text-gold-400" />
                 {t("superAdmin.remoteAccess.firewallNotAllowed", {
-                  defaultValue: "Not allowed yet. This is the most common reason friends can't connect (looks like a timeout, not an error).",
+                  defaultValue:
+                    "Not allowed yet. This is the most common reason friends can't connect (looks like a timeout, not an error).",
                 })}
               </p>
               <RuneButton type="button" variant="gold" size="sm" onClick={handleAllowFirewall} disabled={addingRule}>
@@ -143,14 +162,18 @@ export function RemoteAccessPanel() {
                   : t("superAdmin.portForward.allowThroughFirewall", { defaultValue: "Allow Through Firewall" })}
               </RuneButton>
               <p className="text-[11px] text-parchment-300/40">
-                {t("superAdmin.portForward.uacHint", { defaultValue: 'Windows will show its own permission prompt; click "Yes" on it to continue.' })}
+                {t("superAdmin.portForward.uacHint", {
+                  defaultValue: 'Windows will show its own permission prompt; click "Yes" on it to continue.',
+                })}
               </p>
             </div>
           )}
         </div>
 
         <div className="border-t border-stone-700/60 pt-4">
-          <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}</p>
+          <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
+            {t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}
+          </p>
 
           {!status ? (
             <div className="space-y-3">
@@ -175,7 +198,9 @@ export function RemoteAccessPanel() {
                     icon={copied ? <Check /> : <Copy />}
                     onClick={handleCopy}
                   >
-                    {copied ? t("superAdmin.portForward.copied", { defaultValue: "Copied" }) : t("superAdmin.portForward.copy", { defaultValue: "Copy" })}
+                    {copied
+                      ? t("superAdmin.portForward.copied", { defaultValue: "Copied" })
+                      : t("superAdmin.portForward.copy", { defaultValue: "Copy" })}
                   </RuneButton>
                 </div>
               )}
@@ -184,7 +209,8 @@ export function RemoteAccessPanel() {
                 <div className="space-y-2">
                   <p className="text-xs leading-relaxed text-parchment-300/40">
                     {t("superAdmin.remoteAccess.noUpnpHint", {
-                      defaultValue: "No UPnP-capable router found, so this can't be opened automatically. Forward it manually in your router's admin page instead:",
+                      defaultValue:
+                        "No UPnP-capable router found, so this can't be opened automatically. Forward it manually in your router's admin page instead:",
                     })}
                   </p>
                   <ManualForwardInstructions
@@ -217,12 +243,16 @@ export function RemoteAccessPanel() {
                   {mapping ? (
                     mapping.isThisMachine ? (
                       <p className="text-sm text-life-400">
-                        {t("superAdmin.remoteAccess.openVia", { defaultValue: "Remote access is open via {{router}}.", router: status.routerName })}
+                        {t("superAdmin.remoteAccess.openVia", {
+                          defaultValue: "Remote access is open via {{router}}.",
+                          router: status.routerName,
+                        })}
                       </p>
                     ) : (
                       <p className="text-sm text-gold-400">
                         {t("superAdmin.portForward.forwardedElsewhere", {
-                          defaultValue: "Port {{port}} is currently forwarded to a different machine on this network ({{client}}), not this PC.",
+                          defaultValue:
+                            "Port {{port}} is currently forwarded to a different machine on this network ({{client}}), not this PC.",
                           port: status.adminPort,
                           client: mapping.internalClient,
                         })}
@@ -238,9 +268,17 @@ export function RemoteAccessPanel() {
                   )}
                   <div className="flex flex-wrap items-center gap-2">
                     <RuneButton type="button" variant="gold" size="sm" onClick={handleForward} disabled={forwarding}>
-                      {forwarding ? t("superAdmin.remoteAccess.opening", { defaultValue: "Opening..." }) : t("superAdmin.remoteAccess.openRemoteAccess", { defaultValue: "Open Remote Access" })}
+                      {forwarding
+                        ? t("superAdmin.remoteAccess.opening", { defaultValue: "Opening..." })
+                        : t("superAdmin.remoteAccess.openRemoteAccess", { defaultValue: "Open Remote Access" })}
                     </RuneButton>
-                    <RuneButton type="button" variant="danger" size="sm" onClick={handleUnforward} disabled={unforwarding}>
+                    <RuneButton
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      onClick={handleUnforward}
+                      disabled={unforwarding}
+                    >
                       {unforwarding
                         ? t("superAdmin.remoteAccess.closing", { defaultValue: "Closing..." })
                         : t("superAdmin.portForward.removeThisForward", { defaultValue: "Remove This Forward" })}

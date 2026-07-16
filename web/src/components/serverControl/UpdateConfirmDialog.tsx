@@ -11,7 +11,14 @@ interface UpdateConfirmDialogProps {
   confirming: boolean;
 }
 
-export function UpdateConfirmDialog({ open, onOpenChange, isOnline, updateCheck, onConfirm, confirming }: UpdateConfirmDialogProps) {
+export function UpdateConfirmDialog({
+  open,
+  onOpenChange,
+  isOnline,
+  updateCheck,
+  onConfirm,
+  confirming,
+}: UpdateConfirmDialogProps) {
   const { t } = useTranslation();
   return (
     <RuneDialog
@@ -22,11 +29,13 @@ export function UpdateConfirmDialog({ open, onOpenChange, isOnline, updateCheck,
       description={
         isOnline
           ? t("serverControl.updateDialog.stoppedRequired", {
-              defaultValue: "An update is available, but the server must be stopped before AutoPalExpress can update its files.",
+              defaultValue:
+                "An update is available, but the server must be stopped before AutoPalExpress can update its files.",
             })
           : updateCheck?.latestBuildId
             ? t("serverControl.updateDialog.availableWithBuild", {
-                defaultValue: "Steam reports a newer Palworld Dedicated Server build ({{buildId}}). Update the active server now?",
+                defaultValue:
+                  "Steam reports a newer Palworld Dedicated Server build ({{buildId}}). Update the active server now?",
                 buildId: updateCheck.latestBuildId,
               })
             : t("serverControl.updateDialog.available", {

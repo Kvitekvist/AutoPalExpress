@@ -165,7 +165,9 @@ async def open_instance_folder(instance_id: str) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="No such server instance.")
     server_path = Path(instance["serverPath"])
     if not server_path.is_dir():
-        raise HTTPException(status_code=400, detail=f"'{instance['serverPath']}' is not a folder that exists on this machine.")
+        raise HTTPException(
+            status_code=400, detail=f"'{instance['serverPath']}' is not a folder that exists on this machine."
+        )
     try:
         os.startfile(str(server_path))  # type: ignore[attr-defined]
     except OSError as e:
@@ -194,9 +196,7 @@ async def import_existing(body: ImportRequest) -> dict[str, Any]:
 async def import_detected() -> dict[str, Any]:
     found = await asyncio.to_thread(steam_locator.find_install_path)
     if not found:
-        raise HTTPException(
-            status_code=404, detail="Couldn't find a Palworld Dedicated Server in any Steam library."
-        )
+        raise HTTPException(status_code=404, detail="Couldn't find a Palworld Dedicated Server in any Steam library.")
     instance_store.create_instance(name="Steam Library Server", server_path=str(found), source="steam")
     data = instance_store.list_view()
     return {"activeId": data["activeId"], "instances": [_instance_view(i) for i in data["instances"]]}

@@ -94,7 +94,11 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
       setCandidates(found);
       if (found.length === 1) setSelected(found[0]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("settings.saveImport.inspectFailedFallback", { defaultValue: "Couldn't read that folder." }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("settings.saveImport.inspectFailedFallback", { defaultValue: "Couldn't read that folder." })
+      );
     } finally {
       setInspecting(false);
     }
@@ -129,7 +133,11 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
       onImported();
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("settings.saveImport.importFailedFallback", { defaultValue: "Couldn't import that save." }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("settings.saveImport.importFailedFallback", { defaultValue: "Couldn't import that save." })
+      );
     } finally {
       setImporting(false);
     }
@@ -181,7 +189,9 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
 
           {candidates && candidates.length > 1 && (
             <div className="space-y-2">
-              <Label>{t("settings.saveImport.chooseWorld", { defaultValue: "Multiple saves found - choose one" })}</Label>
+              <Label>
+                {t("settings.saveImport.chooseWorld", { defaultValue: "Multiple saves found - choose one" })}
+              </Label>
               <div className="max-h-48 space-y-1.5 overflow-y-auto">
                 {candidates.map((c) => (
                   <button
@@ -230,7 +240,7 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
                   <span>
                     {t("settings.saveImport.overwriteWarning", {
                       defaultValue:
-                        "This replaces the server's current save with \"{{name}}\". The server must be stopped, and its existing save will be backed up automatically first.",
+                        'This replaces the server\'s current save with "{{name}}". The server must be stopped, and its existing save will be backed up automatically first.',
                       name: selected.name,
                     })}
                   </span>

@@ -77,7 +77,9 @@ export default function LauncherFlags() {
       setInstance(next.instances.find((item) => item.id === instance.id) ?? null);
       notifications.success({
         title: t("launcherOptions.savedTitle", { defaultValue: "Launcher options saved" }),
-        message: t("launcherOptions.savedMessage", { defaultValue: "Restart the server for these launcher options to take effect." }),
+        message: t("launcherOptions.savedMessage", {
+          defaultValue: "Restart the server for these launcher options to take effect.",
+        }),
       });
     } finally {
       setSaving(false);
@@ -92,12 +94,17 @@ export default function LauncherFlags() {
       setInstance(next.instances.find((item) => item.id === instance.id) ?? null);
       notifications.success({
         title: t("launcherOptions.queryPortSavedTitle", { defaultValue: "Steam query port saved" }),
-        message: t("launcherOptions.queryPortSavedMessage", { defaultValue: "Restart the server for this to take effect." }),
+        message: t("launcherOptions.queryPortSavedMessage", {
+          defaultValue: "Restart the server for this to take effect.",
+        }),
       });
     } catch (e) {
       notifications.error({
         title: t("launcherOptions.queryPortFailedTitle", { defaultValue: "Couldn't save query port" }),
-        message: e instanceof Error ? e.message : t("launcherOptions.queryPortFailedMessage", { defaultValue: "The Steam query port could not be saved." }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("launcherOptions.queryPortFailedMessage", { defaultValue: "The Steam query port could not be saved." }),
       });
     } finally {
       setSavingQueryPort(false);
@@ -143,7 +150,9 @@ export default function LauncherFlags() {
     }
     return (
       <div className="flex h-64 items-center justify-center text-parchment-300/50">
-        <p className="font-display">{t("launcherOptions.selectServer", { defaultValue: "Select a server to edit launcher options." })}</p>
+        <p className="font-display">
+          {t("launcherOptions.selectServer", { defaultValue: "Select a server to edit launcher options." })}
+        </p>
       </div>
     );
   }
@@ -158,7 +167,9 @@ export default function LauncherFlags() {
             disabled={saving}
             onCheckedChange={(checked) => saveLaunchOptions({ communityServer: checked })}
             label="-publiclobby"
-            description={t("launcherOptions.publicLobby", { defaultValue: "Shows the server in Palworld's Community Server list." })}
+            description={t("launcherOptions.publicLobby", {
+              defaultValue: "Shows the server in Palworld's Community Server list.",
+            })}
           />
           <EnchantedToggle
             id="flag-useperfthreads"
@@ -166,7 +177,9 @@ export default function LauncherFlags() {
             disabled={saving}
             onCheckedChange={(checked) => saveLaunchOptions({ usePerfThreads: checked })}
             label="-useperfthreads"
-            description={t("launcherOptions.perfThreads", { defaultValue: "Enables Palworld's performance-thread launcher path." })}
+            description={t("launcherOptions.perfThreads", {
+              defaultValue: "Enables Palworld's performance-thread launcher path.",
+            })}
           />
           <EnchantedToggle
             id="flag-no-async-loading-thread"
@@ -174,7 +187,9 @@ export default function LauncherFlags() {
             disabled={saving}
             onCheckedChange={(checked) => saveLaunchOptions({ noAsyncLoadingThread: checked })}
             label="-NoAsyncLoadingThread"
-            description={t("launcherOptions.noAsyncLoadingThread", { defaultValue: "Disables Palworld's separate async loading thread." })}
+            description={t("launcherOptions.noAsyncLoadingThread", {
+              defaultValue: "Disables Palworld's separate async loading thread.",
+            })}
           />
           <EnchantedToggle
             id="flag-use-multithread-for-ds"
@@ -182,7 +197,9 @@ export default function LauncherFlags() {
             disabled={saving}
             onCheckedChange={(checked) => saveLaunchOptions({ useMultithreadForDs: checked })}
             label="-UseMultithreadForDS"
-            description={t("launcherOptions.multithreadForDs", { defaultValue: "Uses Palworld's dedicated-server multithreading flag." })}
+            description={t("launcherOptions.multithreadForDs", {
+              defaultValue: "Uses Palworld's dedicated-server multithreading flag.",
+            })}
           />
           <div className="space-y-3 rounded-md border border-stone-700 bg-abyss-950/40 p-4">
             <EnchantedToggle
@@ -191,19 +208,16 @@ export default function LauncherFlags() {
               disabled={saving}
               onCheckedChange={(checked) => saveLaunchOptions({ usePublicIpOverride: checked })}
               label="-publicip"
-              description={t("launcherOptions.publicIpDescription", { defaultValue: "Advertises the public IP detected by Super Admin." })}
+              description={t("launcherOptions.publicIpDescription", {
+                defaultValue: "Advertises the public IP detected by Super Admin.",
+              })}
               className="border-0 bg-transparent p-0"
             />
             <div className={instance.usePublicIpOverride ? "opacity-60" : "opacity-35"}>
               <Label htmlFor="flag-public-ip-value" className="text-[11px]">
                 {t("launcherOptions.superAdminPublicIp", { defaultValue: "Super Admin public IP" })}
               </Label>
-              <Input
-                id="flag-public-ip-value"
-                value={publicIp || unavailable}
-                disabled
-                className="mt-1 font-mono"
-              />
+              <Input id="flag-public-ip-value" value={publicIp || unavailable} disabled className="mt-1 font-mono" />
             </div>
           </div>
           <div className="space-y-3 rounded-md border border-stone-700 bg-abyss-950/40 p-4">
@@ -213,7 +227,9 @@ export default function LauncherFlags() {
               disabled={saving}
               onCheckedChange={(checked) => saveLaunchOptions({ usePublicPortOverride: checked })}
               label="-publicport"
-              description={t("launcherOptions.publicPortDescription", { defaultValue: "Advertises the game port from Super Admin." })}
+              description={t("launcherOptions.publicPortDescription", {
+                defaultValue: "Advertises the game port from Super Admin.",
+              })}
               className="border-0 bg-transparent p-0"
             />
             <div className={instance.usePublicPortOverride ? "opacity-60" : "opacity-35"}>
@@ -236,7 +252,8 @@ export default function LauncherFlags() {
               onCheckedChange={(checked) => saveLaunchOptions({ useQueryPort: checked })}
               label="-queryport"
               description={t("launcherOptions.queryPortToggleDescription", {
-                defaultValue: "Optional Steam server-list/query port. Leave disabled unless you need Steam/community discovery troubleshooting.",
+                defaultValue:
+                  "Optional Steam server-list/query port. Leave disabled unless you need Steam/community discovery troubleshooting.",
               })}
               className="border-0 bg-transparent p-0"
             />
@@ -246,7 +263,13 @@ export default function LauncherFlags() {
                   "When enabled, this must be different from the game port or Palworld can move the game server to the next open port.",
               })}
             </p>
-            <div className={instance.useQueryPort ? "flex flex-wrap items-center gap-2 pt-1" : "flex flex-wrap items-center gap-2 pt-1 opacity-45"}>
+            <div
+              className={
+                instance.useQueryPort
+                  ? "flex flex-wrap items-center gap-2 pt-1"
+                  : "flex flex-wrap items-center gap-2 pt-1 opacity-45"
+              }
+            >
               <Label htmlFor="flag-query-port" className="w-full text-[11px]">
                 {t("launcherOptions.queryPortValue", { defaultValue: "Steam query port value" })}
               </Label>
@@ -266,7 +289,14 @@ export default function LauncherFlags() {
                 size="sm"
                 icon={<Save />}
                 onClick={handleSaveQueryPort}
-                disabled={!instance.useQueryPort || !queryPortDirty || savingQueryPort || !queryPort || queryPortMatchesGame || queryPortInvalid}
+                disabled={
+                  !instance.useQueryPort ||
+                  !queryPortDirty ||
+                  savingQueryPort ||
+                  !queryPort ||
+                  queryPortMatchesGame ||
+                  queryPortInvalid
+                }
               >
                 {savingQueryPort
                   ? t("launcherOptions.queryPortSaving", { defaultValue: "Saving..." })
@@ -276,7 +306,8 @@ export default function LauncherFlags() {
             {queryPortMatchesGame && (
               <p className="text-[11px] text-blood-300">
                 {t("launcherOptions.queryPortConflict", {
-                  defaultValue: "Use a different port than {{port}}. If they match, Steam query can take the game port first.",
+                  defaultValue:
+                    "Use a different port than {{port}}. If they match, Steam query can take the game port first.",
                   port: publicPortNumber,
                 })}
               </p>
@@ -290,7 +321,8 @@ export default function LauncherFlags() {
         </div>
         <p className="mt-4 text-xs text-parchment-300/45">
           {t("launcherOptions.applyNote", {
-            defaultValue: "These options apply to {{name}} the next time it starts. Public IP and port values are read from Super Admin and cannot be edited here.",
+            defaultValue:
+              "These options apply to {{name}} the next time it starts. Public IP and port values are read from Super Admin and cannot be edited here.",
             name: instance.name,
           })}
         </p>

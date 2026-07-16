@@ -45,7 +45,10 @@ export function InstanceManagerPanel() {
       const next = await instancesApi.setActive(id);
       setData(next);
       const instance = next.instances.find((i) => i.id === id);
-      notifications.success({ title: t("settings.instances.switchedTitle", { defaultValue: "Switched server" }), message: instance?.name });
+      notifications.success({
+        title: t("settings.instances.switchedTitle", { defaultValue: "Switched server" }),
+        message: instance?.name,
+      });
       // Every page reads the active instance independently - reload so they all pick it up.
       window.location.reload();
     } finally {
@@ -57,11 +60,15 @@ export function InstanceManagerPanel() {
     setOpening(instance.id);
     try {
       await instancesApi.openInstanceFolder(instance.id);
-      notifications.info({ title: t("settings.instances.browsingTitle", { defaultValue: "Browsing server files" }), message: instance.serverPath });
+      notifications.info({
+        title: t("settings.instances.browsingTitle", { defaultValue: "Browsing server files" }),
+        message: instance.serverPath,
+      });
     } catch (e) {
       notifications.error({
         title: t("settings.instances.openFolderFailedTitle", { defaultValue: "Could not open folder" }),
-        message: e instanceof Error ? e.message : t("settings.instances.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.instances.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setOpening(null);
@@ -98,7 +105,8 @@ export function InstanceManagerPanel() {
     } catch (e) {
       notifications.error({
         title: t("settings.instances.removeFailedTitle", { defaultValue: "Could not remove server" }),
-        message: e instanceof Error ? e.message : t("settings.instances.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.instances.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setRemoving(false);
@@ -120,19 +128,19 @@ export function InstanceManagerPanel() {
       title={t("settings.instances.title", { defaultValue: "Server Instances" })}
       actions={
         <>
-          <RuneButton
-            type="button"
-            variant="mana"
-            size="sm"
-            icon={<FolderPlus />}
-            onClick={() => setImportOpen(true)}
-          >
+          <RuneButton type="button" variant="mana" size="sm" icon={<FolderPlus />} onClick={() => setImportOpen(true)}>
             {t("settings.instances.importExisting", { defaultValue: "Import Existing" })}
           </RuneButton>
           <RuneButton type="button" variant="gold" size="sm" icon={<Plus />} onClick={() => setDeployOpen(true)}>
             {t("settings.instances.deployNew", { defaultValue: "Deploy New Server" })}
           </RuneButton>
-          <RuneButton type="button" variant="arcane" size="sm" icon={<FolderInput />} onClick={() => setSaveImportOpen(true)}>
+          <RuneButton
+            type="button"
+            variant="arcane"
+            size="sm"
+            icon={<FolderInput />}
+            onClick={() => setSaveImportOpen(true)}
+          >
             {t("settings.saveImport.open", { defaultValue: "Import Save" })}
           </RuneButton>
         </>
@@ -140,7 +148,10 @@ export function InstanceManagerPanel() {
     >
       {data.instances.length === 0 ? (
         <p className="text-sm text-parchment-300/50">
-          {t("settings.instances.empty", { defaultValue: "No servers yet. Deploy a fresh, isolated Palworld server or import one you already have installed." })}
+          {t("settings.instances.empty", {
+            defaultValue:
+              "No servers yet. Deploy a fresh, isolated Palworld server or import one you already have installed.",
+          })}
         </p>
       ) : (
         <div className="space-y-3">
@@ -158,7 +169,9 @@ export function InstanceManagerPanel() {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate font-display text-sm font-semibold text-parchment-100">{instance.name}</p>
                     <span className="rounded-full border border-stone-600 bg-stone-800/60 px-2 py-0.5 text-[10px] uppercase tracking-wide text-parchment-300/60">
-                      {t(`settings.instances.source.${SOURCE_LABEL_KEYS[instance.source].key}`, { defaultValue: SOURCE_LABEL_KEYS[instance.source].fallback })}
+                      {t(`settings.instances.source.${SOURCE_LABEL_KEYS[instance.source].key}`, {
+                        defaultValue: SOURCE_LABEL_KEYS[instance.source].fallback,
+                      })}
                     </span>
                     {active && (
                       <span className="rounded-full border border-gold-500/50 bg-gold-500/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-gold-300">
@@ -170,17 +183,24 @@ export function InstanceManagerPanel() {
                   <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[11px] text-parchment-300/50">
                     {instance.executableFound ? (
                       <span className="flex items-center gap-1 text-life-400">
-                        <CircleCheck className="h-3 w-3" /> {t("settings.instances.foundOnDisk", { defaultValue: "Found on disk" })}
+                        <CircleCheck className="h-3 w-3" />{" "}
+                        {t("settings.instances.foundOnDisk", { defaultValue: "Found on disk" })}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-blood-400">
-                        <CircleAlert className="h-3 w-3" /> {t("settings.instances.notFoundOnDisk", { defaultValue: "Not found on disk" })}
+                        <CircleAlert className="h-3 w-3" />{" "}
+                        {t("settings.instances.notFoundOnDisk", { defaultValue: "Not found on disk" })}
                       </span>
                     )}
-                    <span>{t("settings.instances.port", { defaultValue: "Port {{port}}", port: instance.gamePort })}</span>
+                    <span>
+                      {t("settings.instances.port", { defaultValue: "Port {{port}}", port: instance.gamePort })}
+                    </span>
                     <span>
                       {instance.ue4ssInstalled
-                        ? t("settings.instances.ue4ssVersion", { defaultValue: "UE4SS {{version}}", version: instance.ue4ssVersion })
+                        ? t("settings.instances.ue4ssVersion", {
+                            defaultValue: "UE4SS {{version}}",
+                            version: instance.ue4ssVersion,
+                          })
                         : t("settings.instances.ue4ssNotInstalled", { defaultValue: "UE4SS not installed" })}
                     </span>
                   </div>
@@ -268,7 +288,8 @@ export function InstanceManagerPanel() {
                 name: removeTarget?.name,
               })
             : t("settings.instances.removeDialog.description", {
-                defaultValue: "{{name}} will be unregistered from this tool. Its actual files, mods, and world saves are left untouched on disk.",
+                defaultValue:
+                  "{{name}} will be unregistered from this tool. Its actual files, mods, and world saves are left untouched on disk.",
                 name: removeTarget?.name,
               })
         }

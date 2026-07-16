@@ -68,7 +68,11 @@ async def _get(path: str, api_key: str, params: dict[str, Any] | None = None, pr
     if resp.status_code == 401:
         raise NexusApiError(401, "Invalid or expired Nexus Mods API key.")
     if resp.status_code == 403:
-        message = "Nexus Mods Premium is required for this action." if premium_hint else "Nexus Mods rejected this request (403)."
+        message = (
+            "Nexus Mods Premium is required for this action."
+            if premium_hint
+            else "Nexus Mods rejected this request (403)."
+        )
         raise NexusApiError(403, message)
     if resp.status_code == 429:
         raise NexusApiError(429, "Nexus Mods API rate limit exceeded. Try again later.")

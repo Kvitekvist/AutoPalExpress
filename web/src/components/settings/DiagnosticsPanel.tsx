@@ -27,7 +27,8 @@ export function DiagnosticsPanel() {
     } catch (e) {
       notifications.error({
         title: t("superAdmin.diagnostics.failedTitle", { defaultValue: "Couldn't run diagnostics" }),
-        message: e instanceof Error ? e.message : t("superAdmin.diagnostics.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("superAdmin.diagnostics.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setRunning(false);
@@ -40,8 +41,17 @@ export function DiagnosticsPanel() {
       title={t("superAdmin.diagnostics.title", { defaultValue: "Diagnostics" })}
       actions={
         <div className="flex flex-wrap items-center gap-2">
-          <RuneButton type="button" variant="gold" size="sm" icon={<Stethoscope />} onClick={() => handleRun(false)} disabled={running}>
-            {running ? t("superAdmin.diagnostics.running", { defaultValue: "Running..." }) : t("superAdmin.diagnostics.run", { defaultValue: "Run Diagnostics" })}
+          <RuneButton
+            type="button"
+            variant="gold"
+            size="sm"
+            icon={<Stethoscope />}
+            onClick={() => handleRun(false)}
+            disabled={running}
+          >
+            {running
+              ? t("superAdmin.diagnostics.running", { defaultValue: "Running..." })
+              : t("superAdmin.diagnostics.run", { defaultValue: "Run Diagnostics" })}
           </RuneButton>
           <RuneButton
             type="button"
@@ -51,7 +61,8 @@ export function DiagnosticsPanel() {
             onClick={() => handleRun(true)}
             disabled={running}
             title={t("superAdmin.diagnostics.runAsAdminTooltip", {
-              defaultValue: "Requires the Windows permission prompt to succeed - reports an error instead of a limited report if it's declined.",
+              defaultValue:
+                "Requires the Windows permission prompt to succeed - reports an error instead of a limited report if it's declined.",
             })}
           >
             {t("superAdmin.diagnostics.runAsAdmin", { defaultValue: "Run Diagnostics as Admin" })}
@@ -62,20 +73,24 @@ export function DiagnosticsPanel() {
       <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
         {t("superAdmin.diagnostics.description", {
           defaultValue:
-            "Checks the active server setup, Palworld files, local game port, Windows Firewall rules, and REST API access, then writes a support report to disk. Windows will ask for permission (a UAC prompt) since checking firewall rules needs admin rights - click \"Yes\" to continue.",
+            'Checks the active server setup, Palworld files, local game port, Windows Firewall rules, and REST API access, then writes a support report to disk. Windows will ask for permission (a UAC prompt) since checking firewall rules needs admin rights - click "Yes" to continue.',
         })}
       </p>
 
       {running && (
         <p className="mb-3 animate-pulse text-xs text-gold-400">
-          {t("superAdmin.diagnostics.waitingForPermission", { defaultValue: "Waiting for the Windows permission prompt..." })}
+          {t("superAdmin.diagnostics.waitingForPermission", {
+            defaultValue: "Waiting for the Windows permission prompt...",
+          })}
         </p>
       )}
 
       {report && (
         <div className="space-y-2">
           <ScrollArea className="h-[360px] rounded-md border border-stone-700 bg-abyss-950/60">
-            <pre className="whitespace-pre-wrap p-3 font-mono text-[11px] leading-relaxed text-parchment-200/80">{report}</pre>
+            <pre className="whitespace-pre-wrap p-3 font-mono text-[11px] leading-relaxed text-parchment-200/80">
+              {report}
+            </pre>
           </ScrollArea>
           {reportPath && (
             <p className="truncate font-mono text-[11px] text-parchment-300/40">

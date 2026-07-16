@@ -27,12 +27,7 @@ export function ModCard({ mod, onToggle, onRemove, onRequestUpdate, updateReques
   const dragControls = useDragControls();
 
   return (
-    <Reorder.Item
-      value={mod}
-      dragListener={false}
-      dragControls={dragControls}
-      as="div"
-    >
+    <Reorder.Item value={mod} dragListener={false} dragControls={dragControls} as="div">
       <SpellCard status={mod.status}>
         <div className="flex items-start gap-3">
           <button
@@ -58,7 +53,12 @@ export function ModCard({ mod, onToggle, onRemove, onRequestUpdate, updateReques
                   </span>
                 )}
               </div>
-              <span className={cn("rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider", STATUS_BADGE[mod.status])}>
+              <span
+                className={cn(
+                  "rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+                  STATUS_BADGE[mod.status]
+                )}
+              >
                 {t(`mods.status.${mod.status}`, { defaultValue: mod.status })}
               </span>
             </div>
@@ -73,7 +73,10 @@ export function ModCard({ mod, onToggle, onRemove, onRequestUpdate, updateReques
               <div className="mt-3 flex flex-wrap items-center gap-1.5">
                 <Layers className="h-3.5 w-3.5 text-parchment-300/40" />
                 {mod.dependencies.map((dep) => (
-                  <span key={dep} className="rounded-full border border-stone-600 bg-stone-800/60 px-2 py-0.5 text-[11px] text-parchment-300/60">
+                  <span
+                    key={dep}
+                    className="rounded-full border border-stone-600 bg-stone-800/60 px-2 py-0.5 text-[11px] text-parchment-300/60"
+                  >
                     {dep}
                   </span>
                 ))}
@@ -101,8 +104,8 @@ export function ModCard({ mod, onToggle, onRemove, onRequestUpdate, updateReques
                 className="flex-1 border-none bg-transparent px-0 py-0"
               />
               <div className="flex items-center gap-2">
-                {mod.updateAvailable && (
-                  updateRequested ? (
+                {mod.updateAvailable &&
+                  (updateRequested ? (
                     <span className="flex items-center gap-1.5 rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs font-medium text-gold-300/80">
                       <Check className="h-3.5 w-3.5" />
                       {t("mods.card.updateRequested", { defaultValue: "Update Requested" })}
@@ -114,12 +117,16 @@ export function ModCard({ mod, onToggle, onRemove, onRequestUpdate, updateReques
                       icon={<ArrowUpCircle />}
                       onClick={() => onRequestUpdate(mod)}
                       disabled={busy}
-                      title={t("mods.card.requestUpdateTooltip", { defaultValue: "Ask the super admin to approve and install this update." })}
+                      title={t("mods.card.requestUpdateTooltip", {
+                        defaultValue: "Ask the super admin to approve and install this update.",
+                      })}
                     >
-                      {t("mods.card.requestUpdateTo", { defaultValue: "Request Update to {{version}}", version: mod.latestVersion })}
+                      {t("mods.card.requestUpdateTo", {
+                        defaultValue: "Request Update to {{version}}",
+                        version: mod.latestVersion,
+                      })}
                     </RuneButton>
-                  )
-                )}
+                  ))}
                 <RuneButton variant="danger" size="sm" icon={<Trash2 />} onClick={() => onRemove(mod)} disabled={busy}>
                   {t("mods.card.remove", { defaultValue: "Remove" })}
                 </RuneButton>

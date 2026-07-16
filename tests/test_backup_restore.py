@@ -157,7 +157,10 @@ def test_prune_old_backups_respects_configured_max_count(tmp_path):
     instance = _make_instance(tmp_path)
     automation_store.save(
         instance["id"],
-        {**automation_store.DEFAULT_CONFIG, "backupRetention": {"maxCount": 3, "maxAgeDays": None, "maxTotalBytes": None}},
+        {
+            **automation_store.DEFAULT_CONFIG,
+            "backupRetention": {"maxCount": 3, "maxAgeDays": None, "maxTotalBytes": None},
+        },
     )
     backups_dir = instance_store.instance_dir(instance["id"]) / "backups"
     for i in range(5):
@@ -177,7 +180,10 @@ def test_prune_old_backups_respects_max_age(tmp_path):
     instance = _make_instance(tmp_path)
     automation_store.save(
         instance["id"],
-        {**automation_store.DEFAULT_CONFIG, "backupRetention": {"maxCount": None, "maxAgeDays": 7, "maxTotalBytes": None}},
+        {
+            **automation_store.DEFAULT_CONFIG,
+            "backupRetention": {"maxCount": None, "maxAgeDays": 7, "maxTotalBytes": None},
+        },
     )
     backups_dir = instance_store.instance_dir(instance["id"]) / "backups"
     old = backups_dir / "old-backup"
@@ -197,7 +203,10 @@ def test_prune_old_backups_respects_max_total_bytes(tmp_path):
     instance = _make_instance(tmp_path)
     automation_store.save(
         instance["id"],
-        {**automation_store.DEFAULT_CONFIG, "backupRetention": {"maxCount": None, "maxAgeDays": None, "maxTotalBytes": 10}},
+        {
+            **automation_store.DEFAULT_CONFIG,
+            "backupRetention": {"maxCount": None, "maxAgeDays": None, "maxTotalBytes": 10},
+        },
     )
     backups_dir = instance_store.instance_dir(instance["id"]) / "backups"
     for i in range(3):
@@ -314,7 +323,9 @@ async def test_restore_backup_refuses_a_corrupted_backup(tmp_path):
         await backup_service.restore_backup(instance, record["timestamp"])
 
     # Live save must be untouched - the corrupted backup was never applied.
-    assert (backup_service._save_games_dir(instance) / "0" / "SomeWorldGuid" / "Level.sav").read_bytes() == b"fake save data"
+    assert (
+        backup_service._save_games_dir(instance) / "0" / "SomeWorldGuid" / "Level.sav"
+    ).read_bytes() == b"fake save data"
 
 
 async def test_restore_backup_rolls_back_automatically_on_failure(tmp_path, monkeypatch):

@@ -2,7 +2,14 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { FolderOpen, RotateCcw } from "lucide-react";
 import { instancesApi } from "@/api";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
@@ -86,7 +93,11 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       setJobId(id);
     } catch (e) {
       setStatus("error");
-      setError(e instanceof Error ? e.message : t("settings.deploy.startFailedFallback", { defaultValue: "Couldn't start the deploy." }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("settings.deploy.startFailedFallback", { defaultValue: "Couldn't start the deploy." })
+      );
     }
   }
 
@@ -101,7 +112,11 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
       const { path } = await instancesApi.browseDeployParentDir();
       if (path) setInstallParentDir(path);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("settings.deploy.folderPickerFailedFallback", { defaultValue: "Couldn't open the folder picker." }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("settings.deploy.folderPickerFailedFallback", { defaultValue: "Couldn't open the folder picker." })
+      );
     }
   }
 
@@ -143,7 +158,9 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="deploy-rcon">{t("settings.deploy.restApiPort", { defaultValue: "REST API Port" })}</Label>
+                <Label htmlFor="deploy-rcon">
+                  {t("settings.deploy.restApiPort", { defaultValue: "REST API Port" })}
+                </Label>
                 <Input
                   id="deploy-rcon"
                   type="number"
@@ -162,11 +179,16 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="deploy-location">{t("settings.deploy.installLocation", { defaultValue: "Server Deployment Location" })}</Label>
+              <Label htmlFor="deploy-location">
+                {t("settings.deploy.installLocation", { defaultValue: "Server Deployment Location" })}
+              </Label>
               <div className="flex gap-2">
                 <Input
                   id="deploy-location"
-                  value={installParentDir || t("settings.deploy.defaultFolder", { defaultValue: "Default AutoPalExpress servers folder" })}
+                  value={
+                    installParentDir ||
+                    t("settings.deploy.defaultFolder", { defaultValue: "Default AutoPalExpress servers folder" })
+                  }
                   readOnly
                   className="flex-1"
                 />
@@ -181,13 +203,22 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
                     {t("settings.deploy.default", { defaultValue: "Default" })}
                   </RuneButton>
                 )}
-                <RuneButton type="button" variant="ghost" size="sm" icon={<FolderOpen />} onClick={handleBrowseInstallLocation}>
+                <RuneButton
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  icon={<FolderOpen />}
+                  onClick={handleBrowseInstallLocation}
+                >
                   {t("settings.deploy.browse", { defaultValue: "Browse" })}
                 </RuneButton>
               </div>
               {!installParentDir && defaultLocation && (
                 <p className="truncate font-mono text-[11px] text-parchment-300/40">
-                  {t("settings.deploy.defaultLocationValue", { defaultValue: "Default: {{path}}", path: defaultLocation })}
+                  {t("settings.deploy.defaultLocationValue", {
+                    defaultValue: "Default: {{path}}",
+                    path: defaultLocation,
+                  })}
                 </p>
               )}
             </div>
@@ -205,7 +236,9 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
             {status === "running" && (
               <SpaceInvadersGame
                 shipStyle="squid"
-                caption={t("settings.deploy.waitGameCaption", { defaultValue: "Use ← → and Space while your server downloads..." })}
+                caption={t("settings.deploy.waitGameCaption", {
+                  defaultValue: "Use ← → and Space while your server downloads...",
+                })}
               />
             )}
             <div className="h-48 overflow-y-auto rounded-md border border-stone-700 bg-abyss-950/60 p-3 font-mono text-[11px] leading-relaxed text-parchment-300/70">
@@ -214,8 +247,16 @@ export function DeployServerWizard({ open, onOpenChange, onDeployed }: DeploySer
               ))}
               <div ref={logEndRef} />
             </div>
-            {status === "running" && <p className="animate-pulse text-xs text-gold-400">{t("settings.deploy.deploying", { defaultValue: "Deploying..." })}</p>}
-            {status === "done" && <p className="text-xs text-life-400">{t("settings.deploy.done", { defaultValue: "Done - the new server is now active." })}</p>}
+            {status === "running" && (
+              <p className="animate-pulse text-xs text-gold-400">
+                {t("settings.deploy.deploying", { defaultValue: "Deploying..." })}
+              </p>
+            )}
+            {status === "done" && (
+              <p className="text-xs text-life-400">
+                {t("settings.deploy.done", { defaultValue: "Done - the new server is now active." })}
+              </p>
+            )}
             {status === "error" && <p className="text-xs text-blood-400">{error}</p>}
           </div>
         )}

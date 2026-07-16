@@ -79,7 +79,13 @@ export function LoginScreen({ onDone }: LoginScreenProps) {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="auth-username">Username</Label>
-              <Input id="auth-username" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus required />
+              <Input
+                id="auth-username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoFocus
+                required
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="auth-password">Password</Label>

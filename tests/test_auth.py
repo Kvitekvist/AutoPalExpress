@@ -19,7 +19,9 @@ def test_first_setup_creates_super_admin(super_admin):
 
 
 def test_second_setup_attempt_is_rejected(super_admin):
-    resp = super_admin["client"].post("/api/auth/setup", json={"username": "anyone", "password": "correct-horse-battery"})
+    resp = super_admin["client"].post(
+        "/api/auth/setup", json={"username": "anyone", "password": "correct-horse-battery"}
+    )
     assert resp.status_code == 400
 
 
@@ -75,7 +77,9 @@ def test_login_success_and_failure(super_admin):
 
 
 def test_login_unknown_username_fails_like_wrong_password(super_admin):
-    resp = super_admin["client"].post("/api/auth/login", json={"username": "nobody-registered", "password": "whatever123"})
+    resp = super_admin["client"].post(
+        "/api/auth/login", json={"username": "nobody-registered", "password": "whatever123"}
+    )
     assert resp.status_code == 401
 
 

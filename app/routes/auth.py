@@ -89,9 +89,7 @@ class SetLanguageRequest(BaseModel):
 
 
 @router.patch("/me/language")
-async def set_language(
-    body: SetLanguageRequest, user: dict[str, Any] = Depends(get_current_user)
-) -> dict[str, Any]:
+async def set_language(body: SetLanguageRequest, user: dict[str, Any] = Depends(get_current_user)) -> dict[str, Any]:
     try:
         updated = auth.set_language(user["id"], body.language)
     except AuthError as e:

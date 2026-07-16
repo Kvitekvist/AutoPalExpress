@@ -42,7 +42,9 @@ export function PortForwardPanel() {
     try {
       const gameOk = (await networkApi.getGameFirewallStatus(checkPort)).ruleExists;
       const queryOk =
-        !checkQueryPort || checkQueryPort === checkPort ? true : (await networkApi.getGameFirewallStatus(checkQueryPort)).ruleExists;
+        !checkQueryPort || checkQueryPort === checkPort
+          ? true
+          : (await networkApi.getGameFirewallStatus(checkQueryPort)).ruleExists;
       setFirewallOk(gameOk && queryOk);
     } finally {
       setCheckingFirewall(false);
@@ -87,12 +89,15 @@ export function PortForwardPanel() {
       await check();
       notifications.success({
         title: t("superAdmin.portForward.portUpdatedTitle", { defaultValue: "Game port updated" }),
-        message: t("superAdmin.portForward.portUpdatedMessage", { defaultValue: "Takes effect the next time the server starts." }),
+        message: t("superAdmin.portForward.portUpdatedMessage", {
+          defaultValue: "Takes effect the next time the server starts.",
+        }),
       });
     } catch (e) {
       notifications.error({
         title: t("superAdmin.portForward.saveFailedTitle", { defaultValue: "Couldn't save" }),
-        message: e instanceof Error ? e.message : t("superAdmin.portForward.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("superAdmin.portForward.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setSavingPort(false);
@@ -124,7 +129,8 @@ export function PortForwardPanel() {
     } catch (e) {
       notifications.error({
         title: t("superAdmin.portForward.firewallFailedTitle", { defaultValue: "Couldn't add firewall rule" }),
-        message: e instanceof Error ? e.message : t("superAdmin.portForward.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("superAdmin.portForward.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setAddingRule(false);
@@ -145,15 +151,25 @@ export function PortForwardPanel() {
         title: t("superAdmin.portForward.forwardedTitle", { defaultValue: "Port forwarded" }),
         message: queryPortDiffers
           ? t("superAdmin.portForward.forwardedMessageBoth", {
-              defaultValue: "Friends can connect on port {{port}}, and Steam can query this server on port {{queryPort}}.",
+              defaultValue:
+                "Friends can connect on port {{port}}, and Steam can query this server on port {{queryPort}}.",
               port: data.port,
               queryPort,
             })
-          : t("superAdmin.portForward.forwardedMessage", { defaultValue: "Friends can connect on port {{port}}.", port: data.port }),
+          : t("superAdmin.portForward.forwardedMessage", {
+              defaultValue: "Friends can connect on port {{port}}.",
+              port: data.port,
+            }),
       });
     } catch (e) {
-      const message = e instanceof Error ? e.message : t("superAdmin.portForward.forwardFailedFallback", { defaultValue: "Couldn't forward the port." });
-      notifications.error({ title: t("superAdmin.portForward.forwardFailedTitle", { defaultValue: "Port forward failed" }), message });
+      const message =
+        e instanceof Error
+          ? e.message
+          : t("superAdmin.portForward.forwardFailedFallback", { defaultValue: "Couldn't forward the port." });
+      notifications.error({
+        title: t("superAdmin.portForward.forwardFailedTitle", { defaultValue: "Port forward failed" }),
+        message,
+      });
     } finally {
       setForwarding(false);
     }
@@ -170,10 +186,15 @@ export function PortForwardPanel() {
       await check();
       notifications.info({
         title: t("superAdmin.portForward.removedTitle", { defaultValue: "Port forward removed" }),
-        message: t("superAdmin.portForward.removedMessage", { defaultValue: "Friends can no longer connect from outside your network." }),
+        message: t("superAdmin.portForward.removedMessage", {
+          defaultValue: "Friends can no longer connect from outside your network.",
+        }),
       });
     } catch (e) {
-      const message = e instanceof Error ? e.message : t("superAdmin.portForward.removeFailedFallback", { defaultValue: "Couldn't remove the port forward." });
+      const message =
+        e instanceof Error
+          ? e.message
+          : t("superAdmin.portForward.removeFailedFallback", { defaultValue: "Couldn't remove the port forward." });
       notifications.error({ title: t("superAdmin.portForward.failedTitle", { defaultValue: "Failed" }), message });
     } finally {
       setUnforwarding(false);
@@ -222,7 +243,9 @@ export function PortForwardPanel() {
   return (
     <ScrollPanel icon={<Share2 />} title={t("superAdmin.portForward.title", { defaultValue: "Share With Friends" })}>
       {!hasInstance ? (
-        <p className="text-sm text-parchment-300/50">{t("superAdmin.portForward.noInstance", { defaultValue: "Set up a server first to share it with friends." })}</p>
+        <p className="text-sm text-parchment-300/50">
+          {t("superAdmin.portForward.noInstance", { defaultValue: "Set up a server first to share it with friends." })}
+        </p>
       ) : !status ? (
         <div className="space-y-4">
           <div>
@@ -233,15 +256,21 @@ export function PortForwardPanel() {
             </div>
           </div>
           <div className="border-t border-stone-700/60 pt-4">
-            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.yourAddress", { defaultValue: "Your Address" })}</p>
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
+              {t("superAdmin.portForward.yourAddress", { defaultValue: "Your Address" })}
+            </p>
             <Skeleton className="h-9 w-full" />
           </div>
           <div className="border-t border-stone-700/60 pt-4">
-            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}</p>
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
+              {t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}
+            </p>
             <Skeleton className="h-5 w-64" />
           </div>
           <div className="border-t border-stone-700/60 pt-4">
-            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}</p>
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
+              {t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}
+            </p>
             <div className="space-y-2">
               <Skeleton className="h-4 w-3/4" />
               <div className="flex gap-2">
@@ -257,7 +286,8 @@ export function PortForwardPanel() {
             <Label htmlFor="game-port">{t("superAdmin.portForward.gamePort", { defaultValue: "Game Port" })}</Label>
             <p className="mb-1.5 text-[11px] text-parchment-300/40">
               {t("superAdmin.portForward.gamePortHint", {
-                defaultValue: "This is your server's actual configured port - the only place to change it. Takes effect the next time the server starts.",
+                defaultValue:
+                  "This is your server's actual configured port - the only place to change it. Takes effect the next time the server starts.",
               })}
             </p>
             <div className="flex items-center gap-2">
@@ -276,30 +306,32 @@ export function PortForwardPanel() {
                 onClick={handleSavePort}
                 disabled={!portDirty || savingPort || !port}
               >
-                {savingPort ? t("superAdmin.portForward.saving", { defaultValue: "Saving..." }) : t("superAdmin.portForward.savePort", { defaultValue: "Save Port" })}
+                {savingPort
+                  ? t("superAdmin.portForward.saving", { defaultValue: "Saving..." })
+                  : t("superAdmin.portForward.savePort", { defaultValue: "Save Port" })}
               </RuneButton>
             </div>
           </div>
 
           {queryPort && (
             <div className="border-t border-stone-700/60 pt-4">
-              <Label htmlFor="query-port-value">{t("superAdmin.portForward.queryPort", { defaultValue: "Steam Query Port" })}</Label>
+              <Label htmlFor="query-port-value">
+                {t("superAdmin.portForward.queryPort", { defaultValue: "Steam Query Port" })}
+              </Label>
               <p className="mb-1.5 text-[11px] text-parchment-300/40">
                 {t("superAdmin.portForward.queryPortReadOnlyHint", {
-                  defaultValue: "Enabled in Launcher Options. It may also need firewall/router access for server-list discovery.",
+                  defaultValue:
+                    "Enabled in Launcher Options. It may also need firewall/router access for server-list discovery.",
                 })}
               </p>
-              <Input
-                id="query-port-value"
-                value={String(queryPort)}
-                disabled
-                className="max-w-[10rem] font-mono"
-              />
+              <Input id="query-port-value" value={String(queryPort)} disabled className="max-w-[10rem] font-mono" />
             </div>
           )}
 
           <div className="border-t border-stone-700/60 pt-4">
-            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.yourAddress", { defaultValue: "Your Address" })}</p>
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
+              {t("superAdmin.portForward.yourAddress", { defaultValue: "Your Address" })}
+            </p>
             {status.externalIp && port ? (
               <div className="flex items-center gap-2 rounded-md border border-stone-700 bg-abyss-900/40 px-3 py-2">
                 <span className="flex-1 truncate font-mono text-sm text-parchment-100">
@@ -312,23 +344,36 @@ export function PortForwardPanel() {
                   icon={copied ? <Check /> : <Copy />}
                   onClick={handleCopy}
                 >
-                  {copied ? t("superAdmin.portForward.copied", { defaultValue: "Copied" }) : t("superAdmin.portForward.copy", { defaultValue: "Copy" })}
+                  {copied
+                    ? t("superAdmin.portForward.copied", { defaultValue: "Copied" })
+                    : t("superAdmin.portForward.copy", { defaultValue: "Copy" })}
                 </RuneButton>
               </div>
             ) : (
-              <p className="text-sm text-parchment-300/50">{t("superAdmin.portForward.noPublicAddress", { defaultValue: "Couldn't determine your public address." })}</p>
+              <p className="text-sm text-parchment-300/50">
+                {t("superAdmin.portForward.noPublicAddress", {
+                  defaultValue: "Couldn't determine your public address.",
+                })}
+              </p>
             )}
             <p className="mt-1.5 text-[11px] text-parchment-300/40">
-              {t("superAdmin.portForward.shareHint", { defaultValue: "Share this with friends; it only works once both steps below are done." })}
+              {t("superAdmin.portForward.shareHint", {
+                defaultValue: "Share this with friends; it only works once both steps below are done.",
+              })}
             </p>
           </div>
 
           <div className="border-t border-stone-700/60 pt-4">
-            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}</p>
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
+              {t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}
+            </p>
             {firewallOk ? (
               <p className="flex items-center gap-1.5 text-sm text-life-400">
                 <ShieldCheck className="h-4 w-4 shrink-0" />
-                {t("superAdmin.portForward.firewallAllowed", { defaultValue: "Allowed: incoming UDP connections on port {{port}} aren't blocked.", port })}
+                {t("superAdmin.portForward.firewallAllowed", {
+                  defaultValue: "Allowed: incoming UDP connections on port {{port}} aren't blocked.",
+                  port,
+                })}
               </p>
             ) : (
               <div className="space-y-2">
@@ -336,7 +381,9 @@ export function PortForwardPanel() {
                   <ShieldAlert className="h-4 w-4 shrink-0 text-gold-400" />
                   {checkingFirewall
                     ? t("superAdmin.portForward.checking", { defaultValue: "Checking..." })
-                    : t("superAdmin.portForward.firewallNotAllowed", { defaultValue: "Not allowed yet. Friends may see a timeout, not an error." })}
+                    : t("superAdmin.portForward.firewallNotAllowed", {
+                        defaultValue: "Not allowed yet. Friends may see a timeout, not an error.",
+                      })}
                 </p>
                 <div className="flex items-center gap-2">
                   <RuneButton
@@ -361,19 +408,25 @@ export function PortForwardPanel() {
                   </RuneButton>
                 </div>
                 <p className="text-[11px] text-parchment-300/40">
-                  {t("superAdmin.portForward.uacHint", { defaultValue: 'Windows will show its own permission prompt; click "Yes" on it to continue.' })}
+                  {t("superAdmin.portForward.uacHint", {
+                    defaultValue: 'Windows will show its own permission prompt; click "Yes" on it to continue.',
+                  })}
                 </p>
               </div>
             )}
           </div>
 
           <div className="border-t border-stone-700/60 pt-4">
-            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">{t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}</p>
+            <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
+              {t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}
+            </p>
             {!status.available ? (
               <div className="space-y-2">
                 <p className="flex items-center gap-1.5 text-sm text-parchment-300/70">
                   <WifiOff className="h-4 w-4 shrink-0 text-blood-400" />
-                  {t("superAdmin.portForward.noUpnpRouter", { defaultValue: "No UPnP-capable router found on this network." })}
+                  {t("superAdmin.portForward.noUpnpRouter", {
+                    defaultValue: "No UPnP-capable router found on this network.",
+                  })}
                 </p>
                 <p className="text-xs leading-relaxed text-parchment-300/40">
                   {t("superAdmin.portForward.noUpnpHint", {
@@ -417,7 +470,9 @@ export function PortForwardPanel() {
                       })}
                     </p>
                     <ManualForwardInstructions
-                      name={t("superAdmin.portForward.steamQueryPortName", { defaultValue: "Palworld Server (Steam Query)" })}
+                      name={t("superAdmin.portForward.steamQueryPortName", {
+                        defaultValue: "Palworld Server (Steam Query)",
+                      })}
                       protocol="UDP"
                       port={queryPort}
                       localIp={status.localIp}
@@ -437,7 +492,9 @@ export function PortForwardPanel() {
                   </>
                 )}
                 <RuneButton type="button" variant="ghost" size="sm" onClick={check} disabled={checking}>
-                  {checking ? t("superAdmin.portForward.checking", { defaultValue: "Checking..." }) : t("superAdmin.portForward.checkAgain", { defaultValue: "Check Again" })}
+                  {checking
+                    ? t("superAdmin.portForward.checking", { defaultValue: "Checking..." })
+                    : t("superAdmin.portForward.checkAgain", { defaultValue: "Check Again" })}
                 </RuneButton>
               </div>
             ) : (
@@ -446,12 +503,17 @@ export function PortForwardPanel() {
                   mapping.isThisMachine ? (
                     <p className="flex items-center gap-1.5 text-sm text-life-400">
                       <Wifi className="h-4 w-4 shrink-0" />
-                      {t("superAdmin.portForward.forwardedVia", { defaultValue: "Port {{port}} is forwarded via {{router}}.", port, router: status.routerName })}
+                      {t("superAdmin.portForward.forwardedVia", {
+                        defaultValue: "Port {{port}} is forwarded via {{router}}.",
+                        port,
+                        router: status.routerName,
+                      })}
                     </p>
                   ) : (
                     <p className="text-sm text-gold-400">
                       {t("superAdmin.portForward.forwardedElsewhere", {
-                        defaultValue: "Port {{port}} is currently forwarded to a different machine on this network ({{client}}), not this PC.",
+                        defaultValue:
+                          "Port {{port}} is currently forwarded to a different machine on this network ({{client}}), not this PC.",
                         port,
                         client: mapping.internalClient,
                       })}
@@ -474,7 +536,9 @@ export function PortForwardPanel() {
                     onClick={handleForward}
                     disabled={forwarding || !port}
                   >
-                    {forwarding ? t("superAdmin.portForward.forwarding", { defaultValue: "Forwarding..." }) : t("superAdmin.portForward.forwardPort", { defaultValue: "Forward Port" })}
+                    {forwarding
+                      ? t("superAdmin.portForward.forwarding", { defaultValue: "Forwarding..." })
+                      : t("superAdmin.portForward.forwardPort", { defaultValue: "Forward Port" })}
                   </RuneButton>
                   <RuneButton
                     type="button"

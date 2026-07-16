@@ -30,7 +30,10 @@ export function useServerUpdateJob(
           notifications.success({
             title: t("serverControl.notifications.serverUpdatedTitle", { defaultValue: "Server updated" }),
             message: job.installedBuildId
-              ? t("serverControl.notifications.installedBuild", { defaultValue: "Installed build {{id}}.", id: job.installedBuildId })
+              ? t("serverControl.notifications.installedBuild", {
+                  defaultValue: "Installed build {{id}}.",
+                  id: job.installedBuildId,
+                })
               : t("serverControl.notifications.updateFinished", { defaultValue: "SteamCMD finished the update." }),
           });
           await onSuccess();
@@ -39,7 +42,11 @@ export function useServerUpdateJob(
           onSettled();
           notifications.error({
             title: t("serverControl.notifications.updateFailedTitle", { defaultValue: "Update failed" }),
-            message: job.error ?? t("serverControl.notifications.updateFailedFallback", { defaultValue: "SteamCMD could not update the server." }),
+            message:
+              job.error ??
+              t("serverControl.notifications.updateFailedFallback", {
+                defaultValue: "SteamCMD could not update the server.",
+              }),
           });
         }
       } catch (e) {
@@ -48,7 +55,10 @@ export function useServerUpdateJob(
           onSettled();
           notifications.error({
             title: t("serverControl.notifications.updateStatusFailedTitle", { defaultValue: "Update status failed" }),
-            message: e instanceof Error ? e.message : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
+            message:
+              e instanceof Error
+                ? e.message
+                : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
           });
         }
       }

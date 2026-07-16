@@ -26,7 +26,10 @@ interface RuneDialogProps {
   children?: React.ReactNode;
 }
 
-const TONE_CONFIG: Record<RuneDialogTone, { icon: typeof Skull; color: string; ring: string; variant: "danger" | "gold" | "mana" }> = {
+const TONE_CONFIG: Record<
+  RuneDialogTone,
+  { icon: typeof Skull; color: string; ring: string; variant: "danger" | "gold" | "mana" }
+> = {
   danger: { icon: Skull, color: "text-blood-400", ring: "border-blood-500/40 bg-blood-500/10", variant: "danger" },
   warning: { icon: TriangleAlert, color: "text-gold-400", ring: "border-gold-500/40 bg-gold-500/10", variant: "gold" },
   info: { icon: ShieldQuestion, color: "text-mana-400", ring: "border-mana-500/40 bg-mana-500/10", variant: "mana" },

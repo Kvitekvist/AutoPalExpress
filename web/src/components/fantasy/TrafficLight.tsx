@@ -20,7 +20,9 @@ interface TrafficLightProps {
 export function TrafficLight({ label, color, hint }: TrafficLightProps) {
   return (
     <div className="flex items-center gap-2" title={hint}>
-      <span className={cn("h-2.5 w-2.5 shrink-0 rounded-full", color ? COLOR_CLASSES[color] : "animate-pulse bg-stone-600")} />
+      <span
+        className={cn("h-2.5 w-2.5 shrink-0 rounded-full", color ? COLOR_CLASSES[color] : "animate-pulse bg-stone-600")}
+      />
       <span className="text-xs text-parchment-300/70">{label}</span>
     </div>
   );

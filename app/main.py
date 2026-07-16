@@ -10,9 +10,9 @@ from fastapi.staticfiles import StaticFiles
 from app.auth_deps import get_current_user, require_super_admin
 from app.paths import resource_dir
 from app.routes import (
-    automation,
     app_update,
     auth,
+    automation,
     instances,
     logs,
     mods,
@@ -68,6 +68,7 @@ async def _start_scheduler() -> None:
     # tails first_run_setup's log file) shouldn't be blocked waiting on it.
     asyncio.create_task(first_run_setup.apply_seed_if_present())
 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -87,8 +88,12 @@ app.include_router(mods.router, prefix="/api/mods", tags=["mods"], dependencies=
 app.include_router(instances.router, prefix="/api/instances", tags=["instances"], dependencies=_authed)
 app.include_router(ue4ss.router, prefix="/api/ue4ss", tags=["ue4ss"], dependencies=_authed)
 app.include_router(server_control.router, prefix="/api/server", tags=["server"], dependencies=_authed)
-app.include_router(server_settings.router, prefix="/api/server-settings", tags=["server-settings"], dependencies=_authed)
-app.include_router(system_settings.router, prefix="/api/system-settings", tags=["system-settings"], dependencies=_super_admin_only)
+app.include_router(
+    server_settings.router, prefix="/api/server-settings", tags=["server-settings"], dependencies=_authed
+)
+app.include_router(
+    system_settings.router, prefix="/api/system-settings", tags=["system-settings"], dependencies=_super_admin_only
+)
 app.include_router(automation.router, prefix="/api/automation", tags=["automation"], dependencies=_super_admin_only)
 app.include_router(players.router, prefix="/api/players", tags=["players"], dependencies=_authed)
 app.include_router(logs.router, prefix="/api/logs", tags=["logs"], dependencies=_authed)

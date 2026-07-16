@@ -36,12 +36,20 @@ function fieldHelp(t: Translate, field: SettingField) {
   if (field.help) return t(`worldSettings.fields.${field.key}.help`, { defaultValue: field.help });
   if (field.options?.length) {
     return field.options
-      .map((option) => `${optionLabel(t, field, option.value, option.label)}: ${optionDescription(t, field, option.value, option.description) ?? option.value}`)
+      .map(
+        (option) =>
+          `${optionLabel(t, field, option.value, option.label)}: ${optionDescription(t, field, option.value, option.description) ?? option.value}`
+      )
       .join("\n");
   }
-  if (field.type === "bool") return t("worldSettings.chrome.helpBool", { defaultValue: "On enables this setting. Off disables it." });
-  if (field.type === "int") return t("localApi.helpInt", { defaultValue: "Numeric setting. Example: 10 is low, 30 is moderate, 60+ is high." });
-  if (field.type === "float") return t("localApi.helpFloat", { defaultValue: "Decimal multiplier. Example: 0.5 is half, 1.0 is normal, 2.0 is double." });
+  if (field.type === "bool")
+    return t("worldSettings.chrome.helpBool", { defaultValue: "On enables this setting. Off disables it." });
+  if (field.type === "int")
+    return t("localApi.helpInt", { defaultValue: "Numeric setting. Example: 10 is low, 30 is moderate, 60+ is high." });
+  if (field.type === "float")
+    return t("localApi.helpFloat", {
+      defaultValue: "Decimal multiplier. Example: 0.5 is half, 1.0 is normal, 2.0 is double.",
+    });
   return t("localApi.helpString", { defaultValue: "Written directly to PalWorldSettings.ini." });
 }
 
@@ -107,7 +115,9 @@ function LocalApiField({
                 defaultValue: "{{value}} (current)",
                 value: stringValue || t("worldSettings.chrome.currentValueUnknown", { defaultValue: "Current value" }),
               }),
-              description: t("worldSettings.chrome.currentValueDescription", { defaultValue: "Value currently stored in PalWorldSettings.ini." }),
+              description: t("worldSettings.chrome.currentValueDescription", {
+                defaultValue: "Value currently stored in PalWorldSettings.ini.",
+              }),
             },
             ...field.options,
           ];
@@ -218,7 +228,8 @@ export function LocalApiSettingsPanel() {
     >
       <p className="mb-4 text-xs leading-relaxed text-parchment-300/50">
         {t("localApi.description", {
-          defaultValue: "Palworld REST/API settings are kept here because they control how AutoPalExpress talks to the local server. Do not port-forward this API directly.",
+          defaultValue:
+            "Palworld REST/API settings are kept here because they control how AutoPalExpress talks to the local server. Do not port-forward this API directly.",
         })}
       </p>
       {fields.length > 0 ? (
@@ -234,7 +245,9 @@ export function LocalApiSettingsPanel() {
         </div>
       ) : (
         <p className="text-sm text-parchment-300/50">
-          {t("localApi.empty", { defaultValue: "No Local API fields are present in this server's current PalWorldSettings.ini." })}
+          {t("localApi.empty", {
+            defaultValue: "No Local API fields are present in this server's current PalWorldSettings.ini.",
+          })}
         </p>
       )}
     </ScrollPanel>

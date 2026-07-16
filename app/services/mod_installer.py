@@ -264,7 +264,9 @@ def remove(mods_path: Path, folder_name: str) -> None:
             logger.info("Removed mod folder %r from %s", folder_name, base)
 
 
-def list_untracked_entries(mods_path: Path, tracked_names: set[str], exclude_names: set[str] = frozenset()) -> list[str]:
+def list_untracked_entries(
+    mods_path: Path, tracked_names: set[str], exclude_names: set[str] = frozenset()
+) -> list[str]:
     """Top-level entries sitting directly in mods_path that aren't already
     tracked in mods_store (by folderName) and aren't something else's
     bookkeeping (e.g. UE4SS's own built-in mods/files) - i.e. mods a user

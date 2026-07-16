@@ -81,9 +81,7 @@ export function MagicNotificationStack({ items, onDismiss }: MagicNotificationSt
                     {config.label}
                   </p>
                   <p className="truncate font-display text-sm font-semibold text-parchment-100">{item.title}</p>
-                  {item.message && (
-                    <p className="mt-0.5 text-xs leading-snug text-parchment-300/70">{item.message}</p>
-                  )}
+                  {item.message && <p className="mt-0.5 text-xs leading-snug text-parchment-300/70">{item.message}</p>}
                 </div>
               </div>
               <button

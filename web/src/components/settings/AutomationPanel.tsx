@@ -1,9 +1,27 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { RefreshCw, Save, TriangleAlert, HardDriveDownload, FolderOpen, ShieldCheck, History, Download, CircleCheck, CircleX, CircleHelp } from "lucide-react";
+import {
+  RefreshCw,
+  Save,
+  TriangleAlert,
+  HardDriveDownload,
+  FolderOpen,
+  ShieldCheck,
+  History,
+  Download,
+  CircleCheck,
+  CircleX,
+  CircleHelp,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { automationApi } from "@/api";
-import type { AutomationConfig, BackupRecord, BackupVerifyResult, ScheduleConfig, RestartScheduleConfig } from "@/types/models";
+import type {
+  AutomationConfig,
+  BackupRecord,
+  BackupVerifyResult,
+  ScheduleConfig,
+  RestartScheduleConfig,
+} from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
 import { RuneButton } from "@/components/fantasy/RuneButton";
@@ -48,7 +66,9 @@ function ScheduleFields({
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       <div className="space-y-1.5">
-        <Label htmlFor={`${idPrefix}-frequency`}>{t("settings.automation.frequency", { defaultValue: "Frequency" })}</Label>
+        <Label htmlFor={`${idPrefix}-frequency`}>
+          {t("settings.automation.frequency", { defaultValue: "Frequency" })}
+        </Label>
         <Select
           value={schedule.frequency}
           onValueChange={(v) => onChange({ ...schedule, frequency: v as "daily" | "weekly" })}
@@ -112,10 +132,18 @@ function ScheduleFields({
 function IntegrityBadge({ result, checking }: { result?: BackupVerifyResult; checking: boolean }) {
   const { t } = useTranslation();
   if (checking) {
-    return <span className="text-[11px] text-parchment-300/40">{t("settings.automation.verifying", { defaultValue: "Checking..." })}</span>;
+    return (
+      <span className="text-[11px] text-parchment-300/40">
+        {t("settings.automation.verifying", { defaultValue: "Checking..." })}
+      </span>
+    );
   }
   if (!result) {
-    return <span className="text-[11px] text-parchment-300/30">{t("settings.automation.notVerified", { defaultValue: "Not checked" })}</span>;
+    return (
+      <span className="text-[11px] text-parchment-300/30">
+        {t("settings.automation.notVerified", { defaultValue: "Not checked" })}
+      </span>
+    );
   }
   if (result.status === "ok") {
     return (
@@ -126,13 +154,19 @@ function IntegrityBadge({ result, checking }: { result?: BackupVerifyResult; che
   }
   if (result.status === "corrupted") {
     return (
-      <span className="flex items-center justify-center gap-1 text-[11px] text-blood-400" title={result.issues.join("; ")}>
+      <span
+        className="flex items-center justify-center gap-1 text-[11px] text-blood-400"
+        title={result.issues.join("; ")}
+      >
         <CircleX className="h-3.5 w-3.5" /> {t("settings.automation.verifyCorrupted", { defaultValue: "Corrupted" })}
       </span>
     );
   }
   return (
-    <span className="flex items-center justify-center gap-1 text-[11px] text-parchment-300/40" title={result.issues.join("; ")}>
+    <span
+      className="flex items-center justify-center gap-1 text-[11px] text-parchment-300/40"
+      title={result.issues.join("; ")}
+    >
       <CircleHelp className="h-3.5 w-3.5" /> {t("settings.automation.verifyUnknown", { defaultValue: "Unknown" })}
     </span>
   );
@@ -189,7 +223,8 @@ export function AutomationPanel() {
     } catch (e) {
       notifications.error({
         title: t("settings.automation.updateFailedTitle", { defaultValue: "Could not save" }),
-        message: e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setSaving(false);
@@ -203,12 +238,15 @@ export function AutomationPanel() {
       refreshBackups();
       notifications.success({
         title: t("settings.automation.backupCompleteTitle", { defaultValue: "Backup complete" }),
-        message: t("settings.automation.backupCompleteMessage", { defaultValue: "The realm's save data has been preserved." }),
+        message: t("settings.automation.backupCompleteMessage", {
+          defaultValue: "The realm's save data has been preserved.",
+        }),
       });
     } catch (e) {
       notifications.error({
         title: t("settings.automation.backupFailedTitle", { defaultValue: "Backup failed" }),
-        message: e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setBackingUp(false);
@@ -222,7 +260,8 @@ export function AutomationPanel() {
     } catch (e) {
       notifications.error({
         title: t("settings.automation.openFolderFailedTitle", { defaultValue: "Could not open folder" }),
-        message: e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setOpeningFolder(null);
@@ -237,7 +276,8 @@ export function AutomationPanel() {
     } catch (e) {
       notifications.error({
         title: t("settings.automation.verifyFailedTitle", { defaultValue: "Could not verify backup" }),
-        message: e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setVerifying(null);
@@ -257,7 +297,8 @@ export function AutomationPanel() {
     } catch (e) {
       notifications.error({
         title: t("settings.automation.notesFailedTitle", { defaultValue: "Could not save note" }),
-        message: e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
       });
       setNotesDraft((prev) => ({ ...prev, [b.timestamp]: b.notes }));
     }
@@ -285,7 +326,8 @@ export function AutomationPanel() {
     } catch (e) {
       notifications.error({
         title: t("settings.automation.restoreFailedTitle", { defaultValue: "Restore failed" }),
-        message: e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("settings.automation.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setRestoring(false);
@@ -295,15 +337,29 @@ export function AutomationPanel() {
   const yes = t("settings.automation.yes", { defaultValue: "Yes" });
   const no = t("settings.automation.no", { defaultValue: "No" });
   const backupColumns: GuildTableColumn<BackupRecord>[] = [
-    { key: "timestamp", header: t("settings.automation.when", { defaultValue: "When" }), render: (b) => formatTimestamp(b.timestamp) },
+    {
+      key: "timestamp",
+      header: t("settings.automation.when", { defaultValue: "When" }),
+      render: (b) => formatTimestamp(b.timestamp),
+    },
     {
       key: "kind",
       header: t("settings.automation.kind", { defaultValue: "Kind" }),
       align: "center",
       render: (b) => KIND_LABELS[b.kind] ?? b.kind,
     },
-    { key: "sizeBytes", header: t("settings.automation.size", { defaultValue: "Size" }), align: "center", render: (b) => formatBytes(b.sizeBytes) },
-    { key: "liveSaveForced", header: t("settings.automation.freshSave", { defaultValue: "Fresh Save" }), align: "center", render: (b) => (b.liveSaveForced ? yes : no) },
+    {
+      key: "sizeBytes",
+      header: t("settings.automation.size", { defaultValue: "Size" }),
+      align: "center",
+      render: (b) => formatBytes(b.sizeBytes),
+    },
+    {
+      key: "liveSaveForced",
+      header: t("settings.automation.freshSave", { defaultValue: "Fresh Save" }),
+      align: "center",
+      render: (b) => (b.liveSaveForced ? yes : no),
+    },
     {
       key: "notes",
       header: t("settings.automation.notes", { defaultValue: "Notes" }),
@@ -370,7 +426,9 @@ export function AutomationPanel() {
   if (!config) {
     return (
       <ScrollPanel icon={<RefreshCw />} title={t("settings.automation.title", { defaultValue: "Automation" })}>
-        <p className="animate-pulse text-sm text-parchment-300/50">{t("settings.automation.loading", { defaultValue: "Reading the ancient tome..." })}</p>
+        <p className="animate-pulse text-sm text-parchment-300/50">
+          {t("settings.automation.loading", { defaultValue: "Reading the ancient tome..." })}
+        </p>
       </ScrollPanel>
     );
   }
@@ -383,7 +441,8 @@ export function AutomationPanel() {
             <TriangleAlert className="h-4 w-4 shrink-0" />
             <span>
               {t("settings.automation.restApiNeeded", {
-                defaultValue: "Restart warnings, fresh-save backups, and player arrival/departure messages need the Palworld REST API.",
+                defaultValue:
+                  "Restart warnings, fresh-save backups, and player arrival/departure messages need the Palworld REST API.",
               })}
             </span>
             <Link
@@ -401,13 +460,11 @@ export function AutomationPanel() {
             checked={config.backup.enabled}
             onCheckedChange={(v) => update({ backup: { ...config.backup, enabled: v } })}
             label={t("settings.automation.scheduledBackups", { defaultValue: "Scheduled Backups" })}
-            description={t("settings.automation.scheduledBackupsDescription", { defaultValue: "Automatically archive world saves" })}
+            description={t("settings.automation.scheduledBackupsDescription", {
+              defaultValue: "Automatically archive world saves",
+            })}
           />
-          <ScheduleFields
-            schedule={config.backup}
-            onChange={(next) => update({ backup: next })}
-            idPrefix="backup"
-          />
+          <ScheduleFields schedule={config.backup} onChange={(next) => update({ backup: next })} idPrefix="backup" />
         </div>
 
         <div className="space-y-3 border-b border-stone-700/60 pb-6">
@@ -416,7 +473,9 @@ export function AutomationPanel() {
             checked={config.restart.enabled}
             onCheckedChange={(v) => update({ restart: { ...config.restart, enabled: v } })}
             label={t("settings.automation.scheduledRestarts", { defaultValue: "Scheduled Restarts" })}
-            description={t("settings.automation.scheduledRestartsDescription", { defaultValue: "Automatically restart on a schedule" })}
+            description={t("settings.automation.scheduledRestartsDescription", {
+              defaultValue: "Automatically restart on a schedule",
+            })}
           />
           <ScheduleFields
             schedule={config.restart}
@@ -424,7 +483,9 @@ export function AutomationPanel() {
             idPrefix="restart"
           />
           <div className="max-w-[12rem] space-y-1.5">
-            <Label htmlFor="warningMinutes">{t("settings.automation.warnPlayers", { defaultValue: "Warn players (minutes before)" })}</Label>
+            <Label htmlFor="warningMinutes">
+              {t("settings.automation.warnPlayers", { defaultValue: "Warn players (minutes before)" })}
+            </Label>
             <Input
               id="warningMinutes"
               type="number"
@@ -433,7 +494,9 @@ export function AutomationPanel() {
               onChange={(e) => update({ restart: { ...config.restart, warningMinutes: Number(e.target.value) } })}
               disabled={!config.restart.enabled}
             />
-            <p className="text-[11px] text-parchment-300/40">{t("settings.automation.warnPlayersHint", { defaultValue: "0 = no warning broadcast." })}</p>
+            <p className="text-[11px] text-parchment-300/40">
+              {t("settings.automation.warnPlayersHint", { defaultValue: "0 = no warning broadcast." })}
+            </p>
           </div>
         </div>
 
@@ -442,7 +505,9 @@ export function AutomationPanel() {
           checked={config.joinLeaveMessages}
           onCheckedChange={(v) => update({ joinLeaveMessages: v })}
           label={t("settings.automation.announceJoinLeave", { defaultValue: "Announce Arrivals & Departures" })}
-          description={t("settings.automation.announceJoinLeaveDescription", { defaultValue: "Broadcast when a player enters or leaves the realm" })}
+          description={t("settings.automation.announceJoinLeaveDescription", {
+            defaultValue: "Broadcast when a player enters or leaves the realm",
+          })}
         />
 
         <div className="space-y-3 border-t border-stone-700/60 pt-6">
@@ -454,7 +519,9 @@ export function AutomationPanel() {
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
-              <Label htmlFor="retentionMaxCount">{t("settings.automation.retentionMaxCount", { defaultValue: "Keep at most (count)" })}</Label>
+              <Label htmlFor="retentionMaxCount">
+                {t("settings.automation.retentionMaxCount", { defaultValue: "Keep at most (count)" })}
+              </Label>
               <Input
                 id="retentionMaxCount"
                 type="number"
@@ -465,7 +532,9 @@ export function AutomationPanel() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="retentionMaxAge">{t("settings.automation.retentionMaxAge", { defaultValue: "Max age (days)" })}</Label>
+              <Label htmlFor="retentionMaxAge">
+                {t("settings.automation.retentionMaxAge", { defaultValue: "Max age (days)" })}
+              </Label>
               <Input
                 id="retentionMaxAge"
                 type="number"
@@ -476,14 +545,22 @@ export function AutomationPanel() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="retentionMaxSize">{t("settings.automation.retentionMaxSize", { defaultValue: "Max total size (MB)" })}</Label>
+              <Label htmlFor="retentionMaxSize">
+                {t("settings.automation.retentionMaxSize", { defaultValue: "Max total size (MB)" })}
+              </Label>
               <Input
                 id="retentionMaxSize"
                 type="number"
                 min={1}
-                value={config.backupRetention.maxTotalBytes ? Math.round(config.backupRetention.maxTotalBytes / (1024 * 1024)) : ""}
+                value={
+                  config.backupRetention.maxTotalBytes
+                    ? Math.round(config.backupRetention.maxTotalBytes / (1024 * 1024))
+                    : ""
+                }
                 onChange={(e) =>
-                  updateRetention({ maxTotalBytes: e.target.value === "" ? null : Number(e.target.value) * 1024 * 1024 })
+                  updateRetention({
+                    maxTotalBytes: e.target.value === "" ? null : Number(e.target.value) * 1024 * 1024,
+                  })
                 }
                 placeholder={t("settings.automation.unlimited", { defaultValue: "Unlimited" })}
               />
@@ -493,19 +570,33 @@ export function AutomationPanel() {
 
         <div className="flex justify-end">
           <RuneButton variant="gold" icon={<Save />} onClick={handleSave} disabled={!dirty || saving}>
-            {saving ? t("settings.automation.inscribing", { defaultValue: "Inscribing..." }) : t("settings.automation.save", { defaultValue: "Save Automation" })}
+            {saving
+              ? t("settings.automation.inscribing", { defaultValue: "Inscribing..." })
+              : t("settings.automation.save", { defaultValue: "Save Automation" })}
           </RuneButton>
         </div>
 
         <div className="border-t border-stone-700/60 pt-6">
           <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs uppercase tracking-wide text-parchment-300/40">{t("settings.automation.recentBackups", { defaultValue: "Recent Backups" })}</p>
-            <RuneButton variant="ghost" size="sm" icon={<HardDriveDownload />} onClick={handleBackupNow} disabled={backingUp}>
-              {backingUp ? t("settings.automation.preserving", { defaultValue: "Preserving..." }) : t("settings.automation.backupNow", { defaultValue: "Backup Now" })}
+            <p className="text-xs uppercase tracking-wide text-parchment-300/40">
+              {t("settings.automation.recentBackups", { defaultValue: "Recent Backups" })}
+            </p>
+            <RuneButton
+              variant="ghost"
+              size="sm"
+              icon={<HardDriveDownload />}
+              onClick={handleBackupNow}
+              disabled={backingUp}
+            >
+              {backingUp
+                ? t("settings.automation.preserving", { defaultValue: "Preserving..." })
+                : t("settings.automation.backupNow", { defaultValue: "Backup Now" })}
             </RuneButton>
           </div>
           {backups.length === 0 ? (
-            <p className="text-sm text-parchment-300/40">{t("settings.automation.noBackups", { defaultValue: "No backups yet." })}</p>
+            <p className="text-sm text-parchment-300/40">
+              {t("settings.automation.noBackups", { defaultValue: "No backups yet." })}
+            </p>
           ) : (
             <GuildTable columns={backupColumns} rows={backups} rowKey={(b) => b.timestamp} />
           )}

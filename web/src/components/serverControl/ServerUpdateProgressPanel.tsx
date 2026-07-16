@@ -15,10 +15,20 @@ export function ServerUpdateProgressPanel({ updateJob }: { updateJob: ServerUpda
             })}
           </span>
           {updateJob.installedBuildId && (
-            <span>{t("serverControl.installedBuildShort", { defaultValue: "Installed build {{id}}", id: updateJob.installedBuildId })}</span>
+            <span>
+              {t("serverControl.installedBuildShort", {
+                defaultValue: "Installed build {{id}}",
+                id: updateJob.installedBuildId,
+              })}
+            </span>
           )}
           {updateJob.latestBuildId && (
-            <span>{t("serverControl.latestBuildShort", { defaultValue: "Latest build {{id}}", id: updateJob.latestBuildId })}</span>
+            <span>
+              {t("serverControl.latestBuildShort", {
+                defaultValue: "Latest build {{id}}",
+                id: updateJob.latestBuildId,
+              })}
+            </span>
           )}
         </div>
         {updateJob.log.length > 0 && (

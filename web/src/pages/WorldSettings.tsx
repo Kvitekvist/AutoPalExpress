@@ -59,13 +59,18 @@ function settingHelp(t: Translate, field: SettingField) {
   if (field.help) return t(`worldSettings.fields.${field.key}.help`, { defaultValue: field.help });
   if (field.options?.length) {
     return field.options
-      .map((option) => `${optionLabel(t, field, option.value, option.label)}: ${optionDescription(t, field, option.value, option.description) ?? option.value}`)
+      .map(
+        (option) =>
+          `${optionLabel(t, field, option.value, option.label)}: ${optionDescription(t, field, option.value, option.description) ?? option.value}`
+      )
       .join("\n");
   }
-  if (field.type === "bool") return t("worldSettings.chrome.helpBool", { defaultValue: "On enables this setting. Off disables it." });
+  if (field.type === "bool")
+    return t("worldSettings.chrome.helpBool", { defaultValue: "On enables this setting. Off disables it." });
   if (field.type === "int")
     return t("worldSettings.chrome.helpInt", {
-      defaultValue: "Numeric setting. Example: 10 is a lower limit, 30 is moderate, 60+ is high. The exact meaning depends on the setting.",
+      defaultValue:
+        "Numeric setting. Example: 10 is a lower limit, 30 is moderate, 60+ is high. The exact meaning depends on the setting.",
     });
   if (field.type === "float")
     return t("worldSettings.chrome.helpFloat", {
@@ -73,9 +78,12 @@ function settingHelp(t: Translate, field: SettingField) {
     });
   if (field.type === "raw")
     return t("worldSettings.chrome.helpRaw", {
-      defaultValue: "Advanced raw Palworld value. Keep the existing format unless you know the exact value Palworld expects.",
+      defaultValue:
+        "Advanced raw Palworld value. Keep the existing format unless you know the exact value Palworld expects.",
     });
-  return t("worldSettings.chrome.helpString", { defaultValue: "Text setting written directly to PalWorldSettings.ini." });
+  return t("worldSettings.chrome.helpString", {
+    defaultValue: "Text setting written directly to PalWorldSettings.ini.",
+  });
 }
 
 function FieldLabel({ field }: { field: SettingField }) {
@@ -94,7 +102,9 @@ function FieldLabel({ field }: { field: SettingField }) {
             <Info className="h-3.5 w-3.5" />
           </button>
         </TooltipTrigger>
-        <TooltipContent className="max-w-sm whitespace-pre-line leading-relaxed">{settingHelp(t, field)}</TooltipContent>
+        <TooltipContent className="max-w-sm whitespace-pre-line leading-relaxed">
+          {settingHelp(t, field)}
+        </TooltipContent>
       </Tooltip>
     </span>
   );
@@ -130,9 +140,7 @@ function FieldGroups({
           key={group}
           className={[
             "space-y-3 rounded-md border-y px-3 py-4",
-            index % 2 === 0
-              ? "border-gold-700/25 bg-abyss-900/22"
-              : "border-stone-600/45 bg-stone-800/22",
+            index % 2 === 0 ? "border-gold-700/25 bg-abyss-900/22" : "border-stone-600/45 bg-stone-800/22",
           ].join(" ")}
         >
           <h4 className="font-display text-sm font-semibold text-gold-300">
@@ -296,7 +304,8 @@ export default function WorldSettings() {
     } catch (e) {
       notifications.error({
         title: t("worldSettings.chrome.couldntSave", { defaultValue: "Couldn't save" }),
-        message: e instanceof Error ? e.message : t("worldSettings.chrome.unknownError", { defaultValue: "Unknown error." }),
+        message:
+          e instanceof Error ? e.message : t("worldSettings.chrome.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setSaving(false);
@@ -319,7 +328,10 @@ export default function WorldSettings() {
 
   return (
     <div className="space-y-6 pb-24">
-      <ScrollPanel icon={<Sparkles />} title={t("worldSettings.chrome.popularSettings", { defaultValue: "Popular Settings" })}>
+      <ScrollPanel
+        icon={<Sparkles />}
+        title={t("worldSettings.chrome.popularSettings", { defaultValue: "Popular Settings" })}
+      >
         <FieldGroups fields={popular} values={values} onChange={updateValue} />
       </ScrollPanel>
 
@@ -367,7 +379,9 @@ export default function WorldSettings() {
               : t("worldSettings.chrome.allSaved", { defaultValue: "All changes saved." })}
           </p>
           <RuneButton variant="gold" icon={<Save />} onClick={handleSave} disabled={dirty.size === 0 || saving}>
-            {saving ? t("worldSettings.chrome.saving", { defaultValue: "Saving..." }) : t("worldSettings.chrome.saveChanges", { defaultValue: "Save Changes" })}
+            {saving
+              ? t("worldSettings.chrome.saving", { defaultValue: "Saving..." })
+              : t("worldSettings.chrome.saveChanges", { defaultValue: "Save Changes" })}
           </RuneButton>
         </div>
       </div>

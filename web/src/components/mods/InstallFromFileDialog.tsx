@@ -55,7 +55,11 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
       const result = await modsApi.prepareInstallFromFile(file);
       setVerified(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("mods.installFromFile.verifyErrorFallback", { defaultValue: "Couldn't verify that file." }));
+      setError(
+        err instanceof Error
+          ? err.message
+          : t("mods.installFromFile.verifyErrorFallback", { defaultValue: "Couldn't verify that file." })
+      );
     } finally {
       setChecking(false);
     }
@@ -82,7 +86,11 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
       });
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t("mods.installFromFile.installErrorFallback", { defaultValue: "Couldn't install that file." }));
+      setError(
+        e instanceof Error
+          ? e.message
+          : t("mods.installFromFile.installErrorFallback", { defaultValue: "Couldn't install that file." })
+      );
     } finally {
       setInstalling(false);
     }
@@ -92,7 +100,9 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t("mods.installFromFile.title", { defaultValue: "Install From a Downloaded File" })}</DialogTitle>
+          <DialogTitle>
+            {t("mods.installFromFile.title", { defaultValue: "Install From a Downloaded File" })}
+          </DialogTitle>
           <DialogDescription>
             {t("mods.installFromFile.description", {
               defaultValue:
@@ -119,21 +129,30 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
             {error && <p className="text-xs text-blood-400">{error}</p>}
             <p className="text-[11px] leading-relaxed text-parchment-300/40">
               {t("mods.installFromFile.fileHint", {
-                defaultValue: "Only .zip and .7z archives are supported, up to 500 MB. The file's hash must exactly match a file Nexus actually hosts for this game.",
+                defaultValue:
+                  "Only .zip and .7z archives are supported, up to 500 MB. The file's hash must exactly match a file Nexus actually hosts for this game.",
               })}
             </p>
           </div>
         ) : (
           <div className="space-y-3 rounded-md border border-life-500/30 bg-life-500/5 px-4 py-3">
             <p className="flex items-center gap-1.5 text-sm font-medium text-life-400">
-              <ShieldCheck className="h-4 w-4 shrink-0" /> {t("mods.installFromFile.verified", { defaultValue: "Verified against Nexus Mods" })}
+              <ShieldCheck className="h-4 w-4 shrink-0" />{" "}
+              {t("mods.installFromFile.verified", { defaultValue: "Verified against Nexus Mods" })}
             </p>
             <p className="text-sm text-parchment-100">
               <span className="font-semibold">{verified.modName}</span>{" "}
-              {t("mods.installFromFile.byAuthorVersion", { defaultValue: "by {{author}} · v{{version}}", author: verified.author, version: verified.version })}
+              {t("mods.installFromFile.byAuthorVersion", {
+                defaultValue: "by {{author}} · v{{version}}",
+                author: verified.author,
+                version: verified.version,
+              })}
             </p>
             <p className="text-xs text-parchment-300/50">
-              {t("mods.installFromFile.sizeAndConfirm", { defaultValue: "{{size}}. Install this mod?", size: formatBytes(verified.sizeBytes) })}
+              {t("mods.installFromFile.sizeAndConfirm", {
+                defaultValue: "{{size}}. Install this mod?",
+                size: formatBytes(verified.sizeBytes),
+              })}
             </p>
             {error && <p className="text-xs text-blood-400">{error}</p>}
           </div>
@@ -152,7 +171,10 @@ export function InstallFromFileDialog({ open, onOpenChange, onInstalled }: Insta
               <RuneButton variant="gold" onClick={handleConfirm} disabled={installing}>
                 {installing
                   ? t("mods.installFromFile.installing", { defaultValue: "Installing..." })
-                  : t("mods.installFromFile.installNamed", { defaultValue: 'Install "{{name}}"', name: verified.modName })}
+                  : t("mods.installFromFile.installNamed", {
+                      defaultValue: 'Install "{{name}}"',
+                      name: verified.modName,
+                    })}
               </RuneButton>
             </>
           )}

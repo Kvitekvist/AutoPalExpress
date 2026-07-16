@@ -10,7 +10,6 @@ import time
 import traceback
 import webbrowser
 
-
 BIND_HOST = "0.0.0.0"
 LOCAL_HOST = "127.0.0.1"
 PORT = 8000
@@ -92,9 +91,7 @@ def _ask_yes_no(message: str) -> bool:
     try:
         import ctypes
 
-        result = ctypes.windll.user32.MessageBoxW(
-            0, message, "AutoPalExpress", _MB_YESNO | _MB_ICONQUESTION
-        )
+        result = ctypes.windll.user32.MessageBoxW(0, message, "AutoPalExpress", _MB_YESNO | _MB_ICONQUESTION)
         return result == _IDYES
     except Exception:
         return False
@@ -124,14 +121,12 @@ def _offer_legacy_data_migration() -> None:
         "AutoPalExpress found existing data from a previous install:\n\n"
         f"{legacy_dir}\n\n"
         "Move it into your Documents folder and keep your existing servers, accounts, and mods?\n\n"
-        "Choose \"No\" to leave that data where it is and start with a brand new, empty setup instead."
+        'Choose "No" to leave that data where it is and start with a brand new, empty setup instead.'
     )
     if migrate:
         new_dir = paths.migrate_data_dir(legacy_dir)
         _show_message_box(
-            "Your existing data was moved to:\n\n"
-            f"{new_dir}\n\n"
-            "Everything was carried over automatically.",
+            f"Your existing data was moved to:\n\n{new_dir}\n\nEverything was carried over automatically.",
             icon=_MB_ICONINFORMATION,
         )
     else:
@@ -171,10 +166,7 @@ def main() -> None:
         traceback.print_exc()
         from app.paths import data_dir
 
-        _show_message_box(
-            "AutoPalExpress couldn't start.\n\n"
-            f"Details were written to:\n{data_dir() / 'backend.log'}"
-        )
+        _show_message_box(f"AutoPalExpress couldn't start.\n\nDetails were written to:\n{data_dir() / 'backend.log'}")
         raise
 
 

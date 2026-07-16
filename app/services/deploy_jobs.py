@@ -97,7 +97,12 @@ def start_deploy(*, name: str, install_dir: Path, game_port: int, rcon_port: int
     _jobs[job_id] = {"status": "running", "log": [], "error": None, "instanceId": None}
     asyncio.create_task(
         _run_deploy(
-            job_id, name=name, install_dir=install_dir, game_port=game_port, rcon_port=rcon_port, max_players=max_players
+            job_id,
+            name=name,
+            install_dir=install_dir,
+            game_port=game_port,
+            rcon_port=rcon_port,
+            max_players=max_players,
         )
     )
     return job_id
