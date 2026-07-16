@@ -123,7 +123,7 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
                 value={path}
                 onChange={(e) => setPath(e.target.value)}
                 onBlur={() => handleInspect(path)}
-                placeholder="D:\PalworldSaveBackup\SaveGames\76561198000000000"
+                placeholder="D:\\PalworldSaveBackup\\SaveGames\\76561198000000000"
                 className="flex-1"
               />
               <RuneButton type="button" variant="ghost" size="sm" icon={<FolderOpen />} onClick={handleBrowse}>

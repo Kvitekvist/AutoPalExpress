@@ -828,11 +828,33 @@ Direct explicit user request: neither admins nor the super admin should be able 
 
 ### Alternatives
 
-Also lock the backend `/from-nexus/{id}/install` route (considered and offered to the user via AskUserQuestion) - declined in favor of a UI-only change, since the wishlist-approve action and Super Admin's own Install From File panel still need the same underlying Premium-key install machinery, and the user only asked about the browse-dialog experience.
+Also lock the backend `/from-nexus/{id}/install` route (considered and offered to the user via AskUserQuestion) - declined in favor of a UI-only change, since the wishlist-approve action and Super Admin's own Install File panel still need the same underlying Premium-key install machinery, and the user only asked about the browse-dialog experience.
 
 ### Consequences
 
 This supersedes the "restore Direct Install for super admins" decision from TICKET-0038/0041/0083 above - that convenience is now gone from the Mods page browse flow. The backend direct-install endpoint, the saved Nexus Premium key, and Super Admin's Install From File panel are all still fully intact and reachable outside this dialog; only the browse-dialog's per-card buttons and the now-dead `NexusFilePickerDialog.tsx`/`onModsChanged` plumbing that only existed to support them were removed. If a future ticket wants a super-admin one-click install surface back, it would need to be re-added deliberately rather than assumed still present from this history.
+
+### Date
+
+2026-07-16
+
+---
+
+### Decision
+
+Added a real automated backend test suite (`tests/`, pytest) and GitHub Actions CI (TICKET-0154), covering auth, permissions, instance switching, backup/restore, save import, mod archive extraction, process-discovery matching, and packaged frontend serving. Test isolation works via a single new `AUTOPAL_DATA_DIR` env-var override in `app/paths.py.data_dir()`, checked before the frozen/dev branches and never set outside tests.
+
+### Reason
+
+User request, framed as "the biggest gap" in the project - `tests/` was empty, there was no CI at all, and every prior ticket's correctness relied on live manual verification (this sandbox's own repeated "NEEDS MANUAL VERIFICATION" notes throughout `ticket_memory.md`). An automated suite catches regressions in the pure-logic parts of the app without needing a human to re-click through the whole UI every time.
+
+### Alternatives
+
+Refactor `storage.py`/`instance_store.py`/`mod_installer.py` to resolve `data_dir()` fresh on every call instead of caching it at import time, enabling true per-test filesystem isolation - rejected as unnecessary surgery on working production code just to make testing marginally cleaner; clearing a shared temp folder's contents between tests (an autouse fixture) achieves the same practical isolation without touching how any of those modules actually behave. Mocking `psutil`/`subprocess` wholesale to test real process start/stop - rejected as testing a mock's behavior more than the real Windows launch path; instead only the platform-independent parts (path-containment matching, the fast-fail "exe missing" guard) are covered, consistent with this project's existing pattern of leaving anything that needs a real Windows host/live game process/interactive desktop to manual verification. Running all CI jobs on `windows-latest` to match the packaging target exactly - rejected for the backend-tests/frontend jobs specifically, since nothing they exercise touches Windows-only code paths (verified: the one real `ctypes.windll` call in `app/paths.py` is only reached when frozen, which tests never set) and `ubuntu-latest` is faster/cheaper; `packaging-smoke` still runs on `windows-latest` since PyInstaller can't cross-compile a Windows .exe and Inno Setup is Windows-only.
+
+### Consequences
+
+`requirements-dev.txt` (pytest, pytest-asyncio) and `requirements-build.txt` (pyinstaller) split test-only and build-only deps out of the runtime `requirements.txt`. Fixed one pre-existing frontend lint error (a deprecated octal escape sequence in `SaveImportDialog.tsx`'s placeholder string) found while wiring up the `frontend` CI job - unrelated to this ticket's actual scope, but leaving it in would have made the very first CI run red for a reason nobody was looking for. All three CI jobs' real mechanics (pytest run, lint+build, PyInstaller build + packaged-exe health check + Inno Setup compile) were validated locally before committing the workflow, since GitHub Actions itself can't be dry-run from here.
 
 ### Date
 

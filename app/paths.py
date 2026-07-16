@@ -20,8 +20,16 @@ Bundled *read-only* resources (the built frontend) are the opposite: those
 only ever need to be read from wherever PyInstaller actually extracted them.
 """
 
+import os
 import sys
 from pathlib import Path
+
+# Sole test-only escape hatch (TICKET-0154): every store (users, instances,
+# mods, backups, ...) resolves its base folder through data_dir(), so tests
+# point this at a throwaway temp folder instead of ever touching a real
+# install's actual data/ - never set in normal use, so production behavior
+# (dev or frozen) is completely unaffected.
+_TEST_DATA_DIR_ENV = "AUTOPAL_DATA_DIR"
 
 # Historical folder name pre-TICKET-0123/0127 versions used under
 # %LOCALAPPDATA%. Must stay exactly "PalworldServerAdmin" - it has to keep
@@ -116,7 +124,10 @@ def migrate_data_dir(legacy_dir: Path) -> Path:
 
 
 def data_dir() -> Path:
-    if is_frozen():
+    override = os.environ.get(_TEST_DATA_DIR_ENV)
+    if override:
+        base = Path(override)
+    elif is_frozen():
         base = documents_data_dir()
     else:
         base = Path(__file__).resolve().parent.parent / "data"

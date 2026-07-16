@@ -207,6 +207,26 @@ The Vite dev server proxies `/api/*` to the backend.
 </details>
 
 <details>
+<summary>Run tests</summary>
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+Backend tests never touch your real `data/` folder - `tests/conftest.py` redirects storage to a throwaway temp folder for the whole run. Frontend checks:
+
+```bash
+cd web
+npm run lint
+npm run build
+```
+
+All three, plus a PyInstaller/Inno Setup packaging smoke test, run in CI (`.github/workflows/ci.yml`) on every push and pull request.
+
+</details>
+
+<details>
 <summary>Build the Windows installer</summary>
 
 ```text

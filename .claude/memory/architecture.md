@@ -85,9 +85,16 @@ See `memory/tech_stack.md` for the full list and versions. The recurring theme: 
 
 ---
 
+## Testing & CI
+
+Backend: `tests/` (pytest, `pytest.ini` at repo root, deps in `requirements-dev.txt`). Covers auth, role permissions, instance switching, backup/restore, save import, mod archive extraction (zip-slip/oversized-archive rejection, pak-vs-ue4ss detection), process-discovery matching logic, and packaged frontend serving (SPA fallback, path-traversal rejection). Deliberately not covered by automated tests - needs a real Windows host with a real running `PalServer.exe`/interactive desktop, so it stays manually verified like everything else in this project that does: actual process start/stop launch flags, real UAC/firewall/UPnP calls, native folder dialogs, the installer's own GUI wizard.
+
+Test isolation: `app/paths.py.data_dir()` checks an `AUTOPAL_DATA_DIR` env var before anything else - the sole test-only override, never set in normal use. `tests/conftest.py` sets it (to a throwaway temp folder) before any `app.*` module is imported, since several modules (`app/storage.py`, `instance_store.py`, `mod_installer.py`) resolve `data_dir()` once into a module-level constant at import time; setting the override later would do nothing. Because that constant is shared for the whole test session (not re-resolved per test), an autouse fixture clears the temp folder's contents plus every in-memory store (`session_store`, `login_throttle`, `process_manager`'s tracking dicts) after each test instead.
+
+CI (`.github/workflows/ci.yml`, GitHub Actions): `backend-tests` (ubuntu-latest, Python 3.11 + 3.12 matrix) builds the frontend first specifically so the packaged-frontend-serving tests exercise the real routes instead of skipping (`app/main.py` only registers them when `web/dist` exists), then runs pytest. `frontend` (ubuntu-latest) runs `npm run lint` (oxlint) and `npm run build`. `packaging-smoke` (windows-latest, matching this project's Windows-only packaging target) builds the frontend, runs `scripts/check_app_version.py`, builds the real `AutoPalExpress.exe` via `AutoPalExpress.spec` with PyInstaller, launches it and polls `/api/health` before killing it, then installs Inno Setup and compiles (not runs) `installer.iss` - the same sequence `build_installer.ps1` uses for a real release.
+
 ## Future Improvements
 
-* No automated test suite - correctness currently relies entirely on manual/live verification.
 * `process_manager`'s command/control tracking is in-memory only and resets on a backend restart, even though the real game process keeps running. Dashboard status can rediscover matching Palworld processes for CPU/RAM, but full process adoption for Stop/Restart control is still missing.
 * No TLS. Revisit if a real domain name ever becomes available (see Decision Log) - would make Let's Encrypt or a stable Cloudflare Tunnel practical.
 * Several pages/fields are still frontend-only mock data with no backend: the general Settings blob's own fields (server name/password/difficulty/PvP/exp-rate/day-night-length - note this is distinct from the real, backend-backed World Settings `.ini` editor). `sendPlayerMessage` (whisper to one player) and `teleportPlayer` on the Players page are also unimplemented since Palworld's REST API has no per-player whisper/teleport command.
