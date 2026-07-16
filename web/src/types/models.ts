@@ -153,18 +153,44 @@ export interface RestartScheduleConfig extends ScheduleConfig {
   warningMinutes: number;
 }
 
+export interface BackupRetentionConfig {
+  maxCount: number | null;
+  maxAgeDays: number | null;
+  maxTotalBytes: number | null;
+}
+
 export interface AutomationConfig {
   backup: ScheduleConfig;
   restart: RestartScheduleConfig;
   joinLeaveMessages: boolean;
+  backupRetention: BackupRetentionConfig;
   rconReady: boolean;
 }
 
+export type BackupKind = "manual" | "scheduled" | "pre_import" | "pre_restore";
+
 export interface BackupRecord {
   timestamp: string;
+  kind: BackupKind;
   sizeBytes: number;
+  fileCount: number | null;
   liveSaveForced: boolean;
+  notes: string;
+  hasManifest: boolean;
   folder: string;
+}
+
+export type BackupVerifyStatus = "ok" | "corrupted" | "unknown";
+
+export interface BackupVerifyResult {
+  status: BackupVerifyStatus;
+  issues: string[];
+}
+
+export interface BackupRestoreResult {
+  restoredFrom: string;
+  serverWasStopped: boolean;
+  rollbackSnapshot: string | null;
 }
 
 export interface SaveImportCandidate {
@@ -172,6 +198,8 @@ export interface SaveImportCandidate {
   name: string;
   sizeBytes: number;
   modified: string;
+  valid: boolean;
+  issues: string[];
 }
 
 export interface SaveImportResult {

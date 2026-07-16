@@ -66,7 +66,7 @@ async def _check_backup(instance: dict[str, Any], config: dict[str, Any]) -> Non
         return
     _last_backup_fired[instance["id"]] = key
     try:
-        await backup_service.run_backup(instance)
+        await backup_service.run_backup(instance, kind="scheduled")
         logger.info("scheduler: backup completed for %s", instance["name"])
         activity_log.log("info", instance["name"], "Scheduled backup completed.")
     except (OSError, FileNotFoundError) as e:

@@ -859,3 +859,25 @@ Refactor `storage.py`/`instance_store.py`/`mod_installer.py` to resolve `data_di
 ### Date
 
 2026-07-16
+
+---
+
+### Decision
+
+Replaced the delete-then-copy pattern for both Save Import and (new) backup restore with a shared `app/services/safe_replace.py` primitive: copy the replacement to a temporary sibling first, verify that copy, then swap it into place with two fast renames - the live directory is either left completely untouched or fully replaced, never observed mid-copy. If the final swap itself fails, the original (renamed aside, not deleted) is put straight back. Backup restore additionally takes its own fresh rollback snapshot before restoring, as a second, independent safety net.
+
+### Reason
+
+User explicitly flagged Save Import's existing `_clear_and_copy` (`shutil.rmtree(dest_slot)` immediately followed by `shutil.copytree(...)`) as needing "special attention" because an interrupted copy - crash, disk full, power loss - could leave a server's active save slot empty or half-written, with no way back except a human manually digging a timestamped backup out of Explorer. The same user request also asked for one-click backup *restore* to exist at all, which needs the identical safety property (don't touch the live SaveGames folder until the replacement is proven good) - building one shared, independently-tested primitive instead of two bespoke copy-and-pray implementations was the obvious choice once both needs were on the table together (the backup-restore ask arrived as a mid-turn follow-up to the Save Import one).
+
+### Alternatives
+
+Keep each destructive-replace call site as its own `rmtree`-then-`copytree` (mod_installer.py's `extract_and_install` still does this) - rejected specifically for save data, which is unique/irreplaceable per-server state; a mod that fails to install can just be reinstalled from Nexus again, but a corrupted world save has no such fallback. A full temp-directory-with-random-name-then-delete-old-separately approach without the "rename aside, restore on failure" self-heal - rejected because it leaves the exact same "swap step fails, original is gone" gap this was built to close, just moved one step later. Hashing every file on every copy (not just backups) for maximum certainty - rejected as unnecessary I/O cost for a same-machine copy already verified by existence + size; full SHA256 manifests are reserved for backups specifically (recorded once at backup-creation time, re-checked on demand via Verify), where the checksum needs to survive being read back an arbitrary amount of time later, not just immediately after a copy that just happened.
+
+### Consequences
+
+`safe_replace.py`'s `SafeReplaceCriticalError` (the final swap failed *and* restoring the original also failed) is reachable in principle but should be vanishingly rare on a local filesystem - two renames of directories just proven to exist. Both callers still treat it as a real, surfaced error rather than silently swallowing it. Save Import and backup restore both layer a second safety net on top of `safe_replace_dir`'s own self-heal: Save Import falls back to `backup_before_import()`'s snapshot, and backup restore falls back to its own freshly-taken pre-restore snapshot, in case the self-heal itself somehow doesn't leave the live folder in a good state. `mod_installer.py`'s own delete-then-copy was deliberately left alone (out of scope for this pass, and a failed mod install is recoverable by just reinstalling) rather than migrated to `safe_replace_dir` for consistency's own sake.
+
+### Date
+
+2026-07-16

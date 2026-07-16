@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { FolderOpen, TriangleAlert } from "lucide-react";
+import { FolderOpen, TriangleAlert, CircleX } from "lucide-react";
 import { automationApi } from "@/api";
 import type { SaveImportCandidate } from "@/types/models";
 import {
@@ -28,11 +28,44 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function WorldPreviewCard({
+  title,
+  candidate,
+  empty,
+}: {
+  title: string;
+  candidate: SaveImportCandidate | null | undefined;
+  empty: string;
+}) {
+  return (
+    <div className="flex-1 rounded-md border border-stone-700 bg-abyss-900/40 px-3 py-2.5">
+      <p className="text-[10px] uppercase tracking-wide text-parchment-300/40">{title}</p>
+      {candidate ? (
+        <>
+          <p className="mt-1 truncate font-mono text-sm text-parchment-100">{candidate.name}</p>
+          <p className="mt-0.5 text-[11px] text-parchment-300/50">
+            {formatBytes(candidate.sizeBytes)} - {new Date(candidate.modified).toLocaleString()}
+          </p>
+          {!candidate.valid && (
+            <p className="mt-1 flex items-start gap-1 text-[11px] text-blood-400">
+              <CircleX className="mt-0.5 h-3 w-3 shrink-0" />
+              <span>{candidate.issues.join(", ")}</span>
+            </p>
+          )}
+        </>
+      ) : (
+        <p className="mt-1 text-sm text-parchment-300/40">{empty}</p>
+      )}
+    </div>
+  );
+}
+
 export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportDialogProps) {
   const { t } = useTranslation();
   const [path, setPath] = React.useState("");
   const [candidates, setCandidates] = React.useState<SaveImportCandidate[] | null>(null);
   const [selected, setSelected] = React.useState<SaveImportCandidate | null>(null);
+  const [destination, setDestination] = React.useState<SaveImportCandidate | null>(null);
   const [inspecting, setInspecting] = React.useState(false);
   const [importing, setImporting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -43,8 +76,11 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
       setPath("");
       setCandidates(null);
       setSelected(null);
+      setDestination(null);
       setError(null);
+      return;
     }
+    automationApi.getSaveImportDestination().then(({ current }) => setDestination(current));
   }, [open]);
 
   async function handleInspect(targetPath: string) {
@@ -73,7 +109,7 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
   }
 
   async function handleImport() {
-    if (!selected) return;
+    if (!selected || !selected.valid) return;
     setImporting(true);
     setError(null);
     try {
@@ -107,7 +143,7 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
           <DialogDescription>
             {t("settings.saveImport.description", {
               defaultValue:
-                "Bring a co-op or single-player save from another PC onto this server. Steam does not need to be installed here - just point to the copied save folder.",
+                "Bring a co-op or single-player save from another PC onto this server. Steam does not need to be installed here - just point to the copied save folder (the world's own folder, or a parent like SaveGames, Saved, or Pal).",
             })}
           </DialogDescription>
         </DialogHeader>
@@ -132,7 +168,7 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
             </div>
             <p className="text-[11px] text-parchment-300/40">
               {t("settings.saveImport.sourceFolderHint", {
-                defaultValue: "Pick the world's own save folder, or its parent folder if you're not sure which one it is.",
+                defaultValue: "Any folder up to the world's own save folder works - it's found automatically.",
               })}
             </p>
           </div>
@@ -159,10 +195,14 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
                         : "border-stone-700 bg-abyss-900/40 text-parchment-300/70 hover:border-stone-600"
                     )}
                   >
-                    <p className="truncate font-mono">{c.name}</p>
+                    <p className="flex items-center gap-1.5 truncate font-mono">
+                      {!c.valid && <CircleX className="h-3 w-3 shrink-0 text-blood-400" />}
+                      {c.name}
+                    </p>
                     <p className="mt-0.5 text-[11px] text-parchment-300/40">
                       {formatBytes(c.sizeBytes)} - {new Date(c.modified).toLocaleString()}
                     </p>
+                    {!c.valid && <p className="mt-0.5 text-[11px] text-blood-400">{c.issues.join(", ")}</p>}
                   </button>
                 ))}
               </div>
@@ -170,16 +210,43 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
           )}
 
           {selected && (
-            <div className="flex flex-wrap items-start gap-2 rounded-md border border-gold-600/30 bg-gold-500/5 px-4 py-3 text-xs text-gold-300">
-              <TriangleAlert className="h-4 w-4 shrink-0" />
-              <span>
-                {t("settings.saveImport.overwriteWarning", {
-                  defaultValue:
-                    "This replaces the server's current save with \"{{name}}\". The server must be stopped, and its existing save will be backed up automatically first.",
-                  name: selected.name,
-                })}
-              </span>
-            </div>
+            <>
+              <div className="flex gap-2">
+                <WorldPreviewCard
+                  title={t("settings.saveImport.currentlyOnServer", { defaultValue: "Currently on this server" })}
+                  candidate={destination}
+                  empty={t("settings.saveImport.noCurrentSave", { defaultValue: "No save yet" })}
+                />
+                <WorldPreviewCard
+                  title={t("settings.saveImport.willBeImported", { defaultValue: "Will be imported" })}
+                  candidate={selected}
+                  empty=""
+                />
+              </div>
+
+              {selected.valid ? (
+                <div className="flex flex-wrap items-start gap-2 rounded-md border border-gold-600/30 bg-gold-500/5 px-4 py-3 text-xs text-gold-300">
+                  <TriangleAlert className="h-4 w-4 shrink-0" />
+                  <span>
+                    {t("settings.saveImport.overwriteWarning", {
+                      defaultValue:
+                        "This replaces the server's current save with \"{{name}}\". The server must be stopped, and its existing save will be backed up automatically first.",
+                      name: selected.name,
+                    })}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-start gap-2 rounded-md border border-blood-600/30 bg-blood-500/5 px-4 py-3 text-xs text-blood-300">
+                  <CircleX className="h-4 w-4 shrink-0" />
+                  <span>
+                    {t("settings.saveImport.invalidCandidate", {
+                      defaultValue: "This save looks incomplete and can't be imported: {{issues}}",
+                      issues: selected.issues.join(", "),
+                    })}
+                  </span>
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -189,7 +256,7 @@ export function SaveImportDialog({ open, onOpenChange, onImported }: SaveImportD
           <RuneButton variant="ghost" onClick={() => onOpenChange(false)}>
             {t("settings.saveImport.cancel", { defaultValue: "Cancel" })}
           </RuneButton>
-          <RuneButton variant="gold" onClick={handleImport} disabled={!selected || importing}>
+          <RuneButton variant="gold" onClick={handleImport} disabled={!selected || !selected.valid || importing}>
             {importing
               ? t("settings.saveImport.importing", { defaultValue: "Importing..." })
               : t("settings.saveImport.import", { defaultValue: "Import Save" })}
