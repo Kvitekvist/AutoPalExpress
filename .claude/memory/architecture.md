@@ -42,18 +42,26 @@ app/
   paths.py           Resolves data_dir()/resource_dir()/install_dir() - dev vs. PyInstaller-frozen
   auth_deps.py        get_current_user / require_super_admin FastAPI dependencies
   routes/            One file per feature area - thin, delegate to services/
+    mods/            Mods routes split by concern (TICKET-0156): wishlist.py, crud.py,
+                     nexus.py, manual.py, _shared.py; __init__.py assembles one `router`
+                     (main.py's `from app.routes import mods` + `mods.router` unchanged)
   services/          Real logic: process control, Palworld REST, file I/O, external APIs
+    palworld_settings_data.py   Curated field metadata for palworld_settings.py (TICKET-0156)
+    nexus_mod_service.py, manual_mod_service.py, mods_shared.py
+                                 Business logic behind routes/mods/* (TICKET-0156)
 
 web/
   src/
-    pages/           Top-level routed pages
+    pages/           Top-level routed pages - lazy-loaded via React.lazy/Suspense in
+                     App.tsx except Dashboard (the index route), since TICKET-0156
     components/
       ui/            Bare Radix-based primitives
       fantasy/       Themed, reusable pieces built on top of ui/
       layout/        Sidebar, TopBar, AppShell
-      settings/, mods/, players/   Feature-specific panels/dialogs
+      settings/, mods/, players/, serverControl/   Feature-specific panels/dialogs
     api/             One module per backend feature area, thin fetch wrappers
-    hooks/           useAuth, useServerStatus, useNotifications
+    hooks/           useAuth, useServerStatus, useNotifications, useShutdownCountdown,
+                     useServerUpdateJob
     types/models.ts  Shared TypeScript interfaces matching backend response shapes
 
 data/ (dev) or Documents\AutoPalExpress\data (packaged - TICKET-0129; briefly the install folder under TICKET-0123, %LOCALAPPDATA% before that)
@@ -92,7 +100,11 @@ Backend: `tests/` (pytest, `pytest.ini` at repo root, deps in `requirements-dev.
 
 Test isolation: `app/paths.py.data_dir()` checks an `AUTOPAL_DATA_DIR` env var before anything else - the sole test-only override, never set in normal use. `tests/conftest.py` sets it (to a throwaway temp folder) before any `app.*` module is imported, since several modules (`app/storage.py`, `instance_store.py`, `mod_installer.py`) resolve `data_dir()` once into a module-level constant at import time; setting the override later would do nothing. Because that constant is shared for the whole test session (not re-resolved per test), an autouse fixture clears the temp folder's contents plus every in-memory store (`session_store`, `login_throttle`, `process_manager`'s tracking dicts) after each test instead.
 
-CI (`.github/workflows/ci.yml`, GitHub Actions): `backend-tests` (ubuntu-latest, Python 3.11 + 3.12 matrix) builds the frontend first specifically so the packaged-frontend-serving tests exercise the real routes instead of skipping (`app/main.py` only registers them when `web/dist` exists), then runs pytest. `frontend` (ubuntu-latest) runs `npm run lint` (oxlint) and `npm run build`. `packaging-smoke` (windows-latest, matching this project's Windows-only packaging target) builds the frontend, runs `scripts/check_app_version.py`, builds the real `AutoPalExpress.exe` via `AutoPalExpress.spec` with PyInstaller, launches it and polls `/api/health` before killing it, then installs Inno Setup and compiles (not runs) `installer.iss` - the same sequence `build_installer.ps1` uses for a real release.
+CI (`.github/workflows/ci.yml`, GitHub Actions): `backend-lint` (ubuntu-latest, single Python version) runs `ruff check .` and `ruff format --check .` - kept as its own job rather than folded into the test matrix so it doesn't run twice. `backend-tests` (ubuntu-latest, Python 3.11 + 3.12 matrix) builds the frontend first specifically so the packaged-frontend-serving tests exercise the real routes instead of skipping (`app/main.py` only registers them when `web/dist` exists), then runs pytest. `frontend` (ubuntu-latest) runs `npm run lint` (oxlint), `npm run typecheck` (`tsc -b --noEmit`), `npm run format:check` (prettier), and `npm run build`. `packaging-smoke` (windows-latest, matching this project's Windows-only packaging target) builds the frontend, runs `scripts/check_app_version.py`, builds the real `AutoPalExpress.exe` via `AutoPalExpress.spec` with PyInstaller, launches it and polls `/api/health` before killing it, then installs Inno Setup and compiles (not runs) `installer.iss` - the same sequence `build_installer.ps1` uses for a real release.
+
+## Code Style
+
+Backend: `ruff` (`ruff.toml` at repo root - line-length 120, E/F/I/UP rules, E501 ignored since long descriptive strings, help text, error messages are this codebase's existing style and the formatter doesn't touch string literals anyway). `tests/conftest.py` has a `per-file-ignores` entry for E402 since its module-level-import-order violation is deliberate (see the file's own docstring). Frontend: `prettier` (`web/.prettierrc.json` - double quotes, semicolons, 120 print width, `es5` trailing commas) alongside the existing `oxlint`. Both introduced in TICKET-0156 - run `ruff format`/`npm run format` locally before committing backend/frontend changes respectively, or let CI's `backend-lint`/`frontend` jobs catch drift.
 
 ## Future Improvements
 
