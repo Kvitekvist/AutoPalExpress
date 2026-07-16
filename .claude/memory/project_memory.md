@@ -14,7 +14,7 @@ A self-hosted Palworld Dedicated Server admin panel that lets a small group of f
 
 ## Current Milestone
 
-Core feature set is complete and has been exercised live: multi-instance server management (deploy new via SteamCMD, or import existing), real process control, a generic World Settings (`.ini`) editor, Nexus GraphQL mod browsing with direct Premium API-key installs and hash-verified manual file installs, UE4SS installer, networking (UPnP port forwarding, Windows Firewall automation, public IP display), multi-user auth with invites, and Palworld REST API-backed scheduled backups/restarts, restart warnings, join/leave announcements, metrics, and Players page actions (list/kick/ban/unban). Currently in a polish/hardening phase rather than adding wholesale new feature areas.
+Core feature set is complete and has been exercised live: multi-instance server management (deploy new via SteamCMD, or import existing), real process control, a generic World Settings (`.ini`) editor, Nexus GraphQL mod browsing that's wishlist-only for every role as of TICKET-0153 (the super admin still installs via Mod Wishlist approval or Install From File, both using the saved Premium API key/hash verification, just no longer a one-click button in the browse dialog itself), UE4SS installer, networking (UPnP port forwarding, Windows Firewall automation, public IP display), multi-user auth with invites, and Palworld REST API-backed scheduled backups/restarts, restart warnings, join/leave announcements, metrics, and Players page actions (list/kick/ban/unban). Currently in a polish/hardening phase rather than adding wholesale new feature areas.
 
 ---
 

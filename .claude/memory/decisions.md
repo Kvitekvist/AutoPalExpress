@@ -815,3 +815,25 @@ Patch the specific gaps found (catch-all exception handling in `_run_deploy`, ma
 ### Date
 
 2026-07-14
+
+---
+
+### Decision
+
+Browsing Nexus Mods from the Mods page is wishlist-only for every role, including the super admin (TICKET-0153). "Direct Install" and the "Install File" shortcut link were removed from that browse dialog's mod cards entirely.
+
+### Reason
+
+Direct explicit user request: neither admins nor the super admin should be able to install a mod straight from the browse dialog - every mod, for every role, should go through the wishlist for the super admin to review and approve.
+
+### Alternatives
+
+Also lock the backend `/from-nexus/{id}/install` route (considered and offered to the user via AskUserQuestion) - declined in favor of a UI-only change, since the wishlist-approve action and Super Admin's own Install From File panel still need the same underlying Premium-key install machinery, and the user only asked about the browse-dialog experience.
+
+### Consequences
+
+This supersedes the "restore Direct Install for super admins" decision from TICKET-0038/0041/0083 above - that convenience is now gone from the Mods page browse flow. The backend direct-install endpoint, the saved Nexus Premium key, and Super Admin's Install From File panel are all still fully intact and reachable outside this dialog; only the browse-dialog's per-card buttons and the now-dead `NexusFilePickerDialog.tsx`/`onModsChanged` plumbing that only existed to support them were removed. If a future ticket wants a super-admin one-click install surface back, it would need to be re-added deliberately rather than assumed still present from this history.
+
+### Date
+
+2026-07-16

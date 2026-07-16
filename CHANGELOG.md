@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Browsing mods is wishlist-only for every role (TICKET-0153):** the Mods page's Browse Nexus Mods dialog no longer shows "Direct Install"/"Install File" to the super admin - every mod card, for admins and the super admin alike, now only offers Add to Wishlist. The Mod Wishlist page's Approve action and Super Admin's own Install From File panel are unaffected.
 - **"Require Steam Authentication" toggle in World Settings (TICKET-0152):** Palworld's `bUseAuth` server setting is now a clearly labeled toggle under Identity and Access, instead of an unlabeled generic field. Explains that disabling it lets a split/virtualized Steam session tool (e.g. Nucleus co-op) join without an AUTH error, at the cost of removing that identity check for every player.
 - **Backup folder path in the UI (TICKET-0151):** Recent Backups now has an "Open Folder" button per row, instead of needing to search the data folder by hand to find where a backup actually lives.
 

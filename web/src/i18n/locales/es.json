@@ -759,18 +759,16 @@
     },
     "nexusBrowse": {
       "title": "Explorar Nexus Mods",
-      "description": "Busca y filtra mods de Palworld desde Nexus Mods. Los superadministradores con Nexus Premium pueden instalar directamente; cualquiera puede seguir abriendo Nexus y usar la carga de archivo verificado."
+      "description": "Busca mods de Palworld en Nexus Mods y añade cualquiera de ellos a la lista de deseos del servidor para que el superadministrador los revise."
     },
     "nexusBrowser": {
       "allCategory": "Todos",
       "loadErrorFallback": "Error al cargar los mods desde Nexus Mods.",
-      "needsApiKey": "La instalación directa requiere una clave de API de Nexus Mods guardada en Super Admin.",
-      "needsPremium": "La instalación directa requiere acceso de descarga de Nexus Premium.",
       "installedTitle": "Mod instalado",
       "installedMessage": "{{name}} fue instalado desde Nexus Mods.",
       "installFailedTitle": "Error en la instalación de Nexus",
       "unknownError": "Error desconocido.",
-      "banner": "La exploración solo usa metadatos de Nexus Mods. Instalación directa aparece en cada tarjeta y se activa cuando Super Admin tiene una clave de API de Nexus Premium guardada; Instalar archivo sigue disponible para archivos descargados.",
+      "banner": "Explora la información pública de mods de Nexus y añade mods a la lista de deseos del servidor. El superadministrador decide si instala cada solicitud.",
       "lists": {
         "trending": "Tendencias",
         "latestAdded": "Añadidos recientemente",
@@ -784,17 +782,7 @@
       "byAuthor": "por {{author}}",
       "viewOnNexus": "Ver en Nexus",
       "installed": "Instalado",
-      "directInstallTooltip": "Descargar directamente desde Nexus e instalar en la carpeta Mods del servidor activo.",
-      "needsPremiumKey": "La instalación directa requiere una clave de API de Nexus Premium guardada.",
-      "installing": "Instalando...",
-      "directInstall": "Instalación directa",
-      "installFileTooltip": "Descarga este archivo primero en Nexus y luego súbelo en Super Admin.",
-      "installFile": "Instalar archivo",
-      "superAdminOnlyTooltip": "Solo el superadministrador puede instalar archivos de mods descargados.",
-      "superAdminOnly": "Solo superadministrador",
-      "hintDirect": "La instalación directa usa tu clave de Nexus guardada y tu acceso de descarga Premium.",
-      "hintFileAvailable": "Aún puedes usar Instalar archivo después de descargarlo.",
-      "hintViewThenAsk": "\"Ver en Nexus\" abre la página de descarga. Después de descargarlo, pide al superadministrador que use Instalar desde archivo."
+      "installing": "Instalando..."
     },
     "installFromFile": {
       "verifyErrorFallback": "No se pudo verificar ese archivo.",

@@ -759,18 +759,16 @@
     },
     "nexusBrowse": {
       "title": "Nexus Modsを閲覧",
-      "description": "Nexus ModsからPalworld MODを検索・絞り込みます。Nexus Premiumを持つスーパー管理者は直接インストールできます。それ以外の人もNexusを開いて検証済みファイルアップロードを利用できます。"
+      "description": "Nexus ModsでPalworldのModを検索し、サーバーのウィッシュリストに追加してスーパー管理者に確認してもらいましょう。"
     },
     "nexusBrowser": {
       "allCategory": "すべて",
       "loadErrorFallback": "Nexus ModsからMODを読み込めませんでした。",
-      "needsApiKey": "直接インストールには、スーパー管理者に保存されたNexus Mods APIキーが必要です。",
-      "needsPremium": "直接インストールにはNexus Premiumのダウンロードアクセスが必要です。",
       "installedTitle": "MODをインストールしました",
       "installedMessage": "{{name}}はNexus Modsからインストールされました。",
       "installFailedTitle": "Nexusのインストールに失敗しました",
       "unknownError": "不明なエラーです。",
-      "banner": "閲覧にはNexus Modsのメタデータのみを使用します。直接インストールは各カードに表示され、スーパー管理者がNexus Premium APIキーを保存すると有効になります。ダウンロード済みアーカイブにはファイルインストールが引き続き利用できます。",
+      "banner": "公開されているNexusのMod情報を閲覧し、サーバーのウィッシュリストにModを追加できます。各リクエストをインストールするかどうかはスーパー管理者が判断します。",
       "lists": {
         "trending": "トレンド",
         "latestAdded": "最近追加",
@@ -784,17 +782,7 @@
       "byAuthor": "{{author}}作",
       "viewOnNexus": "Nexusで見る",
       "installed": "インストール済み",
-      "directInstallTooltip": "Nexusから直接ダウンロードし、アクティブなサーバーのModsフォルダにインストールします。",
-      "needsPremiumKey": "直接インストールには保存されたNexus Premium APIキーが必要です。",
-      "installing": "インストール中...",
-      "directInstall": "直接インストール",
-      "installFileTooltip": "まずNexusでこのファイルをダウンロードし、その後スーパー管理者でアップロードしてください。",
-      "installFile": "ファイルをインストール",
-      "superAdminOnlyTooltip": "ダウンロードしたMODファイルをインストールできるのはスーパー管理者のみです。",
-      "superAdminOnly": "スーパー管理者のみ",
-      "hintDirect": "直接インストールは保存されたNexusキーとPremiumダウンロードアクセスを使用します。",
-      "hintFileAvailable": "ダウンロード後もファイルインストールを利用できます。",
-      "hintViewThenAsk": "「Nexusで見る」でダウンロードページが開きます。ダウンロード後、スーパー管理者にファイルからインストールの利用を依頼してください。"
+      "installing": "インストール中..."
     },
     "installFromFile": {
       "verifyErrorFallback": "そのファイルを検証できませんでした。",

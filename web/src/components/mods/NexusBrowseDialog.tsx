@@ -1,16 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { NexusModBrowser } from "@/components/mods/NexusModBrowser";
-import type { Mod } from "@/types/models";
 
 interface NexusBrowseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   installedNames: string[];
-  onModsChanged: (mods: Mod[]) => void;
 }
 
-export function NexusBrowseDialog({ open, onOpenChange, installedNames, onModsChanged }: NexusBrowseDialogProps) {
+export function NexusBrowseDialog({ open, onOpenChange, installedNames }: NexusBrowseDialogProps) {
   const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -19,12 +17,11 @@ export function NexusBrowseDialog({ open, onOpenChange, installedNames, onModsCh
           <DialogTitle>{t("mods.nexusBrowse.title", { defaultValue: "Browse Nexus Mods" })}</DialogTitle>
           <DialogDescription>
             {t("mods.nexusBrowse.description", {
-              defaultValue:
-                "Search and filter Palworld mods from Nexus Mods. Super admins with Nexus Premium can install directly; everyone can still open Nexus and use verified file upload.",
+              defaultValue: "Search Palworld mods from Nexus Mods and add any of them to the server wishlist for the super admin to review.",
             })}
           </DialogDescription>
         </DialogHeader>
-        <NexusModBrowser installedNames={installedNames} onModsChanged={onModsChanged} />
+        <NexusModBrowser installedNames={installedNames} />
       </DialogContent>
     </Dialog>
   );

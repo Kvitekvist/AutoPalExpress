@@ -189,12 +189,7 @@ export default function Mods() {
         confirming={busyId === removeTarget?.id}
       />
 
-      <NexusBrowseDialog
-        open={browseOpen}
-        onOpenChange={setBrowseOpen}
-        installedNames={mods.map((m) => m.name)}
-        onModsChanged={setMods}
-      />
+      <NexusBrowseDialog open={browseOpen} onOpenChange={setBrowseOpen} installedNames={mods.map((m) => m.name)} />
     </div>
   );
 }

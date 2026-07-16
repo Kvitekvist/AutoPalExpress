@@ -759,18 +759,16 @@
     },
     "nexusBrowse": {
       "title": "浏览Nexus Mods",
-      "description": "从Nexus Mods搜索和筛选Palworld模组。拥有Nexus Premium的超级管理员可以直接安装；其他人仍可以打开Nexus并使用经过验证的文件上传。"
+      "description": "在Nexus Mods中搜索Palworld模组，并将其添加到服务器愿望单，由超级管理员审核。"
     },
     "nexusBrowser": {
       "allCategory": "全部",
       "loadErrorFallback": "无法从Nexus Mods加载模组。",
-      "needsApiKey": "直接安装需要在超级管理员中保存Nexus Mods API密钥。",
-      "needsPremium": "直接安装需要Nexus Premium下载权限。",
       "installedTitle": "模组已安装",
       "installedMessage": "{{name}}已从Nexus Mods安装。",
       "installFailedTitle": "Nexus安装失败",
       "unknownError": "未知错误。",
-      "banner": "浏览仅使用Nexus Mods的元数据。当超级管理员保存了Nexus Premium API密钥后，每张卡片上都会出现直接安装选项；对于已下载的压缩包，安装文件功能仍然可用。",
+      "banner": "浏览公开的Nexus模组信息，并将模组添加到服务器愿望单。是否安装每个请求由超级管理员决定。",
       "lists": {
         "trending": "热门",
         "latestAdded": "最新添加",
@@ -784,17 +782,7 @@
       "byAuthor": "作者：{{author}}",
       "viewOnNexus": "在Nexus上查看",
       "installed": "已安装",
-      "directInstallTooltip": "直接从Nexus下载并安装到当前服务器的模组文件夹中。",
-      "needsPremiumKey": "直接安装需要保存的Nexus Premium API密钥。",
-      "installing": "正在安装...",
-      "directInstall": "直接安装",
-      "installFileTooltip": "请先在Nexus上下载此文件，然后在超级管理员中上传。",
-      "installFile": "安装文件",
-      "superAdminOnlyTooltip": "只有超级管理员可以安装已下载的模组文件。",
-      "superAdminOnly": "仅限超级管理员",
-      "hintDirect": "直接安装会使用你保存的Nexus密钥和Premium下载权限。",
-      "hintFileAvailable": "下载后你仍然可以使用安装文件功能。",
-      "hintViewThenAsk": "“在Nexus上查看”会打开下载页面。下载后，请超级管理员使用从文件安装。"
+      "installing": "正在安装..."
     },
     "installFromFile": {
       "verifyErrorFallback": "无法验证该文件。",

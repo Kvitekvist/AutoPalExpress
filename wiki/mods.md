@@ -12,12 +12,9 @@ Click **Browse Nexus Mods** at the top right of the page. This opens a search wi
 
 ## How do I install a mod I found?
 
-In the browse window, each mod has an install option:
+In the browse window, every mod has an **Add to Wishlist** button - this applies to admins and the super admin alike. This sends a request to the super admin, who can approve it from the [Mod Wishlist](mod-wishlist.md) page.
 
-- If the super admin has connected a Nexus Premium API key, you'll see **Install** - one click and it's installed.
-- If not, you'll see **Add to Wishlist** instead. This sends a request to the super admin, who can approve it from the [Mod Wishlist](mod-wishlist.md) page.
-
-![Install or Add to Wishlist button in the browse dialog](../images/wiki/mods-03-install-or-wishlist.png)
+![Add to Wishlist button in the browse dialog](../images/wiki/mods-03-install-or-wishlist.png)
 
 If a mod has more than one file to choose from (like a Main File and some Optional Files), you'll see a small picker so you can choose exactly which one you want.
 
