@@ -10,6 +10,10 @@ import { RuneButton } from "@/components/fantasy/RuneButton";
 import { Skeleton } from "@/components/fantasy/Skeleton";
 import { ManualForwardInstructions } from "./ManualForwardInstructions";
 import { useNotifications } from "@/hooks/useNotifications";
+import { useActiveQuestStep } from "@/hooks/useActiveQuestStep";
+import { completeQuestStep } from "@/lib/questCompletion";
+import { checkNetworkQuestProgress } from "@/lib/networkQuestProgress";
+import { QuestSpotlight } from "@/components/university/QuestSpotlight";
 
 export function PortForwardPanel() {
   const { t } = useTranslation();
@@ -28,6 +32,7 @@ export function PortForwardPanel() {
   const [copied, setCopied] = React.useState(false);
   const [verifying, setVerifying] = React.useState(false);
   const notifications = useNotifications();
+  const { nextStep } = useActiveQuestStep();
 
   // Derived from the router's actual current mapping, not local session
   // state - so a mapping created by another machine, or in an earlier
@@ -64,6 +69,7 @@ export function PortForwardPanel() {
       if (data.port) {
         checkFirewall(data.port, data.queryPort);
       }
+      checkNetworkQuestProgress();
     } finally {
       setChecking(false);
     }
@@ -113,6 +119,7 @@ export function PortForwardPanel() {
         await networkApi.allowGamePortFirewall(queryPort);
       }
       setFirewallOk(true);
+      checkNetworkQuestProgress();
       notifications.success({
         title: t("superAdmin.portForward.firewallAddedTitle", { defaultValue: "Firewall rule added" }),
         message: queryPortDiffers
@@ -282,7 +289,7 @@ export function PortForwardPanel() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div>
+          <QuestSpotlight stepId="set_ports">
             <Label htmlFor="game-port">{t("superAdmin.portForward.gamePort", { defaultValue: "Game Port" })}</Label>
             <p className="mb-1.5 text-[11px] text-parchment-300/40">
               {t("superAdmin.portForward.gamePortHint", {
@@ -311,7 +318,21 @@ export function PortForwardPanel() {
                   : t("superAdmin.portForward.savePort", { defaultValue: "Save Port" })}
               </RuneButton>
             </div>
-          </div>
+            {nextStep?.id === "set_ports" && (
+              <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-gold-500/40 bg-gold-500/5 px-3 py-2">
+                <p className="text-xs text-gold-200">Do the ports look OK? These are Palworld's default ports.</p>
+                <RuneButton
+                  type="button"
+                  variant="gold"
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => completeQuestStep("set_ports")}
+                >
+                  Looks good
+                </RuneButton>
+              </div>
+            )}
+          </QuestSpotlight>
 
           {queryPort && (
             <div className="border-t border-stone-700/60 pt-4">
@@ -363,7 +384,7 @@ export function PortForwardPanel() {
             </p>
           </div>
 
-          <div className="border-t border-stone-700/60 pt-4">
+          <QuestSpotlight stepId="firewall" className="border-t border-stone-700/60 pt-4">
             <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
               {t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}
             </p>
@@ -414,9 +435,9 @@ export function PortForwardPanel() {
                 </p>
               </div>
             )}
-          </div>
+          </QuestSpotlight>
 
-          <div className="border-t border-stone-700/60 pt-4">
+          <QuestSpotlight stepId="forward_ports" className="border-t border-stone-700/60 pt-4">
             <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
               {t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}
             </p>
@@ -554,7 +575,7 @@ export function PortForwardPanel() {
                 </div>
               </div>
             )}
-          </div>
+          </QuestSpotlight>
         </div>
       )}
     </ScrollPanel>

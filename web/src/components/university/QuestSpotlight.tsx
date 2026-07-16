@@ -11,12 +11,17 @@ export function QuestSpotlight({
   children,
   className,
 }: {
-  stepId: string;
+  /** A single step id, or several - useful when one physical control
+   * completes different steps depending on which course is active (e.g.
+   * installing UE4SS satisfies both Super Admin's "mods_choice" and Mod
+   * Supervisor's "install_ue4ss"). */
+  stepId: string | string[];
   children: React.ReactNode;
   className?: string;
 }) {
   const { nextStep } = useActiveQuestStep();
-  const active = nextStep?.id === stepId;
+  const ids = Array.isArray(stepId) ? stepId : [stepId];
+  const active = !!nextStep && ids.includes(nextStep.id);
 
   return (
     <div className={cn("relative", className)}>

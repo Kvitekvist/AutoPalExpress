@@ -17,6 +17,8 @@ import { BroadcastDialog } from "@/components/serverControl/BroadcastDialog";
 import { ShutdownCountdownDialog } from "@/components/serverControl/ShutdownCountdownDialog";
 import { UpdateConfirmDialog } from "@/components/serverControl/UpdateConfirmDialog";
 import { ServerUpdateProgressPanel } from "@/components/serverControl/ServerUpdateProgressPanel";
+import { completeQuestStep } from "@/lib/questCompletion";
+import { QuestSpotlight } from "@/components/university/QuestSpotlight";
 
 type Action = "start" | "stop" | "restart" | "save" | "check-update" | "update" | null;
 
@@ -58,6 +60,12 @@ export default function ServerControl() {
         title: t("serverControl.notifications.ignitedTitle", { defaultValue: "Server ignited" }),
         message: t("serverControl.notifications.ignitedMessage", { defaultValue: "The realm awakens once more." }),
       });
+      // Both Super Admin/Admin Basics' "start_server" and Mod Supervisor's
+      // "disable_all" fallback live on this one action - completeQuestStep
+      // only ever applies whichever one is genuinely the active course's
+      // current step, so firing both here is safe.
+      completeQuestStep("start_server");
+      completeQuestStep("disable_all");
     } finally {
       setBusyAction(null);
     }
@@ -116,6 +124,7 @@ export default function ServerControl() {
     try {
       const check = await serverApi.checkServerUpdate();
       setUpdateCheck(check);
+      completeQuestStep("check_updates");
       if (check.updateAvailable) {
         setUpdateConfirmOpen(true);
       } else if (check.canCompare) {
@@ -233,11 +242,13 @@ export default function ServerControl() {
 
       <ScrollPanel title={t("serverControl.ritesTitle", { defaultValue: "Rites of Command" })}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StartServerControl
-            disabled={isOnline || isTransitioning}
-            busy={busyAction === "start"}
-            onStart={handleStart}
-          />
+          <QuestSpotlight stepId="start_server">
+            <StartServerControl
+              disabled={isOnline || isTransitioning}
+              busy={busyAction === "start"}
+              onStart={handleStart}
+            />
+          </QuestSpotlight>
           <ActionButton
             icon={<Square />}
             label={t("serverControl.stopServer", { defaultValue: "Stop Server" })}
@@ -262,14 +273,16 @@ export default function ServerControl() {
             loading={busyAction === "save"}
             onClick={handleSave}
           />
-          <ActionButton
-            icon={<DownloadCloud />}
-            label={t("serverControl.checkUpdates", { defaultValue: "Check Updates" })}
-            variant="life"
-            disabled={isTransitioning || updateRunning}
-            loading={busyAction === "check-update" || updateRunning}
-            onClick={handleCheckUpdate}
-          />
+          <QuestSpotlight stepId="check_updates">
+            <ActionButton
+              icon={<DownloadCloud />}
+              label={t("serverControl.checkUpdates", { defaultValue: "Check Updates" })}
+              variant="life"
+              disabled={isTransitioning || updateRunning}
+              loading={busyAction === "check-update" || updateRunning}
+              onClick={handleCheckUpdate}
+            />
+          </QuestSpotlight>
           <ActionButton
             icon={<Megaphone />}
             label={t("serverControl.broadcastMessage", { defaultValue: "Broadcast Message" })}

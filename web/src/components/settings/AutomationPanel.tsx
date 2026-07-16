@@ -27,6 +27,8 @@ import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
 import { GuildTable, type GuildTableColumn } from "@/components/fantasy/GuildTable";
+import { QuestSpotlight } from "@/components/university/QuestSpotlight";
+import { completeQuestStep } from "@/lib/questCompletion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
@@ -216,6 +218,9 @@ export function AutomationPanel() {
       const saved = await automationApi.updateAutomation(config);
       setConfig(saved);
       setDirty(false);
+      if (saved.backup.enabled) {
+        completeQuestStep("setup_backup");
+      }
       notifications.success({
         title: t("settings.automation.updatedTitle", { defaultValue: "Automation updated" }),
         message: t("settings.automation.updatedMessage", { defaultValue: "Your schedules have been inscribed." }),
@@ -454,7 +459,7 @@ export function AutomationPanel() {
           </div>
         )}
 
-        <div className="space-y-3 border-b border-stone-700/60 pb-6">
+        <QuestSpotlight stepId="setup_backup" className="space-y-3 border-b border-stone-700/60 pb-6">
           <EnchantedToggle
             id="backupEnabled"
             checked={config.backup.enabled}
@@ -465,7 +470,7 @@ export function AutomationPanel() {
             })}
           />
           <ScheduleFields schedule={config.backup} onChange={(next) => update({ backup: next })} idPrefix="backup" />
-        </div>
+        </QuestSpotlight>
 
         <div className="space-y-3 border-b border-stone-700/60 pb-6">
           <EnchantedToggle

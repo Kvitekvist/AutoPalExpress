@@ -7,6 +7,8 @@ import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { RuneDialog } from "@/components/fantasy/RuneDialog";
 import { useNotifications } from "@/hooks/useNotifications";
+import { completeQuestStep } from "@/lib/questCompletion";
+import { QuestSpotlight } from "@/components/university/QuestSpotlight";
 import { cn } from "@/lib/utils";
 
 export function Ue4ssPanel() {
@@ -46,6 +48,8 @@ export function Ue4ssPanel() {
     try {
       const data = await ue4ssApi.install();
       setStatus(data);
+      completeQuestStep("mods_choice");
+      completeQuestStep("install_ue4ss");
       notifications.success({
         title: t("mods.ue4ss.installedTitle", { defaultValue: "UE4SS installed" }),
         message: data.installedVersion
@@ -143,22 +147,24 @@ export function Ue4ssPanel() {
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <RuneButton
-          type="button"
-          variant="gold"
-          size="sm"
-          icon={<Download />}
-          onClick={handleInstall}
-          disabled={installing || !serverConfigured}
-        >
-          {installing
-            ? t("mods.ue4ss.installing", { defaultValue: "Installing..." })
-            : status.installed
-              ? updateAvailable
-                ? t("mods.ue4ss.updateTo", { defaultValue: "Update to {{version}}", version: latest?.version })
-                : t("mods.ue4ss.reinstall", { defaultValue: "Reinstall" })
-              : t("mods.ue4ss.install", { defaultValue: "Install UE4SS" })}
-        </RuneButton>
+        <QuestSpotlight stepId={["mods_choice", "install_ue4ss"]}>
+          <RuneButton
+            type="button"
+            variant="gold"
+            size="sm"
+            icon={<Download />}
+            onClick={handleInstall}
+            disabled={installing || !serverConfigured}
+          >
+            {installing
+              ? t("mods.ue4ss.installing", { defaultValue: "Installing..." })
+              : status.installed
+                ? updateAvailable
+                  ? t("mods.ue4ss.updateTo", { defaultValue: "Update to {{version}}", version: latest?.version })
+                  : t("mods.ue4ss.reinstall", { defaultValue: "Reinstall" })
+                : t("mods.ue4ss.install", { defaultValue: "Install UE4SS" })}
+          </RuneButton>
+        </QuestSpotlight>
         {status.installed && (
           <RuneButton
             type="button"

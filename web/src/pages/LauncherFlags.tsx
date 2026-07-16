@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/fantasy/Skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RuneButton } from "@/components/fantasy/RuneButton";
+import { QuestSpotlight } from "@/components/university/QuestSpotlight";
+import { completeQuestStep } from "@/lib/questCompletion";
 import { useNotifications } from "@/hooks/useNotifications";
 
 export default function LauncherFlags() {
@@ -75,6 +77,9 @@ export default function LauncherFlags() {
         useQueryPort: "useQueryPort" in nextOptions ? Boolean(nextOptions.useQueryPort) : instance.useQueryPort,
       });
       setInstance(next.instances.find((item) => item.id === instance.id) ?? null);
+      if ("communityServer" in nextOptions) {
+        completeQuestStep("public_choice");
+      }
       notifications.success({
         title: t("launcherOptions.savedTitle", { defaultValue: "Launcher options saved" }),
         message: t("launcherOptions.savedMessage", {
@@ -161,16 +166,18 @@ export default function LauncherFlags() {
     <div className="space-y-6 pb-10">
       <ScrollPanel icon={<Rocket />} title={t("launcherOptions.title", { defaultValue: "Launcher Options" })}>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-          <EnchantedToggle
-            id="flag-community-server"
-            checked={instance.communityServer}
-            disabled={saving}
-            onCheckedChange={(checked) => saveLaunchOptions({ communityServer: checked })}
-            label="-publiclobby"
-            description={t("launcherOptions.publicLobby", {
-              defaultValue: "Shows the server in Palworld's Community Server list.",
-            })}
-          />
+          <QuestSpotlight stepId="public_choice">
+            <EnchantedToggle
+              id="flag-community-server"
+              checked={instance.communityServer}
+              disabled={saving}
+              onCheckedChange={(checked) => saveLaunchOptions({ communityServer: checked })}
+              label="-publiclobby"
+              description={t("launcherOptions.publicLobby", {
+                defaultValue: "Shows the server in Palworld's Community Server list.",
+              })}
+            />
+          </QuestSpotlight>
           <EnchantedToggle
             id="flag-useperfthreads"
             checked={instance.usePerfThreads}

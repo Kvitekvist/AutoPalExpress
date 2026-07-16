@@ -8,6 +8,8 @@ import { RuneButton } from "@/components/fantasy/RuneButton";
 import { Skeleton } from "@/components/fantasy/Skeleton";
 import { ManualForwardInstructions } from "./ManualForwardInstructions";
 import { useNotifications } from "@/hooks/useNotifications";
+import { checkNetworkQuestProgress } from "@/lib/networkQuestProgress";
+import { QuestSpotlight } from "@/components/university/QuestSpotlight";
 
 export function RemoteAccessPanel() {
   const { t } = useTranslation();
@@ -33,6 +35,7 @@ export function RemoteAccessPanel() {
         await networkApi.verifyAdminPort();
       }
       refreshStatus();
+      checkNetworkQuestProgress();
     } finally {
       setVerifying(false);
     }
@@ -41,6 +44,7 @@ export function RemoteAccessPanel() {
   React.useEffect(() => {
     refreshStatus();
     networkApi.getFirewallStatus().then((s) => setFirewallOk(s.ruleExists));
+    checkNetworkQuestProgress();
   }, [refreshStatus]);
 
   // Derived from the router's actual current mapping, not local session
@@ -54,6 +58,7 @@ export function RemoteAccessPanel() {
     try {
       await networkApi.allowAdminPortFirewall();
       setFirewallOk(true);
+      checkNetworkQuestProgress();
       notifications.success({
         title: t("superAdmin.remoteAccess.firewallAddedTitle", { defaultValue: "Firewall rule added" }),
         message: t("superAdmin.remoteAccess.firewallAddedMessage", {
@@ -78,6 +83,7 @@ export function RemoteAccessPanel() {
     try {
       await networkApi.forwardAdminPort();
       refreshStatus();
+      checkNetworkQuestProgress();
       notifications.success({
         title: t("superAdmin.remoteAccess.forwardedTitle", { defaultValue: "Admin panel forwarded" }),
         message: t("superAdmin.remoteAccess.forwardedMessage", {
@@ -133,7 +139,7 @@ export function RemoteAccessPanel() {
       </p>
 
       <div className="space-y-4">
-        <div>
+        <QuestSpotlight stepId="firewall">
           <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
             {t("superAdmin.portForward.step1", { defaultValue: "1. Windows Firewall" })}
           </p>
@@ -168,9 +174,9 @@ export function RemoteAccessPanel() {
               </p>
             </div>
           )}
-        </div>
+        </QuestSpotlight>
 
-        <div className="border-t border-stone-700/60 pt-4">
+        <QuestSpotlight stepId="forward_ports" className="border-t border-stone-700/60 pt-4">
           <p className="mb-1.5 text-xs uppercase tracking-wide text-parchment-300/40">
             {t("superAdmin.portForward.step2", { defaultValue: "2. Router Port Forward" })}
           </p>
@@ -288,7 +294,7 @@ export function RemoteAccessPanel() {
               )}
             </>
           )}
-        </div>
+        </QuestSpotlight>
       </div>
 
       <p className="mt-4 border-t border-stone-700/60 pt-3 text-[11px] leading-relaxed text-parchment-300/35">
