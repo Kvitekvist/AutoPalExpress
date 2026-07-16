@@ -16,7 +16,7 @@ React 19 + Vite SPA (`web/src/`). Multi-language UI (`web/src/i18n/`, `react-i18
 
 FastAPI app (`app/main.py`). Routes live in `app/routes/*.py`, one file per feature area (auth, users, instances, mods, nexus, network, server_control, server_settings, automation, players, ue4ss). Business logic lives in `app/services/*.py` - routes are thin, services do the real work (process management, Palworld REST API calls, file I/O, external API calls). A background `asyncio` task (`app/services/scheduler.py`, started on FastAPI startup) drives scheduled backups/restarts/messaging.
 
-APE University is implemented by `app/services/university.py` and `app/routes/university.py`. Course definitions are ordered backend data, progress is persisted per user in `university_progress.json`, and the backend rejects out-of-order completion or role/prerequisite violations. The React `University` page renders training and diplomas; `UniversityQuestTracker` auto-starts the appropriate first course and keeps the next lesson visible throughout the app. The fake kick exercise is academy-only state and never calls Palworld's real player endpoint.
+APE University is implemented by `app/services/university.py` and `app/routes/university.py`. Course definitions are ordered backend data, progress is persisted per user in `university_progress.json` (fully isolated per `user["id"]` - the one deliberate exception is `GET /api/university/admin-basics-status`, super-admin-only, exposing only every non-super-admin's Admin Basics graduation status, not step-by-step progress), and the backend rejects out-of-order completion or role/prerequisite violations. `create_server` auto-completes server-side in `get_catalog()` once any instance is registered - the one step with objectively-checkable persisted state rather than needing a UI event. `POST /{course_id}/retake` resets and reactivates an already-graduated course. The React `University` page renders training/diplomas/descriptions/retake; `UniversityQuestTracker` (floating widget) auto-starts the appropriate first course, keeps the next lesson visible, and offers a manual "Mark this step done" fallback. Most other lessons auto-complete from real actions across the app (TICKET-0162) via `web/src/lib/questCompletion.ts`'s `completeQuestStep(stepId)` - fetches the current catalog fresh and only completes the step if it's genuinely the active course's current one, so call sites everywhere (ServerControl, LauncherFlags, AutomationPanel, PortForwardPanel/RemoteAccessPanel via `web/src/lib/networkQuestProgress.ts`, Ue4ssPanel, Mods.tsx, NexusModBrowser, ModWishlistPanel) can call it unconditionally after their own action succeeds. `web/src/components/university/QuestSpotlight.tsx` wraps a control with a pulsing gold highlight (reusing the existing `animate-glow-pulse` utility) while it's the active step, accepting either one step id or several for controls shared across courses. The fake kick exercise is academy-only state and never calls Palworld's real player endpoint.
 
 ### Database
 
@@ -60,10 +60,12 @@ web/
       ui/            Bare Radix-based primitives
       fantasy/       Themed, reusable pieces built on top of ui/
       layout/        Sidebar, TopBar, AppShell
-      settings/, mods/, players/, serverControl/   Feature-specific panels/dialogs
+      settings/, mods/, players/, serverControl/, university/   Feature-specific panels/dialogs
     api/             One module per backend feature area, thin fetch wrappers
     hooks/           useAuth, useServerStatus, useNotifications, useShutdownCountdown,
-                     useServerUpdateJob
+                     useServerUpdateJob, useActiveQuestStep
+    lib/             questCompletion.ts, networkQuestProgress.ts (University auto-
+                     completion glue - see Components/Backend above), format.ts, utils.ts
     types/models.ts  Shared TypeScript interfaces matching backend response shapes
 
 data/ (dev) or Documents\AutoPalExpress\data (packaged - TICKET-0129; briefly the install folder under TICKET-0123, %LOCALAPPDATA% before that)
