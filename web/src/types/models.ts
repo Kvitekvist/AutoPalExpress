@@ -12,6 +12,31 @@ export interface AuthStatus {
   needsSetup: boolean;
 }
 
+export interface UniversityStep {
+  id: string;
+  title: string;
+  description: string;
+  route: string;
+  completed: boolean;
+  locked: boolean;
+}
+
+export interface UniversityCourse {
+  id: string;
+  title: string;
+  shortTitle: string;
+  available: boolean;
+  active: boolean;
+  graduatedAt: number | null;
+  requires?: string | null;
+  steps: UniversityStep[];
+}
+
+export interface UniversityCatalog {
+  activeCourse: string | null;
+  courses: UniversityCourse[];
+}
+
 export interface InviteCode {
   code: string;
   createdAt: number;

@@ -23,6 +23,7 @@ from app.routes import (
     server_settings,
     system_settings,
     ue4ss,
+    university,
     users,
 )
 from app.services import first_run_setup, instance_store, scheduler
@@ -97,6 +98,7 @@ app.include_router(
 app.include_router(automation.router, prefix="/api/automation", tags=["automation"], dependencies=_super_admin_only)
 app.include_router(players.router, prefix="/api/players", tags=["players"], dependencies=_authed)
 app.include_router(logs.router, prefix="/api/logs", tags=["logs"], dependencies=_authed)
+app.include_router(university.router, prefix="/api/university", tags=["university"], dependencies=_authed)
 # Port forwarding and firewall changes affect the host machine's network
 # exposure - reserved for the super admin, same as account management.
 app.include_router(network.router, prefix="/api/network", tags=["network"], dependencies=_super_admin_only)

@@ -16,6 +16,8 @@ React 19 + Vite SPA (`web/src/`). Multi-language UI (`web/src/i18n/`, `react-i18
 
 FastAPI app (`app/main.py`). Routes live in `app/routes/*.py`, one file per feature area (auth, users, instances, mods, nexus, network, server_control, server_settings, automation, players, ue4ss). Business logic lives in `app/services/*.py` - routes are thin, services do the real work (process management, Palworld REST API calls, file I/O, external API calls). A background `asyncio` task (`app/services/scheduler.py`, started on FastAPI startup) drives scheduled backups/restarts/messaging.
 
+APE University is implemented by `app/services/university.py` and `app/routes/university.py`. Course definitions are ordered backend data, progress is persisted per user in `university_progress.json`, and the backend rejects out-of-order completion or role/prerequisite violations. The React `University` page renders training and diplomas; `UniversityQuestTracker` auto-starts the appropriate first course and keeps the next lesson visible throughout the app. The fake kick exercise is academy-only state and never calls Palworld's real player endpoint.
+
 ### Database
 
 None. See "Storage" below - flat JSON files instead, since this is a single-host, small-scale local tool with no need for a real database.

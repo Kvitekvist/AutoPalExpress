@@ -169,3 +169,7 @@ All work before TICKET-0001 was done directly through conversation and recorded 
 ---
 
 Continue adding completed tickets in chronological order.
+
+## TICKET-0157 / TICKET-0158 / TICKET-0159 - APE University degrees
+
+Completed 2026-07-16. Added the role-aware APE University training center, auto-starting sequential quest tracker, Super Admin and Mod Supervisor curricula, Admin Basics with a safe fake-player kick lesson, persisted diplomas, and graduation confetti. Course ordering and prerequisites are enforced by the backend rather than only by disabled UI controls.

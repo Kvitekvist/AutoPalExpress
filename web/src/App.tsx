@@ -14,6 +14,7 @@ const Logs = React.lazy(() => import("@/pages/Logs"));
 const Settings = React.lazy(() => import("@/pages/Settings"));
 const SuperAdmin = React.lazy(() => import("@/pages/SuperAdmin"));
 const ModWishlist = React.lazy(() => import("@/pages/ModWishlist"));
+const University = React.lazy(() => import("@/pages/University"));
 
 function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -74,6 +75,14 @@ function App() {
           element={
             <React.Suspense fallback={<PageFallback />}>
               <Logs />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="university"
+          element={
+            <React.Suspense fallback={<PageFallback />}>
+              <University />
             </React.Suspense>
           }
         />
