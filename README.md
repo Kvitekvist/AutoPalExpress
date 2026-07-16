@@ -77,6 +77,7 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 - Manage ports, Local API settings, Windows Firewall rules, public IP, and verified mod uploads from Super Admin.
 - Run a bundled diagnostics command that checks the active server, local ports, firewall, REST API, and produces a support report.
 - Switch the UI language from the top bar (English, Chinese Simplified, Japanese, German, French, Spanish) - each admin's choice is saved to their own account.
+- Learn the app through APE University: sequential, role-aware courses with a quest tracker, safe practice exercises, confetti, and earned diplomas for Super Admin setup, mod supervision, and everyday administration.
 
 > [!TIP]
 > The first account created becomes the super admin. Make sure that account belongs to the person hosting the server.

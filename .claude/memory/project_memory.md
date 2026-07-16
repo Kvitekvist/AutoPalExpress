@@ -20,6 +20,8 @@ Core feature set is complete and has been exercised live: multi-instance server 
 
 ## Active Priorities
 
+* COMPLETED 2026-07-16 (TICKET-0157/0158/0159): Added APE University with persisted per-user progress, backend-enforced sequential lessons, role-aware course availability, an always-visible quest tracker, diplomas, and graduation confetti. A new super admin automatically starts the Super Admin Degree; regular admins automatically start Admin Basics. Mod Supervisor unlocks only after the Super Admin diploma. The Admin Basics fake-player kick uses an isolated Captain Lamball simulator and cannot affect a real player. Verified with four dedicated API tests, the full backend suite, frontend lint, and production build.
+
 * REST API has replaced RCON for game-level control; manual Stop/Restart now try Palworld's REST shutdown path before local process cleanup.
 * `process_manager` now discovers Palworld server processes by executable name and selected server folder for status metrics, even if the backend forgot the original launcher process.
 * Remaining mocked surfaces: the general Settings blob's own fields, plus per-player whisper/teleport on the Players page because Palworld's REST API has no matching commands.

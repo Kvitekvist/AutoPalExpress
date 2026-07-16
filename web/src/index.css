@@ -205,3 +205,8 @@
     box-shadow: 0 0 12px 2px color-mix(in oklab, var(--color-blood-400) 55%, transparent);
   }
 }
+
+@keyframes fall {
+  0% { transform: translateY(-5vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}

@@ -2,7 +2,7 @@ import * as React from "react";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, BookOpen, Swords, ScrollText, Settings2, Flame, SlidersHorizontal, Crown, Rocket, Heart, ArrowUpCircle } from "lucide-react";
+import { LayoutDashboard, BookOpen, Swords, ScrollText, Settings2, Flame, SlidersHorizontal, Crown, Rocket, Heart, ArrowUpCircle, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { appUpdateApi } from "@/api";
@@ -14,6 +14,7 @@ const COMMON_ITEMS = [
   { to: "/control", labelKey: "control", icon: Swords },
   { to: "/world-settings", labelKey: "worldSettings", icon: SlidersHorizontal },
   { to: "/logs", labelKey: "logs", icon: ScrollText },
+  { to: "/university", labelKey: "university", icon: GraduationCap },
 ];
 
 const HOST_ITEMS = [

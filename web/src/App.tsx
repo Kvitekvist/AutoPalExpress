@@ -9,6 +9,7 @@ import Logs from "@/pages/Logs";
 import Settings from "@/pages/Settings";
 import SuperAdmin from "@/pages/SuperAdmin";
 import ModWishlist from "@/pages/ModWishlist";
+import University from "@/pages/University";
 import { useAuth } from "@/hooks/useAuth";
 
 function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ function App() {
           }
         />
         <Route path="logs" element={<Logs />} />
+        <Route path="university" element={<University />} />
         <Route
           path="settings"
           element={
