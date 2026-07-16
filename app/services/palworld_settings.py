@@ -433,6 +433,11 @@ _POPULAR_META = {f["key"]: f for f in POPULAR_FIELDS}
 _POPULAR_ORDER = {f["key"]: i for i, f in enumerate(POPULAR_FIELDS)}
 
 _ADVANCED_META: dict[str, dict[str, Any]] = {
+    "bUseAuth": {
+        "label": "Require Steam Authentication",
+        "group": "Identity and Access",
+        "help": "When enabled, Palworld validates every joining player's Steam identity before letting them connect. Disable this only if you understand the trade-off - for example, to allow a split/virtualized Steam session tool (like Nucleus co-op) to join without being blocked by an AUTH error. Turning it off removes that identity check for every player, not just the one you're trying to let in.",
+    },
     "CrossplayPlatforms": {
         "label": "Crossplay Platforms",
         "group": "Identity and Access",
