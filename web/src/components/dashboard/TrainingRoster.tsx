@@ -1,24 +1,44 @@
 import * as React from "react";
-import { GraduationCap, DoorOpen } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import { GraduationCap } from "lucide-react";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
-import { RuneButton } from "@/components/fantasy/RuneButton";
+import { RuneDialog } from "@/components/fantasy/RuneDialog";
+import { PlayerCard } from "@/components/players/PlayerCard";
 import { useActiveQuestStep } from "@/hooks/useActiveQuestStep";
 import { completeQuestStep } from "@/lib/questCompletion";
 import { useNotifications } from "@/hooks/useNotifications";
+import type { Player } from "@/types/models";
 
-/** A fake, academy-only roster entry (Captain Lamball) for Admin Basics'
- * kick_training lesson - lets a new admin safely practice a kick without
- * ever touching Palworld's real player endpoint. Only renders while
- * kick_training is genuinely the active step. */
+const LAMBALL: Player = {
+  id: "training-lamball",
+  characterName: "Captain Lamball",
+  steamId: "steam_00000000000000000",
+  level: 12,
+  guild: "Training Roster",
+  pingMs: 24,
+  onlineSeconds: 640,
+  connectionStatus: "online",
+  joinedAt: new Date().toISOString(),
+  isBanned: false,
+  avatarSeed: "lamball",
+};
+
+/** A fake, academy-only roster entry for Admin Basics' kick_training lesson -
+ * reuses the real PlayerCard component (same look, same right-click-style
+ * dropdown -> Kick action as the live Roster) so the simulation matches the
+ * real thing exactly, just without ever touching Palworld's real player
+ * endpoint. Only renders while kick_training is genuinely the active step. */
 export function TrainingRoster() {
   const { nextStep } = useActiveQuestStep();
   const notifications = useNotifications();
   const [kicked, setKicked] = React.useState(false);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   if (nextStep?.id !== "kick_training") return null;
 
-  function handleKick() {
+  function handleConfirmKick() {
     setKicked(true);
+    setConfirmOpen(false);
     notifications.success({
       title: "Captain Lamball kicked",
       message: "Nicely done - that's exactly how a real kick works, just without a real player.",
@@ -27,32 +47,42 @@ export function TrainingRoster() {
   }
 
   return (
-    <ScrollPanel icon={<GraduationCap />} title="Training Roster">
-      <div className="space-y-3 p-5">
+    <ScrollPanel noPadding icon={<GraduationCap />} title="Training Roster">
+      <div className="flex flex-col gap-4 p-5">
         <p className="text-xs leading-relaxed text-parchment-300/50">
-          A safe, fake entry for practicing a kick. This never touches your real server or players.
+          A safe, fake entry for practicing a kick - open the menu on the card below and choose Kick, exactly like you
+          would for a real player. This never touches your real server or players.
         </p>
         {kicked ? (
-          <p className="rounded-md border border-stone-700 bg-abyss-950/30 px-4 py-6 text-center text-sm text-parchment-300/45">
-            Captain Lamball has been kicked.
-          </p>
+          <div className="flex h-40 items-center justify-center text-parchment-300/40">
+            <p>Captain Lamball has been kicked.</p>
+          </div>
         ) : (
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-stone-700 bg-gradient-to-b from-stone-800/80 to-abyss-900/90 bg-noise p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-gold-600/40 bg-gradient-to-br from-stone-700 to-abyss-900 font-display text-lg font-bold text-gold-300">
-                L
-              </div>
-              <div>
-                <p className="font-display text-sm font-semibold text-parchment-100">Captain Lamball</p>
-                <p className="text-xs text-parchment-300/45">Academy trainee - not a real player</p>
-              </div>
-            </div>
-            <RuneButton variant="danger" size="sm" icon={<DoorOpen />} onClick={handleKick}>
-              Kick
-            </RuneButton>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <AnimatePresence mode="popLayout">
+              <PlayerCard
+                key={LAMBALL.id}
+                player={LAMBALL}
+                onKick={() => setConfirmOpen(true)}
+                onBan={() => {}}
+                onUnban={() => {}}
+                onMessage={() => {}}
+              />
+            </AnimatePresence>
           </div>
         )}
       </div>
+
+      <RuneDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        tone="warning"
+        title="Kick this player?"
+        description="Captain Lamball will be disconnected immediately - just like a real kick, but nothing real happens."
+        confirmLabel="Kick"
+        onConfirm={handleConfirmKick}
+        confirming={false}
+      />
     </ScrollPanel>
   );
 }
