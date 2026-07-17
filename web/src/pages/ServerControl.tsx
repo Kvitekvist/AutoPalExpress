@@ -66,6 +66,14 @@ export default function ServerControl() {
       // current step, so firing both here is safe.
       completeQuestStep("start_server");
       completeQuestStep("disable_all");
+    } catch (e) {
+      notifications.error({
+        title: t("serverControl.notifications.startFailedTitle", { defaultValue: "Could not start server" }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
+      });
     } finally {
       setBusyAction(null);
     }
@@ -80,6 +88,14 @@ export default function ServerControl() {
       notifications.warning({
         title: t("serverControl.notifications.extinguishedTitle", { defaultValue: "Server extinguished" }),
         message: t("serverControl.notifications.extinguishedMessage", { defaultValue: "The realm has gone quiet." }),
+      });
+    } catch (e) {
+      notifications.error({
+        title: t("serverControl.notifications.stopFailedTitle", { defaultValue: "Could not stop server" }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setBusyAction(null);
@@ -98,6 +114,14 @@ export default function ServerControl() {
           defaultValue: "The realm has been reforged anew.",
         }),
       });
+    } catch (e) {
+      notifications.error({
+        title: t("serverControl.notifications.restartFailedTitle", { defaultValue: "Could not restart server" }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
+      });
     } finally {
       setBusyAction(null);
       setConfirmAction(null);
@@ -114,6 +138,14 @@ export default function ServerControl() {
         message: t("serverControl.notifications.savedMessage", {
           defaultValue: "Your realm's fate has been etched into stone.",
         }),
+      });
+    } catch (e) {
+      notifications.error({
+        title: t("serverControl.notifications.saveFailedTitle", { defaultValue: "Could not save world" }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
       });
     } finally {
       setBusyAction(null);
@@ -146,6 +178,14 @@ export default function ServerControl() {
           }),
         });
       }
+    } catch (e) {
+      notifications.error({
+        title: t("serverControl.notifications.checkUpdateFailedTitle", { defaultValue: "Could not check for updates" }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
+      });
     } finally {
       setBusyAction(null);
     }
@@ -197,6 +237,14 @@ export default function ServerControl() {
       });
       setBroadcastOpen(false);
       setBroadcastText("");
+    } catch (e) {
+      notifications.error({
+        title: t("serverControl.notifications.broadcastFailedTitle", { defaultValue: "Could not send message" }),
+        message:
+          e instanceof Error
+            ? e.message
+            : t("serverControl.notifications.unknownError", { defaultValue: "Unknown error." }),
+      });
     } finally {
       setBroadcasting(false);
     }

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Fixed: Server Control actions failed silently (TICKET-0164):** Save World, Start, Stop, Restart, Check for Updates, and Broadcast Message had no error handling at all - if the underlying request failed (most commonly the Palworld REST API not being enabled/configured yet), the button just stopped spinning with zero feedback, which is what produced reports like "Last saved: Never" even after repeatedly pressing Save World. All six actions now show a proper error notification on failure, matching the pattern the Update action already used.
+
 ## 1.0.8 - 2026-07-17
 
 - Installer checksum (SHA256): `C1628A1501CA579C57C783EDF74A989B356D06CAB9F962E13B89824BFCF13E72`.
