@@ -25,7 +25,16 @@ export function useActiveQuestStep(): {
   React.useEffect(() => {
     refresh();
     window.addEventListener(UNIVERSITY_UPDATED, refresh);
-    return () => window.removeEventListener(UNIVERSITY_UPDATED, refresh);
+    // Also polls: some completions (create_server) are purely backend-
+    // computed from real app state with no single frontend action to hang
+    // an UNIVERSITY_UPDATED dispatch off of, so relying on the event alone
+    // left the tracker/spotlights showing stale "not done yet" state until
+    // something unrelated happened to trigger a refetch.
+    const timer = window.setInterval(refresh, 5000);
+    return () => {
+      window.removeEventListener(UNIVERSITY_UPDATED, refresh);
+      window.clearInterval(timer);
+    };
   }, [refresh]);
 
   const activeCourse = catalog?.courses.find((c) => c.id === catalog.activeCourse) ?? null;
