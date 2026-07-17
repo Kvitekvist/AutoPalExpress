@@ -178,6 +178,8 @@ export function NexusModBrowser({ installedNames }: NexusModBrowserProps) {
             message: "Wishlist one more mod to continue your Mod Supervisor training.",
           });
         }
+      } else if (nextStep?.id === "wishlist_mod") {
+        completeQuestStep("wishlist_mod");
       }
       notifications.success({
         title: t("mods.nexusBrowser.requestedTitle", { defaultValue: "Added to server wishlist" }),

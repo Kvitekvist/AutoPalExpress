@@ -115,15 +115,15 @@ COURSES: dict[str, dict[str, Any]] = {
         "autoStart": True,
         "steps": (
             (
-                "start_server",
-                "Start the server",
-                "Learn where server start lives and how to recognize the starting state.",
-                "/control",
-            ),
-            (
                 "stop_server",
                 "Stop the server safely",
                 "Use Stop so Palworld can save and shut down cleanly.",
+                "/control",
+            ),
+            (
+                "start_server",
+                "Start the server",
+                "Learn where server start lives and how to recognize the starting state.",
                 "/control",
             ),
             (
@@ -135,8 +135,8 @@ COURSES: dict[str, dict[str, Any]] = {
             (
                 "kick_training",
                 "Kick the training player",
-                "Use the safe academy simulator below to remove Captain Lamball.",
-                "/university",
+                "Use the Training Roster on Dashboard to safely remove Captain Lamball.",
+                "/",
             ),
             (
                 "world_settings",

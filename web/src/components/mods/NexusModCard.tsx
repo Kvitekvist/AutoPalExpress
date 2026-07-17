@@ -1,6 +1,7 @@
 import { Download, Check, ThumbsUp, ExternalLink, BookOpen, Heart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SpellCard } from "@/components/fantasy/SpellCard";
+import { QuestSpotlight } from "@/components/university/QuestSpotlight";
 import type { NexusModResult } from "@/types/models";
 
 interface NexusModCardProps {
@@ -67,20 +68,22 @@ export function NexusModCard({ mod, installed, requested, requesting, onRequest 
             {t("mods.nexusCard.requested", { defaultValue: "Requested" })}
           </span>
         ) : (
-          <button
-            type="button"
-            onClick={onRequest}
-            disabled={requesting}
-            className="flex min-w-[132px] flex-1 items-center justify-center gap-1.5 rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs font-medium text-gold-300/80 transition-colors hover:border-gold-400/50 hover:text-gold-200 disabled:pointer-events-none disabled:opacity-50"
-            title={t("mods.nexusCard.wishlistTooltip", {
-              defaultValue: "Ask the super admin to approve and install this mod.",
-            })}
-          >
-            <Heart className="h-3.5 w-3.5" />
-            {requesting
-              ? t("mods.nexusCard.requesting", { defaultValue: "Requesting..." })
-              : t("mods.nexusCard.addToWishlist", { defaultValue: "Add to Wishlist" })}
-          </button>
+          <QuestSpotlight stepId={["wishlist_one", "wishlist_mod"]} className="min-w-[132px] flex-1">
+            <button
+              type="button"
+              onClick={onRequest}
+              disabled={requesting}
+              className="flex w-full items-center justify-center gap-1.5 rounded-md border border-gold-600/30 bg-gold-500/5 px-3 py-2 text-xs font-medium text-gold-300/80 transition-colors hover:border-gold-400/50 hover:text-gold-200 disabled:pointer-events-none disabled:opacity-50"
+              title={t("mods.nexusCard.wishlistTooltip", {
+                defaultValue: "Ask the super admin to approve and install this mod.",
+              })}
+            >
+              <Heart className="h-3.5 w-3.5" />
+              {requesting
+                ? t("mods.nexusCard.requesting", { defaultValue: "Requesting..." })
+                : t("mods.nexusCard.addToWishlist", { defaultValue: "Add to Wishlist" })}
+            </button>
+          </QuestSpotlight>
         )}
       </div>
       {!installed && (

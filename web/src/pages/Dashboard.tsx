@@ -8,6 +8,7 @@ import { StatTile } from "@/components/fantasy/StatTile";
 import { ManaProgressBar } from "@/components/fantasy/ManaProgressBar";
 import { PlayersSection } from "@/components/players/PlayersSection";
 import { NetworkStatusLights } from "@/components/dashboard/NetworkStatusLights";
+import { TrainingRoster } from "@/components/dashboard/TrainingRoster";
 import { useServerStatus } from "@/hooks/useServerStatus";
 import { useAuth } from "@/hooks/useAuth";
 import { modsApi, instancesApi } from "@/api";
@@ -97,6 +98,8 @@ export default function Dashboard() {
       </ScrollPanel>
 
       {user.role === "super_admin" && <NetworkStatusLights hasInstance={!!instance} />}
+
+      <TrainingRoster />
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
         <StatTile

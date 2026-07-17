@@ -76,6 +76,7 @@ export default function ServerControl() {
     try {
       const s = await serverApi.stopServer();
       setStatus(s);
+      completeQuestStep("stop_server");
       notifications.warning({
         title: t("serverControl.notifications.extinguishedTitle", { defaultValue: "Server extinguished" }),
         message: t("serverControl.notifications.extinguishedMessage", { defaultValue: "The realm has gone quiet." }),
@@ -249,14 +250,16 @@ export default function ServerControl() {
               onStart={handleStart}
             />
           </QuestSpotlight>
-          <ActionButton
-            icon={<Square />}
-            label={t("serverControl.stopServer", { defaultValue: "Stop Server" })}
-            variant="danger"
-            disabled={!isOnline}
-            loading={busyAction === "stop"}
-            onClick={() => setConfirmAction("stop")}
-          />
+          <QuestSpotlight stepId="stop_server">
+            <ActionButton
+              icon={<Square />}
+              label={t("serverControl.stopServer", { defaultValue: "Stop Server" })}
+              variant="danger"
+              disabled={!isOnline}
+              loading={busyAction === "stop"}
+              onClick={() => setConfirmAction("stop")}
+            />
+          </QuestSpotlight>
           <ActionButton
             icon={<RotateCw />}
             label={t("serverControl.restartServer", { defaultValue: "Restart Server" })}

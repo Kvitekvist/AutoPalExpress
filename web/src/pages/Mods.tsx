@@ -146,9 +146,11 @@ export default function Mods() {
         title={t("mods.title", { defaultValue: "The Grimoire" })}
         actions={
           <>
-            <RuneButton variant="mana" size="sm" icon={<ScrollText />} onClick={() => setBrowseOpen(true)}>
-              {t("mods.browseNexus", { defaultValue: "Browse Nexus Mods" })}
-            </RuneButton>
+            <QuestSpotlight stepId={["wishlist_one", "wishlist_mod"]}>
+              <RuneButton variant="mana" size="sm" icon={<ScrollText />} onClick={() => setBrowseOpen(true)}>
+                {t("mods.browseNexus", { defaultValue: "Browse Nexus Mods" })}
+              </RuneButton>
+            </QuestSpotlight>
           </>
         }
       >

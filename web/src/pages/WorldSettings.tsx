@@ -328,6 +328,27 @@ export default function WorldSettings() {
 
   return (
     <div className="space-y-6 pb-24">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-stone-700 bg-abyss-900/60 px-5 py-3.5">
+        <p className="text-xs text-parchment-300/50">
+          {dirty.size > 0
+            ? dirty.size === 1
+              ? t("worldSettings.chrome.unsavedChangeOne", {
+                  defaultValue: "{{count}} unsaved change, applies next server start.",
+                  count: dirty.size,
+                })
+              : t("worldSettings.chrome.unsavedChangeMany", {
+                  defaultValue: "{{count}} unsaved changes, applies next server start.",
+                  count: dirty.size,
+                })
+            : t("worldSettings.chrome.allSaved", { defaultValue: "All changes saved." })}
+        </p>
+        <RuneButton variant="gold" icon={<Save />} onClick={handleSave} disabled={dirty.size === 0 || saving}>
+          {saving
+            ? t("worldSettings.chrome.saving", { defaultValue: "Saving..." })
+            : t("worldSettings.chrome.saveSettings", { defaultValue: "Save Settings" })}
+        </RuneButton>
+      </div>
+
       <ScrollPanel
         icon={<Sparkles />}
         title={t("worldSettings.chrome.popularSettings", { defaultValue: "Popular Settings" })}

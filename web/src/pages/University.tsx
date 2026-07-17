@@ -1,22 +1,22 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Award,
-  Check,
-  Circle,
-  GraduationCap,
-  LockKeyhole,
-  Play,
-  RotateCcw,
-  ShieldCheck,
-  UserRoundX,
-} from "lucide-react";
+import { Award, Check, Circle, GraduationCap, LockKeyhole, Play, RotateCcw, ShieldCheck } from "lucide-react";
 import { universityApi } from "@/api";
 import { RuneButton } from "@/components/fantasy/RuneButton";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { UNIVERSITY_UPDATED } from "@/components/university/UniversityQuestTracker";
 import { useNotifications } from "@/hooks/useNotifications";
 import type { UniversityCatalog, UniversityCourse } from "@/types/models";
+
+const CELEBRATED_KEY_PREFIX = "university:celebrated:";
+
+function hasCelebrated(courseId: string, graduatedAt: number): boolean {
+  return localStorage.getItem(CELEBRATED_KEY_PREFIX + courseId) === String(graduatedAt);
+}
+
+function markCelebrated(courseId: string, graduatedAt: number): void {
+  localStorage.setItem(CELEBRATED_KEY_PREFIX + courseId, String(graduatedAt));
+}
 
 function Confetti() {
   const colors = ["#dfb15a", "#7dd3fc", "#86efac", "#c084fc"];
@@ -34,6 +34,21 @@ function Confetti() {
           }}
         />
       ))}
+    </div>
+  );
+}
+
+function CongratulationsBanner({ course, onDismiss }: { course: UniversityCourse; onDismiss: () => void }) {
+  return (
+    <div className="rounded-lg border-2 border-gold-500/60 bg-gold-950/20 p-6 text-center shadow-rune-gold">
+      <Award className="mx-auto h-12 w-12 text-gold-300" />
+      <h2 className="mt-2 font-display text-2xl text-gold-200">Congratulations!</h2>
+      <p className="mt-1 text-sm text-parchment-300/70">
+        You've graduated from <span className="text-gold-300">{course.title}</span>.
+      </p>
+      <RuneButton size="sm" variant="ghost" className="mt-4" onClick={onDismiss}>
+        Nice!
+      </RuneButton>
     </div>
   );
 }
@@ -59,12 +74,30 @@ export default function University() {
   const notifications = useNotifications();
   const [catalog, setCatalog] = React.useState<UniversityCatalog | null>(null);
   const [celebrate, setCelebrate] = React.useState(false);
+  const [celebrateCourse, setCelebrateCourse] = React.useState<UniversityCourse | null>(null);
   const [busy, setBusy] = React.useState(false);
+
+  function celebrateGraduation(course: UniversityCourse) {
+    setCelebrateCourse(course);
+    setCelebrate(true);
+    window.setTimeout(() => setCelebrate(false), 3200);
+    if (course.graduatedAt) markCelebrated(course.id, course.graduatedAt);
+  }
 
   React.useEffect(() => {
     universityApi
       .getCatalog()
-      .then(setCatalog)
+      .then((data) => {
+        setCatalog(data);
+        // Most lessons now complete on other pages, so a graduation might
+        // never have been seen live - catch up here the next time the
+        // academy is visited, instead of only celebrating an in-the-moment
+        // completion on this exact page.
+        const freshlyGraduated = data.courses.find(
+          (c) => c.graduatedAt !== null && !hasCelebrated(c.id, c.graduatedAt!)
+        );
+        if (freshlyGraduated) celebrateGraduation(freshlyGraduated);
+      })
       .catch((e) => notifications.error({ title: "Could not open APE University", message: e.message }));
   }, [notifications]);
 
@@ -75,12 +108,8 @@ export default function University() {
       setCatalog(next);
       window.dispatchEvent(new Event(UNIVERSITY_UPDATED));
       if (!wasGraduated && next.activeCourse === null) {
-        setCelebrate(true);
-        setTimeout(() => setCelebrate(false), 3200);
-        notifications.success({
-          title: "Degree earned!",
-          message: "Congratulations — your APE University diploma has been awarded.",
-        });
+        const graduated = next.courses.find((c) => c.graduatedAt !== null && !hasCelebrated(c.id, c.graduatedAt!));
+        if (graduated) celebrateGraduation(graduated);
       }
     } catch (e) {
       notifications.error({ title: "Lesson not completed", message: e instanceof Error ? e.message : "Try again." });
@@ -95,6 +124,7 @@ export default function University() {
   return (
     <div className="space-y-6">
       {celebrate && <Confetti />}
+      {celebrateCourse && <CongratulationsBanner course={celebrateCourse} onDismiss={() => setCelebrateCourse(null)} />}
       <header>
         <div className="flex items-center gap-3">
           <GraduationCap className="h-9 w-9 text-gold-400" />
@@ -132,35 +162,19 @@ export default function University() {
                       <p className="mt-1 text-sm text-parchment-300/60">{step.description}</p>
                       {isNext && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {step.id === "kick_training" ? (
-                            <RuneButton
-                              size="sm"
-                              variant="danger"
-                              icon={<UserRoundX />}
-                              onClick={() => apply(() => universityApi.completeStep(active.id, step.id))}
-                            >
-                              Kick Captain Lamball
-                            </RuneButton>
-                          ) : (
-                            <>
-                              <RuneButton size="sm" variant="ghost" onClick={() => navigate(step.route)}>
-                                Open the right page
-                              </RuneButton>
-                              <RuneButton
-                                size="sm"
-                                icon={<Check />}
-                                disabled={busy}
-                                onClick={() =>
-                                  apply(
-                                    () => universityApi.completeStep(active.id, step.id),
-                                    Boolean(active.graduatedAt)
-                                  )
-                                }
-                              >
-                                I completed this
-                              </RuneButton>
-                            </>
-                          )}
+                          <RuneButton size="sm" variant="ghost" onClick={() => navigate(step.route)}>
+                            Open the right page
+                          </RuneButton>
+                          <RuneButton
+                            size="sm"
+                            icon={<Check />}
+                            disabled={busy}
+                            onClick={() =>
+                              apply(() => universityApi.completeStep(active.id, step.id), Boolean(active.graduatedAt))
+                            }
+                          >
+                            I completed this
+                          </RuneButton>
                         </div>
                       )}
                     </div>
