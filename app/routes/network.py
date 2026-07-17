@@ -5,7 +5,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.services import firewall, instance_store, network_verification, public_ip, upnp
+from app.services import firewall, instance_store, network_verification, privacy, public_ip, upnp
 from app.services.firewall import FirewallError
 from app.services.upnp import UpnpError
 
@@ -72,7 +72,7 @@ async def _forward(*, port: int, protocol: str, description: str) -> dict[str, A
     if not external_ip:
         external_ip = await public_ip.fetch_public_ip()
 
-    return {"port": port, "externalIp": external_ip, "routerName": gateway.friendly_name}
+    return {"port": port, "externalIp": privacy.mask_ip(external_ip), "routerName": gateway.friendly_name}
 
 
 async def _unforward(*, port: int, protocol: str) -> dict[str, Any]:
@@ -123,8 +123,8 @@ async def upnp_status() -> dict[str, Any]:
     return {
         "available": bool(gateway),
         "routerName": gateway.friendly_name if gateway else None,
-        "externalIp": external_ip,
-        "localIp": local_ip,
+        "externalIp": privacy.mask_ip(external_ip),
+        "localIp": privacy.mask_ip(local_ip),
         "port": port,
         "queryPort": query_port,
         "adminPort": ADMIN_PORT,
@@ -151,7 +151,7 @@ async def _mapping_info(gateway: upnp.Gateway, port: int, protocol: str) -> dict
         return None
     this_ip = upnp.local_ip()
     return {
-        "internalClient": mapping["internalClient"],
+        "internalClient": privacy.mask_ip(mapping["internalClient"]),
         "isThisMachine": mapping["internalClient"] == this_ip,
         "description": mapping["description"],
     }

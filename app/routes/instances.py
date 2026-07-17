@@ -13,6 +13,7 @@ from app.services import (
     instance_store,
     local_config,
     native_dialog,
+    privacy,
     process_manager,
     steam_locator,
     ue4ss_installer,
@@ -33,6 +34,7 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
     ue4ss_status = ue4ss_installer.get_status(instance)
     return {
         **instance,
+        "serverPath": privacy.mask_path(server_path),
         "gamePort": effective_game_port,
         "effectiveGamePort": effective_game_port,
         "communityServer": bool(instance.get("communityServer")),
@@ -48,7 +50,7 @@ def _instance_view(instance: dict[str, Any]) -> dict[str, Any]:
         "jsonLogFormat": bool(instance.get("jsonLogFormat")),
         "exists": exists,
         "executableFound": executable_found,
-        "modsPath": mods_path,
+        "modsPath": privacy.mask_path(mods_path),
         "modsPathSource": mods_info["source"],
         "modsPathExists": bool(mods_path and Path(mods_path).is_dir()),
         "ue4ssInstalled": ue4ss_status["installed"],

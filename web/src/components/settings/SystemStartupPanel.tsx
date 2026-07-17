@@ -2,7 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Power, Save } from "lucide-react";
 import { systemSettingsApi } from "@/api";
-import type { SystemStartupSettings } from "@/types/models";
+import type { SystemSettings } from "@/types/models";
 import { ScrollPanel } from "@/components/fantasy/ScrollPanel";
 import { EnchantedToggle } from "@/components/fantasy/EnchantedToggle";
 import { RuneButton } from "@/components/fantasy/RuneButton";
@@ -10,7 +10,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 
 export function SystemStartupPanel() {
   const { t } = useTranslation();
-  const [settings, setSettings] = React.useState<SystemStartupSettings | null>(null);
+  const [settings, setSettings] = React.useState<SystemSettings | null>(null);
   const [dirty, setDirty] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const notifications = useNotifications();
@@ -19,7 +19,7 @@ export function SystemStartupPanel() {
     systemSettingsApi.getSystemSettings().then(setSettings);
   }, []);
 
-  function update(patch: Partial<SystemStartupSettings>) {
+  function update(patch: Partial<SystemSettings>) {
     setSettings((prev) => (prev ? { ...prev, ...patch } : prev));
     setDirty(true);
   }

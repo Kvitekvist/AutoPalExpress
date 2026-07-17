@@ -13,6 +13,7 @@ router = APIRouter()
 class SystemSettingsRequest(BaseModel):
     bootWithWindows: bool
     autoStartActiveServer: bool
+    privacyMode: bool
 
 
 class RunDiagnosticsRequest(BaseModel):
@@ -30,6 +31,7 @@ async def update_system_settings(body: SystemSettingsRequest) -> dict[str, Any]:
         return system_settings.update_config(
             boot_with_windows=body.bootWithWindows,
             auto_start_active_server=body.autoStartActiveServer,
+            privacy_mode=body.privacyMode,
         )
     except RuntimeError as e:
         raise HTTPException(status_code=400, detail=str(e))

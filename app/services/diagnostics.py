@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from app import paths
+from app.services import privacy
 
 _REPORT_PREFIX = "AutoPalExpress-Diagnostics-"
 logger = logging.getLogger("palworld_admin.diagnostics")
@@ -83,7 +84,7 @@ def run(force_admin: bool = False) -> dict[str, Any]:
     # Out-File/Set-Content) writes UTF-16 LE with a BOM by default - not
     # UTF-8, even though the file extension is .txt.
     text = fallback_note + report_path.read_text(encoding="utf-16")
-    return {"reportPath": str(report_path), "report": text}
+    return {"reportPath": privacy.mask_path(str(report_path)), "report": privacy.scrub_text(text)}
 
 
 def _ps_quote(value: str) -> str:

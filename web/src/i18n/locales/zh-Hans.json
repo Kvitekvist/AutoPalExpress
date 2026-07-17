@@ -976,6 +976,20 @@
       "saving": "正在保存...",
       "save": "保存启动恢复设置"
     },
+    "privacy": {
+      "savedTitle": "隐私模式已更新",
+      "savedOnMessage": "IP地址和文件夹路径现已在整个应用中隐藏。",
+      "savedOffMessage": "真实的IP地址和文件夹路径已重新可见。",
+      "failedTitle": "无法更新隐私模式",
+      "unknownError": "未知错误。",
+      "title": "隐私模式",
+      "loading": "正在读取隐私设置...",
+      "description": "在整个应用中隐藏真实的IP地址和文件夹路径——在直播或共享屏幕前开启很安全。交互式文件夹选择对话框（部署/导入）仍会显示真实路径，以便你确认选择了正确的文件夹。",
+      "toggleLabel": "隐藏IP地址和文件夹路径",
+      "toggleDescription": "保存后会立即对整个应用中的所有用户生效，而不仅仅是当前浏览器。",
+      "saving": "正在保存...",
+      "save": "保存隐私设置"
+    },
     "users": {
       "inviteCreatedTitle": "邀请已创建",
       "inviteCreatedMessage": "将该代码分享给你的朋友。",

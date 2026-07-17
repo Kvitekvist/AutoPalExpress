@@ -1,14 +1,14 @@
 import { api } from "./httpClient";
-import type { SystemStartupSettings } from "@/types/models";
+import type { SystemSettings } from "@/types/models";
 
 // GET /api/system-settings
-export async function getSystemSettings(): Promise<SystemStartupSettings> {
-  return api.get<SystemStartupSettings>("/api/system-settings");
+export async function getSystemSettings(): Promise<SystemSettings> {
+  return api.get<SystemSettings>("/api/system-settings");
 }
 
 // POST /api/system-settings
-export async function updateSystemSettings(settings: SystemStartupSettings): Promise<SystemStartupSettings> {
-  return api.post<SystemStartupSettings>("/api/system-settings", settings);
+export async function updateSystemSettings(settings: SystemSettings): Promise<SystemSettings> {
+  return api.post<SystemSettings>("/api/system-settings", settings);
 }
 
 export interface DiagnosticsResult {

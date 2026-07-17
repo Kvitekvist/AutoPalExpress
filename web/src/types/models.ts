@@ -169,9 +169,10 @@ export interface ServerSettings {
   dayNightLengthMinutes: number;
 }
 
-export interface SystemStartupSettings {
+export interface SystemSettings {
   bootWithWindows: boolean;
   autoStartActiveServer: boolean;
+  privacyMode: boolean;
 }
 
 export interface ScheduleConfig {

@@ -976,6 +976,20 @@
       "saving": "Enregistrement...",
       "save": "Enregistrer la récupération au démarrage"
     },
+    "privacy": {
+      "savedTitle": "Mode confidentialité mis à jour",
+      "savedOnMessage": "Les IP et chemins de dossiers sont désormais masqués dans toute l'application.",
+      "savedOffMessage": "Les IP et chemins de dossiers réels sont de nouveau visibles.",
+      "failedTitle": "Impossible de mettre à jour le Mode confidentialité",
+      "unknownError": "Erreur inconnue.",
+      "title": "Mode confidentialité",
+      "loading": "Lecture des paramètres de confidentialité...",
+      "description": "Masque les adresses IP et chemins de dossiers réels dans toute l'application - sûr à activer avant de streamer ou partager votre écran. Les boîtes de dialogue de sélection de dossier interactives (déployer/importer) affichent toujours les chemins réels afin que vous puissiez confirmer avoir choisi le bon dossier.",
+      "toggleLabel": "Masquer les IP et chemins de dossiers",
+      "toggleDescription": "S'applique immédiatement partout dans l'application pour chaque utilisateur dès l'enregistrement, pas seulement dans ce navigateur.",
+      "saving": "Enregistrement...",
+      "save": "Enregistrer les paramètres de confidentialité"
+    },
     "users": {
       "inviteCreatedTitle": "Invitation créée",
       "inviteCreatedMessage": "Partagez le code avec votre ami.",

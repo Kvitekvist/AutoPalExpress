@@ -9,6 +9,7 @@ import { PortForwardPanel } from "@/components/settings/PortForwardPanel";
 import { NexusIntegrationPanel } from "@/components/settings/NexusIntegrationPanel";
 import { LocalApiSettingsPanel } from "@/components/settings/LocalApiSettingsPanel";
 import { DiagnosticsPanel } from "@/components/settings/DiagnosticsPanel";
+import { PrivacyModePanel } from "@/components/settings/PrivacyModePanel";
 
 export default function SuperAdmin() {
   const { t } = useTranslation();
@@ -36,6 +37,7 @@ export default function SuperAdmin() {
       )}
 
       <LocalApiSettingsPanel />
+      <PrivacyModePanel />
       <PortForwardPanel />
       <RemoteAccessPanel />
       <DiagnosticsPanel />

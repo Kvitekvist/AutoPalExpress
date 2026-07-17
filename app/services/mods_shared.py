@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from app.services import local_config, mod_installer, mods_store, ue4ss_installer
+from app.services import local_config, mod_installer, mods_store, privacy, ue4ss_installer
 
 logger = logging.getLogger("palworld_admin.mods")
 
@@ -24,7 +24,11 @@ def base_path_for_kind(instance: dict[str, Any], kind: str) -> str | None:
 def mods_path_view(instance: dict[str, Any]) -> dict[str, Any]:
     info = local_config.get_mods_path_info(instance)
     path = info["path"]
-    return {"modsPath": path, "source": info["source"], "exists": bool(path and Path(path).is_dir())}
+    return {
+        "modsPath": privacy.mask_path(path),
+        "source": info["source"],
+        "exists": bool(path and Path(path).is_dir()),
+    }
 
 
 def register_untracked_disk_mods(instance: dict[str, Any], mods: list[dict[str, Any]]) -> list[dict[str, Any]]:

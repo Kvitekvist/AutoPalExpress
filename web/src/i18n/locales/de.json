@@ -976,6 +976,20 @@
       "saving": "Wird gespeichert...",
       "save": "Startwiederherstellung speichern"
     },
+    "privacy": {
+      "savedTitle": "Privatsphäre-Modus aktualisiert",
+      "savedOnMessage": "IPs und Ordnerpfade sind jetzt in der gesamten App ausgeblendet.",
+      "savedOffMessage": "Echte IPs und Ordnerpfade sind wieder sichtbar.",
+      "failedTitle": "Privatsphäre-Modus konnte nicht aktualisiert werden",
+      "unknownError": "Unbekannter Fehler.",
+      "title": "Privatsphäre-Modus",
+      "loading": "Datenschutzeinstellungen werden gelesen...",
+      "description": "Blendet echte IP-Adressen und Ordnerpfade in der gesamten App aus - sicher zu aktivieren vor einem Stream oder Bildschirm-Teilen. Interaktive Ordnerauswahl-Dialoge (Bereitstellen/Importieren) zeigen weiterhin echte Pfade, damit du den richtigen Ordner bestätigen kannst.",
+      "toggleLabel": "IPs und Ordnerpfade ausblenden",
+      "toggleDescription": "Gilt sofort überall in der App für jeden Benutzer, sobald gespeichert - nicht nur in diesem Browser.",
+      "saving": "Wird gespeichert...",
+      "save": "Datenschutzeinstellungen speichern"
+    },
     "users": {
       "inviteCreatedTitle": "Einladung erstellt",
       "inviteCreatedMessage": "Teile den Code mit deinem Freund.",

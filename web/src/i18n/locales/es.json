@@ -976,6 +976,20 @@
       "saving": "Guardando...",
       "save": "Guardar recuperación de inicio"
     },
+    "privacy": {
+      "savedTitle": "Modo privacidad actualizado",
+      "savedOnMessage": "Las IPs y rutas de carpetas ahora están ocultas en toda la aplicación.",
+      "savedOffMessage": "Las IPs y rutas de carpetas reales vuelven a ser visibles.",
+      "failedTitle": "No se pudo actualizar el Modo privacidad",
+      "unknownError": "Error desconocido.",
+      "title": "Modo privacidad",
+      "loading": "Leyendo la configuración de privacidad...",
+      "description": "Oculta las direcciones IP y rutas de carpetas reales en toda la aplicación - seguro de activar antes de transmitir o compartir pantalla. Los diálogos de selección de carpetas interactivos (implementar/importar) siguen mostrando rutas reales para que puedas confirmar que elegiste la correcta.",
+      "toggleLabel": "Ocultar IPs y rutas de carpetas",
+      "toggleDescription": "Se aplica de inmediato en toda la app para todos los usuarios en cuanto se guarda, no solo en este navegador.",
+      "saving": "Guardando...",
+      "save": "Guardar configuración de privacidad"
+    },
     "users": {
       "inviteCreatedTitle": "Invitación creada",
       "inviteCreatedMessage": "Comparte el código con tu amigo.",
