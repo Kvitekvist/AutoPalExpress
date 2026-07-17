@@ -93,7 +93,9 @@ If you just want to host a Palworld server for friends, AutoPalExpress handles t
 7. Invite trusted friends if you want help running the server.
 
 > [!TIP]
-> New to the app? Follow the screenshot walkthrough in [Getting Started With AutoPalExpress](GETTING_STARTED.md), or watch the [video install walkthrough](https://youtu.be/_cYbNty1OaY).
+> New to the app? Follow the screenshot walkthrough in [Getting Started With AutoPalExpress](GETTING_STARTED.md), or watch the video install walkthrough below.
+
+[![How to Setup & Install AutoPalExpress](images/APE-Thumbnail.png)](https://youtu.be/_cYbNty1OaY)
 
 > [!NOTE]
 > The Palworld Dedicated Server downloads anonymously through SteamCMD. A Steam account is not required just to deploy the server.
