@@ -13,6 +13,9 @@ You do not need to understand SteamCMD, config files, or Windows Firewall to sta
 > [!TIP]
 > This guide covers first-time setup only. For a page-by-page walkthrough of everything else in the app, see the [AutoPalExpress Wiki](https://github.com/Kvitekvist/AutoPalExpress/wiki).
 
+> [!TIP]
+> Prefer video? Watch the [How to Install AutoPalExpress](https://youtu.be/_cYbNty1OaY) walkthrough.
+
 ## What You Need
 
 - A Windows 10 or Windows 11 PC.
