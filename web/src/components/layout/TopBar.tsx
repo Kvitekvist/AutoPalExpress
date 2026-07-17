@@ -1,12 +1,12 @@
 import * as React from "react";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Users, Server as ServerIcon, ChevronDown, Plus, UserCircle2, LogOut } from "lucide-react";
+import { Users, Server as ServerIcon, ChevronDown, Plus, UserCircle2, LogOut, ArrowUpCircle } from "lucide-react";
 import { CrystalStatus } from "@/components/fantasy/CrystalStatus";
 import { useServerStatus } from "@/hooks/useServerStatus";
 import { useAuth } from "@/hooks/useAuth";
-import { instancesApi } from "@/api";
-import type { InstanceListView } from "@/types/models";
+import { instancesApi, appUpdateApi } from "@/api";
+import type { InstanceListView, AppUpdateStatus } from "@/types/models";
 import { DeployServerWizard } from "@/components/settings/DeployServerWizard";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import {
@@ -28,6 +28,41 @@ const PAGE_KEYS: Record<string, string> = {
   "/super-admin": "superAdmin",
   "/mod-wishlist": "modWishlist",
 };
+
+function UpdateAvailableBadge() {
+  const { t } = useTranslation();
+  const [status, setStatus] = React.useState<AppUpdateStatus | null>(null);
+
+  React.useEffect(() => {
+    appUpdateApi
+      .getStatus()
+      .then(setStatus)
+      .catch(() => {});
+  }, []);
+
+  if (!status?.updateAvailable || !status.releaseUrl) return null;
+
+  return (
+    <a
+      href={status.releaseUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center gap-1.5 rounded-md border border-gold-700/35 bg-gold-950/20 px-3 py-1.5 text-gold-300/80 transition-colors hover:border-gold-500/50 hover:text-gold-200"
+      title={t("nav.updateAvailableTitle", {
+        defaultValue: "AutoPalExpress {{version}} is available on GitHub",
+        version: status.latestVersion,
+      })}
+    >
+      <span className="relative">
+        <ArrowUpCircle className="h-3.5 w-3.5" />
+        <span className="absolute -right-1 -top-1 h-1.5 w-1.5 rounded-full bg-gold-400 shadow-[0_0_5px_rgba(223,177,90,0.8)]" />
+      </span>
+      <span className="hidden text-xs font-medium tracking-wide sm:inline">
+        {t("nav.updateAvailable", { defaultValue: "Update available" })}
+      </span>
+    </a>
+  );
+}
 
 function InstanceSwitcher() {
   const { t } = useTranslation();
@@ -147,6 +182,7 @@ export function TopBar() {
       </div>
 
       <div className="flex shrink-0 items-center gap-3 sm:gap-5">
+        <UpdateAvailableBadge />
         <InstanceSwitcher />
         {status && (
           <>

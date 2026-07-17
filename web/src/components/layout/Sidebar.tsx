@@ -13,7 +13,6 @@ import {
   Crown,
   Rocket,
   Heart,
-  ArrowUpCircle,
   GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -152,26 +151,6 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-stone-700/80 p-2 lg:p-4">
-        {updateStatus?.updateAvailable && updateStatus.releaseUrl && (
-          <a
-            href={updateStatus.releaseUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mb-2 flex w-full items-center justify-center gap-2 rounded-md border border-gold-700/35 bg-gold-950/20 px-2 py-2 text-gold-300/70 transition-colors hover:border-gold-500/50 hover:text-gold-200 lg:justify-start lg:px-3"
-            title={t("nav.updateAvailableTitle", {
-              defaultValue: "AutoPalExpress {{version}} is available on GitHub",
-              version: updateStatus.latestVersion,
-            })}
-          >
-            <span className="relative">
-              <ArrowUpCircle className="h-3.5 w-3.5" />
-              <span className="absolute -right-1 -top-1 h-1.5 w-1.5 rounded-full bg-gold-400 shadow-[0_0_5px_rgba(223,177,90,0.8)]" />
-            </span>
-            <span className="hidden text-[11px] font-medium tracking-wide lg:inline">
-              {t("nav.updateAvailable", { defaultValue: "Update available" })}
-            </span>
-          </a>
-        )}
         <form action="https://www.paypal.com/donate" method="post" target="_blank">
           <input type="hidden" name="business" value="U6FYTKUFFE82W" />
           <input type="hidden" name="no_recurring" value="0" />
