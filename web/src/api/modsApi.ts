@@ -107,8 +107,8 @@ export async function prepareInstallFromFile(file: File): Promise<VerifiedFileIn
 }
 
 // POST /api/mods/install-from-file/confirm
-export async function confirmInstallFromFile(token: string): Promise<Mod[]> {
-  return api.post<Mod[]>("/api/mods/install-from-file/confirm", { token });
+export async function confirmInstallFromFile(token: string, modName?: string): Promise<Mod[]> {
+  return api.post<Mod[]>("/api/mods/install-from-file/confirm", { token, modName });
 }
 
 // DELETE /api/mods/install-from-file/{token}

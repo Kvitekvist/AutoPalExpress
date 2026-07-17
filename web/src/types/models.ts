@@ -137,7 +137,7 @@ export interface Mod {
 
 export interface VerifiedFileInstall {
   token: string;
-  verified: true;
+  verified: boolean;
   modName: string;
   author: string;
   version: string;

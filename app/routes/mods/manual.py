@@ -12,27 +12,27 @@ router = APIRouter()
 
 @router.post("/install-from-file/prepare", dependencies=[Depends(require_super_admin)])
 async def prepare_install_from_file(file: UploadFile = File(...)) -> dict[str, Any]:
-    """Step 1 of installing an already-downloaded mod file: saves the upload,
-    computes its MD5, and checks that hash against Nexus's own fileHash
-    lookup. This is a real cryptographic check, not a claim - an empty
-    result means these exact bytes have never been published as a Palworld
-    mod on Nexus, and the upload is rejected outright. Super-admin-only:
-    a matched hash proves the file is a byte-identical copy of something
-    Nexus really hosts, which is the whole point, but the *decision* to
-    place external files into the live Mods folder still shouldn't be
-    something any invited admin can do unilaterally."""
+    """Step 1 of installing a mod file: saves the upload, computes its MD5,
+    and checks that hash against Nexus's own fileHash lookup. A match fills
+    in real name/author/version metadata for display; no match doesn't block
+    the install, it's just shown as unverified - the file itself is still
+    validated as a real, safely-extractable archive either way.
+    Super-admin-only: the *decision* to place an external file into the live
+    Mods folder shouldn't be something any invited admin can do
+    unilaterally, matched or not."""
     require_active_instance()
     return await manual_mod_service.prepare_upload(file)
 
 
 class ConfirmFileInstallRequest(BaseModel):
     token: str
+    modName: str | None = None
 
 
 @router.post("/install-from-file/confirm", dependencies=[Depends(require_super_admin)])
 async def confirm_install_from_file(body: ConfirmFileInstallRequest) -> list[dict[str, Any]]:
     instance = require_active_instance()
-    return await manual_mod_service.confirm_upload(instance, body.token)
+    return await manual_mod_service.confirm_upload(instance, body.token, body.modName)
 
 
 @router.delete("/install-from-file/{token}", dependencies=[Depends(require_super_admin)])
