@@ -4,6 +4,7 @@
 
 - **Fixed: Server Control actions failed silently (TICKET-0164):** Save World, Start, Stop, Restart, Check for Updates, and Broadcast Message had no error handling at all - if the underlying request failed (most commonly the Palworld REST API not being enabled/configured yet), the button just stopped spinning with zero feedback, which is what produced reports like "Last saved: Never" even after repeatedly pressing Save World. All six actions now show a proper error notification on failure, matching the pattern the Update action already used.
 - **Install From File no longer requires a Nexus catalog match (TICKET-0164):** a super admin can now install any archive they upload, not only files that hash-match something Nexus hosts - a match still auto-fills the mod's real name/author/version, but a miss (a different distribution source, an older/newer file revision, or Nexus's lookup being unreachable) now installs the file anyway, clearly marked unverified with an editable name field, instead of being rejected outright.
+- **Fixed: CI's backend tests failed on every real run (TICKET-0165):** `pytest -v` as CI invokes it (the bare console-script entry point) never added the repo root to `sys.path`, so `tests/conftest.py`'s `from app.services import ...` failed with `ModuleNotFoundError: No module named 'app'` - latent since CI was added, only surfaced on its first real trigger. Fixed with `pythonpath = .` in `pytest.ini`.
 
 ## 1.0.8 - 2026-07-17
 
